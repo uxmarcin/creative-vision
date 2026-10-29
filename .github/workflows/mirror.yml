@@ -1,0 +1,73 @@
+name: Pobranie strony z Framera (jednorazowo)
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/mirror.yml"]
+jobs:
+  mirror:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: HTML + JS + grafiki + fonty
+        run: |
+          mkdir -p mirror/js mirror/img mirror/fonts && cd mirror
+          curl -sSL https://creative-vision.pl/sitemap.xml -o sitemap.xml; curl -sSL https://creative-vision.pl/robots.txt -o robots.txt
+          grep -o '<loc>[^<]*' sitemap.xml | sed 's/<loc>//' | sort -u > urls.txt
+          while read -r u; do n=$(echo "$u" | sed 's#^https://creative-vision.pl##; s#^/##; s#/#__#g'); [ -z "$n" ] && n=index; curl -sSL -A "Mozilla/5.0 Chrome/130" "$u" -o "page-$n.html"; done < urls.txt
+          python3 - <<'PY'
+          import re,urllib.request,os,glob
+          get=lambda u: urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':'Mozilla/5.0'}),timeout=60).read()
+          seen=set(); q=[]
+          for f in glob.glob('page-*.html'): q+=re.findall(r'https://framerusercontent\.com/sites/[^"\'\s]+\.mjs',open(f,errors='ignore').read())
+          while q:
+            u=q.pop()
+            if u in seen: continue
+            seen.add(u)
+            try: s=get(u).decode('utf-8','ignore')
+            except Exception as e: print('ERR',u,e); continue
+            open('js/'+os.path.basename(u),'w').write(s); base=u.rsplit('/',1)[0]
+            q+= [base+'/'+m[2:] for m in re.findall(r'["\'](\./[A-Za-z0-9._-]+\.mjs)["\']',s)]
+          txt=' '.join(open(f,errors='ignore').read() for f in glob.glob('page-*.html')+glob.glob('js/*'))
+          imgs=sorted(set(re.findall(r'https://framerusercontent\.com/(?:images|assets)/[A-Za-z0-9._-]+',txt)))
+          fonts=sorted(set(re.findall(r'https://fonts\.gstatic\.com/[^"\'\s)]+\.woff2',txt)))
+          for u in imgs:
+            try: open('img/'+u.split('/')[-1],'wb').write(get(u))
+            except Exception as e: print('ERR',u,e)
+          for u in fonts:
+            p='fonts/'+u.split('fonts.gstatic.com/')[1].replace('/','_')
+            try: open(p,'wb').write(get(u))
+            except Exception as e: print('ERR',u,e)
+          print('js',len(seen),'img',len(imgs),'fonts',len(fonts))
+          PY
+          du -sh js img fonts
+      - name: Render (DOM + zrzuty) i pomiary
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y >/dev/null && npm i playwright@1.48.2 >/dev/null && npx playwright install --with-deps chromium >/dev/null
+          cat > r.js <<'JS'
+          const { chromium } = require('playwright'); const fs=require('fs'); const out=process.argv[2];
+          const paths=fs.readFileSync(process.argv[3],'utf8').trim().split('\n').map(u=>u.replace('https://creative-vision.pl','')||'/').concat(['/404-test']);
+          (async()=>{ const b=await chromium.launch();
+            for (const [tag,w] of [['d',1440],['m',390]]) { const ctx=await b.newContext({viewport:{width:w,height:900},locale:'pl-PL'});
+              for (const p of paths) { const pg=await ctx.newPage(); const n=(p.replace(/^\//,'').replace(/\//g,'__')||'index');
+                try { await pg.goto('https://creative-vision.pl'+p,{waitUntil:'networkidle',timeout:60000}); await pg.waitForTimeout(1500);
+                  await pg.evaluate(async()=>{ for(let y=0;y<document.body.scrollHeight;y+=400){scrollTo(0,y);await new Promise(r=>setTimeout(r,120));} scrollTo(0,0); await new Promise(r=>setTimeout(r,1500)); });
+                  fs.writeFileSync(`${out}/${n}.${tag}.dom.html`, await pg.content());
+                  await pg.screenshot({path:`${out}/${n}-${tag}.jpg`, fullPage:true, type:'jpeg', quality:65});
+                } catch(e){ console.log(tag,p,'ERR',e.message); } await pg.close(); }
+              await ctx.close(); }
+            await b.close(); })();
+          JS
+          mkdir -p $GITHUB_WORKSPACE/mirror/render && node r.js $GITHUB_WORKSPACE/mirror/render $GITHUB_WORKSPACE/mirror/urls.txt
+          cp $GITHUB_WORKSPACE/tools/probe.cjs . && node -e "
+            const fs=require('fs'); let s=fs.readFileSync('probe.cjs','utf8');
+            const paths=fs.readFileSync('$GITHUB_WORKSPACE/mirror/urls.txt','utf8').trim().split('\n').map(u=>u.replace('https://creative-vision.pl','')||'/');
+            s=s.replace(/const paths = \[[^\]]*\];/, 'const paths = '+JSON.stringify(paths)+';'); fs.writeFileSync('probe.cjs',s);"
+          node probe.cjs $GITHUB_WORKSPACE/mirror/probe-live.json https://creative-vision.pl
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add mirror && git commit -qm "Kopia strony z Framera (materiał do przeniesienia)" && git push
