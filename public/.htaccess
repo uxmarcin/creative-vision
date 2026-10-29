@@ -22,8 +22,14 @@ ErrorDocument 404 /404.html
   RewriteCond %{THE_REQUEST} \s/([^\s?]+)\.html[\s?] [NC]
   RewriteRule ^ /%1 [L,R=301]
 
-  # /strona/ → /strona
+  # /strona/ → /strona (tylko gdy taka strona istnieje)
+  RewriteCond %{DOCUMENT_ROOT}/$1.html -f
   RewriteRule ^(.+)/$ /$1 [L,R=301]
+
+  # Katalog bez własnej strony (np. /uslugi) → 404, bez pętli przekierowań
+  RewriteCond %{DOCUMENT_ROOT}/$1.html !-f
+  RewriteCond %{DOCUMENT_ROOT}/$1 -d
+  RewriteRule ^([a-z0-9/-]+?)/?$ - [R=404,L]
 
   # Czyste adresy: /realizacje i /realizacje/simrun → plik .html
   RewriteCond %{DOCUMENT_ROOT}/$1.html -f

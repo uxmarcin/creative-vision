@@ -32,20 +32,11 @@ jobs:
           chk https://creative-vision.pl/realizacje/simrun.html creative-vision.pl 443
           chk https://creative-vision.pl/wiedza/ux-karty-produktu creative-vision.pl 443
           chk https://creative-vision.pl/uslugi creative-vision.pl 443
+          chk https://creative-vision.pl/uslugi/ creative-vision.pl 443
+          chk https://creative-vision.pl/wiedza/ creative-vision.pl 443
           chk https://creative-vision.pl/nie-ma-takiej creative-vision.pl 443
           chk https://creative-vision.pl/sitemap.xml creative-vision.pl 443
           chk https://creative-vision.pl/fonts/fonts.css creative-vision.pl 443
           J=$(curl -sk --resolve creative-vision.pl:443:$IP https://creative-vision.pl/ | grep -o '/js/cv-[^"]*' | head -1)
           { curl -skI --resolve creative-vision.pl:443:$IP -H 'Accept-Encoding: gzip, br' https://creative-vision.pl/; curl -skI --resolve creative-vision.pl:443:$IP -H 'Accept-Encoding: gzip, br' "https://creative-vision.pl$J"; } > out/headers.txt
           { echo '## Serwer'; echo '```'; cat out/curl.txt; echo; grep -iE '^(HTTP|cache-control|content-encoding|content-type)' out/headers.txt; echo '```'; } >> $GITHUB_STEP_SUMMARY
-      - name: Pomiary (serwer vs Framer)
-        run: |
-          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y >/dev/null && npm i playwright@1.48.2 >/dev/null && npx playwright install --with-deps chromium >/dev/null
-          cp $GITHUB_WORKSPACE/tools/probe.cjs $GITHUB_WORKSPACE/tools/shots.cjs .
-          sed -i "s#const b = await chromium.launch();#const b = await chromium.launch(process.env.RULES ? { args: ['--host-resolver-rules=' + process.env.RULES, '--ignore-certificate-errors'] } : {});#" probe.cjs shots.cjs
-          O=$GITHUB_WORKSPACE/out; R="MAP creative-vision.pl $IP, MAP www.creative-vision.pl $IP"
-          export PATHS="/,/realizacje/sztuka-wykonczen,/realizacje/simrun,/realizacje/4clubbers,/realizacje/uxaudyt,/realizacje/bud-mad,/uslugi/sklep-prestashop,/uslugi/strony-firmowe,/uslugi/audyt-ux,/uslugi/aplikacje-mobilne,/realizacje,/o-nas,/wiedza,/kontakt,/wiedza/strona-firmowa-ktora-zbiera-zapytania,/wiedza/ile-kosztuje-strona-internetowa,/wiedza/ux-karty-produktu,/wiedza/ui-a-ux-roznice,/wiedza/ai-w-sklepie-internetowym,/wiedza/sklep-a-zakupy-przez-asystentow-ai"
-          node probe.cjs $O/probe-framer.json https://creative-vision.pl
-          RULES="$R" node probe.cjs $O/probe-server.json https://creative-vision.pl
-          mkdir -p $O/shots && RULES="$R" node shots.cjs $O/shots https://creative-vision.pl "$PATHS" > $O/console.txt 2>&1 || true
-          { echo '## Konsola przeglądarki (serwer)'; echo '```'; cat $O/console.txt; echo '```'; echo '## Różnice układu: Framer → serwer'; echo '```'; python3 $GITHUB_WORKSPACE/tools/probe-diff.py $O/probe-framer.json $O/probe-server.json | head -200; echo '```'; } >> $GITHUB_STEP_SUMMARY
