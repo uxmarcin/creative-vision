@@ -1,0 +1,30 @@
+name: Wdrożenie na cyber_Folks (FTPS)
+
+# Każdy push na main wysyła katalog public/ do public_html/ domeny creative-vision.pl
+# (konto FTP domeny; private_html to skrót do public_html)
+# Sekrety repo: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: [".github/workflows/diag.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wyślij do public_html
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./public/
+          server-dir: ./public_html/
