@@ -1,42 +1,24 @@
-name: Sprawdzenie strony na serwerze
-# Porównuje stronę na serwerze cyber_Folks z wersją na Framerze (domena kierowana na IP serwera
-# tylko w przeglądarce testowej). Uruchamiane przy zmianie tego pliku.
+name: Sprawdzenie DNS i strony
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths: [".github/workflows/diag.yml"]
 jobs:
-  check:
+  dns:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - name: Czekam na wdrożenie
-        run: sleep 90
-      - name: Adresy i nagłówki
-        env: { S: "${{ secrets.FTP_SERVER }}" }
+      - name: DNS i odpowiedź serwera
         run: |
-          IP=$(getent ahostsv4 "$S" | awk 'NR==1{print $1}'); echo "IP=$IP" >> $GITHUB_ENV
-          mkdir -p out; chk(){ curl -sk -o /dev/null -w "$1 -> %{http_code} %{redirect_url} %{size_download}B\n" --resolve "$2:$3:$IP" "$1" >> out/curl.txt; }
-          echo "IP serwera: $IP" > out/curl.txt
-          chk http://creative-vision.pl/ creative-vision.pl 80
-          chk https://www.creative-vision.pl/kontakt www.creative-vision.pl 443
-          chk https://creative-vision.pl/ creative-vision.pl 443
-          chk https://creative-vision.pl/index.html creative-vision.pl 443
-          chk https://creative-vision.pl/realizacje creative-vision.pl 443
-          chk https://creative-vision.pl/realizacje/ creative-vision.pl 443
-          chk https://creative-vision.pl/realizacje/simrun creative-vision.pl 443
-          chk https://creative-vision.pl/realizacje/simrun.html creative-vision.pl 443
-          chk https://creative-vision.pl/wiedza/ux-karty-produktu creative-vision.pl 443
-          chk https://creative-vision.pl/uslugi creative-vision.pl 443
-          chk https://creative-vision.pl/uslugi/ creative-vision.pl 443
-          chk https://creative-vision.pl/wiedza/ creative-vision.pl 443
-          chk https://creative-vision.pl/nie-ma-takiej creative-vision.pl 443
-          chk https://creative-vision.pl/sitemap.xml creative-vision.pl 443
-          chk https://creative-vision.pl/fonts/fonts.css creative-vision.pl 443
-          J=$(curl -sk --resolve creative-vision.pl:443:$IP https://creative-vision.pl/ | grep -o '/js/cv-[^"]*' | head -1)
-          { curl -skI --resolve creative-vision.pl:443:$IP -H 'Accept-Encoding: gzip, br' https://creative-vision.pl/; curl -skI --resolve creative-vision.pl:443:$IP -H 'Accept-Encoding: gzip, br' "https://creative-vision.pl$J"; } > out/headers.txt
-          { echo '## Serwer'; echo '```'; cat out/curl.txt; echo; grep -iE '^(HTTP|cache-control|content-encoding|content-type)' out/headers.txt; echo '```'; } >> $GITHUB_STEP_SUMMARY
+          {
+          echo '## DNS'; echo '```'
+          for d in uxaudyt.pl www.uxaudyt.pl creative-vision.pl www.creative-vision.pl; do
+            for r in ns1.cyberfolks.pl 1.1.1.1 8.8.8.8; do echo "$d @$r: $(dig +short $d A @$r | tr '\n' ' ') (TTL $(dig +noall +answer $d A @$r | awk 'NR==1{print $2}'))"; done
+          done
+          echo '```'; echo '## Co odpowiada pod prawdziwym adresem'; echo '```'
+          for u in http://uxaudyt.pl/ https://www.uxaudyt.pl/ http://creative-vision.pl/ https://creative-vision.pl/; do
+            echo "$u -> $(curl -sk -o /tmp/b -w '%{http_code} %{remote_ip} %{redirect_url}' $u) | $(grep -o '<meta name="generator"[^>]*' /tmp/b | head -1)"
+          done
+          echo '```'
+          } >> $GITHUB_STEP_SUMMARY
