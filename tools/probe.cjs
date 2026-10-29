@@ -2,9 +2,9 @@
 // node tools/probe.cjs <out.json> <base>
 const { chromium } = require('playwright'); const fs = require('fs');
 const out = process.argv[2], base = process.argv[3];
-const paths = ['/', '/przykladowy-raport', '/regulamin', '/audyt-sklepu-internetowego', '/wdrozenie-poprawek', '/audyt-ux', '/darmowy-audyt-sklepu', '/audyt-ux-shopify', '/zamowienie'];
+const paths = (process.env.PATHS || '/,/realizacje/sztuka-wykonczen,/realizacje/bud-mad,/uslugi/sklep-prestashop,/realizacje,/o-nas,/wiedza,/kontakt,/wiedza/ux-karty-produktu').split(',');
 const probe = () => {
-  const roots = [...document.querySelectorAll('.v7root, footer, .uxr, .uxl, .uxc')].filter(r => !r.parentElement.closest('.v7root, footer, .uxr, .uxl, .uxc'));
+  const roots = [...document.querySelectorAll('.sw, .cvck, .cv-ck')].filter(r => !r.parentElement.closest('.sw, .cvck, .cv-ck'));
   const res = {};
   roots.forEach((root, ri) => {
     const rr = root.getBoundingClientRect(); const list = [];
@@ -22,7 +22,7 @@ const probe = () => {
 (async () => { const b = await chromium.launch(); const data = {};
   for (const [tag, w] of [['d', 1440], ['m', 390]]) {
     const ctx = await b.newContext({ viewport: { width: w, height: 900 }, locale: 'pl-PL', reducedMotion: 'reduce' });
-    await ctx.addInitScript(() => { try { localStorage.setItem('uxaudyt-consent', JSON.stringify({ a: false, m: false, t: Date.now() })); } catch (e) {} });
+    await ctx.addInitScript(() => { try {  } catch (e) {} });
     for (const p of paths) {
       const pg = await ctx.newPage();
       await pg.goto(base + p, { waitUntil: 'networkidle', timeout: 60000 }); await pg.waitForTimeout(2500);

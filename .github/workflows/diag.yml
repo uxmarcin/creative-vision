@@ -1,0 +1,15 @@
+name: Diagnostyka serwera
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/diag.yml"]
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Katalogi na serwerze
+        env: { S: "${{ secrets.FTP_SERVER }}", U: "${{ secrets.FTP_USERNAME }}", P: "${{ secrets.FTP_PASSWORD }}" }
+        run: |
+          sudo apt-get install -y lftp >/dev/null 2>&1
+          { echo '```'; lftp -c "set ftp:ssl-force true; set ssl:verify-certificate no; open -u \"$U\",\"$P\" $S; echo '[/]'; cls -1; echo '[domains]'; cls -1 domains/; echo '[domains/creative-vision.pl]'; ls -la domains/creative-vision.pl/; echo '[public_html]'; ls -la domains/creative-vision.pl/public_html/; echo '[private_html]'; ls -la domains/creative-vision.pl/private_html/" 2>&1 | sed "s/$U/<login>/g"; echo '```'; } >> $GITHUB_STEP_SUMMARY

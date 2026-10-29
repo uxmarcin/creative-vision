@@ -1,0 +1,24 @@
+// Lista stron (adres → parametry komponentu), 1:1 z Framera
+const p = (path, view, item = '') => ({ path, props: { view, item, base: '', quoteUrl: '' } });
+export const pages = [
+  p('/', 'home'),
+  p('/realizacje/sztuka-wykonczen', 'realizacja', 'sztuka-wykonczen'),
+  p('/realizacje/simrun', 'realizacja', 'simrun'),
+  p('/realizacje/4clubbers', 'realizacja', '4clubbers'),
+  p('/realizacje/uxaudyt', 'realizacja', 'uxaudyt'),
+  p('/uslugi/sklep-prestashop', 'usluga', 'sklep-prestashop'),
+  p('/uslugi/strony-firmowe', 'usluga', 'strony-firmowe'),
+  p('/uslugi/audyt-ux', 'usluga', 'audyt-ux'),
+  p('/uslugi/aplikacje-mobilne', 'usluga', 'aplikacje-mobilne'),
+  p('/realizacje', 'realizacje'),
+  p('/o-nas', 'o-nas'),
+  p('/wiedza', 'wiedza'),
+  p('/kontakt', 'kontakt'),
+  p('/wiedza/strona-firmowa-ktora-zbiera-zapytania', 'artykul', 'strona-firmowa-ktora-zbiera-zapytania'),
+  p('/wiedza/ile-kosztuje-strona-internetowa', 'artykul', 'ile-kosztuje-strona-internetowa'),
+  p('/wiedza/ux-karty-produktu', 'artykul', 'ux-karty-produktu'),
+  p('/wiedza/ui-a-ux-roznice', 'artykul', 'ui-a-ux-roznice'),
+  p('/wiedza/ai-w-sklepie-internetowym', 'artykul', 'ai-w-sklepie-internetowym'),
+  p('/wiedza/sklep-a-zakupy-przez-asystentow-ai', 'artykul', 'sklep-a-zakupy-przez-asystentow-ai'),
+  p('/realizacje/bud-mad', 'realizacja', 'bud-mad'),
+];

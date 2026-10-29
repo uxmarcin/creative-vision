@@ -1,0 +1,78 @@
+{
+ "kontakt": {
+  "title": "Kontakt i bezpłatna wycena | Creative Vision Rzeszów",
+  "description": "Napisz, czego potrzebujesz: strona firmowa, sklep PrestaShop, aplikacja mobilna lub audyt UX. Bezpłatna wycena w 2 dni robocze."
+ },
+ "o-nas": {
+  "title": "O nas: studio projektowe od UX | Creative Vision Rzeszów",
+  "description": "Projektujemy i wdrażamy strony firmowe, sklepy PrestaShop i aplikacje mobilne. Zaczynamy od tego, jak klient kupuje, a po starcie zostajemy przy rozwoju."
+ },
+ "realizacje": {
+  "title": "Realizacje: strony, sklepy i aplikacje | Creative Vision",
+  "description": "Każdy projekt zaczynamy od tego, jak klient kupuje lub wysyła zapytanie. Zobacz, co zrobiliśmy i dla kogo."
+ },
+ "realizacje__4clubbers": {
+  "title": "4clubbers: aplikacja mobilna MVP | Realizacje Creative Vision",
+  "description": "Aplikacja społecznościowa dla miłośników muzyki klubowej: wydarzenia, relacje i profile."
+ },
+ "realizacje__bud-mad": {
+  "title": "Bud-Mad: strona firmy budowlanej | Realizacje Creative Vision",
+  "description": "Strona firmy remontowo-budowlanej: ocieplanie elewacji, wykończenia pod klucz i remonty."
+ },
+ "realizacje__simrun": {
+  "title": "Simrun: strona firmowa B2B | Realizacje Creative Vision",
+  "description": "Strona firmy wykonującej pomiary i analizy ruchu drogowego dla samorządów, projektantów i inwestorów."
+ },
+ "realizacje__sztuka-wykonczen": {
+  "title": "Sztuka Wykończeń: strona firmowa | Realizacje Creative Vision",
+  "description": "Strona firmy wykończeniowej, która pokazuje jakość realizacji i prowadzi do zapytania o wycenę."
+ },
+ "realizacje__uxaudyt": {
+  "title": "uxaudyt.pl: usługa online z płatnościami | Realizacje Creative Vision",
+  "description": "Nasza własna usługa audytów UX sklepów internetowych, z zamówieniem i płatnością online."
+ },
+ "uslugi__aplikacje-mobilne": {
+  "title": "Aplikacje mobilne iOS i Android od MVP | Creative Vision",
+  "description": "Zaczynamy od warsztatu i prototypu, który sprawdzisz na telefonie, zanim powstanie kod. Potem projektujemy i budujemy MVP na iOS i Android."
+ },
+ "uslugi__audyt-ux": {
+  "title": "Audyt UX sklepu internetowego | Creative Vision Rzeszów",
+  "description": "Przechodzimy przez sklep jak klient, od wejścia po zamówienie, i zapisujemy każdą blokadę. Otrzymasz raport z priorytetami i możesz wdrożyć poprawki z nami."
+ },
+ "uslugi__sklep-prestashop": {
+  "title": "Sklep internetowy PrestaShop od UX | Creative Vision Rzeszów",
+  "description": "Projektujemy od ścieżki klienta: od wejścia z Google, przez kartę produktu, po płatność BLIK. Wdrażamy na PrestaShop, a po starcie zostajemy przy rozwoju…"
+ },
+ "uslugi__strony-firmowe": {
+  "title": "Strony firmowe, które zbierają zapytania | Creative Vision",
+  "description": "W kilka sekund mówi, co robisz i dla kogo, pokazuje realizacje i prowadzi do kontaktu. Projektujemy w Figmie i wdrażamy we Framerze, więc treści zmienisz sam."
+ },
+ "wiedza": {
+  "title": "Wiedza: poradniki o stronach, sklepach, UX i AI | Creative Vision",
+  "description": "Poradniki o tym, co pomaga klientom zrozumieć ofertę i kupować. Piszemy z doświadczenia projektów i audytów."
+ },
+ "wiedza__ai-w-sklepie-internetowym": {
+  "title": "AI w sklepie internetowym: co realnie działa w 2026 | Creative Vision",
+  "description": "Wyszukiwarka, opisy produktów, rekomendacje, obsługa klienta. Przegląd zastosowań AI, które mają sens w małym i średnim sklepie."
+ },
+ "wiedza__ile-kosztuje-strona-internetowa": {
+  "title": "Ile kosztuje strona internetowa w 2026? Od czego zależy cena | Creative Vision",
+  "description": "Rozpiętość cen stron jest ogromna. Wyjaśniamy, za co płacisz, skąd biorą się różnice i jak porównywać oferty."
+ },
+ "wiedza__sklep-a-zakupy-przez-asystentow-ai": {
+  "title": "Zakupy przez ChatGPT i Gemini: jak przygotować sklep | Creative Vision",
+  "description": "Klienci zaczynają szukać i kupować produkty w rozmowie z AI. Co to oznacza dla Twojego sklepu i co możesz zrobić już teraz."
+ },
+ "wiedza__strona-firmowa-ktora-zbiera-zapytania": {
+  "title": "Strona firmowa, która zbiera zapytania: 7 elementów | Creative Vision",
+  "description": "Ładna strona to za mało. Oto elementy, dzięki którym odwiedzający rozumie ofertę i wysyła zapytanie, zamiast wracać do Google."
+ },
+ "wiedza__ui-a-ux-roznice": {
+  "title": "UI a UX: różnice i za co płacisz przy projekcie strony | Creative Vision",
+  "description": "UX to to, jak strona działa. UI to to, jak wygląda. Wyjaśniamy różnicę na przykładach i podpowiadamy, czego oczekiwać od projektanta."
+ },
+ "wiedza__ux-karty-produktu": {
+  "title": "UX karty produktu w sklepie internetowym: co poprawić | Creative Vision",
+  "description": "Karta produktu to miejsce, w którym zapada decyzja o zakupie. Sprawdź, które elementy pomagają, a które ją blokują."
+ }
+}

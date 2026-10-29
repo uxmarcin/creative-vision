@@ -1,0 +1,4 @@
+html,body,#app{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;-webkit-font-smoothing:inherit}
+body,input,textarea,select,button{font-family:sans-serif;font-size:12px}
+html,body{background:#0B0B0B}

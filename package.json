@@ -1,0 +1,16 @@
+{
+  "name": "creative-vision",
+  "private": true,
+  "type": "module",
+  "description": "creative-vision.pl — statyczna strona (SSR z komponentu React), hosting cyber_Folks",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "php -S 127.0.0.1:8091 -t public tools/router.php"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "preact": "10.29.8",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  }
+}
