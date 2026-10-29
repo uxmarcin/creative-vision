@@ -20,5 +20,10 @@ jobs:
           for u in http://uxaudyt.pl/ https://www.uxaudyt.pl/ http://creative-vision.pl/ https://creative-vision.pl/; do
             echo "$u -> $(curl -sk -o /tmp/b -w '%{http_code} %{remote_ip} %{redirect_url}' $u) | $(grep -o '<meta name="generator"[^>]*' /tmp/b | head -1)"
           done
+          echo '```'; echo '## Certyfikaty SSL'; echo '```'
+          for d in uxaudyt.pl www.uxaudyt.pl creative-vision.pl www.creative-vision.pl; do
+            echo "$d: $(echo | timeout 15 openssl s_client -connect $d:443 -servername $d 2>/dev/null | openssl x509 -noout -issuer -enddate -ext subjectAltName 2>/dev/null | tr '\n' ' ')"
+            echo "   weryfikacja: $(curl -s -o /dev/null -w '%{http_code}' https://$d/ 2>&1 || echo BŁĄD) $(curl -sS -o /dev/null https://$d/ 2>&1 | head -1)"
+          done
           echo '```'
           } >> $GITHUB_STEP_SUMMARY
