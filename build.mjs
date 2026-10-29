@@ -63,6 +63,7 @@ for (const p of pages) {
 <div id="app">${html}</div>
 <script type="application/json" id="cv-props">${JSON.stringify(p.props).replace(/</g, '\\u003c')}</script>
 <script type="module" src="${js}"></script>
+<script src="/fx/cursor.js" defer></script>
 </body>
 </html>
 `;
