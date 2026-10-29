@@ -8,6 +8,9 @@ ErrorDocument 404 /404.html
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # Let's Encrypt: ścieżka walidacji bez przekierowań
+  RewriteRule ^\.well-known/acme-challenge/ - [L]
+
   # HTTPS + bez www (adres kanoniczny jak we Framerze: https://creative-vision.pl)
   RewriteCond %{HTTPS} off [OR]
   RewriteCond %{HTTP_HOST} ^www\. [NC]
