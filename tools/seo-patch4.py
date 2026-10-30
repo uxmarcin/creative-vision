@@ -95,3 +95,9 @@ open(P, 'w', encoding='utf-8').write(s)
 art_a = s.find('{s:`strona-firmowa-ktora-zbiera-zapytania`'); art_b = s.find('],P=[...N.map(')
 left = [s[m.start()-60:m.start()+30] for m in re.finditer('PrestaShop', s) if not (art_a <= m.start() <= art_b)]
 print('ok', len(s)); print('\n'.join(left))
+
+# 7) bez plakietki PrestaShop Expert (decyzja 30.10)
+s = open(P, encoding='utf-8').read()
+for t in [',l(`div`,{style:{marginTop:28},children:l(Z,{h:52})})', ',l(`div`,{className:`sw-badge`,children:l(Z,{h:64})})', ',l(`div`,{className:`sw-f3-badge`,children:l(Z,{h:44})})']:
+    s = s.replace(t, '')
+open(P, 'w', encoding='utf-8').write(s)
