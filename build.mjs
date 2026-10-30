@@ -34,10 +34,10 @@ const SVC = lib.zs, ART = lib.za, CASES = lib.zb, IMG = lib.zw;
 const ORG = {
   '@type': 'ProfessionalService', '@id': SITE + '/#org', name: 'Creative Vision', url: SITE + '/',
   logo: SITE + '/img/5nu54lUTuTBKgAmsftppZDI0Y.png', image: SITE + '/img/8UVLCs9mZlPZ2VeP799CS9tiSg.png',
-  description: 'Studio projektowe z Rzeszowa: strony internetowe, sklepy PrestaShop, aplikacje mobilne i audyty UX.',
+  description: 'Studio projektowe z Rzeszowa, które pracuje z firmami z całej Polski: strony internetowe, sklepy PrestaShop, aplikacje mobilne i audyty UX.',
   email: 'kontakt@creative-vision.pl', telephone: '+48534154230', taxID: '7952514299',
-  address: { '@type': 'PostalAddress', streetAddress: 'ul. Pańska 13', addressLocality: 'Rzeszów', addressRegion: 'podkarpackie', addressCountry: 'PL' },
-  areaServed: [{ '@type': 'City', name: 'Rzeszów' }, { '@type': 'Country', name: 'Polska' }],
+  address: { '@type': 'PostalAddress', streetAddress: 'ul. Pańska 13A', addressLocality: 'Rzeszów', addressRegion: 'podkarpackie', addressCountry: 'PL' },
+  areaServed: [{ '@type': 'Country', name: 'Polska' }, { '@type': 'City', name: 'Rzeszów' }],
   knowsAbout: ['Projektowanie stron internetowych', 'Sklepy internetowe PrestaShop', 'Projektowanie UX/UI', 'Aplikacje mobilne', 'Audyt UX'],
   priceRange: 'od 490 zł',
   founder: { '@id': SITE + '/#marcin' },
@@ -46,6 +46,9 @@ const PERSON = { '@type': 'Person', '@id': SITE + '/#marcin', name: 'Marcin Bedn
 const WEBSITE = { '@type': 'WebSite', '@id': SITE + '/#website', url: SITE + '/', name: 'Creative Vision', inLanguage: 'pl-PL', publisher: { '@id': SITE + '/#org' } };
 const plain = (t) => String(t || '').replace(/\*/g, '');
 const crumbs = (list) => ({ '@type': 'BreadcrumbList', itemListElement: list.map(([name, url], i) => ({ '@type': 'ListItem', position: i + 1, name, item: SITE + url })) });
+// mobilny pasek kontaktu: telefon jednym dotknięciem i wycena (tylko na telefonach)
+const MBAR = '<nav class="cv-mbar" aria-label="Szybki kontakt"><a href="tel:+48534154230">Zadzwoń</a><a href="/kontakt" class="pri">Bezpłatna wycena</a></nav>'
+  + '<style>.cv-mbar{display:none}@media (max-width:809px){.cv-mbar{display:flex;gap:8px;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:40;padding:6px;border-radius:14px;background:rgba(11,11,11,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(0,0,0,.25)}.cv-mbar a{flex:1;display:flex;align-items:center;justify-content:center;height:44px;border-radius:10px;font:500 15px/1 Satoshi,system-ui,sans-serif;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.18)}.cv-mbar a.pri{background:#fff;color:#0B0B0B;border-color:#fff}body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}}</style>';
 function jsonld(p, title, desc, url) {
   const { view, item } = p.props;
   const g = [ORG, PERSON, WEBSITE, { '@type': 'WebPage', '@id': url + '#page', url, name: title, description: desc, inLanguage: 'pl-PL', isPartOf: { '@id': SITE + '/#website' }, about: { '@id': SITE + '/#org' } }];
@@ -112,6 +115,7 @@ for (const p of pages) {
 <script type="application/json" id="cv-props">${JSON.stringify(p.props).replace(/</g, '\\u003c')}</script>
 <script type="module" src="${js}"></script>
 <script src="/fx/fluid.js" defer></script>
+${p.path === '/kontakt' ? '' : MBAR}
 </body>
 </html>
 `;
@@ -137,7 +141,7 @@ const price = (v) => (v.price || '').replace(/ netto$/, ' netto');
 fs.writeFileSync(path.join(OUT, 'llms.txt'), [
   '# Creative Vision',
   '',
-  '> Studio projektowe z Rzeszowa (ul. Pańska 13). Projektujemy od UX i wdrażamy strony internetowe dla firm, sklepy internetowe na PrestaShop i aplikacje mobilne, prowadzimy audyty UX sklepów i opiekę po starcie. Pracujemy z firmami z Rzeszowa i całej Polski. Bezpłatna wycena z harmonogramem w 2 dni robocze.',
+  '> Studio projektowe z Rzeszowa (ul. Pańska 13A). Projektujemy od UX i wdrażamy strony internetowe dla firm, sklepy internetowe na PrestaShop i aplikacje mobilne, prowadzimy audyty UX sklepów i opiekę po starcie. Pracujemy zdalnie z firmami z całej Polski, w Rzeszowie także na miejscu. Bezpłatna wycena z harmonogramem w 2 dni robocze.',
   '',
   'Kontakt: kontakt@creative-vision.pl, +48 534 154 230. NIP 7952514299. Osoba kontaktowa: Marcin Bednarz (Behavioral Designer / UX Specialist).',
   'Audyty UX sklepów prowadzimy w serwisie https://www.uxaudyt.pl',

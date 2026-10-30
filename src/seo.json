@@ -1,10 +1,10 @@
 {
  "kontakt": {
-  "title": "Kontakt i bezpłatna wycena | Creative Vision Rzeszów",
+  "title": "Kontakt i bezpłatna wycena | Creative Vision",
   "description": "Napisz, czego potrzebujesz: strona firmowa, sklep PrestaShop, aplikacja mobilna lub audyt UX. Bezpłatna wycena w 2 dni robocze."
  },
  "o-nas": {
-  "title": "O nas: studio projektowe od UX | Creative Vision Rzeszów",
+  "title": "O nas: studio projektowe od UX | Creative Vision",
   "description": "Projektujemy i wdrażamy strony firmowe, sklepy PrestaShop i aplikacje mobilne. Zaczynamy od tego, jak klient kupuje, a po starcie zostajemy przy rozwoju."
  },
  "realizacje": {
@@ -32,16 +32,16 @@
   "description": "Nasza własna usługa audytów UX sklepów internetowych, z zamówieniem i płatnością online."
  },
  "uslugi__aplikacje-mobilne": {
-  "title": "Tworzenie aplikacji mobilnych iOS i Android | Creative Vision",
-  "description": "Tworzenie aplikacji mobilnych od warsztatu i klikalnego prototypu po MVP na iOS i Android. Projekt UX/UI, budowa i pomoc z publikacją w sklepach."
+  "title": "Projektowanie i tworzenie aplikacji mobilnych | Creative Vision",
+  "description": "Projektowanie i tworzenie aplikacji mobilnych na iOS i Android: warsztat, klikalny prototyp, projekt UX/UI, MVP i pomoc z publikacją w sklepach. Cała Polska, praca zdalna."
  },
  "uslugi__audyt-ux": {
-  "title": "Audyt UX sklepu internetowego | Creative Vision Rzeszów",
+  "title": "Audyt UX sklepu internetowego | Creative Vision",
   "description": "Audyt UX i audyt sklepu internetowego: przechodzimy ścieżkę zakupu jak klient i zapisujemy każdą blokadę. Raport z priorytetami i pomoc we wdrożeniu poprawek."
  },
  "uslugi__sklep-prestashop": {
-  "title": "Tworzenie sklepów internetowych PrestaShop | Creative Vision",
-  "description": "Agencja PrestaShop z Rzeszowa: projektowanie i wdrożenia sklepów internetowych, płatności BLIK, InPost, import produktów i SEO techniczne. Sklep od 5 990 zł netto."
+  "title": "Tworzenie sklepów internetowych na PrestaShop | Creative Vision",
+  "description": "Tworzenie sklepów internetowych na PrestaShop dla firm z całej Polski: projekt UX/UI, płatności BLIK, InPost, import produktów i SEO techniczne. Sklep od 5 990 zł netto."
  },
  "uslugi__strony-firmowe": {
   "title": "Strony internetowe dla firm – projektowanie i tworzenie | Creative Vision",
@@ -76,8 +76,8 @@
   "description": "Karta produktu to miejsce, w którym zapada decyzja o zakupie. Sprawdź, które elementy pomagają, a które ją blokują."
  },
  "index": {
-  "title": "Strony internetowe i sklepy PrestaShop – Rzeszów | Creative Vision",
-  "description": "Projektujemy i tworzymy strony internetowe, sklepy PrestaShop i aplikacje mobilne. Studio z Rzeszowa, pracujemy z firmami z całej Polski. Bezpłatna wycena w 2 dni."
+  "title": "Tworzenie stron internetowych i sklepów PrestaShop | Creative Vision",
+  "description": "Projektujemy i tworzymy strony internetowe dla firm, sklepy PrestaShop i aplikacje mobilne. Pracujemy zdalnie z firmami z całej Polski. Bezpłatna wycena w 2 dni robocze."
  },
  "strony-internetowe-rzeszow": {
   "title": "Strony internetowe Rzeszów – tworzenie stron www | Creative Vision",
@@ -110,5 +110,9 @@
  "wiedza__jak-stworzyc-strone-internetowa": {
   "title": "Jak stworzyć stronę internetową dla firmy krok po kroku | Creative Vision",
   "description": "8 kroków: cel, domena i platforma, struktura, treści, projekt, wdrożenie, SEO i start. Kiedy wystarczy kreator, a kiedy warto zlecić stronę agencji."
+ },
+ "agencja-prestashop": {
+  "title": "Agencja PrestaShop – wdrożenia, migracje i opieka | Creative Vision",
+  "description": "Agencja PrestaShop dla firm z całej Polski: nowe sklepy, migracje z innych platform, moduły BLIK i InPost, poprawki UX i opieka. Sklep od 5 990 zł netto, wycena w 2 dni."
  }
 }

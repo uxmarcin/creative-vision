@@ -29,4 +29,5 @@ export const pages = [
   p('/wiedza/projektowanie-ux-ui', 'artykul', 'projektowanie-ux-ui'),
   p('/uslugi/opieka', 'usluga', 'opieka'),
   p('/wiedza/jak-stworzyc-strone-internetowa', 'artykul', 'jak-stworzyc-strone-internetowa'),
+  p('/agencja-prestashop', 'usluga', 'agencja-prestashop'),
 ];
