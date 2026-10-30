@@ -6,7 +6,7 @@ export const pages = [
   p('/realizacje/simrun', 'realizacja', 'simrun'),
   p('/realizacje/4clubbers', 'realizacja', '4clubbers'),
   p('/realizacje/uxaudyt', 'realizacja', 'uxaudyt'),
-  p('/uslugi/sklep-prestashop', 'usluga', 'sklep-prestashop'),
+  p('/uslugi/sklepy-internetowe', 'usluga', 'sklepy-internetowe'),
   p('/uslugi/strony-firmowe', 'usluga', 'strony-firmowe'),
   p('/uslugi/audyt-ux', 'usluga', 'audyt-ux'),
   p('/uslugi/aplikacje-mobilne', 'usluga', 'aplikacje-mobilne'),
@@ -29,5 +29,5 @@ export const pages = [
   p('/wiedza/projektowanie-ux-ui', 'artykul', 'projektowanie-ux-ui'),
   p('/uslugi/opieka', 'usluga', 'opieka'),
   p('/wiedza/jak-stworzyc-strone-internetowa', 'artykul', 'jak-stworzyc-strone-internetowa'),
-  p('/agencja-prestashop', 'usluga', 'agencja-prestashop'),
+  p('/agencja-ecommerce', 'usluga', 'agencja-ecommerce'),
 ];

@@ -1,19 +1,19 @@
 # Creative Vision
 
-> Studio projektowe z Rzeszowa (ul. Pańska 13A). Projektujemy od UX i wdrażamy strony internetowe dla firm, sklepy internetowe na PrestaShop i aplikacje mobilne, prowadzimy audyty UX sklepów i opiekę po starcie. Pracujemy zdalnie z firmami z całej Polski, w Rzeszowie także na miejscu. Bezpłatna wycena z harmonogramem w 2 dni robocze.
+> Studio projektowe z Rzeszowa (ul. Pańska 13A). Projektujemy od UX i wdrażamy strony internetowe dla firm, sklepy internetowe i aplikacje mobilne, prowadzimy audyty UX sklepów i opiekę po starcie. Pracujemy zdalnie z firmami z całej Polski, w Rzeszowie także na miejscu. Bezpłatna wycena z harmonogramem w 2 dni robocze.
 
 Kontakt: kontakt@creative-vision.pl, +48 534 154 230. NIP 7952514299. Osoba kontaktowa: Marcin Bednarz (Behavioral Designer / UX Specialist).
 Audyty UX sklepów prowadzimy w serwisie https://www.uxaudyt.pl
 
 ## Usługi
-- [Sklep PrestaShop](https://creative-vision.pl/uslugi/sklep-prestashop): Projektujemy od ścieżki klienta: od wejścia z Google, przez kartę produktu, po płatność BLIK. Wdrażamy na PrestaShop, a po starcie zostajemy przy rozwoju sklepu. Cena: od 5 990 zł netto.
+- [Sklepy internetowe](https://creative-vision.pl/uslugi/sklepy-internetowe): Projektujemy od ścieżki klienta: od wejścia z Google, przez kartę produktu, po płatność BLIK. Platformę dobieramy do Twojej sprzedaży, a po starcie zostajemy przy rozwoju sklepu. Cena: od 5 990 zł netto.
 - [Strony firmowe](https://creative-vision.pl/uslugi/strony-firmowe): W kilka sekund mówi, co robisz i dla kogo, pokazuje realizacje i prowadzi do kontaktu. Projektujemy w Figmie i wdrażamy we Framerze, więc treści zmienisz sam. Cena: od 4 900 zł netto.
 - [Audyt UX i optymalizacja](https://creative-vision.pl/uslugi/audyt-ux): Przechodzimy przez sklep jak klient, od wejścia po zamówienie, i zapisujemy każdą blokadę. Otrzymasz raport z priorytetami i możesz wdrożyć poprawki z nami. Cena: Wycena po krótkiej rozmowie.
 - [Aplikacje mobilne](https://creative-vision.pl/uslugi/aplikacje-mobilne): Zaczynamy od warsztatu i prototypu, który sprawdzisz na telefonie, zanim powstanie kod. Potem projektujemy i budujemy MVP na iOS i Android. Cena: Wycena indywidualna.
 - [Strony internetowe Rzeszów](https://creative-vision.pl/strony-internetowe-rzeszow): Projektujemy i tworzymy strony www dla firm z Rzeszowa i całego Podkarpacia. Zaczynamy od tego, czego szukają Twoi klienci, a kończymy na stronie, która szybko się ładuje, dobrze wygląda na telefonie i prowadzi do kontaktu. Cena: od 4 900 zł netto.
-- [Sklepy internetowe Rzeszów](https://creative-vision.pl/sklepy-internetowe-rzeszow): Projektujemy i tworzymy sklepy internetowe na PrestaShop dla firm z Rzeszowa i całej Polski. Zaczynamy od ścieżki zakupu klienta, a po starcie pomagamy sklepowi rosnąć. Cena: od 5 990 zł netto.
-- [Opieka nad stroną i sklepem](https://creative-vision.pl/uslugi/opieka): Aktualizujemy, zabezpieczamy i rozwijamy strony oraz sklepy PrestaShop po starcie. Masz jeden kontakt do zmian, poprawek i nowych funkcji. Cena: od 490 zł / mies. netto.
-- [Agencja PrestaShop](https://creative-vision.pl/agencja-prestashop): Projektujemy, wdrażamy i rozwijamy sklepy na PrestaShop dla firm z całej Polski. Pracujemy zdalnie, a przez cały projekt rozmawiasz bezpośrednio z osobą, która projektuje Twój sklep. Cena: od 5 990 zł netto.
+- [Sklepy internetowe Rzeszów](https://creative-vision.pl/sklepy-internetowe-rzeszow): Projektujemy i tworzymy sklepy internetowe dla firm z Rzeszowa i całej Polski. Zaczynamy od ścieżki zakupu klienta, a po starcie pomagamy sklepowi rosnąć. Cena: od 5 990 zł netto.
+- [Opieka nad stroną i sklepem](https://creative-vision.pl/uslugi/opieka): Aktualizujemy, zabezpieczamy i rozwijamy strony oraz sklepy internetowe po starcie. Masz jeden kontakt do zmian, poprawek i nowych funkcji. Cena: od 490 zł / mies. netto.
+- [Agencja e-commerce](https://creative-vision.pl/agencja-ecommerce): Projektujemy i wdrażamy sklepy internetowe oraz strony dla firm z całej Polski. Zaczynamy od tego, jak Twoi klienci szukają i kupują, platformę dobieramy do Twojej sprzedaży, a po starcie pomagamy sklepowi rosnąć. Cena: od 5 990 zł netto.
 
 ## Realizacje
 - [Sztuka Wykończeń](https://creative-vision.pl/realizacje/sztuka-wykonczen): Strona firmowa · projekt UX. Strona firmy wykończeniowej, która pokazuje jakość realizacji i prowadzi do zapytania o wycenę.

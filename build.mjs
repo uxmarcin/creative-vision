@@ -34,11 +34,11 @@ const SVC = lib.zs, ART = lib.za, CASES = lib.zb, IMG = lib.zw;
 const ORG = {
   '@type': 'ProfessionalService', '@id': SITE + '/#org', name: 'Creative Vision', url: SITE + '/',
   logo: SITE + '/img/5nu54lUTuTBKgAmsftppZDI0Y.png', image: SITE + '/img/8UVLCs9mZlPZ2VeP799CS9tiSg.png',
-  description: 'Studio projektowe z Rzeszowa, które pracuje z firmami z całej Polski: strony internetowe, sklepy PrestaShop, aplikacje mobilne i audyty UX.',
+  description: 'Studio projektowe z Rzeszowa, które pracuje z firmami z całej Polski: strony internetowe, sklepy internetowe, aplikacje mobilne i audyty UX.',
   email: 'kontakt@creative-vision.pl', telephone: '+48534154230', taxID: '7952514299',
   address: { '@type': 'PostalAddress', streetAddress: 'ul. Pańska 13A', addressLocality: 'Rzeszów', addressRegion: 'podkarpackie', addressCountry: 'PL' },
   areaServed: [{ '@type': 'Country', name: 'Polska' }, { '@type': 'City', name: 'Rzeszów' }],
-  knowsAbout: ['Projektowanie stron internetowych', 'Sklepy internetowe PrestaShop', 'Projektowanie UX/UI', 'Aplikacje mobilne', 'Audyt UX'],
+  knowsAbout: ['Projektowanie stron internetowych', 'Sklepy internetowe', 'E-commerce', 'Projektowanie UX/UI', 'Aplikacje mobilne', 'Audyt UX'],
   priceRange: 'od 490 zł',
   founder: { '@id': SITE + '/#marcin' },
 };
@@ -141,7 +141,7 @@ const price = (v) => (v.price || '').replace(/ netto$/, ' netto');
 fs.writeFileSync(path.join(OUT, 'llms.txt'), [
   '# Creative Vision',
   '',
-  '> Studio projektowe z Rzeszowa (ul. Pańska 13A). Projektujemy od UX i wdrażamy strony internetowe dla firm, sklepy internetowe na PrestaShop i aplikacje mobilne, prowadzimy audyty UX sklepów i opiekę po starcie. Pracujemy zdalnie z firmami z całej Polski, w Rzeszowie także na miejscu. Bezpłatna wycena z harmonogramem w 2 dni robocze.',
+  '> Studio projektowe z Rzeszowa (ul. Pańska 13A). Projektujemy od UX i wdrażamy strony internetowe dla firm, sklepy internetowe i aplikacje mobilne, prowadzimy audyty UX sklepów i opiekę po starcie. Pracujemy zdalnie z firmami z całej Polski, w Rzeszowie także na miejscu. Bezpłatna wycena z harmonogramem w 2 dni robocze.',
   '',
   'Kontakt: kontakt@creative-vision.pl, +48 534 154 230. NIP 7952514299. Osoba kontaktowa: Marcin Bednarz (Behavioral Designer / UX Specialist).',
   'Audyty UX sklepów prowadzimy w serwisie https://www.uxaudyt.pl',
