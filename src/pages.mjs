@@ -21,4 +21,10 @@ export const pages = [
   p('/wiedza/ai-w-sklepie-internetowym', 'artykul', 'ai-w-sklepie-internetowym'),
   p('/wiedza/sklep-a-zakupy-przez-asystentow-ai', 'artykul', 'sklep-a-zakupy-przez-asystentow-ai'),
   p('/realizacje/bud-mad', 'realizacja', 'bud-mad'),
+  p('/strony-internetowe-rzeszow', 'usluga', 'strony-internetowe-rzeszow'),
+  p('/sklepy-internetowe-rzeszow', 'usluga', 'sklepy-internetowe-rzeszow'),
+  p('/wiedza/ile-kosztuje-sklep-internetowy', 'artykul', 'ile-kosztuje-sklep-internetowy'),
+  p('/wiedza/co-to-jest-prestashop', 'artykul', 'co-to-jest-prestashop'),
+  p('/wiedza/moduly-prestashop', 'artykul', 'moduly-prestashop'),
+  p('/wiedza/projektowanie-ux-ui', 'artykul', 'projektowanie-ux-ui'),
 ];

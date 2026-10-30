@@ -32,20 +32,20 @@
   "description": "Nasza własna usługa audytów UX sklepów internetowych, z zamówieniem i płatnością online."
  },
  "uslugi__aplikacje-mobilne": {
-  "title": "Aplikacje mobilne iOS i Android od MVP | Creative Vision",
-  "description": "Zaczynamy od warsztatu i prototypu, który sprawdzisz na telefonie, zanim powstanie kod. Potem projektujemy i budujemy MVP na iOS i Android."
+  "title": "Tworzenie aplikacji mobilnych iOS i Android | Creative Vision",
+  "description": "Tworzenie aplikacji mobilnych od warsztatu i klikalnego prototypu po MVP na iOS i Android. Projekt UX/UI, budowa i pomoc z publikacją w sklepach."
  },
  "uslugi__audyt-ux": {
   "title": "Audyt UX sklepu internetowego | Creative Vision Rzeszów",
-  "description": "Przechodzimy przez sklep jak klient, od wejścia po zamówienie, i zapisujemy każdą blokadę. Otrzymasz raport z priorytetami i możesz wdrożyć poprawki z nami."
+  "description": "Audyt UX i audyt sklepu internetowego: przechodzimy ścieżkę zakupu jak klient i zapisujemy każdą blokadę. Raport z priorytetami i pomoc we wdrożeniu poprawek."
  },
  "uslugi__sklep-prestashop": {
-  "title": "Sklep internetowy PrestaShop od UX | Creative Vision Rzeszów",
-  "description": "Projektujemy od ścieżki klienta: od wejścia z Google, przez kartę produktu, po płatność BLIK. Wdrażamy na PrestaShop, a po starcie zostajemy przy rozwoju…"
+  "title": "Tworzenie sklepów PrestaShop – agencja PrestaShop | Creative Vision",
+  "description": "Agencja PrestaShop z Rzeszowa: projekt UX/UI, wdrożenie, płatności BLIK, InPost, import produktów i SEO techniczne. Sklep od 5 990 zł netto, wycena w 2 dni robocze."
  },
  "uslugi__strony-firmowe": {
-  "title": "Strony firmowe, które zbierają zapytania | Creative Vision",
-  "description": "W kilka sekund mówi, co robisz i dla kogo, pokazuje realizacje i prowadzi do kontaktu. Projektujemy w Figmie i wdrażamy we Framerze, więc treści zmienisz sam."
+  "title": "Strona internetowa dla firmy – projektowanie stron | Creative Vision",
+  "description": "Projektowanie stron internetowych dla firm: struktura i treści pod klientów, projekt UI, szybkie wdrożenie i SEO na start. Strona firmowa od 4 900 zł netto."
  },
  "wiedza": {
   "title": "Wiedza: poradniki o stronach, sklepach, UX i AI | Creative Vision",
@@ -74,5 +74,33 @@
  "wiedza__ux-karty-produktu": {
   "title": "UX karty produktu w sklepie internetowym: co poprawić | Creative Vision",
   "description": "Karta produktu to miejsce, w którym zapada decyzja o zakupie. Sprawdź, które elementy pomagają, a które ją blokują."
+ },
+ "index": {
+  "title": "Strony internetowe i sklepy PrestaShop – Rzeszów | Creative Vision",
+  "description": "Projektujemy i tworzymy strony internetowe, sklepy PrestaShop i aplikacje mobilne. Studio z Rzeszowa, pracujemy z firmami z całej Polski. Bezpłatna wycena w 2 dni."
+ },
+ "strony-internetowe-rzeszow": {
+  "title": "Strony internetowe Rzeszów – tworzenie stron www | Creative Vision",
+  "description": "Tworzymy strony www dla firm z Rzeszowa i Podkarpacia: projekt UX/UI, szybkie wdrożenie i SEO lokalne. Strona firmowa od 4 900 zł netto, wycena w 2 dni robocze."
+ },
+ "sklepy-internetowe-rzeszow": {
+  "title": "Sklepy internetowe Rzeszów – sklepy PrestaShop | Creative Vision",
+  "description": "Projektujemy i tworzymy sklepy internetowe na PrestaShop dla firm z Rzeszowa i całej Polski: UX, BLIK, InPost, migracja i SEO. Od 5 990 zł netto."
+ },
+ "wiedza__ile-kosztuje-sklep-internetowy": {
+  "title": "Ile kosztuje sklep internetowy w 2026? Cena sklepu | Creative Vision",
+  "description": "Z czego składa się cena sklepu internetowego, jakie są koszty po starcie i jak porównywać oferty. Poradnik na przykładzie PrestaShop."
+ },
+ "wiedza__co-to-jest-prestashop": {
+  "title": "Co to jest PrestaShop? Zalety, koszty i dla kogo | Creative Vision",
+  "description": "PrestaShop to darmowe oprogramowanie do sklepów internetowych. Jak działa, ile naprawdę kosztuje i kiedy warto go wybrać zamiast WooCommerce lub Shopera."
+ },
+ "wiedza__moduly-prestashop": {
+  "title": "Moduły PrestaShop: które warto mieć w sklepie | Creative Vision",
+  "description": "Płatności BLIK, InPost, SEO, opinie i integracje. Przegląd modułów PrestaShop dla polskiego sklepu i podpowiedzi, jak wybierać je bez spowalniania sklepu."
+ },
+ "wiedza__projektowanie-ux-ui": {
+  "title": "Projektowanie UX/UI: proces krok po kroku | Creative Vision",
+  "description": "Jak wygląda projektowanie UX/UI strony i sklepu: rozmowa, analiza, architektura informacji, makiety, prototyp, projekt graficzny i wdrożenie."
  }
 }
