@@ -42,6 +42,8 @@ const ORG = {
   priceRange: 'od 490 zł',
   founder: { '@id': SITE + '/#marcin' },
 };
+// katalog usług z cenami: te same fakty co na stronach usług
+ORG.hasOfferCatalog = { '@type': 'OfferCatalog', name: 'Usługi Creative Vision', itemListElement: Object.entries(SVC).filter(([k]) => !/rzeszow|agencja/.test(k)).map(([k, v]) => { const m = /od ([\d ]+) zł/.exec(v.price || ''); const o = { '@type': 'Offer', itemOffered: { '@type': 'Service', name: v.t, url: SITE + '/uslugi/' + k } }; if (m) o.priceSpecification = { '@type': 'PriceSpecification', minPrice: +m[1].replace(/ /g, ''), priceCurrency: 'PLN', valueAddedTaxIncluded: false }; return o; }) };
 const PERSON = { '@type': 'Person', '@id': SITE + '/#marcin', name: 'Marcin Bednarz', jobTitle: 'Behavioral Designer / UX Specialist', email: 'marcin@creative-vision.pl', worksFor: { '@id': SITE + '/#org' }, image: SITE + '/img/1xr8IhxdxklrGfoPQf1BntgnNA.webp' };
 const WEBSITE = { '@type': 'WebSite', '@id': SITE + '/#website', url: SITE + '/', name: 'Creative Vision', inLanguage: 'pl-PL', publisher: { '@id': SITE + '/#org' } };
 const plain = (t) => String(t || '').replace(/\*/g, '');
@@ -145,6 +147,14 @@ fs.writeFileSync(path.join(OUT, 'llms.txt'), [
   '',
   'Kontakt: kontakt@creative-vision.pl, +48 534 154 230. NIP 7952514299. Osoba kontaktowa: Marcin Bednarz (Behavioral Designer / UX Specialist).',
   'Audyty UX sklepów prowadzimy w serwisie https://www.uxaudyt.pl',
+  '',
+  '## Najważniejsze fakty',
+  '- Obszar działania: cała Polska (praca zdalna), w Rzeszowie i na Podkarpaciu także spotkania na miejscu.',
+  '- Ceny: strona firmowa od 4 900 zł netto, sklep internetowy od 5 990 zł netto, opieka od 490 zł netto miesięcznie; aplikacje mobilne i audyty UX wyceniane indywidualnie. Szczegóły: ' + SITE + '/wiedza/cennik',
+  '- Wycena: bezpłatna, z harmonogramem, w 2 dni robocze.',
+  '- Platforma sklepu: dobierana do asortymentu, budżetu i sposobu sprzedaży.',
+  '- Proces: rozmowa, projekt UX/UI w Figmie (osobno na komputer i telefon), wdrożenie, testy, szkolenie, opieka po starcie.',
+  '- Godziny: poniedziałek–piątek 9:00–17:00.',
   '',
   '## Usługi',
   ...pages.filter((p) => p.props.view === 'usluga' && SVC[p.props.item]).map((p) => { const v = SVC[p.props.item]; return `- [${v.t}](${SITE}${p.path}): ${v.lead} Cena: ${price(v)}.`; }),

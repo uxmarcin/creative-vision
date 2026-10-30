@@ -5,6 +5,14 @@
 Kontakt: kontakt@creative-vision.pl, +48 534 154 230. NIP 7952514299. Osoba kontaktowa: Marcin Bednarz (Behavioral Designer / UX Specialist).
 Audyty UX sklepów prowadzimy w serwisie https://www.uxaudyt.pl
 
+## Najważniejsze fakty
+- Obszar działania: cała Polska (praca zdalna), w Rzeszowie i na Podkarpaciu także spotkania na miejscu.
+- Ceny: strona firmowa od 4 900 zł netto, sklep internetowy od 5 990 zł netto, opieka od 490 zł netto miesięcznie; aplikacje mobilne i audyty UX wyceniane indywidualnie. Szczegóły: https://creative-vision.pl/wiedza/cennik
+- Wycena: bezpłatna, z harmonogramem, w 2 dni robocze.
+- Platforma sklepu: dobierana do asortymentu, budżetu i sposobu sprzedaży.
+- Proces: rozmowa, projekt UX/UI w Figmie (osobno na komputer i telefon), wdrożenie, testy, szkolenie, opieka po starcie.
+- Godziny: poniedziałek–piątek 9:00–17:00.
+
 ## Usługi
 - [Sklepy internetowe](https://creative-vision.pl/uslugi/sklepy-internetowe): Projektujemy od ścieżki klienta: od wejścia z Google, przez kartę produktu, po płatność BLIK. Platformę dobieramy do Twojej sprzedaży, a po starcie zostajemy przy rozwoju sklepu. Cena: od 5 990 zł netto.
 - [Strony firmowe](https://creative-vision.pl/uslugi/strony-firmowe): W kilka sekund mówi, co robisz i dla kogo, pokazuje realizacje i prowadzi do kontaktu. Projektujemy w Figmie i wdrażamy we Framerze, więc treści zmienisz sam. Cena: od 4 900 zł netto.
@@ -34,6 +42,8 @@ Audyty UX sklepów prowadzimy w serwisie https://www.uxaudyt.pl
 - [Moduły PrestaShop: które warto mieć w polskim sklepie](https://creative-vision.pl/wiedza/moduly-prestashop): Płatności, dostawy, SEO, opinie i integracje. Przegląd modułów PrestaShop, które przydają się w polskim sklepie, i podpowiedzi, jak ich nie przesadzić.
 - [Projektowanie UX/UI krok po kroku: jak powstaje projekt strony i sklepu](https://creative-vision.pl/wiedza/projektowanie-ux-ui): Od rozmowy i analizy, przez makiety i prototyp, po projekt graficzny gotowy do wdrożenia. Tak wygląda projektowanie UX/UI w praktyce.
 - [Jak stworzyć stronę internetową dla firmy: 8 kroków od pomysłu do startu](https://creative-vision.pl/wiedza/jak-stworzyc-strone-internetowa): Cel, domena, struktura, treści, projekt, wdrożenie, SEO i start. Przewodnik dla firm, które chcą mieć stronę przynoszącą zapytania.
+- [Cennik: ile kosztuje strona, sklep i aplikacja w Creative Vision](https://creative-vision.pl/wiedza/cennik): Strona firmowa od 4 900 zł netto, sklep internetowy od 5 990 zł netto, opieka od 490 zł netto miesięcznie. Sprawdź, od czego zależy cena i co jest w niej zawarte.
+- [Jak wybrać agencję e-commerce lub firmę od stron: 10 pytań przed podpisaniem umowy](https://creative-vision.pl/wiedza/jak-wybrac-agencje-e-commerce): Lista pytań, które warto zadać agencji przed zleceniem strony lub sklepu internetowego: zakres, platforma, prawa do projektu, SEO, opieka i koszty po starcie.
 
 ## Firma
 - [O nas](https://creative-vision.pl/o-nas)

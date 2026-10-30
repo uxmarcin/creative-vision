@@ -1,0 +1,83 @@
+[
+ {
+  "s": "cennik",
+  "k": "Cennik",
+  "t": "Cennik: ile kosztuje strona, sklep i aplikacja w Creative Vision",
+  "seo": "Cennik stron i sklepów internetowych 2026 | Creative Vision",
+  "d": "Strona firmowa od 4 900 zł netto, sklep internetowy od 5 990 zł netto, opieka od 490 zł netto miesięcznie. Sprawdź, od czego zależy cena i co jest w niej zawarte.",
+  "r": 4,
+  "img": "sd1",
+  "b": [
+   ["sum", "Strona firmowa kosztuje u nas od 4 900 zł netto, sklep internetowy od 5 990 zł netto, a opieka po starcie od 490 zł netto miesięcznie. Aplikacje mobilne i audyty UX wyceniamy indywidualnie. Wycenę z harmonogramem otrzymasz w 2 dni robocze. Pracujemy z firmami z całej Polski."],
+   ["h", "Ceny usług"],
+   ["ul", [
+     "Strona internetowa dla firmy: od 4 900 zł netto.",
+     "Sklep internetowy: od 5 990 zł netto.",
+     "Opieka nad stroną lub sklepem: od 490 zł netto miesięcznie.",
+     "Aplikacja mobilna na iOS i Android: wycena indywidualna po warsztacie.",
+     "Audyt UX sklepu lub strony: wycena po krótkiej rozmowie."]],
+   ["p", "Ceny podajemy netto. Dokładną kwotę ustalamy po rozmowie, bo zależy od zakresu, treści i integracji. Wycena jest bezpłatna i do niczego nie zobowiązuje."],
+   ["h", "Od czego zależy cena strony internetowej"],
+   ["ul", [
+     "Liczba podstron i to, czy teksty przygotowujesz Ty, czy my.",
+     "Projekt UX/UI: makiety i projekt graficzny osobno na komputer i telefon.",
+     "Funkcje: formularze, rezerwacje, blog, wersje językowe, integracje.",
+     "Przygotowanie pod Google: struktura, tytuły, dane strukturalne i mapa strony."]],
+   ["h", "Od czego zależy cena sklepu internetowego"],
+   ["ul", [
+     "Liczba produktów i kategorii oraz sposób ich importu.",
+     "Platforma, którą dobieramy do asortymentu, budżetu i sposobu sprzedaży.",
+     "Płatności i dostawy: BLIK, karty, Apple Pay, kurierzy i paczkomaty.",
+     "Integracje z hurtowniami, systemami magazynowymi, księgowymi i marketplace’ami.",
+     "Migracja ze starego sklepu z przekierowaniami, żeby nie stracić pozycji w Google."]],
+   ["h", "Jak wygląda wycena i współpraca"],
+   ["ol", [
+     "Krótka rozmowa online o firmie, klientach i celu projektu.",
+     "Wycena z harmonogramem w 2 dni robocze.",
+     "Projekt UX/UI w Figmie, który komentujesz bezpośrednio w pliku.",
+     "Wdrożenie, testy i szkolenie z obsługi.",
+     "Start strony lub sklepu, a potem opieka i rozwój, jeśli jej potrzebujesz."]],
+   ["tip", "Porównując oferty, sprawdzaj, czy w cenie jest projekt UX na telefon, przygotowanie pod Google i przekierowania ze starej strony. To elementy, które najczęściej wypadają z tańszych wycen."],
+   ["h", "Dla kogo pracujemy"],
+   ["p", "Jesteśmy studiem projektowym z Rzeszowa, ale projektujemy strony i sklepy dla firm z całej Polski. Większość projektów prowadzimy zdalnie: rozmowy, warsztaty i odbiory odbywają się online."],
+   ["more", "Zobacz szczegóły usług:", "/uslugi/sklepy-internetowe", "Tworzenie sklepów internetowych"],
+   ["more", "Strony dla firm:", "/uslugi/strony-firmowe", "Strony internetowe dla firm"]
+  ]
+ },
+ {
+  "s": "jak-wybrac-agencje-e-commerce",
+  "k": "Sklepy",
+  "t": "Jak wybrać agencję e-commerce lub firmę od stron: 10 pytań przed podpisaniem umowy",
+  "seo": "Jak wybrać agencję e-commerce? 10 pytań przed umową | Creative Vision",
+  "d": "Lista pytań, które warto zadać agencji przed zleceniem strony lub sklepu internetowego: zakres, platforma, prawa do projektu, SEO, opieka i koszty po starcie.",
+  "r": 6,
+  "img": "szD",
+  "b": [
+   ["sum", "Wybierając agencję e-commerce, pytaj o konkretny zakres prac, platformę i jej koszty po starcie, prawa do projektu i kodu, przygotowanie pod Google, przekierowania przy migracji, harmonogram, testy na telefonach i warunki opieki. Dobra oferta odpowiada na te pytania na piśmie, zanim podpiszesz umowę."],
+   ["p", "Strona albo sklep internetowy to inwestycja na kilka lat. Różnice między ofertami rzadko widać w samej cenie, częściej w tym, czego w niej brakuje. Te pytania pomogą porównać wykonawców uczciwie."],
+   ["h", "10 pytań do agencji"],
+   ["ol", [
+     "Co dokładnie jest w cenie? Poproś o listę: projekt, wdrożenie, treści, import produktów, szkolenie.",
+     "Na jakiej platformie powstanie sklep i dlaczego? Zapytaj o abonament, płatne moduły i koszty hostingu po starcie.",
+     "Czy zobaczę projekt przed wdrożeniem? Najlepiej makiety i projekt graficzny osobno na komputer i telefon.",
+     "Do kogo należą projekt, kod i domena? Wszystko powinno być Twoje po zapłacie.",
+     "Jak strona będzie przygotowana pod Google? Tytuły, nagłówki, szybkość, dane strukturalne i mapa strony.",
+     "Co z obecną stroną? Przy migracji kluczowe są przekierowania 301 ze starych adresów.",
+     "Jaki jest harmonogram i kto jest moim kontaktem? Jedna osoba odpowiedzialna za projekt oszczędza wiele czasu.",
+     "Jak wygląda testowanie? Zapytaj o testy na telefonach, w różnych przeglądarkach i testowe zamówienia.",
+     "Czy sam będę mógł zmieniać treści i dodawać produkty? Poproś o szkolenie z panelu.",
+     "Jak wygląda opieka po starcie i ile kosztuje? Aktualizacje, kopie zapasowe i czas reakcji na błędy."]],
+   ["h", "Na co uważać"],
+   ["ul", [
+     "Cena bez opisu zakresu: trudno ją porównać i łatwo o dopłaty.",
+     "Brak projektu przed wdrożeniem: zmiany na gotowym sklepie kosztują więcej.",
+     "Sklep, którego nie możesz przenieść do innego wykonawcy.",
+     "Obietnice konkretnych pozycji w Google w krótkim czasie: nikt nie może ich zagwarantować."]],
+   ["h", "Agencja czy freelancer?"],
+   ["p", "Freelancer bywa tańszy i sprawdza się przy prostych stronach. Agencja lub studio zwykle łączy projekt UX, wdrożenie i opiekę w jednym miejscu, co ma znaczenie przy sklepie, który ma rosnąć. Niezależnie od wyboru, zadaj te same pytania."],
+   ["tip", "Poproś o 2–3 realizacje podobne do Twojego projektu i zapytaj, czy możesz porozmawiać z ich właścicielami."],
+   ["more", "Sprawdź nasze ceny:", "/wiedza/cennik", "Cennik stron i sklepów"],
+   ["more", "Szukasz wykonawcy?", "/agencja-ecommerce", "Agencja e-commerce"]
+  ]
+ }
+]

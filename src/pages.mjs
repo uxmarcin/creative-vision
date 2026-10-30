@@ -30,4 +30,6 @@ export const pages = [
   p('/uslugi/opieka', 'usluga', 'opieka'),
   p('/wiedza/jak-stworzyc-strone-internetowa', 'artykul', 'jak-stworzyc-strone-internetowa'),
   p('/agencja-ecommerce', 'usluga', 'agencja-ecommerce'),
+  p('/wiedza/cennik', 'artykul', 'cennik'),
+  p('/wiedza/jak-wybrac-agencje-e-commerce', 'artykul', 'jak-wybrac-agencje-e-commerce'),
 ];

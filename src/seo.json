@@ -114,5 +114,13 @@
  "agencja-ecommerce": {
   "title": "Agencja e-commerce – strony i sklepy internetowe | Creative Vision",
   "description": "Agencja e-commerce dla firm z całej Polski: projekt UX/UI, tworzenie sklepów internetowych i stron, migracje, płatności, SEO i opieka. Wycena w 2 dni robocze."
+ },
+ "wiedza__cennik": {
+  "title": "Cennik stron i sklepów internetowych 2026 | Creative Vision",
+  "description": "Strona firmowa od 4 900 zł netto, sklep internetowy od 5 990 zł netto, opieka od 490 zł netto miesięcznie. Sprawdź, od czego zależy cena i co jest w niej zawarte."
+ },
+ "wiedza__jak-wybrac-agencje-e-commerce": {
+  "title": "Jak wybrać agencję e-commerce? 10 pytań przed umową | Creative Vision",
+  "description": "Lista pytań, które warto zadać agencji przed zleceniem strony lub sklepu internetowego: zakres, platforma, prawa do projektu, SEO, opieka i koszty po starcie."
  }
 }
