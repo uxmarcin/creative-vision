@@ -39,13 +39,16 @@ const ORG = {
   address: { '@type': 'PostalAddress', streetAddress: 'ul. Pańska 13', addressLocality: 'Rzeszów', addressRegion: 'podkarpackie', addressCountry: 'PL' },
   areaServed: [{ '@type': 'City', name: 'Rzeszów' }, { '@type': 'Country', name: 'Polska' }],
   knowsAbout: ['Projektowanie stron internetowych', 'Sklepy internetowe PrestaShop', 'Projektowanie UX/UI', 'Aplikacje mobilne', 'Audyt UX'],
+  priceRange: 'od 490 zł',
+  founder: { '@id': SITE + '/#marcin' },
 };
+const PERSON = { '@type': 'Person', '@id': SITE + '/#marcin', name: 'Marcin Bednarz', jobTitle: 'Behavioral Designer / UX Specialist', email: 'marcin@creative-vision.pl', worksFor: { '@id': SITE + '/#org' }, image: SITE + '/img/1xr8IhxdxklrGfoPQf1BntgnNA.webp' };
 const WEBSITE = { '@type': 'WebSite', '@id': SITE + '/#website', url: SITE + '/', name: 'Creative Vision', inLanguage: 'pl-PL', publisher: { '@id': SITE + '/#org' } };
 const plain = (t) => String(t || '').replace(/\*/g, '');
 const crumbs = (list) => ({ '@type': 'BreadcrumbList', itemListElement: list.map(([name, url], i) => ({ '@type': 'ListItem', position: i + 1, name, item: SITE + url })) });
 function jsonld(p, title, desc, url) {
   const { view, item } = p.props;
-  const g = [ORG, WEBSITE, { '@type': 'WebPage', '@id': url + '#page', url, name: title, description: desc, inLanguage: 'pl-PL', isPartOf: { '@id': SITE + '/#website' }, about: { '@id': SITE + '/#org' } }];
+  const g = [ORG, PERSON, WEBSITE, { '@type': 'WebPage', '@id': url + '#page', url, name: title, description: desc, inLanguage: 'pl-PL', isPartOf: { '@id': SITE + '/#website' }, about: { '@id': SITE + '/#org' } }];
   const home = ['Strona główna', '/'];
   if (view === 'usluga' && SVC[item]) {
     const v = SVC[item];
@@ -59,7 +62,7 @@ function jsonld(p, title, desc, url) {
     const a = ART.find((x) => x.s === item);
     if (a) {
       g.push(crumbs([home, ['Wiedza', '/wiedza'], [a.t, p.path]]));
-      g.push({ '@type': 'Article', '@id': url + '#article', headline: a.t, description: a.d, image: SITE + IMG[a.img], inLanguage: 'pl-PL', articleSection: a.k, author: { '@id': SITE + '/#org' }, publisher: { '@id': SITE + '/#org' }, mainEntityOfPage: url });
+      g.push({ '@type': 'Article', '@id': url + '#article', headline: a.t, description: a.d, image: SITE + IMG[a.img], inLanguage: 'pl-PL', articleSection: a.k, abstract: (a.b.find((x) => x[0] === 'sum') || [])[1], author: { '@id': SITE + '/#org' }, publisher: { '@id': SITE + '/#org' }, mainEntityOfPage: url });
     }
   } else if (view === 'realizacja' && CASES[item]) {
     const c = CASES[item];
@@ -124,4 +127,34 @@ fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="U
 ${pages.map((p) => `  <url><loc>${SITE}${p.path}</loc><lastmod>${today}</lastmod></url>`).join('\n')}
 </urlset>
 `);
+// robots.txt: wprost wpuszczamy wyszukiwarki i asystentów AI
+fs.writeFileSync(path.join(OUT, 'robots.txt'), ['User-agent: *', 'Allow: /', '',
+  ...['Googlebot', 'Google-Extended', 'Bingbot', 'GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-User', 'Claude-SearchBot', 'PerplexityBot', 'Perplexity-User', 'Applebot-Extended', 'CCBot']
+    .flatMap((b) => ['User-agent: ' + b, 'Allow: /', '']),
+  'Sitemap: ' + SITE + '/sitemap.xml', ''].join('\n'));
+// llms.txt: zwięzły opis firmy dla modeli językowych (llmstxt.org)
+const price = (v) => (v.price || '').replace(/ netto$/, ' netto');
+fs.writeFileSync(path.join(OUT, 'llms.txt'), [
+  '# Creative Vision',
+  '',
+  '> Studio projektowe z Rzeszowa (ul. Pańska 13). Projektujemy od UX i wdrażamy strony internetowe dla firm, sklepy internetowe na PrestaShop i aplikacje mobilne, prowadzimy audyty UX sklepów i opiekę po starcie. Pracujemy z firmami z Rzeszowa i całej Polski. Bezpłatna wycena z harmonogramem w 2 dni robocze.',
+  '',
+  'Kontakt: kontakt@creative-vision.pl, +48 534 154 230. NIP 7952514299. Osoba kontaktowa: Marcin Bednarz (Behavioral Designer / UX Specialist).',
+  'Audyty UX sklepów prowadzimy w serwisie https://www.uxaudyt.pl',
+  '',
+  '## Usługi',
+  ...pages.filter((p) => p.props.view === 'usluga' && SVC[p.props.item]).map((p) => { const v = SVC[p.props.item]; return `- [${v.t}](${SITE}${p.path}): ${v.lead} Cena: ${price(v)}.`; }),
+  '',
+  '## Realizacje',
+  ...pages.filter((p) => p.props.view === 'realizacja' && CASES[p.props.item]).map((p) => { const c = CASES[p.props.item]; return `- [${c.n}](${SITE}${p.path}): ${c.k}. ${c.intro}`; }),
+  '',
+  '## Wiedza',
+  ...pages.filter((p) => p.props.view === 'artykul').map((p) => { const a = ART.find((x) => x.s === p.props.item); return a ? `- [${a.t}](${SITE}${p.path}): ${a.d}` : ''; }).filter(Boolean),
+  '',
+  '## Firma',
+  `- [O nas](${SITE}/o-nas)`,
+  `- [Kontakt i bezpłatna wycena](${SITE}/kontakt)`,
+  `- [Realizacje](${SITE}/realizacje)`,
+  '',
+].join('\n'));
 for (const [f, o] of Object.entries(res.metafile.outputs)) console.log('  js', path.basename(f), (o.bytes / 1024).toFixed(0) + ' KB');

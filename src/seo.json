@@ -40,12 +40,12 @@
   "description": "Audyt UX i audyt sklepu internetowego: przechodzimy ścieżkę zakupu jak klient i zapisujemy każdą blokadę. Raport z priorytetami i pomoc we wdrożeniu poprawek."
  },
  "uslugi__sklep-prestashop": {
-  "title": "Tworzenie sklepów PrestaShop – agencja PrestaShop | Creative Vision",
-  "description": "Agencja PrestaShop z Rzeszowa: projekt UX/UI, wdrożenie, płatności BLIK, InPost, import produktów i SEO techniczne. Sklep od 5 990 zł netto, wycena w 2 dni robocze."
+  "title": "Tworzenie sklepów internetowych PrestaShop | Creative Vision",
+  "description": "Agencja PrestaShop z Rzeszowa: projektowanie i wdrożenia sklepów internetowych, płatności BLIK, InPost, import produktów i SEO techniczne. Sklep od 5 990 zł netto."
  },
  "uslugi__strony-firmowe": {
-  "title": "Strona internetowa dla firmy – projektowanie stron | Creative Vision",
-  "description": "Projektowanie stron internetowych dla firm: struktura i treści pod klientów, projekt UI, szybkie wdrożenie i SEO na start. Strona firmowa od 4 900 zł netto."
+  "title": "Strony internetowe dla firm – projektowanie i tworzenie | Creative Vision",
+  "description": "Tworzymy profesjonalne strony internetowe dla firm: struktura i treści pod klientów, projekt UX/UI, szybkie wdrożenie i SEO na start. Strona firmowa od 4 900 zł netto."
  },
  "wiedza": {
   "title": "Wiedza: poradniki o stronach, sklepach, UX i AI | Creative Vision",
@@ -56,8 +56,8 @@
   "description": "Wyszukiwarka, opisy produktów, rekomendacje, obsługa klienta. Przegląd zastosowań AI, które mają sens w małym i średnim sklepie."
  },
  "wiedza__ile-kosztuje-strona-internetowa": {
-  "title": "Ile kosztuje strona internetowa w 2026? Od czego zależy cena | Creative Vision",
-  "description": "Rozpiętość cen stron jest ogromna. Wyjaśniamy, za co płacisz, skąd biorą się różnice i jak porównywać oferty."
+  "title": "Ile kosztuje strona internetowa w 2026? Cennik i cena | Creative Vision",
+  "description": "Ile kosztuje strona internetowa i od czego zależy cena: zakres, treści, projekt, wdrożenie i utrzymanie. Przykładowe ceny i jak porównywać oferty."
  },
  "wiedza__sklep-a-zakupy-przez-asystentow-ai": {
   "title": "Zakupy przez ChatGPT i Gemini: jak przygotować sklep | Creative Vision",
@@ -102,5 +102,13 @@
  "wiedza__projektowanie-ux-ui": {
   "title": "Projektowanie UX/UI: proces krok po kroku | Creative Vision",
   "description": "Jak wygląda projektowanie UX/UI strony i sklepu: rozmowa, analiza, architektura informacji, makiety, prototyp, projekt graficzny i wdrożenie."
+ },
+ "uslugi__opieka": {
+  "title": "Opieka nad stroną i sklepem PrestaShop | Creative Vision",
+  "description": "Obsługa stron internetowych i sklepów PrestaShop: aktualizacje, kopie zapasowe, poprawki, nowe funkcje i SEO techniczne. Opieka od 490 zł netto miesięcznie."
+ },
+ "wiedza__jak-stworzyc-strone-internetowa": {
+  "title": "Jak stworzyć stronę internetową dla firmy krok po kroku | Creative Vision",
+  "description": "8 kroków: cel, domena i platforma, struktura, treści, projekt, wdrożenie, SEO i start. Kiedy wystarczy kreator, a kiedy warto zlecić stronę agencji."
  }
 }
