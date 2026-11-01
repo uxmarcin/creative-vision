@@ -33,7 +33,7 @@ const lib = await import('./src/c/shared-lib.mjs');
 const SVC = lib.zs, ART = lib.za, CASES = lib.zb, IMG = lib.zw;
 const ORG = {
   '@type': 'ProfessionalService', '@id': SITE + '/#org', name: 'Creative Vision', url: SITE + '/',
-  logo: SITE + '/img/5nu54lUTuTBKgAmsftppZDI0Y.png', image: SITE + '/img/8UVLCs9mZlPZ2VeP799CS9tiSg.png',
+  logo: SITE + '/img/5nu54lUTuTBKgAmsftppZDI0Y.png', image: SITE + '/img/og-creative-vision.png',
   description: 'Studio projektowe z Rzeszowa, które pracuje z firmami z całej Polski: strony internetowe, sklepy internetowe, aplikacje mobilne i audyty UX.',
   email: 'kontakt@creative-vision.pl', telephone: '+48534154230', taxID: '7952514299',
   address: { '@type': 'PostalAddress', streetAddress: 'ul. Pańska 13A', addressLocality: 'Rzeszów', addressRegion: 'podkarpackie', addressCountry: 'PL' },
@@ -83,7 +83,8 @@ for (const p of pages) {
   const key = p.path === '/' ? 'index' : p.path.slice(1).replace(/\//g, '__');
   const m = meta[key] || {}, s = seo[key] || {};
   const title = s.title || m.title, desc = s.description || m.description;
-  const url = SITE + p.path, img = SITE + (m.og_image || '/img/8UVLCs9mZlPZ2VeP799CS9tiSg.png').replace('https://framerusercontent.com/images/', '/img/').replace('https://framerusercontent.com/assets/', '/img/');
+  // stara grafika z Framera (8UVL…) pokazywała nieaktualny projekt strony, więc wszędzie nowa
+  const url = SITE + p.path, img = SITE + '/img/og-creative-vision.png';
   const html = renderToString(jsx(App, p.props));
   const doc = `<!doctype html>
 <html lang="pl">
@@ -101,6 +102,9 @@ for (const p of pages) {
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:image" content="${img}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Creative Vision – strony i sklepy, w których łatwo kupić">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(desc)}">
