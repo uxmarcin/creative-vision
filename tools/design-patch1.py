@@ -88,7 +88,7 @@ s = s.replace(old_lw, new_lw, 1)
 
 # ---------- CSS ----------
 CSS = MARK + r"""
-#uslugi.sw-dark{background:#000}
+.sw-dark{background:#000!important}.sw-dark.sw-in:has(.sw-hero)::before,.sw-cta::before{display:none!important}
 .fx-grid{--ln:rgba(255,255,255,.12);display:grid;margin-top:72px;border:1px solid var(--ln);border-radius:28px;overflow:hidden}
 .fx-4{grid-template-columns:repeat(4,minmax(0,1fr))}.fx-3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .fx-lt{--ln:rgba(11,11,11,.12);margin-top:0}
