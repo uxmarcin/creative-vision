@@ -88,7 +88,7 @@ s = s.replace(old_lw, new_lw, 1)
 
 # ---------- CSS ----------
 CSS = MARK + r"""
-.fh-pl img{display:block;height:30px;width:auto;max-width:150px;filter:brightness(0) invert(1)}
+.fh-pl img{display:block;height:30px;width:auto;max-width:150px;object-fit:contain;object-position:0 50%;filter:brightness(0) invert(1)}.fh-pl img[alt=PrestaShop]{height:20px}
 .sw .sw-h2{font-size:clamp(32px,3.3cqi,48px)!important;line-height:1.1}.sw-hero h1.sw-h1n{font-size:clamp(40px,4cqi,60px)}.sw-ct-h{font-size:clamp(32px,3.3cqi,48px)!important}.sw-cta h2{font-size:clamp(32px,3.3cqi,48px)!important}
 @container (max-width: 560px){.sw .sw-h2{font-size:32px!important}.sw-ph-hero h1{font-size:34px!important}.sw-hero h1.sw-h1n{font-size:40px}}
 @container (min-width: 1001px){.sw-nav{justify-content:flex-start;gap:56px}.sw-menu{flex:1}.sw-menu a.sw-cta-btn{margin-left:auto}}
