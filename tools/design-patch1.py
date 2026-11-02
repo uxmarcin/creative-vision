@@ -88,6 +88,7 @@ s = s.replace(old_lw, new_lw, 1)
 
 # ---------- CSS ----------
 CSS = MARK + r"""
+@container (min-width: 1001px){.sw-nav{justify-content:flex-start;gap:56px}.sw-menu{flex:1;gap:32px;font-size:15px;font-weight:500;letter-spacing:-.005em}.sw-menu>a:not(.sw-cta-btn){color:rgba(255,255,255,.62);transition:color .2s}.sw-menu>a:not(.sw-cta-btn):hover{color:#fff}.sw-menu>a:not(.sw-cta-btn)::before,.sw-menu>a:not(.sw-cta-btn)::after{display:none}.sw-menu a.sw-cta-btn{margin-left:auto}}
 .sw-dark{background:#000!important}.sw-dark.sw-in:has(.sw-hero)::before,.sw-cta::before{display:none!important}
 .fx-grid{--ln:rgba(255,255,255,.12);display:grid;margin-top:72px;border:1px solid var(--ln);border-radius:28px;overflow:hidden}
 .fx-4{grid-template-columns:repeat(4,minmax(0,1fr))}.fx-3{grid-template-columns:repeat(3,minmax(0,1fr))}
