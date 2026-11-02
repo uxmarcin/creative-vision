@@ -26,7 +26,7 @@ Audyty UX sklepów prowadzimy w serwisie https://www.uxaudyt.pl
 ## Realizacje
 - [Sztuka Wykończeń](https://creative-vision.pl/realizacje/sztuka-wykonczen): Strona firmowa · projekt UX. Strona firmy wykończeniowej, która pokazuje jakość realizacji i prowadzi do zapytania o wycenę.
 - [Simrun](https://creative-vision.pl/realizacje/simrun): Strona firmowa · B2B. Strona firmy wykonującej pomiary i analizy ruchu drogowego dla samorządów, projektantów i inwestorów.
-- [4clubbers](https://creative-vision.pl/realizacje/4clubbers): Aplikacja mobilna · MVP. Aplikacja społecznościowa dla miłośników muzyki klubowej: wydarzenia, relacje i profile.
+- [4clubbers](https://creative-vision.pl/realizacje/4clubbers): Aplikacja mobilna · PWA. Aplikacja społecznościowa dla miłośników muzyki klubowej: wydarzenia, relacje i profile.
 - [uxaudyt.pl](https://creative-vision.pl/realizacje/uxaudyt): Usługa online · płatności. Nasza własna usługa audytów UX sklepów internetowych, z zamówieniem i płatnością online.
 - [Bud-Mad](https://creative-vision.pl/realizacje/bud-mad): Strona firmowa · usługi budowlane. Strona firmy remontowo-budowlanej: ocieplanie elewacji, wykończenia pod klucz i remonty.
 
