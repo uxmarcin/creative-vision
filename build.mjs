@@ -120,8 +120,8 @@ for (const p of pages) {
 <div id="app">${html}</div>
 <script type="application/json" id="cv-props">${JSON.stringify(p.props).replace(/</g, '\\u003c')}</script>
 <script type="module" src="${js}"></script>
-<script src="/fx/fluid.js" defer></script>
-<script src="/fx/reveal.js" defer></script>
+<script src="/fx/fluid.js?v=2611022125" defer></script>
+<script src="/fx/reveal.js?v=2611022125" defer></script>
 ${p.path === '/kontakt' ? '' : MBAR}
 </body>
 </html>
