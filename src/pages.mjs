@@ -5,6 +5,7 @@ export const pages = [
   p('/realizacje/sztuka-wykonczen', 'realizacja', 'sztuka-wykonczen'),
   p('/realizacje/simrun', 'realizacja', 'simrun'),
   p('/realizacje/4clubbers', 'realizacja', '4clubbers'),
+  p('/realizacje/tekma', 'realizacja', 'tekma'),
   p('/realizacje/uxaudyt', 'realizacja', 'uxaudyt'),
   p('/uslugi/sklepy-internetowe', 'usluga', 'sklepy-internetowe'),
   p('/uslugi/strony-firmowe', 'usluga', 'strony-firmowe'),

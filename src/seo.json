@@ -142,5 +142,9 @@
   "wiedza__jaka-platforma-sklepu-internetowego": {
     "title": "Jaka platforma sklepu internetowego? Porównanie 2026",
     "description": "PrestaShop, Shopify, Shoper, WooCommerce i IdoSell: ceny z cenników, koszty ukryte, wady i zalety. Kiedy wybrać którą platformę sklepu."
+  },
+  "realizacje__tekma": {
+    "title": "Tekma.app: rekrutacja i onboarding na dowodach | Realizacja",
+    "description": "Aplikacja webowa do rekrutacji i onboardingu: karty oceny z wagami, Notetaker, sugestie AI z cytatami i plan 90 dni. Projekt UX/UI, strona i kod."
   }
 }
