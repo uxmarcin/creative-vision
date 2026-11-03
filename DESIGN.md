@@ -12,16 +12,18 @@ Kierunek: **czarno-biały, typograficzny, spokojny**, w duchu framer.com, z **ko
 | `--be` | `#F2EEE9` | ciepły beż: hover przycisku primary, akcenty tła (rzadko) |
 | line-dark | `rgba(255,255,255,.12)` | linie, ramki boxów na ciemnym |
 | line-light | `rgba(11,11,11,.12)` | linie, ramki boxów na jasnym |
-| muted-dark | `rgba(255,255,255,.5–.6)` | opisy, podpisy na ciemnym |
-| muted-light | `rgba(11,11,11,.55–.65)` | opisy, podpisy na jasnym |
+| muted-dark `--md` | `rgba(255,255,255,.62)` (min. .55) | opisy, podpisy na ciemnym |
+| muted-light `--ml` | `rgba(11,11,11,.64)` (min. .62) | opisy, podpisy na jasnym; poniżej .62 tekst 13–17px nie spełnia 4.5:1 |
+| `#FBFBFB` | `#FBFBFB` | tło jasnej sekcji `.sw-be` (platformy, „Czytaj dalej”) |
+| błąd | `#B42A26` | komunikat błędu formularza (5.9:1 na bieli); ramka pola z błędem `#C42B27` |
 | **gradient marki** | `#E9685F → #E03F3B → #AC2069 → #88409F → #3E63EF → #51BAD4` | **główny element tożsamości marki** (decyzja właściciela 03.11): wyróżnione słowa w treści i nagłówkach (`.sw-gr`, `*…*` w danych), cienkie akcenty (np. linia pod tytułem realizacji), poświata kursora (25%) |
 
-Zasady: gradient zostaje i jest rozpoznawalnym znakiem marki — używamy go świadomie w treści: jedno wyróżnione słowo lub krótka fraza na nagłówek (strona, sekcja), akcenty liniowe. Nie w tłach sekcji (mesh usunięty 02.11) i nie na całych akapitach. Przyciski bez gradientu: primary = biel/czerń. Kontrast tekstu ≥ 4.5:1 (szare opisy nie jaśniejsze niż .5 na czerni).
+Zasady: gradient zostaje i jest rozpoznawalnym znakiem marki — używamy go świadomie w treści: jedno wyróżnione słowo lub krótka fraza na nagłówek (strona, sekcja), akcenty liniowe. Nie w tłach sekcji (mesh usunięty 02.11) i nie na całych akapitach. Przyciski bez gradientu: primary = biel/czerń. Kontrast tekstu ≥ 4.5:1: szare opisy przez tokeny `--md` / `--ml`, nie przez `opacity` poniżej .62 na bieli.
 
 ## Typografia
 
-- **Krój główny:** Satoshi (lokalnie, 300/400/500/700), stos `'Aeonik','Aeonik Pro','Satoshi',system-ui,sans-serif` (`--serif`).
-- **Utility:** IBM Plex Mono 400: tylko drobne etykiety techniczne (np. stopka, ścieżki). Etykiety sekcji `.sw-k` to Satoshi 600, 12–13px, wersaliki, tracking .12–.14em.
+- **Krój główny:** Satoshi (lokalnie, 300/400/500/700), stos `'Satoshi',system-ui,sans-serif` (`--serif`).
+- **Utility:** IBM Plex Mono 400: tylko linia prawna w stopce (©, NIP). Etykiety formularza, tagi, stanowiska, linki stopki i etykieta nad H1 na głównej to Satoshi. Etykiety sekcji `.sw-k` to Satoshi 600, 12–13px, wersaliki, tracking .12–.14em.
 - **Skala (desktop → mobile):**
 
 | Rola | Rozmiar | Interlinia | Waga |
@@ -35,7 +37,7 @@ Zasady: gradient zostaje i jest rozpoznawalnym znakiem marki — używamy go św
 | Body | 17px (min. 16px) | 1.6 | 400 |
 | Etykiety, przyciski | 12–13px wersaliki, tracking .1em | — | 500–600 |
 
-Do uporządkowania: w CSS występuje ~20 różnych rozmiarów (11–28px). Nowe elementy biorą wyłącznie wartości z tabeli.
+Nowe elementy biorą wyłącznie wartości z tabeli. Tytuły kart realizacji i poradników: 21px (H3 kart).
 
 ## Odstępy i siatka
 
@@ -45,7 +47,7 @@ Do uporządkowania: w CSS występuje ~20 różnych rozmiarów (11–28px). Nowe 
 
 ## Kształt i głębia
 
-- Promienie: przyciski **0** (prostokątne), boxy/karty siatki 28px (mobile 22px), obrazy w kartach 18–24px, pigułki/plakietki 999px.
+- Promienie: przyciski **0** (prostokątne), boxy/karty siatki i formularz 28px (mobile 22px), obrazy w kartach 20px, duże zrzuty realizacji 24px, pigułki/plakietki/tagi 999px.
 - Cienie: brak w treści. Głębia z cienkich linii 1px. Jedyne cienie: mockupy urządzeń w hero (`0 40px 90px rgba(0,0,0,.55)`).
 
 ## Komponenty
@@ -59,11 +61,18 @@ Do uporządkowania: w CSS występuje ~20 różnych rozmiarów (11–28px). Nowe 
 - **Nawigacja**: logo + linki zaraz za nim (18px, białe, podkreślenie animowane), CTA primary po prawej; mobile: burger + pełnoekranowe menu.
 - **Hero podstron**: wyrównany do lewej; breadcrumb, etykieta szara wersalikami, H1, jeden przycisk primary.
 - **FAQ** `.sw-faq`: `details` z linią dolną, „+” obracany do „×”.
+- **Cennik** `.cv-pr`: 3 komórki w ramce 1px / 28px (strona, sklep, opieka), cena 36–48px 500, „od” i „netto” 15px muted; cienka linia gradientu u góry wyróżnionej komórki i na hover; pod spodem 4 fakty (wycena w 2 dni, stała cena, 12 mies. gwarancji, szkolenie w cenie) z ikoną check i przycisk primary. Na ciemnym na głównej, na jasnym w `/wiedza/cennik`.
+- **Pas CTA** `.sw-cta`: jeden na stronę, wyrównany do lewej, cienka linia gradientu u góry, H2 z jednym słowem w gradiencie, przycisk primary i czas odpowiedzi obok. Stopka nie powtarza CTA.
+- **Formularz**: etykiety Satoshi 600 13px wersaliki, pola z linią 1px; błąd pod polem (`.sw-err`, `aria-invalid`, `aria-describedby`), sukces zastępuje formularz komunikatem `role=status` z linią gradientu.
+- **Fokus**: `outline 2px currentColor`, offset 4px, bez zaokrągleń; w komórkach siatki obrys wewnętrzny (`box-shadow inset`). Link „Przejdź do treści” na początku każdej strony.
+- **Ruch**: sekcje poniżej pierwszego ekranu wjeżdżają (opacity + 28px, 0.9s) dopiero z JS; bez JS i przy `prefers-reduced-motion` wszystko widoczne od razu. Hover kart: zoom zdjęcia 1.04, linia gradientu pod tytułem.
+- **Mobilny pasek kontaktu** `.cv-mbar`: na całą szerokość przy dolnej krawędzi, czarny z linią 1px, przyciski prostokątne wersalikami (primary biały); pojawia się, gdy przycisk z hero zniknie z ekranu, chowa się przy otwartym menu i banerze cookies.
 
 ## Obrazy i ikony
 
 - Ikony: **Lucide**, obrys 1.5 (siatki), 1–1.2 (proces). Bez emoji.
 - Zrzuty realizacji w ramce przeglądarki/telefonu albo pełne w kartach; zdjęcia prawdziwe, bez stockowych ludzi.
+- Grafiki w WebP (maks. 1600px szerokości), z `width`/`height`; poniżej pierwszej sekcji `loading="lazy"`.
 - Loga klientów i platform w bieli (filtr `brightness(0) invert(1)` na ciemnym).
 
 ## Czego unikamy

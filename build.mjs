@@ -45,13 +45,51 @@ const ORG = {
 };
 // katalog usług z cenami: te same fakty co na stronach usług
 ORG.hasOfferCatalog = { '@type': 'OfferCatalog', name: 'Usługi Creative Vision', itemListElement: Object.entries(SVC).filter(([k]) => !/rzeszow|agencja/.test(k)).map(([k, v]) => { const m = /od ([\d ]+) zł/.exec(v.price || ''); const o = { '@type': 'Offer', itemOffered: { '@type': 'Service', name: v.t, url: SITE + '/uslugi/' + k } }; if (m) o.priceSpecification = { '@type': 'PriceSpecification', minPrice: +m[1].replace(/ /g, ''), priceCurrency: 'PLN', valueAddedTaxIncluded: false }; return o; }) };
-const PERSON = { '@type': 'Person', '@id': SITE + '/#marcin', name: 'Marcin Bednarz', jobTitle: 'Projektant UX', email: 'marcin@creative-vision.pl', worksFor: { '@id': SITE + '/#org' }, image: SITE + '/img/1xr8IhxdxklrGfoPQf1BntgnNA.webp' };
+const PERSON = { '@type': 'Person', '@id': SITE + '/#marcin', name: 'Marcin Bednarz', jobTitle: 'Projektant UX', email: 'marcin@creative-vision.pl', worksFor: { '@id': SITE + '/#org' }, image: SITE + '/img/1xr8IhxdxklrGfoPQf1BntgnNA.webp', sameAs: ['https://www.linkedin.com/in/marcin-bednarz-a3328910a/', 'https://marcinbednarz.pl'] };
 const WEBSITE = { '@type': 'WebSite', '@id': SITE + '/#website', url: SITE + '/', name: 'Creative Vision', inLanguage: 'pl-PL', publisher: { '@id': SITE + '/#org' } };
 const plain = (t) => String(t || '').replace(/\*/g, '');
 const crumbs = (list) => ({ '@type': 'BreadcrumbList', itemListElement: list.map(([name, url], i) => ({ '@type': 'ListItem', position: i + 1, name, item: SITE + url })) });
 // mobilny pasek kontaktu: telefon jednym dotknięciem i wycena (tylko na telefonach)
 const MBAR = '<nav class="cv-mbar" aria-label="Szybki kontakt"><a href="tel:+48534154230">Zadzwoń</a><a href="/kontakt" class="pri">Bezpłatna wycena</a></nav>'
-  + '<style>.cv-mbar{display:none}@media (max-width:809px){.cv-mbar{display:flex;gap:8px;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:40;padding:6px;border-radius:14px;background:rgba(11,11,11,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(0,0,0,.25)}.cv-mbar a{flex:1;display:flex;align-items:center;justify-content:center;height:44px;border-radius:10px;font:500 15px/1 Satoshi,system-ui,sans-serif;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.18)}.cv-mbar a.pri{background:#fff;color:#0B0B0B;border-color:#fff}body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}}</style>';
+  + '<style>.cv-mbar{display:none}@media (max-width:809px){.cv-mbar{display:grid;grid-template-columns:1fr 1.7fr;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:40;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#000;border-top:1px solid rgba(255,255,255,.14);transform:translateY(110%);visibility:hidden;transition:transform .35s cubic-bezier(.2,.7,.2,1),visibility .35s}.cv-mbar.on{transform:none;visibility:visible}.cv-mbar a{display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 12px;font:600 13px/1 Satoshi,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:0}.cv-mbar a.pri{background:#fff;color:#0B0B0B;border-color:#fff}.cv-mbar a.pri::after{content:"→";letter-spacing:0}.cv-mbar a:focus-visible{outline:2px solid #fff;outline-offset:3px}body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}body:has(.sw-ck) .cv-mbar,body:has(.sw-mnav.on) .cv-mbar{display:none}}@media (prefers-reduced-motion:reduce){.cv-mbar{transition:none}}</style>';
+// wymiary obrazów z nagłówków plików (PNG, JPEG, WebP), żeby przeglądarka znała proporcje przed pobraniem
+const dimCache = new Map();
+function imgDims(src) {
+  if (dimCache.has(src)) return dimCache.get(src);
+  let d = null;
+  try {
+    const b = fs.readFileSync(path.join(OUT, src));
+    if (b.toString('ascii', 1, 4) === 'PNG') d = [b.readUInt32BE(16), b.readUInt32BE(20)];
+    else if (b.toString('ascii', 0, 4) === 'RIFF' && b.toString('ascii', 8, 12) === 'WEBP') {
+      const t = b.toString('ascii', 12, 16);
+      if (t === 'VP8X') d = [1 + b.readUIntLE(24, 3), 1 + b.readUIntLE(27, 3)];
+      else if (t === 'VP8 ') d = [b.readUInt16LE(26) & 0x3fff, b.readUInt16LE(28) & 0x3fff];
+      else if (t === 'VP8L') { const n = b.readUInt32LE(21); d = [(n & 0x3fff) + 1, ((n >> 14) & 0x3fff) + 1]; }
+    } else if (b[0] === 0xff && b[1] === 0xd8) {
+      for (let i = 2; i < b.length;) {
+        const m = b[i + 1], len = b.readUInt16BE(i + 2);
+        if (m >= 0xc0 && m <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(m)) { d = [b.readUInt16BE(i + 7), b.readUInt16BE(i + 5)]; break; }
+        i += 2 + len;
+      }
+    }
+  } catch {}
+  dimCache.set(src, d);
+  return d;
+}
+// <img> z /img/: width/height, decoding=async; poniżej pierwszej sekcji loading=lazy
+function imgAttrs(html) {
+  const fold = html.indexOf('</section>');
+  return html.replace(/<img\b([^>]*?)\/?>/g, (tag, attrs, at) => {
+    const m = /\ssrc="(\/img\/[^"]+)"/.exec(attrs);
+    if (!m) return tag;
+    let a = attrs;
+    const d = imgDims(m[1]);
+    if (d && !/\swidth=/.test(a)) a += ` width="${d[0]}" height="${d[1]}"`;
+    if (!/\sdecoding=/.test(a)) a += ' decoding="async"';
+    if (!/\sloading=/.test(a) && fold > -1 && at > fold) a += ' loading="lazy"';
+    return '<img' + a + '>';
+  });
+}
 function jsonld(p, title, desc, url) {
   const { view, item } = p.props;
   const g = [ORG, PERSON, WEBSITE, { '@type': 'WebPage', '@id': url + '#page', url, name: title, description: desc, inLanguage: 'pl-PL', isPartOf: { '@id': SITE + '/#website' }, about: { '@id': SITE + '/#org' } }];
@@ -89,7 +127,7 @@ for (const p of pages) {
   const title = s.title || m.title, desc = s.description || m.description;
   // stara grafika z Framera (8UVL…) pokazywała nieaktualny projekt strony, więc wszędzie nowa
   const url = SITE + p.path, img = SITE + '/img/og-creative-vision.png';
-  const html = renderToString(jsx(App, p.props));
+  const html = imgAttrs(renderToString(jsx(App, p.props)));
   const doc = `<!doctype html>
 <html lang="pl">
 <head>
@@ -125,7 +163,7 @@ for (const p of pages) {
 <script type="application/json" id="cv-props">${JSON.stringify(p.props).replace(/</g, '\\u003c')}</script>
 <script type="module" src="${js}"></script>
 <script src="/fx/fluid.js?v=2611022125" defer></script>
-<script src="/fx/reveal.js?v=2611022125" defer></script>
+<script src="/fx/reveal.js?v=2611032300" defer></script>
 ${p.path === '/kontakt' ? '' : MBAR}
 </body>
 </html>
