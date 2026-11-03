@@ -30,7 +30,8 @@ const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;'
 const css = fs.readFileSync(path.join(ROOT, 'src/base.css'), 'utf8').replace(/\s*\n\s*/g, '');
 const App = (await import('./src/apps/cv.mjs')).default;
 const lib = await import('./src/c/shared-lib.mjs');
-const SVC = lib.zs, ART = lib.za, CASES = lib.zb, IMG = lib.zw;
+const SVC = lib.zs, ART = lib.za, CASES = lib.zb, IMG = lib.zw, HOME_FAQ = lib.zf, KONTAKT_FAQ = lib.zk;
+const faqPage = (items) => ({ '@type': 'FAQPage', mainEntity: items.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
 const ORG = {
   '@type': 'ProfessionalService', '@id': SITE + '/#org', name: 'Creative Vision', url: SITE + '/',
   logo: SITE + '/img/5nu54lUTuTBKgAmsftppZDI0Y.png', image: SITE + '/img/og-creative-vision.png',
@@ -38,13 +39,13 @@ const ORG = {
   email: 'kontakt@creative-vision.pl', telephone: '+48534154230', taxID: '7952514299',
   address: { '@type': 'PostalAddress', streetAddress: 'ul. Pańska 13A', addressLocality: 'Rzeszów', addressRegion: 'podkarpackie', addressCountry: 'PL' },
   areaServed: [{ '@type': 'Country', name: 'Polska' }, { '@type': 'City', name: 'Rzeszów' }],
-  knowsAbout: ['Projektowanie stron internetowych', 'Sklepy internetowe', 'E-commerce', 'Projektowanie UX/UI', 'Aplikacje mobilne', 'Audyt UX'],
-  priceRange: 'od 490 zł',
+  knowsAbout: ['Projektowanie stron internetowych', 'Sklepy internetowe', 'PrestaShop', 'E-commerce', 'Projektowanie UX/UI', 'Aplikacje mobilne', 'Audyt UX'],
+  priceRange: 'strona od 4 900 zł netto, sklep od 5 990 zł netto',
   founder: { '@id': SITE + '/#marcin' },
 };
 // katalog usług z cenami: te same fakty co na stronach usług
 ORG.hasOfferCatalog = { '@type': 'OfferCatalog', name: 'Usługi Creative Vision', itemListElement: Object.entries(SVC).filter(([k]) => !/rzeszow|agencja/.test(k)).map(([k, v]) => { const m = /od ([\d ]+) zł/.exec(v.price || ''); const o = { '@type': 'Offer', itemOffered: { '@type': 'Service', name: v.t, url: SITE + '/uslugi/' + k } }; if (m) o.priceSpecification = { '@type': 'PriceSpecification', minPrice: +m[1].replace(/ /g, ''), priceCurrency: 'PLN', valueAddedTaxIncluded: false }; return o; }) };
-const PERSON = { '@type': 'Person', '@id': SITE + '/#marcin', name: 'Marcin Bednarz', jobTitle: 'Behavioral Designer / UX Specialist', email: 'marcin@creative-vision.pl', worksFor: { '@id': SITE + '/#org' }, image: SITE + '/img/1xr8IhxdxklrGfoPQf1BntgnNA.webp' };
+const PERSON = { '@type': 'Person', '@id': SITE + '/#marcin', name: 'Marcin Bednarz', jobTitle: 'Projektant UX', email: 'marcin@creative-vision.pl', worksFor: { '@id': SITE + '/#org' }, image: SITE + '/img/1xr8IhxdxklrGfoPQf1BntgnNA.webp' };
 const WEBSITE = { '@type': 'WebSite', '@id': SITE + '/#website', url: SITE + '/', name: 'Creative Vision', inLanguage: 'pl-PL', publisher: { '@id': SITE + '/#org' } };
 const plain = (t) => String(t || '').replace(/\*/g, '');
 const crumbs = (list) => ({ '@type': 'BreadcrumbList', itemListElement: list.map(([name, url], i) => ({ '@type': 'ListItem', position: i + 1, name, item: SITE + url })) });
@@ -62,7 +63,7 @@ function jsonld(p, title, desc, url) {
     const m = /od ([\d ]+) zł/.exec(v.price || '');
     if (m) svc.offers = { '@type': 'Offer', priceCurrency: 'PLN', priceSpecification: { '@type': 'PriceSpecification', minPrice: +m[1].replace(/ /g, ''), priceCurrency: 'PLN', valueAddedTaxIncluded: false } };
     g.push(svc);
-    if (v.faq && v.faq.length) g.push({ '@type': 'FAQPage', mainEntity: v.faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
+    if (v.faq && v.faq.length) g.push(faqPage(v.faq));
   } else if (view === 'artykul') {
     const a = ART.find((x) => x.s === item);
     if (a) {
@@ -72,10 +73,13 @@ function jsonld(p, title, desc, url) {
   } else if (view === 'realizacja' && CASES[item]) {
     const c = CASES[item];
     g.push(crumbs([home, ['Realizacje', '/realizacje'], [c.n, p.path]]));
-    g.push({ '@type': 'CreativeWork', '@id': url + '#work', name: c.n, description: c.intro, genre: c.k, image: SITE + c.d, creator: { '@id': SITE + '/#org' }, url });
+    g.push({ '@type': 'CreativeWork', '@id': url + '#work', name: c.n, headline: plain(c.h || c.n), description: c.intro, genre: c.k, image: SITE + c.d, creator: { '@id': SITE + '/#org' }, url });
   } else if (view !== 'home') {
     const names = { realizacje: 'Realizacje', 'o-nas': 'O nas', wiedza: 'Wiedza', kontakt: 'Kontakt' };
     if (names[view]) g.push(crumbs([home, [names[view], p.path]]));
+    if (view === 'kontakt' && KONTAKT_FAQ) g.push(faqPage(KONTAKT_FAQ));
+  } else if (HOME_FAQ) {
+    g.push(faqPage(HOME_FAQ));
   }
   return JSON.stringify({ '@context': 'https://schema.org', '@graph': g }).replace(/</g, '\\u003c');
 }
@@ -150,14 +154,16 @@ fs.writeFileSync(path.join(OUT, 'llms.txt'), [
   '',
   '> Studio projektowe z Rzeszowa (ul. Pańska 13A). Projektujemy od UX i wdrażamy strony internetowe dla firm, sklepy internetowe i aplikacje mobilne, prowadzimy audyty UX sklepów i opiekę po starcie. Pracujemy zdalnie z firmami z całej Polski, w Rzeszowie także na miejscu. Bezpłatna wycena z harmonogramem w 2 dni robocze.',
   '',
-  'Kontakt: kontakt@creative-vision.pl, +48 534 154 230. NIP 7952514299. Osoba kontaktowa: Marcin Bednarz (Behavioral Designer / UX Specialist).',
+  'Kontakt: kontakt@creative-vision.pl, +48 534 154 230. NIP 7952514299. Osoba kontaktowa: Marcin Bednarz (projektant UX, założyciel).',
   'Audyty UX sklepów prowadzimy w serwisie https://www.uxaudyt.pl',
   '',
   '## Najważniejsze fakty',
-  '- Obszar działania: cała Polska (praca zdalna), w Rzeszowie i na Podkarpaciu także spotkania na miejscu.',
+  '- Obszar działania: cała Polska (praca zdalna). Spotkania online albo w biurze w Rzeszowie (ul. Pańska 13A), po wcześniejszym umówieniu.',
   '- Ceny: strona firmowa od 4 900 zł netto, sklep internetowy od 5 990 zł netto, opieka od 490 zł netto miesięcznie; aplikacje mobilne i audyty UX wyceniane indywidualnie. Szczegóły: ' + SITE + '/wiedza/cennik',
-  '- Wycena: bezpłatna, z harmonogramem, w 2 dni robocze.',
-  '- Platforma sklepu: dobierana do asortymentu, budżetu i sposobu sprzedaży.',
+  '- Wycena: bezpłatna, z harmonogramem, w 2 dni robocze. Odpowiedź na wiadomość: w ciągu 1 dnia roboczego.',
+  '- Cena jest stała po ustaleniu zakresu. Na wdrożoną stronę lub sklep: 12 miesięcy gwarancji na naprawę błędów. Szkolenie z obsługi panelu jest w cenie strony i sklepu.',
+  '- Sklepy wdrażamy na PrestaShop (status PrestaShop Expert w programie partnerskim PrestaShop). Przy wyborze platformy doradzamy też inne rozwiązania (np. Shopify, Shoper, WooCommerce), ale na nich nie wdrażamy sklepów.',
+  '- Projekt prowadzi Marcin Bednarz: 13 lat projektowania produktów cyfrowych (m.in. B2B: budownictwo, logistyka, medycyna). Portfolio: https://marcinbednarz.pl',
   '- Proces: rozmowa, projekt UX/UI w Figmie (osobno na komputer i telefon), wdrożenie, testy, szkolenie, opieka po starcie.',
   '- Godziny: poniedziałek–piątek 9:00–17:00.',
   '',

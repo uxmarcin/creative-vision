@@ -32,4 +32,9 @@ export const pages = [
   p('/agencja-ecommerce', 'usluga', 'agencja-ecommerce'),
   p('/wiedza/cennik', 'artykul', 'cennik'),
   p('/wiedza/jak-wybrac-agencje-e-commerce', 'artykul', 'jak-wybrac-agencje-e-commerce'),
+  p('/uslugi/sklepy-prestashop', 'usluga', 'sklepy-prestashop'),
+  p('/uslugi/strony-dla-firm-budowlanych', 'usluga', 'strony-dla-firm-budowlanych'),
+  p('/wiedza/jak-zalozyc-sklep-internetowy', 'artykul', 'jak-zalozyc-sklep-internetowy'),
+  p('/wiedza/ile-kosztuje-aplikacja-mobilna', 'artykul', 'ile-kosztuje-aplikacja-mobilna'),
+  p('/wiedza/jaka-platforma-sklepu-internetowego', 'artykul', 'jaka-platforma-sklepu-internetowego'),
 ];

@@ -1,0 +1,2500 @@
+{
+ "ops": [
+  {
+   "op": "rep",
+   "old": "`Creative Vision · Studio projektowe · Cała Polska`",
+   "new": "`Studio projektowe z Rzeszowa · Cała Polska`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[`Dobry design.`,l(`br`,{}),`Realne `,l(`span`,{className:`sw-gr`,children:`efekty`}),`.`]",
+   "new": "[`Strony i sklepy `,l(`br`,{}),`internetowe bez `,l(`br`,{}),l(`span`,{className:`sw-gr`,children:`niespodzianek`}),`.`]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Projektujemy strony, sklepy internetowe i aplikacje, które klienci rozumieją od pierwszego kliknięcia i w których chętnie kupują. Pracujemy z firmami z całej Polski.`",
+   "new": "`Cały projekt zobaczysz na komputerze i telefonie, zanim powstanie kod. Wycenę z harmonogramem otrzymasz w 2 dni robocze, a po ustaleniu zakresu cena jest stała. Strona od 4 900 zł netto, sklep od 5 990 zł netto.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "children:`Bezpłatna wycena`}),l(`a`,{className:`sw-tl`,href:f.real,children:`Zobacz realizacje`})",
+   "new": "children:`Bezpłatna wycena w 2 dni`}),l(`a`,{className:`sw-tl`,href:f.real,children:`Zobacz realizacje`})",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Creative Vision to studio projektowe. Projektujemy od UX i wdrażamy strony firmowe, sklepy internetowe i aplikacje mobilne, a po starcie zostajemy przy ich rozwoju.`",
+   "new": "`Zaczynamy od tego, jak Twoi klienci szukają i kupują. Najpierw układ i treść, potem wygląd, na końcu kod. Po publikacji masz 12 miesięcy gwarancji na naprawę błędów.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Nam zaufali`",
+   "new": "`Kto stoi za projektem`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[`Projektujemy historie `,l(`span`,{className:`sw-gr`,children:`sukcesu`}),` sklepów`]",
+   "new": "[`Twój projekt prowadzi `,l(`span`,{className:`sw-gr`,children:`projektant`})]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Pracujemy z firmami usługowymi, sklepami i startupami. Czy to pierwszy sklep, czy przeniesienie z innej platformy, zaczynamy od tego, jak klient kupuje.`",
+   "new": "`Marcin Bednarz od 13 lat projektuje produkty cyfrowe, także złożone systemy B2B dla budownictwa, logistyki i medycyny. Mamy status PrestaShop Expert i własny serwis z płatnościami online: uxaudyt.pl.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Uruchom sklep z nami`",
+   "new": "`Porozmawiaj z Marcinem`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "l(`small`,{children:`Usługa online · płatności`})",
+   "new": "l(`small`,{children:`Nasz produkt · płatności online`})",
+   "n": 2,
+   "first": false,
+   "note": "x2"
+  },
+  {
+   "op": "rep",
+   "old": "[l(`span`,{children:`Zaufały nam`}),l(`br`,{}),`firmy usługowe, sklepy i startupy`]",
+   "new": "[l(`span`,{children:`Wybrane realizacje`}),` `,l(`br`,{}),`strony firm, aplikacja i nasz serwis`]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[l(`span`,{children:`Powiązane`}),` artykuły`]",
+   "new": "[l(`span`,{children:`Przeczytaj`}),` też`]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Nasze usługi`",
+   "new": "`Usługi i ceny`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[`Projekt & `,l(`span`,{className:`sw-gr`,children:`Wzrost`})]",
+   "new": "[`Od projektu po `,l(`span`,{className:`sw-gr`,children:`opiekę`})]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Projektujemy i wdrażamy sklepy oraz strony, a potem pomagamy im rosnąć: audytem UX, poprawkami i stałą opieką.`",
+   "new": "`Potrzebujesz nowej strony lub sklepu? A może masz sklep, który sprzedaje za słabo? Zajmiemy się jednym i drugim, od projektu po stałą opiekę.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Sklep zaprojektowany pod ścieżkę zakupu, od karty produktu po płatność BLIK.`",
+   "new": "`Od 5 990 zł netto. Projektujemy drogę klienta od wyboru produktu po płatność BLIK-iem.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Strona, która w kilka sekund mówi, co robisz, i prowadzi do zapytania.`",
+   "new": "`Od 4 900 zł netto. W kilka sekund mówi, co robisz, i prowadzi do zapytania.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Przenosimy produkty, treści i przekierowania z innej platformy, żeby nie stracić pozycji w Google.`",
+   "new": "`Przenosimy produkty i treści z innej platformy, z przekierowaniami 301, które chronią obecny ruch z Google.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Sprawdzamy sklep jak klient i wdrażamy poprawki, które usuwają blokady.`",
+   "new": "`Sprawdzamy sklep oczami klienta i wdrażamy poprawki, np. krótszy formularz zamówienia.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Od warsztatu i prototypu po MVP na iOS i Android.`",
+   "new": "`Od warsztatu i prototypu po pierwszą wersję aplikacji na iOS i Android.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`BLIK, karty, Apple Pay, dostawy i import produktów.`",
+   "new": "`Łączymy sklep z BLIK-iem, kartami, Apple Pay, dostawami i importem produktów.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Szybkie ładowanie, dane strukturalne i poprawna struktura adresów.`",
+   "new": "`Szybkie ładowanie, dane strukturalne i uporządkowane adresy podstron.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Aktualizacje, kopie zapasowe i nowe funkcje, od 490 zł netto miesięcznie.`",
+   "new": "`Od 490 zł netto miesięcznie. Aktualizacje, kopie zapasowe i nowe funkcje.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Dowiedz się więcej`",
+   "new": "`Zobacz szczegóły`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Nasze narzędzia`",
+   "new": "`Platformy`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[`Technologie, dzięki którym`,l(`br`,{}),`sklep `,l(`span`,{className:`sw-gr`,children:`sprzedaje`})]",
+   "new": "[`Sklepy wdrażamy `,l(`br`,{}),`na `,l(`span`,{className:`sw-gr`,children:`PrestaShop`})]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Sklepy wdrażamy na PrestaShop, gdzie mamy status PrestaShop Expert. Przy wyborze platformy pomożemy porównać też inne rozwiązania popularne w Polsce.`",
+   "new": "`Mamy status PrestaShop Expert i na tej platformie wdrażamy sklepy. Jeśli lepiej pasuje Ci platforma abonamentowa, powiemy to wprost przed wyceną, a projekt UX i UI możemy przygotować niezależnie od platformy.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Najnowsze artykuły`",
+   "new": "`Poradniki`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[`Wiedza o `,l(`span`,{className:`sw-gr`,children:`e-commerce`})]",
+   "new": "[`Wiedza o stronach i `,l(`span`,{className:`sw-gr`,children:`sklepach`})]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Zobacz wszystkie`",
+   "new": "`Wszystkie poradniki`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "l(b,{quoteUrl:u,t:`*Twój projekt* może być następny.`})",
+   "new": "l(te,{items:cvHF}),l(b,{quoteUrl:u,t:`Twój projekt zobaczysz, *zanim powstanie kod*.`})",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "l(b,{quoteUrl:r,t:`*Twój projekt* może być następny.`})",
+   "new": "l(b,{quoteUrl:r,t:`Masz podobny projekt? *Opisz go*, a wycenę otrzymasz w 2 dni robocze.`})",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Studio projektowe, które projektuje *od UX*.`",
+   "new": "`Studio projektowe z Rzeszowa, które zaczyna *od klienta*.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Projektujemy i wdrażamy strony firmowe, sklepy internetowe i aplikacje mobilne. Zaczynamy od tego, jak klient kupuje, a po starcie zostajemy przy rozwoju.`",
+   "new": "`Projektujemy i wdrażamy strony firmowe, sklepy internetowe i aplikacje mobilne dla firm z całej Polski. Studio prowadzi Marcin Bednarz, projektant z 13-letnim doświadczeniem w produktach cyfrowych.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[`UX przed wyglądem`,`Najpierw ścieżka klienta i treści, dopiero potem projekt graficzny.`]",
+   "new": "[`Projekt przed kodem`,`Cały projekt zobaczysz i skomentujesz na komputerze i telefonie, zanim zaczniemy programować.`]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[`Jeden kontakt`,`Rozmawiasz z osobą, która prowadzi Twój projekt od początku do końca.`]",
+   "new": "[`Jeden kontakt`,`Rozmawiasz z osobą, która prowadzi Twój projekt od pierwszej rozmowy do publikacji.`]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[`Konkretne terminy`,`Wycenę i harmonogram otrzymasz w 2 dni robocze.`]",
+   "new": "[`Stała cena i harmonogram`,`Wycenę z harmonogramem otrzymasz w 2 dni robocze. Po ustaleniu zakresu cena się nie zmienia.`]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[`Zostajemy po starcie`,`Opieka, poprawki i rozwój, kiedy ich potrzebujesz.`]",
+   "new": "[`Gwarancja i opieka`,`Przez 12 miesięcy naprawiamy błędy w ramach gwarancji. Potem opieka i rozwój, jeśli ich potrzebujesz.`]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Behavioral Designer / UX Specialist · Założyciel Creative Vision`",
+   "new": "`Projektant UX · założyciel Creative Vision`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Projektuję strony i sklepy od strony użytkownika. Prowadzę też uxaudyt.pl, gdzie audytujemy sklepy internetowe i pokazujemy, co blokuje zakupy.`",
+   "new": "`Od 13 lat projektuję produkty cyfrowe, w tym złożone systemy B2B dla budownictwa, logistyki i medycyny. Przez 7 lat projektowałem dla Ingenious.Build. W Creative Vision prowadzę projekty stron, sklepów i aplikacji. Stworzyłem też uxaudyt.pl, serwis z audytami UX sklepów i płatnością online.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "l(`a`,{href:A,children:k})]})]})}),l(`section`,{className:`sw-sec sw-be`",
+   "new": "l(`a`,{href:A,children:k}),l(`a`,{href:`https://marcinbednarz.pl`,target:`_blank`,rel:`noopener`,children:`Portfolio: marcinbednarz.pl ↗`})]})]})}),l(`section`,{className:`sw-sec`,children:l(`div`,{className:`sw-w`,children:c(`div`,{className:`sw-2c`,children:[c(`div`,{children:[l(`div`,{className:`sw-k`,children:`Dowody`}),l(`h2`,{className:`sw-h2`,children:$(`Co możesz *sprawdzić*, zanim napiszesz`)})]}),l(`div`,{className:`sw-gets sw-gets2`,children:[[`13 lat projektowania`,`Marcin Bednarz projektuje produkty cyfrowe od 13 lat, także dla firm z budownictwa, logistyki i medycyny. Case studies znajdziesz na marcinbednarz.pl.`],[`PrestaShop Expert`,`Mamy status PrestaShop Expert w programie partnerskim PrestaShop. Sklepy na tej platformie projektujemy i wdrażamy od początku do końca.`],[`Nasz własny serwis`,`uxaudyt.pl zaprojektowaliśmy i uruchomiliśmy sami: zamówienie audytu, płatność online i raport. Wiemy więc, jak działa sprzedaż przez stronę od środka.`]].map(([e,t])=>c(`div`,{children:[l(`h3`,{children:e}),l(`p`,{children:t})]},e))})]})})}),l(`section`,{className:`sw-sec sw-be`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Narzędzia`",
+   "new": "`Platformy i narzędzia`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "l(`h2`,{className:`sw-h2`,children:`Na czym pracujemy`})]})",
+   "new": "l(`h2`,{className:`sw-h2`,children:`Na czym pracujemy`}),l(`p`,{children:`Projekty powstają w Figmie, strony firmowe budujemy we Framerze, a sklepy na PrestaShop. Płatności i dostawy, które znają Twoi klienci: BLIK, Przelewy24, Stripe, InPost. Ruch i zapytania mierzymy w Google Analytics 4.`})]})",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "wzrost:t+`/uslugi/audyt-ux`",
+   "new": "wzrost:t+`/uslugi/strony-firmowe`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "{href:f.projekt,children:`Projekt`}",
+   "new": "{href:f.projekt,children:`Sklepy`}",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "{href:f.wzrost,children:`Wzrost`}",
+   "new": "{href:f.wzrost,children:`Strony`}",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "l(`a`,{href:f.real,children:`Realizacje`}),l(`a`,{href:f.onas,children:`O nas`})",
+   "new": "l(`a`,{href:f.real,children:`Realizacje`}),l(`a`,{href:t+`/wiedza/cennik`,children:`Cennik`}),l(`a`,{href:f.onas,children:`O nas`})",
+   "n": 2,
+   "first": true,
+   "note": "menu desktop: tylko pierwsze wystąpienie"
+  },
+  {
+   "op": "rep",
+   "old": "[[`Projekt`,f.projekt],[`Wzrost`,f.wzrost],[`Realizacje`,f.real],[`O nas`,f.onas]",
+   "new": "[[`Sklepy`,f.projekt],[`Strony`,f.wzrost],[`Realizacje`,f.real],[`Cennik`,t+`/wiedza/cennik`],[`O nas`,f.onas]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Bezpłatna wycena · odpowiedź w 2 dni`",
+   "new": "`Bezpłatna wycena w 2 dni robocze`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[`Projektujemy od UX.`,l(`br`,{}),`Wdrażamy do końca.`]",
+   "new": "[`Najpierw projekt, potem kod.`,l(`br`,{}),`12 miesięcy gwarancji.`]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "className:`sw-f3-sub`,children:`Wycenę i harmonogram otrzymasz w 2 dni robocze.`",
+   "new": "className:`sw-f3-sub`,children:`Odpiszemy w ciągu 1 dnia roboczego, pn–pt 9:00–17:00.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Opieka nad stroną`",
+   "new": "`Opieka nad stroną i sklepem`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Audyty UX: uxaudyt.pl ↗`",
+   "new": "`Audyt UX online: uxaudyt.pl ↗`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Masz projekt?`",
+   "new": "`Następny krok`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`*Opowiedz nam* o swoim sklepie lub stronie.`",
+   "new": "`Wycenę z harmonogramem otrzymasz w *2 dni robocze*.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Chcesz, żebyśmy *zaprojektowali* to dla Ciebie?`",
+   "new": "`Potrzebujesz strony lub sklepu? *Opisz projekt*, a wycenę otrzymasz w 2 dni robocze.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Chcesz, żebyśmy *sprawdzili* Twój sklep?`",
+   "new": "`Chcesz wiedzieć, ile będzie kosztował *Twój projekt*?`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[`Porozmawiaj z `,l(`b`,{children:`doradcą`})]",
+   "new": "[`Porozmawiaj z `,l(`b`,{children:`projektantem`})]",
+   "n": 2,
+   "first": false,
+   "note": "x2"
+  },
+  {
+   "op": "rep",
+   "old": "`Behavioral Designer / UX Specialist`",
+   "new": "`Projektant UX · założyciel Creative Vision`",
+   "n": 2,
+   "first": false,
+   "note": "x2"
+  },
+  {
+   "op": "rep",
+   "old": "l(`a`,{href:A,children:k}),l(`a`,{className:`sw-pill`,href:e,",
+   "new": "l(`a`,{href:A,children:k}),l(`p`,{style:{fontSize:15,lineHeight:1.6,maxWidth:420,margin:`14px 0 0`,opacity:.8},children:`Marcin prowadzi Twój projekt od pierwszej rozmowy do publikacji i odpisuje w ciągu 1 dnia roboczego.`}),l(`a`,{className:`sw-pill`,href:e,",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "U=[[`Rozmowa i wycena`,`Opowiadasz o firmie i celach. Wycenę i harmonogram otrzymasz w 2 dni robocze.`],[`Projekt w Figmie`,`Makiety i projekt graficzny, na desktopie oraz urządzeniach mobilnych. Akceptujesz każdy etap.`],[`Wdrożenie`,`Budujemy, podpinamy integracje i testujemy na różnych urządzeniach.`],[`Start i rozwój`,`Publikujemy, szkolimy i zostajemy przy dalszym rozwoju.`]]",
+   "new": "U=[[`Rozmowa i wycena`,`Opowiadasz o firmie i celach. Wycenę z harmonogramem otrzymasz w 2 dni robocze, a cena po ustaleniu zakresu jest stała.`],[`Projekt do akceptacji`,`Układ i wygląd na komputer i telefon. Komentujesz projekt i akceptujesz każdy etap, zanim powstanie kod.`],[`Wdrożenie`,`Budujemy według projektu, łączymy z płatnościami i innymi systemami, testujemy na telefonach i komputerach.`],[`Publikacja i gwarancja`,`Publikujemy i uczymy obsługi. Przez 12 miesięcy naprawiamy błędy w ramach gwarancji.`]]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "n===`sending`?`Wysyłanie…`:`Wyślij`",
+   "new": "n===`sending`?`Wysyłanie…`:`Wyślij zapytanie`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Dziękujemy! Wiadomość dotarła. Odpowiemy w ciągu 1 dnia roboczego.`",
+   "new": "`Dziękujemy, wiadomość dotarła. Odpiszemy w ciągu 1 dnia roboczego i umówimy krótką rozmowę. Wycenę z harmonogramem otrzymasz w 2 dni robocze.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "l(`input`,{type:`hidden`,name:`u`,value:`Zapytanie ze strony`})",
+   "new": "c(`label`,{children:[`Czego dotyczy zapytanie?`,l(`select`,{name:`u`,defaultValue:`Strona firmowa`,children:[`Strona firmowa`,`Sklep internetowy`,`Aplikacja mobilna`,`Audyt UX`,`Opieka nad stroną lub sklepem`,`Inne`].map(e=>l(`option`,{value:e,children:e},e))})]})",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "l(`textarea`,{name:`m`,rows:5,required:!0})",
+   "new": "l(`textarea`,{name:`m`,rows:5,required:!0,placeholder:`Kilka zdań o firmie i o tym, czego potrzebujesz. Jeśli masz stronę lub sklep, wklej adres.`})",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Porozmawiajmy`",
+   "new": "`Kontakt i bezpłatna wycena`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Chcesz omówić projekt albo dowiedzieć się więcej o naszych usługach? Chętnie posłuchamy.`",
+   "new": "`Napisz kilka zdań o firmie i o tym, czego potrzebujesz. Odpiszemy w ciągu 1 dnia roboczego, a wycenę z harmonogramem otrzymasz w 2 dni robocze. Bez zobowiązań.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Napisz przez formularz albo bezpośrednio na:`",
+   "new": "`Wolisz e-mail? Napisz bezpośrednio na:`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[`ul. Pańska 13A`,l(`br`,{}),`Rzeszów, Polska`]",
+   "new": "[`ul. Pańska 13A, Rzeszów`,l(`br`,{}),`pn–pt 9:00–17:00`]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Zobacz, co robimy`",
+   "new": "`Co stanie się po wysłaniu`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Projektujemy od UX i wdrażamy strony firmowe, sklepy internetowe i aplikacje mobilne. Po starcie zostajemy przy ich rozwoju.`",
+   "new": "`Odpiszemy w ciągu 1 dnia roboczego i umówimy krótką rozmowę. Wycenę z harmonogramem otrzymasz w 2 dni robocze. Decydujesz bez zobowiązań, a po ustaleniu zakresu cena jest stała.`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Więcej o nas`",
+   "new": "`Poznaj studio`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[[`Sklepy internetowe`,`/uslugi/sklepy-internetowe`],[`Strony firmowe`,`/uslugi/strony-firmowe`],[`Audyt UX`,`/uslugi/audyt-ux`],[`Aplikacje mobilne`,`/uslugi/aplikacje-mobilne`],[`Realizacje`,`/realizacje`]]",
+   "new": "[[`Realizacje`,`/realizacje`],[`Cennik`,`/wiedza/cennik`],[`Sklepy internetowe`,`/uslugi/sklepy-internetowe`],[`Strony firmowe`,`/uslugi/strony-firmowe`],[`Aplikacje mobilne`,`/uslugi/aplikacje-mobilne`]]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "e===`kontakt`?l(re,{home:i,base:n}):null",
+   "new": "e===`kontakt`?c(o,{children:[l(re,{home:i,base:n}),l(te,{items:cvKF})]}):null",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "d:`Usługa online · płatności`",
+   "new": "d:`Nasz produkt · płatności online`",
+   "n": 1,
+   "first": false,
+   "note": "F11"
+  },
+  {
+   "op": "rep",
+   "old": "function ee(e){return l(`div`,{className:`sw-w`,children:c(`div`,{className:`sw-shot`",
+   "new": "const cvHF=[[`Ile kosztuje strona internetowa, a ile sklep?`,`Strona firmowa kosztuje od 4 900 zł netto, sklep internetowy od 5 990 zł netto. Cena zależy od liczby podstron, produktów i integracji. Wycenę z harmonogramem otrzymasz w 2 dni robocze.`],[`Czy cena może wzrosnąć w trakcie projektu?`,`Po ustaleniu zakresu cena jest stała. Zmienia się tylko wtedy, gdy Ty zdecydujesz się rozszerzyć zakres.`],[`Kiedy zobaczę, jak będzie wyglądać moja strona lub sklep?`,`Zanim powstanie kod. Najpierw projektujemy układ i wygląd na komputer i telefon. Komentujesz projekt i akceptujesz każdy etap, a wdrożenie zaczynamy po Twojej akceptacji.`],[`Na jakiej platformie zbudujecie mój sklep?`,`Na PrestaShop. Mamy status PrestaShop Expert i na tej platformie wdrażamy sklepy. Jeśli z rozmowy wyjdzie, że lepiej pasuje Ci platforma abonamentowa, powiemy to wprost i pomożemy porównać opcje.`],[`Co dzieje się po publikacji?`,`Przez 12 miesięcy w ramach gwarancji naprawiamy błędy we wdrożonej stronie lub sklepie. Jeśli chcesz, zajmujemy się też aktualizacjami, kopiami zapasowymi i rozwojem w ramach opieki od 490 zł netto miesięcznie.`],[`Czy pracujecie z firmami spoza Rzeszowa?`,`Tak, z całej Polski. Rozmawiamy online, a projekt oglądasz i komentujesz w przeglądarce. Możesz też spotkać się z nami w biurze przy ul. Pańskiej 13A w Rzeszowie, po wcześniejszym umówieniu.`]],cvKF=[[`Jak szybko odpowiadacie?`,`W ciągu 1 dnia roboczego, od poniedziałku do piątku w godzinach 9:00–17:00. Wycenę z harmonogramem otrzymasz w 2 dni robocze.`],[`Czy wycena jest bezpłatna?`,`Tak. Rozmowa i wycena są bezpłatne i do niczego Cię nie zobowiązują.`],[`Co napisać w wiadomości?`,`Wystarczy kilka zdań: czym zajmuje się firma, czego potrzebujesz i do kiedy. Jeśli masz już stronę lub sklep, wklej adres. Resztę ustalimy w rozmowie.`],[`Czy możemy spotkać się osobiście?`,`Tak. Biuro mamy przy ul. Pańskiej 13A w Rzeszowie, spotkanie umówimy po wcześniejszym kontakcie. Z firmami z całej Polski rozmawiamy online, a projekt oglądasz i komentujesz w przeglądarce.`]];function cvB(e,t){return e[0]===`h`?l(`h2`,{children:e[1]},t):e[0]===`ul`?l(`ul`,{children:e[1].map(e=>l(`li`,{children:e},e))},t):e[0]===`ol`?l(`ol`,{children:e[1].map(e=>l(`li`,{children:e},e))},t):e[0]===`sum`?c(`aside`,{className:`tip`,children:[l(`b`,{children:`W skrócie`}),l(`p`,{children:e[1]})]},t):e[0]===`tip`?c(`aside`,{className:`tip`,children:[l(`b`,{children:`Wskazówka`}),l(`p`,{children:e[1]})]},t):e[0]===`more`?c(`aside`,{className:`tip`,children:[l(`b`,{children:`Więcej na ten temat`}),c(`p`,{children:[e[1],` `,l(`a`,{href:e[2],target:/^http/.test(e[2])?`_blank`:void 0,rel:`noopener`,style:{textDecoration:`underline`,textUnderlineOffset:3},children:e[3]})]})]},t):l(`p`,{children:e[1]},t)}function ee(e){return l(`div`,{className:`sw-w`,children:c(`div`,{className:`sw-shot`",
+   "n": 1,
+   "first": false,
+   "note": "cvHF/cvKF + cvB"
+  },
+  {
+   "op": "rep",
+   "old": "e.b.map((e,t)=>e[0]===`h`?l(`h2`,{children:e[1]},t):e[0]===`ul`?l(`ul`,{children:e[1].map(e=>l(`li`,{children:e},e))},t):e[0]===`ol`?l(`ol`,{children:e[1].map(e=>l(`li`,{children:e},e))},t):e[0]===`sum`?c(`aside`,{className:`tip`,children:[l(`b`,{children:`W skrócie`}),l(`p`,{children:e[1]})]},t):e[0]===`tip`?c(`aside`,{className:`tip`,children:[l(`b`,{children:`Wskazówka`}),l(`p`,{children:e[1]})]},t):e[0]===`more`?c(`aside`,{className:`tip`,children:[l(`b`,{children:`Więcej na ten temat`}),c(`p`,{children:[e[1],` `,l(`a`,{href:e[2],target:/^http/.test(e[2])?`_blank`:void 0,rel:`noopener`,style:{textDecoration:`underline`,textUnderlineOffset:3},children:e[3]})]})]},t):l(`p`,{children:e[1]},t))",
+   "new": "e.b.map(cvB)",
+   "n": 1,
+   "first": false,
+   "note": "artykuł używa cvB"
+  },
+  {
+   "op": "rep",
+   "old": "export{ue as i,de as n,S as r,fe as t,z as zs,N as za,B as zb,w as zw}",
+   "new": "export{ue as i,de as n,S as r,fe as t,z as zs,N as za,B as zb,w as zw,cvHF as zf,cvKF as zk}",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "children:U.map(([e,t],n)=>c(`div`,{className:`fx-cell`,children:[c(`div`,{className:`fx-top`",
+   "new": "children:(e.steps||U).map(([e,t],n)=>c(`div`,{className:`fx-cell`,children:[c(`div`,{className:`fx-top`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "l(`section`,{className:`sw-sec sw-dark`,children:c(`div`,{className:`sw-w`,children:[l(`div`,{className:`sw-k`,children:`Proces`})",
+   "new": "e.sec?l(`section`,{className:`sw-sec sw-be`,children:l(`div`,{className:`sw-w`,children:c(`div`,{className:`sw-2c`,children:[c(`div`,{children:[l(`div`,{className:`sw-k`,children:e.sec.k}),l(`h2`,{className:`sw-h2`,children:$(e.sec.h)})]}),c(`div`,{children:[...e.sec.p.map((t,n)=>l(`p`,{style:{marginBottom:20},children:t},n)),e.sec.a?l(`a`,{className:`sw-ob s k`,href:(/^http/.test(e.sec.a[1])?``:n)+e.sec.a[1],target:/^http/.test(e.sec.a[1])?`_blank`:void 0,rel:`noopener`,style:{marginTop:12},children:e.sec.a[0]}):null]})]})})}):null,e.x?l(`section`,{className:`sw-sec sw-art-s`,children:l(`div`,{className:`sw-w`,children:l(`article`,{className:`sw-art sw-x`,children:e.x.map(cvB)})})}):null,l(`section`,{className:`sw-sec sw-dark`,children:c(`div`,{className:`sw-w`,children:[l(`div`,{className:`sw-k`,children:`Proces`})",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "[/aplikac/i,`smartphone`]],cvI=",
+   "new": "[/aplikac/i,`smartphone`],[/integrac/i,`plug`],[/galeri/i,`layout-template`],[/opini/i,`messages-square`],[/telefon/i,`message-circle`],[/^oferta/i,`list-checks`],[/google/i,`search`]],cvI=",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "h:e.n,lead:e.intro",
+   "new": "h:e.h||e.n,lead:e.intro",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "children:`Co zrobiliśmy`}",
+   "new": "children:`Co postanowiliśmy i dlaczego`}",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "l(`p`,{children:e.did})",
+   "new": "...(Array.isArray(e.did)?e.did:[e.did]).map((t,i)=>l(`p`,{style:{marginBottom:20},children:t},i))",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "children:e.scope.map(e=>l(`span`,{children:e},e))})]})]})]})})",
+   "new": "children:e.scope.map(e=>l(`span`,{children:e},e))})]})]}),e.got?c(`div`,{className:`sw-2c`,style:{marginTop:70},children:[l(`div`,{children:l(`div`,{className:`sw-k`,children:e.gotk||`Co otrzymał klient`})}),c(`div`,{children:[l(`p`,{children:e.got}),e.svc?l(`a`,{className:`sw-ob s k`,href:n+e.svc[1],style:{marginTop:32},children:e.svc[0]}):null]})]}):null]})})",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "$(`Zaprojektowana *od pierwszego ekranu*`)",
+   "new": "$(e.vh||`Zaprojektowana *od pierwszego ekranu*`)",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": ".sw-kt-form textarea{border:1px solid #888;padding:12px;resize:vertical}",
+   "new": ".sw-kt-form textarea{border:1px solid #888;padding:12px;resize:vertical}\n.sw-kt-form select{font:inherit;font-family:var(--serif);font-size:16px;text-transform:none;letter-spacing:0;border:0;border-bottom:1px solid #888;border-radius:0;background:transparent;color:var(--bk);padding:10px 0;outline:none;width:100%}\n.sw-kt-form select:focus{border-color:var(--bk)}",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": ".cv-intro{padding-top:24px;padding-bottom:8px}.cv-reveal{font-size:32px}}\n`}})",
+   "new": ".cv-intro{padding-top:24px;padding-bottom:8px}.cv-reveal{font-size:32px}}\n.sw-art.sw-x{margin:0;max-width:760px}\n.sw-art.sw-x>h2:first-child{margin-top:0!important}\n.sw-plat{grid-template-columns:repeat(2,1fr)!important}\n.sw-plat div{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:14px;height:150px!important}\n.sw-plat small{font-size:13px;font-weight:400;letter-spacing:0;line-height:1.35;opacity:.6;max-width:24ch}\n@container (max-width: 560px){.sw-plat div{height:130px!important;gap:10px}.sw-plat small{font-size:12px}}\n`}})",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": ",[`IdoSell`,`NVCRzLcuJ6eUd5qCGFFHUqJtiPI.png`],[`Magento`,`2deQ06AFevocTcry3Yupxtr3KUg.png`]]",
+   "new": "]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "se.map(([e,t])=>l(`div`,{children:l(`img`,{src:C+t,alt:e,loading:`lazy`})},e))",
+   "new": "se.map(([e,t])=>c(`div`,{children:[l(`img`,{src:C+t,alt:e,loading:`lazy`}),l(`small`,{children:e===`PrestaShop`?`PrestaShop Expert: wdrażamy sklepy`:`Pomożemy porównać przy wyborze platformy`})]},e))",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "`Mamy status PrestaShop Expert: sklepy wdrażamy na PrestaShop`",
+   "new": "`PrestaShop Expert w programie partnerskim PrestaShop`",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "R=[`sklepy-internetowe`,`strony-firmowe`,`sklepy-internetowe`,`audyt-ux`,`aplikacje-mobilne`,`sklepy-internetowe`,`audyt-ux`,`opieka`]",
+   "new": "R=[`sklepy-internetowe`,`strony-firmowe`,`sklepy-prestashop`,`audyt-ux`,`aplikacje-mobilne`,`sklepy-internetowe`,`sklepy-internetowe`,`opieka`]",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "rep",
+   "old": "l(`a`,{href:t+`/uslugi/sklepy-internetowe`,children:`Sklepy internetowe`}),l(`a`,{href:t+`/uslugi/strony-firmowe`,children:`Strony firmowe`})",
+   "new": "l(`a`,{href:t+`/uslugi/sklepy-internetowe`,children:`Sklepy internetowe`}),l(`a`,{href:t+`/uslugi/sklepy-prestashop`,children:`Sklepy PrestaShop`}),l(`a`,{href:t+`/uslugi/strony-firmowe`,children:`Strony firmowe`})",
+   "n": 1,
+   "first": false,
+   "note": ""
+  },
+  {
+   "op": "svc",
+   "key": "sklepy-internetowe",
+   "js": "\"sklepy-internetowe\":{k:`Projekt`,t:`Sklepy internetowe`,hero:`/img/cv-sklep-hero.webp`,plat:!0,h:`Tworzenie sklepów internetowych: swój sklep zobaczysz, *zanim powstanie kod*.`,lead:`Projektujemy ścieżkę zakupu od wejścia z Google, przez kategorię i kartę produktu, po płatność BLIK. Cały sklep zobaczysz w Figmie na komputerze i telefonie, a wycenę z harmonogramem otrzymasz w 2 dni robocze. Po ustaleniu zakresu cena jest stała.`,img:w.szD,ph:w.szM,price:`od 5 990 zł netto`,gets:[[`Projekt widoków sklepu`,`Strona główna, kategoria z filtrami, karta produktu, koszyk i zamówienie. Każdy ekran zobaczysz i skomentujesz w Figmie, osobno na komputer i telefon.`],[`Wdrożenie na PrestaShop`,`Mamy status PrestaShop Expert i na tej platformie wdrażamy sklepy. Jeśli lepiej pasuje Ci platforma abonamentowa, powiemy to przy wycenie.`],[`Płatności i dostawy`,`BLIK, karty i Apple Pay, paczkomaty InPost i kurierzy. Koszt dostawy pokazujemy klientowi wcześnie, żeby nie zaskoczył go w podsumowaniu.`],[`Import produktów`,`Przenosimy katalog, zdjęcia i opisy z obecnego systemu albo z pliku.`],[`SEO techniczne`,`Szybkie ładowanie, dane strukturalne produktów i przekierowania 301 ze starych adresów, które chronią obecny ruch z Google.`],[`Gwarancja 12 miesięcy i opieka`,`Przez 12 miesięcy od startu naprawiamy błędy we wdrożonym sklepie. Dalszy rozwój możesz powierzyć nam w ramach opieki od 490 zł netto miesięcznie.`]],faq:[[`Ile kosztuje sklep internetowy?`,`Sklep internetowy kosztuje u nas od 5 990 zł netto. Cena rośnie z liczbą produktów, integracjami i zakresem projektu. Wycenę z harmonogramem otrzymasz w 2 dni robocze, a po ustaleniu zakresu cena jest stała.`],[`Czy cena może wzrosnąć w trakcie projektu?`,`Cena z wyceny jest stała po ustaleniu zakresu. Zmienia się tylko wtedy, gdy zmienia się zakres, na przykład gdy w trakcie zdecydujesz się dodać nową integrację.`],[`Ile trwa budowa sklepu?`,`To zależy od liczby produktów, integracji i projektu. Termin każdego etapu, od projektu w Figmie po start, zapisujemy w harmonogramie, który otrzymasz razem z wyceną.`],[`Na jakiej platformie powstanie mój sklep?`,`Sklepy wdrażamy na PrestaShop, w którym mamy status PrestaShop Expert. To oprogramowanie open source bez abonamentu. Jeśli z rozmowy wyjdzie, że lepiej sprawdzi się platforma abonamentowa, np. Shopify albo Shoper, powiemy to wprost.`],[`Czy przeniesiecie mój obecny sklep?`,`Tak. Przenosimy produkty, klientów i zamówienia, a stare adresy URL kierujemy na nowe przekierowaniami 301, które chronią obecny ruch z Google.`],[`Czy sam dodam produkty i obsłużę zamówienia?`,`Tak. W ramach wdrożenia szkolimy Cię z obsługi panelu: dodawania produktów, zmiany cen i obsługi zamówień.`],[`Co, jeśli po starcie coś przestanie działać?`,`Przez 12 miesięcy od startu naprawiamy błędy we wdrożonym sklepie w ramach gwarancji. Aktualizacje, kopie zapasowe i nowe funkcje obejmuje opieka od 490 zł netto miesięcznie.`]],sec:{k:`Projekt`,h:`Projektowanie sklepu internetowego ekran po ekranie`,p:[`Zaczynamy od tego, jak Twoi klienci szukają i kupują. Na tej podstawie układamy menu i kategorie, a potem projektujemy kolejne widoki: stronę główną, listę produktów z filtrami, kartę produktu, koszyk i zamówienie.`,`Na karcie produktu klient ma znaleźć wszystko, czego potrzebuje do decyzji: zdjęcia, cenę, dostępność, koszt i termin dostawy, zasady zwrotu. W koszyku i zamówieniu usuwamy zbędne pola i kroki, a płatność BLIK i paczkomat są pod ręką.`,`Każdy widok projektujemy osobno na komputer i telefon. Oglądasz i komentujesz go w Figmie, a wdrożenie zaczynamy dopiero po Twojej akceptacji.`],a:[`Agencja PrestaShop: wdrożenie sklepu`,`/uslugi/sklepy-prestashop`]}}"
+  },
+  {
+   "op": "svc",
+   "key": "strony-firmowe",
+   "js": "\"strony-firmowe\":{k:`Projekt`,t:`Strony firmowe`,h:`Tworzenie stron internetowych dla firm: strona, która prowadzi klienta *do zapytania*.`,lead:`Strona w kilka sekund mówi, co robisz i dla kogo, pokazuje realizacje i prowadzi do kontaktu. Całą zobaczysz w Figmie, zanim powstanie kod. Wdrażamy ją we Framerze, więc teksty i zdjęcia zmienisz sam. Wycenę z harmonogramem otrzymasz w 2 dni robocze.`,img:w.simD,ph:w.simM,price:`od 4 900 zł netto`,gets:[[`Struktura i treści`,`Układ podstron i teksty przygotowujemy pod pytania, które Twoi klienci zadają, zanim wyślą zapytanie.`],[`Projekt strony w Figmie`,`Każdy ekran zobaczysz i skomentujesz na komputerze i telefonie. Wdrożenie zaczynamy po Twojej akceptacji projektu.`],[`Wdrożenie we Framerze`,`Szybka strona, w której teksty, zdjęcia i realizacje zmienisz bez programisty.`],[`Formularz i analityka`,`Krótki formularz zapytania, Google Analytics 4 i zgody cookies. Od pierwszego dnia widzisz, ile osób odwiedza stronę i skąd przychodzą.`],[`SEO na start`,`Tytuły i opisy podstron, nagłówki, mapa strony, dane strukturalne firmy i przekierowania 301 ze starej strony.`],[`Gwarancja 12 miesięcy i opieka`,`Przez 12 miesięcy od startu naprawiamy błędy na stronie. Nowe podstrony i zmiany możesz zlecać nam w ramach opieki.`]],faq:[[`Ile kosztuje strona internetowa dla firmy?`,`Strona firmowa kosztuje u nas od 4 900 zł netto. Cena zależy od liczby podstron, ilości treści i integracji. Wycenę z harmonogramem otrzymasz w 2 dni robocze, a po ustaleniu zakresu cena jest stała.`],[`Ile trwa stworzenie strony internetowej?`,`To zależy od liczby podstron i tego, jak szybko zbierzemy treści. Termin projektu, wdrożenia i startu zapisujemy w harmonogramie, który otrzymasz razem z wyceną.`],[`Czy mogę sam edytować stronę?`,`Tak. Framer pozwala zmieniać teksty i zdjęcia bez znajomości kodu, a w ramach wdrożenia szkolimy Cię z obsługi panelu.`],[`Kto przygotuje teksty i zdjęcia?`,`Strukturę i teksty przygotujemy na podstawie rozmowy z Tobą. Zdjęcia dobierzemy z Twoich materiałów.`],[`Co z domeną i hostingiem?`,`Hosting jest w cenie planu Framer, a domenę podepniemy za Ciebie.`],[`Czy strona będzie widoczna w Google?`,`Przygotujemy ją pod wyszukiwarkę od pierwszego dnia: szybkie ładowanie, poprawne nagłówki, dane strukturalne i mapa strony. Pozycje zależą też od konkurencji i treści, dlatego po starcie podpowiemy, co rozwijać.`],[`Co, jeśli po starcie coś przestanie działać?`,`Przez 12 miesięcy od startu naprawiamy błędy na stronie w ramach gwarancji. Zmiany i rozwój strony obejmuje opieka od 490 zł netto miesięcznie.`]],sec:{k:`Dla kogo`,h:`Strony internetowe dla firm usługowych, B2B i budowlanych`,p:[`Najczęściej projektujemy strony dla firm, w których klient przed kontaktem chce zobaczyć konkretne realizacje i zrozumieć ofertę. Strona ma mu w tym pomóc i doprowadzić do zapytania.`,`Dla firmy wykończeniowej Sztuka Wykończeń zaprojektowaliśmy stronę wokół zdjęć realizacji i prostego zapytania o wycenę. Dla Simrun, firmy wykonującej pomiary ruchu drogowego, uporządkowaliśmy szeroką ofertę B2B w czytelne kategorie. Dla Bud-Mad przygotowaliśmy stronę firmy budowlanej.`,`Każdą stronę zaczynamy od rozmowy o Twoich klientach: czego szukają, o co pytają i co ich przekonuje. Dopiero potem powstaje układ i projekt graficzny.`],a:[`Strony dla firm budowlanych`,`/uslugi/strony-dla-firm-budowlanych`]}}"
+  },
+  {
+   "op": "svc",
+   "key": "aplikacje-mobilne",
+   "js": "\"aplikacje-mobilne\":{k:`Projekt`,t:`Aplikacje mobilne`,h:`Projektowanie i tworzenie aplikacji mobilnych od pomysłu do *pierwszych użytkowników*.`,lead:`Zaczynamy od warsztatu i klikalnego prototypu, który sprawdzisz na telefonie, zanim powstanie kod. Potem projektujemy interfejs i budujemy MVP na iOS i Android albo jako aplikację PWA. Projekt prowadzi Marcin Bednarz, który od 13 lat projektuje produkty cyfrowe, w tym aplikację iOS dla Ingenious.Build.`,img:w.cl2,ph:w.cl1,price:`Wycena indywidualna`,app:!0,gets:[[`Warsztat produktowy`,`Ustalamy cel aplikacji, użytkowników i funkcje, bez których pierwsza wersja nie ma sensu. Resztę zapisujemy na listę kolejnych wersji.`],[`Klikalny prototyp`,`Prototyp w Figmie, który otworzysz na telefonie i pokażesz pierwszym użytkownikom.`],[`Projekt UI i komponenty`,`Ekrany dla iOS i Android oparte na jednym zestawie komponentów, który ułatwia rozwój kolejnych wersji.`],[`MVP`,`Pierwsza działająca wersja z najważniejszymi funkcjami, jako aplikacja natywna albo PWA uruchamiana z przeglądarki.`],[`Publikacja`,`Pomagamy przejść przez publikację w App Store i Google Play.`],[`Rozwój`,`Kolejne wersje planujemy na podstawie opinii i zachowań pierwszych użytkowników.`]],faq:[[`Od czego zacząć?`,`Od krótkiej rozmowy o pomyśle. Potem proponujemy warsztat, na którym ustalamy zakres MVP. Wycenę z harmonogramem otrzymasz w 2 dni robocze.`],[`Ile kosztuje aplikacja mobilna?`,`Wyceniamy ją indywidualnie, bo cena zależy od liczby ekranów i funkcji, integracji z innymi systemami oraz od tego, czy aplikacja ma być natywna, czy PWA. Po ustaleniu zakresu cena jest stała.`],[`Ile trwa przygotowanie MVP?`,`To zależy od liczby funkcji ustalonych na warsztacie. Terminy prototypu, projektu i pierwszej wersji zapisujemy w harmonogramie, który otrzymasz razem z wyceną.`],[`Aplikacja natywna czy PWA?`,`PWA działa w przeglądarce i można ją dodać do ekranu telefonu bez instalacji ze sklepu, dlatego szybciej trafia do użytkowników. Jako PWA powstaje 4clubbers, którą projektowaliśmy. Aplikacja natywna pełniej korzysta z funkcji telefonu i jest dostępna w App Store i Google Play. Wybór zależy od tego, czego potrzebują Twoi użytkownicy.`],[`Czy zrobicie tylko projekt i prototyp?`,`Tak. Możemy przygotować sam prototyp i projekt UI dla Twojego zespołu programistów.`],[`Na jakie systemy?`,`iOS i Android, a także jako PWA, która działa w przeglądarce na każdym telefonie.`]],steps:[[`Rozmowa i warsztat`,`Opowiadasz o pomyśle, a na warsztacie ustalamy użytkowników i zakres MVP. Wycenę z harmonogramem otrzymasz w 2 dni robocze.`],[`Prototyp na telefonie`,`Klikalny prototyp w Figmie sprawdzasz na telefonie i pokazujesz użytkownikom, zanim powstanie kod.`],[`Projekt i MVP`,`Projektujemy ekrany i budujemy pierwszą wersję z najważniejszymi funkcjami.`],[`Publikacja i rozwój`,`Pomagamy z App Store i Google Play, a kolejne wersje planujemy na podstawie opinii użytkowników.`]],sec:{k:`Doświadczenie`,h:`Projektant, który zna aplikacje od środka`,p:[`Marcin Bednarz, który prowadzi projekty aplikacji, od 13 lat projektuje produkty cyfrowe, głównie złożone narzędzia B2B dla budownictwa, logistyki i medycyny. Przez 7 lat pracował przy produkcie Ingenious.Build, w tym przy aplikacji iOS liczącej 179 ekranów.`,`W Creative Vision projektujemy 4clubbers, aplikację mobilną PWA dla fanów muzyki klubowej: festiwale, imprezy, bilety i ludzie w jednym miejscu. Zaprojektowaliśmy funkcje społecznościowe drugiego etapu MVP, od szukania ekipy po czaty i narzędzia bezpieczeństwa.`,`Dlatego zaczynamy od prototypu. Klikalny projekt na telefonie pokazuje, czy aplikacja jest zrozumiała, zanim zapłacisz za programowanie.`],a:[`Ile kosztuje aplikacja mobilna`,`/wiedza/ile-kosztuje-aplikacja-mobilna`]}}"
+  },
+  {
+   "op": "svc",
+   "key": "audyt-ux",
+   "js": "\"audyt-ux\":{k:`Audyt i rozwój`,t:`Audyt UX i optymalizacja`,h:`Audyt UX i optymalizacja sklepu: od raportu do *przebudowanej ścieżki zakupu*.`,lead:`Ta usługa jest dla sklepów, w których audyt to początek większej zmiany: przebudowy karty produktu i koszyka, nowego projektu albo zmiany platformy. Sprawdzamy sklep jak klient i projektujemy nowe widoki w Figmie. W sklepach na PrestaShop wdrażamy je sami. Jeśli potrzebujesz samego raportu, zamówisz go online w uxaudyt.pl, naszym serwisie audytów UX.`,img:w.uxD,ph:w.uxM,price:`Wycena po krótkiej rozmowie`,gets:[[`Analiza ścieżki zakupu`,`Strona główna, wyszukiwarka, kategorie, karta produktu, koszyk i zamówienie, sprawdzone krok po kroku tak, jak robi to klient.`],[`Wersja mobilna osobno`,`Całą ścieżkę zakupu sprawdzamy osobno na telefonie, gdzie klient ma mniej miejsca na ekranie i mniej cierpliwości.`],[`Raport z priorytetami`,`Każdy problem ze zrzutem ekranu, opisem i rekomendacją. Zaczynamy od tych, które najbardziej przeszkadzają w zakupie.`],[`Projekt nowych widoków`,`Zmiany, które wymagają nowego układu, projektujemy w Figmie na komputer i telefon. Akceptujesz je, zanim trafią do sklepu.`],[`Wdrożenie w Twoim sklepie`,`Poprawki wdrażamy w sklepach na PrestaShop, także zbudowanych przez inną firmę, po przeglądzie technicznym. W sklepie na innej platformie przygotujemy projekt poprawek dla Twojego zespołu lub wykonawcy.`],[`Pomiar efektów`,`Po wdrożeniu sprawdzamy w analityce, jak klienci zachowują się na poprawionych ekranach, i planujemy kolejne zmiany.`]],faq:[[`Czym ta usługa różni się od audytu w uxaudyt.pl?`,`uxaudyt.pl to nasz serwis z gotowymi pakietami audytu w stałej cenie: audyt strony za 1 990 zł netto, audyt sklepu za 2 990 zł netto, z płatnością online i raportem w 5 dni roboczych od zaksięgowania płatności. Tutaj zaczynamy od rozmowy, bo audyt jest pierwszym etapem większego projektu: przebudowy sklepu, nowego projektu albo zmiany platformy.`],[`Kiedy wystarczy sam raport z uxaudyt.pl?`,`Gdy sklep jest w dobrym stanie technicznym, chcesz wiedzieć, co poprawić w karcie produktu, koszyku czy zamówieniu, i masz kogoś, kto wdroży zmiany. W uxaudyt.pl jest też pakiet z opieką przy wdrożeniu poprawek.`],[`Ile kosztuje audyt z przebudową sklepu?`,`Wyceniamy go indywidualnie po krótkiej rozmowie i przeglądzie sklepu, bo zakres zależy od tego, ile widoków trzeba przeprojektować i wdrożyć. Wycenę z harmonogramem otrzymasz w 2 dni robocze, a po ustaleniu zakresu cena jest stała.`],[`Ile to trwa?`,`Czas analizy zależy od wielkości sklepu, a czas wdrożenia od liczby zmian. Terminy każdego etapu otrzymasz w harmonogramie razem z wyceną.`],[`Czy poprawicie sklep zrobiony przez inną firmę?`,`Tak, jeśli działa na PrestaShop, po przeglądzie technicznym. Jeśli sklep stoi na innej platformie, przygotujemy raport i projekt poprawek, które wdroży Twój zespół lub obecny wykonawca.`],[`Czy gwarantujecie wzrost sprzedaży?`,`Nie. Sprzedaż zależy też od ruchu, cen i asortymentu. Każdą rekomendację uzasadnimy, a po wdrożeniu sprawdzimy w analityce, co się zmieniło.`]],steps:[[`Rozmowa i dostęp`,`Opowiadasz o sklepie i problemie. Prosimy o dostęp do analityki, żeby obserwacje oprzeć na danych.`],[`Audyt i raport`,`Przechodzimy ścieżkę zakupu jak klient, na komputerze i telefonie, i spisujemy problemy z priorytetami.`],[`Projekt poprawek`,`Nowe widoki projektujemy w Figmie. Wycenę wdrożenia z harmonogramem otrzymasz w 2 dni robocze.`],[`Wdrożenie i pomiar`,`Wprowadzamy zmiany w sklepie i sprawdzamy w analityce, jak zmieniło się zachowanie klientów.`]],sec:{k:`Dwie drogi`,h:`Sam raport czy audyt z przebudową sklepu`,p:[`Jeśli chcesz szybko wiedzieć, co blokuje zakupy, zamów gotowy audyt w uxaudyt.pl. Cenę znasz z góry, płacisz online, a raport z priorytetami otrzymasz w 5 dni roboczych od zaksięgowania płatności. Na stronie uxaudyt.pl zobaczysz też przykładowy raport.`,`Jeśli wiesz już, że sklep wymaga większej zmiany, zacznij tutaj. Audyt jest wtedy pierwszym etapem projektu: na jego podstawie projektujemy nowe widoki i wdrażamy je w sklepie na PrestaShop albo przy migracji na PrestaShop, a po publikacji sprawdzamy efekty w analityce.`,`W obu przypadkach sklep sprawdza Marcin Bednarz, który prowadzi projekty stron i sklepów w Creative Vision.`],a:[`Przykładowy raport na uxaudyt.pl ↗`,`https://www.uxaudyt.pl/przykladowy-raport`]}}"
+  },
+  {
+   "op": "svc",
+   "key": "opieka",
+   "js": "\"opieka\":{k:`Opieka`,t:`Opieka nad stroną i sklepem`,h:`Opieka nad stroną i sklepem internetowym: aktualizacje, kopie i zmiany *w jednym miejscu*.`,lead:`Aktualizujemy, zabezpieczamy i rozwijamy strony oraz sklepy internetowe. Każdą aktualizację najpierw sprawdzamy na kopii strony, a zmiany, poprawki i nowe funkcje zgłaszasz w jednym miejscu. Opieka kosztuje od 490 zł netto miesięcznie.`,img:w.sd3,ph:w.sm2,price:`od 490 zł / mies. netto`,gets:[[`Aktualizacje`,`Aktualizujemy system, moduły i wtyczki, także w sklepach na PrestaShop. Każdą zmianę najpierw sprawdzamy na kopii strony.`],[`Kopie zapasowe`,`Regularne kopie plików i bazy danych, żeby w razie problemu szybko wrócić do działającej wersji.`],[`Zmiany i poprawki`,`Nowe treści, podstrony, banery i poprawki błędów zgłaszasz w jednym miejscu.`],[`Nowe funkcje`,`Rozwijamy stronę lub sklep: integracje, moduły i usprawnienia ścieżki zakupu.`],[`SEO techniczne`,`Pilnujemy szybkości, przekierowań i danych strukturalnych po każdej zmianie.`],[`Doradztwo`,`Podpowiadamy, co warto poprawić, na podstawie analityki i doświadczenia z audytów UX, które prowadzimy w uxaudyt.pl.`]],faq:[[`Ile kosztuje opieka nad stroną lub sklepem?`,`Od 490 zł netto miesięcznie. Zakres dopasowujemy do wielkości strony lub sklepu i liczby zmian, a po jego ustaleniu cena jest stała.`],[`Czym opieka różni się od gwarancji?`,`Na stronę i sklep wdrożone przez nas masz 12 miesięcy gwarancji: w tym czasie naprawiamy błędy wdrożenia. Opieka obejmuje pracę, która nie wynika z błędów: aktualizacje, kopie zapasowe, zmiany treści i nowe funkcje.`],[`Co, jeśli strona przestanie działać?`,`Dzięki regularnym kopiom zapasowym możemy wrócić do ostatniej działającej wersji. Potem szukamy przyczyny i usuwamy ją, żeby problem nie wrócił.`],[`Czy aktualizujecie PrestaShop i moduły?`,`Tak. Mamy status PrestaShop Expert. Przed aktualizacją robimy kopię sklepu i sprawdzamy zmiany na kopii, zanim trafią do sklepu, w którym kupują klienci.`],[`Czy przejmiecie opiekę nad stroną, której nie robiliście?`,`Tak, jeśli to sklep na PrestaShop, także zbudowany przez inną firmę. Najpierw robimy przegląd techniczny: sprawdzamy wersje, moduły i kopie zapasowe.`],[`Dla jakich platform prowadzicie opiekę?`,`Dla stron i sklepów, które wdrożyliśmy, oraz dla sklepów na PrestaShop. O opiece nad stroną firmową na innym systemie porozmawiamy przy wycenie.`]],steps:[[`Przegląd techniczny`,`Sprawdzamy wersje systemu, moduły, kopie zapasowe i szybkość strony lub sklepu.`],[`Zakres i cena`,`Ustalamy, co obejmuje opieka. Po ustaleniu zakresu cena miesięczna jest stała.`],[`Aktualizacje i kopie`,`Regularnie aktualizujemy system i moduły, najpierw na kopii, i robimy kopie zapasowe.`],[`Zmiany i rozwój`,`Zgłaszasz zmiany w jednym miejscu, a my podpowiadamy, co warto poprawić.`]],sec:{k:`Po starcie`,h:`Ile kosztuje utrzymanie strony i sklepu`,p:[`Na utrzymanie strony lub sklepu składają się koszty platformy (abonament Shopify, Shopera lub Framera albo hosting dla PrestaShop i WooCommerce), domena, płatne moduły oraz praca: aktualizacje, kopie zapasowe i zmiany.`,`Opieka w Creative Vision kosztuje od 490 zł netto miesięcznie i obejmuje tę ostatnią część. Zakres dopasowujemy do wielkości strony lub sklepu i liczby zmian, a cena po ustaleniu zakresu jest stała.`,`Strony i sklepy wdrożone przez nas mają 12 miesięcy gwarancji na naprawę błędów. Opieka obejmuje pracę spoza gwarancji: aktualizacje, kopie zapasowe i zmiany.`]}}"
+  },
+  {
+   "op": "svc",
+   "key": "agencja-ecommerce",
+   "js": "\"agencja-ecommerce\":{k:`Cała Polska`,t:`Agencja e-commerce`,h:`Agencja e-commerce, która zostaje z Twoim sklepem *od projektu po rozwój*.`,lead:`Jedno studio na cały cykl życia sklepu: strategia i ścieżka zakupu, projekt w Figmie, wdrożenie, migracja z innej platformy, audyty UX i opieka. Pracujemy zdalnie z firmami z całej Polski, a projekt prowadzi Marcin Bednarz, projektant z 13-letnim doświadczeniem w produktach cyfrowych.`,img:w.szD,ph:w.szM,price:`od 5 990 zł netto`,gets:[[`Strategia i ścieżka zakupu`,`Sprawdzamy, jak kupują Twoi klienci i co robi konkurencja, zanim powstanie projekt.`],[`Projekt UX i UI`,`Strona główna, kategorie, karta produktu, koszyk i zamówienie. Każdy ekran akceptujesz w Figmie, osobno na komputer i telefon.`],[`Wdrożenie i integracje`,`Sklep na PrestaShop, z płatnościami BLIK, kartami i Apple Pay oraz dostawą InPost i kurierami.`],[`Migracja z innej platformy`,`Przenosimy produkty, klientów i zamówienia, z przekierowaniami 301, które chronią obecny ruch z Google.`],[`Audyt UX`,`Przed przebudową albo po starcie sprawdzamy, co przeszkadza klientom w zakupie, i poprawiamy to.`],[`Opieka i rozwój`,`Aktualizacje, kopie zapasowe i nowe funkcje od 490 zł netto miesięcznie, po 12 miesiącach gwarancji na naprawę błędów.`]],faq:[[`Czym zajmuje się agencja e-commerce?`,`Projektuje, wdraża i rozwija sklepy internetowe. U nas obejmuje to strategię i ścieżkę zakupu, projekt UX/UI, wdrożenie na PrestaShop, migracje, audyty UX i opiekę po starcie.`],[`Agencja czy freelancer?`,`Przy jednej, małej zmianie freelancer może wystarczyć. Przy nowym sklepie albo zmianie platformy liczy się to, kto odpowiada za całość: projekt, wdrożenie, migrację i błędy po starcie. U nas to jedno studio, stała cena po ustaleniu zakresu i 12 miesięcy gwarancji na naprawę błędów.`],[`Czy pracujecie z firmami spoza Rzeszowa?`,`Tak. Jesteśmy z Rzeszowa, ale sklepy projektujemy dla firm z całej Polski. Rozmowy, warsztaty i odbiory prowadzimy online, a projekt komentujesz bezpośrednio w Figmie.`],[`Ile kosztuje sklep internetowy w agencji?`,`U nas sklep internetowy kosztuje od 5 990 zł netto, a opieka po starcie od 490 zł netto miesięcznie. Cena zależy od liczby produktów, integracji i zakresu projektu. Wycenę z harmonogramem otrzymasz w 2 dni robocze.`],[`Na jakiej platformie powstanie mój sklep?`,`Sklepy wdrażamy na PrestaShop, w którym mamy status PrestaShop Expert. To oprogramowanie open source bez abonamentu. Jeśli z rozmowy wyjdzie, że lepiej sprawdzi się platforma abonamentowa, np. Shopify albo Shoper, powiemy to wprost.`],[`Czy przeniesiecie sklep z innej platformy?`,`Tak. Przenosimy produkty, klientów i zamówienia, a stare adresy URL kierujemy na nowe przekierowaniami 301, które chronią obecny ruch z Google.`],[`Co dzieje się po starcie sklepu?`,`Przez 12 miesięcy naprawiamy błędy w ramach gwarancji. W opiece aktualizujemy sklep, robimy kopie zapasowe, dodajemy nowe funkcje i co jakiś czas sprawdzamy, co jeszcze przeszkadza klientom w zakupie.`]],sec:{k:`Współpraca`,h:`Jak wygląda współpraca z agencją e-commerce na odległość`,p:[`Pierwsza rozmowa trwa krótko i odbywa się online. Po niej w 2 dni robocze otrzymasz wycenę z harmonogramem. Po ustaleniu zakresu cena się nie zmienia.`,`Projekt sklepu oglądasz i komentujesz w Figmie, na komputer i telefon. Wdrożenie zaczynamy po Twojej akceptacji. Przez cały projekt rozmawiasz z osobą, która go prowadzi.`,`Po starcie zostajemy przy sklepie: przez 12 miesięcy naprawiamy błędy w ramach gwarancji, a w opiece rozwijamy go dalej. Kiedy chcesz sprawdzić, co blokuje zakupy, korzystamy z doświadczenia z audytów UX, które prowadzimy w uxaudyt.pl.`]}}"
+  },
+  {
+   "op": "svc",
+   "key": "strony-internetowe-rzeszow",
+   "js": "\"strony-internetowe-rzeszow\":{k:`Studio w Rzeszowie`,t:`Strony internetowe Rzeszów`,h:`Strony internetowe Rzeszów: tworzymy strony www, które prowadzą *do zapytania*.`,lead:`Jesteśmy studiem projektowym przy ul. Pańskiej 13A w Rzeszowie. Projekt strony możemy omówić na spotkaniu w Rzeszowie albo online, a całą stronę zobaczysz w Figmie, zanim powstanie kod. Strona firmowa kosztuje od 4 900 zł netto, wycenę z harmonogramem otrzymasz w 2 dni robocze.`,img:w.sd1,ph:w.sm1,price:`od 4 900 zł netto`,gets:[[`Rozmowa w Rzeszowie lub online`,`Pierwszą rozmowę i omówienie projektu możemy przeprowadzić w naszym biurze przy ul. Pańskiej 13A albo online, jak Ci wygodniej.`],[`Struktura i treści pod Google`,`Podstrony i teksty układamy pod frazy, których szukają Twoi klienci, na przykład nazwę usługi z Rzeszowem.`],[`Projekt UX i UI`,`Makiety i projekt graficzny w Figmie, osobno na komputer i na telefon.`],[`Szybkie wdrożenie`,`Lekka strona, która szybko ładuje się także na telefonie.`],[`SEO lokalne na start`,`Tytuły, opisy, dane strukturalne firmy z adresem, mapa strony i wskazówki do profilu firmy w Google.`],[`Gwarancja 12 miesięcy i opieka`,`Przez 12 miesięcy od startu naprawiamy błędy na stronie. Zmiany i rozwój możesz zlecać nam w ramach opieki.`]],faq:[[`Ile kosztuje strona internetowa w Rzeszowie?`,`Strona firmowa kosztuje u nas od 4 900 zł netto. Dokładna cena zależy od liczby podstron, treści i integracji. Wycenę z harmonogramem otrzymasz w 2 dni robocze, a po ustaleniu zakresu cena jest stała.`],[`Czy możemy spotkać się osobiście?`,`Tak. Nasze biuro jest przy ul. Pańskiej 13A w Rzeszowie. Spotkanie umówimy po pierwszym kontakcie, a kolejne etapy możemy prowadzić na miejscu, po umówieniu, albo online.`],[`Czy robicie strony dla firm spoza Rzeszowa?`,`Tak. Zapraszamy firmy z całego Podkarpacia i z całej Polski. Spotkanie w Rzeszowie jest jedną z opcji, cały projekt można też przeprowadzić online.`],[`Czy strona będzie widoczna w Google na frazy z Rzeszowem?`,`Przygotujemy ją pod wyszukiwarkę od pierwszego dnia: szybkie ładowanie, poprawne nagłówki, dane strukturalne z adresem firmy i mapa strony. Pozycje zależą też od konkurencji, treści i profilu firmy w Google, dlatego po starcie podpowiemy, co rozwijać.`],[`Czy pomożecie z profilem firmy w Google?`,`Tak. Podpowiemy, jak uzupełnić profil firmy w Google, żeby nazwa, adres i telefon zgadzały się z danymi na stronie.`],[`Czy pomożecie z tekstami?`,`Tak. Przygotujemy strukturę i teksty na podstawie rozmowy z Tobą, a zdjęcia dobierzemy z Twoich materiałów.`],[`Ile trwa stworzenie strony?`,`To zależy od liczby podstron i tego, jak szybko zbierzemy treści. Termin każdego etapu zapisujemy w harmonogramie, który otrzymasz razem z wyceną.`]],sec:{k:`Lokalnie`,h:`Tworzenie stron internetowych w Rzeszowie: spotkanie na miejscu albo online`,p:[`Biuro Creative Vision jest przy ul. Pańskiej 13A w Rzeszowie. Jeśli wolisz omówić stronę przy jednym stole, umówimy spotkanie. Jeśli wygodniej Ci online, cały projekt przeprowadzimy zdalnie.`,`Niezależnie od formy rozmawiasz z osobą, która prowadzi projekt od pierwszej rozmowy do startu. Projekt strony oglądasz i komentujesz w Figmie, na komputerze i telefonie.`,`Dla firmy z Rzeszowa ważne są też wyniki lokalne w Google. Dlatego przy każdej stronie dbamy o spójne dane firmy: nazwę, adres i telefon na stronie, w danych strukturalnych i w profilu firmy w Google. Pełny zakres usługi opisujemy na stronie o tworzeniu stron internetowych dla firm.`],a:[`Tworzenie stron internetowych dla firm`,`/uslugi/strony-firmowe`]}}"
+  },
+  {
+   "op": "svc",
+   "key": "sklepy-internetowe-rzeszow",
+   "js": "\"sklepy-internetowe-rzeszow\":{k:`Studio w Rzeszowie`,t:`Sklepy internetowe Rzeszów`,h:`Sklepy internetowe Rzeszów: projektujemy i wdrażamy sklepy, w których *łatwo kupić*.`,lead:`Projektujemy i wdrażamy sklepy internetowe w studiu przy ul. Pańskiej 13A w Rzeszowie. Ścieżkę zakupu i wybór platformy omówimy na spotkaniu w Rzeszowie albo online. Sklep kosztuje od 5 990 zł netto, wycenę z harmonogramem otrzymasz w 2 dni robocze.`,img:w.szD,ph:w.szM,price:`od 5 990 zł netto`,gets:[[`Rozmowa w Rzeszowie lub online`,`Na spotkaniu w biurze przy ul. Pańskiej 13A albo online rozmawiamy o asortymencie, klientach i sposobie sprzedaży.`],[`Projekt sklepu w Figmie`,`Strona główna, kategorie, karta produktu, koszyk i zamówienie. Każdy ekran zobaczysz na komputerze i telefonie, zanim powstanie kod.`],[`Wdrożenie na PrestaShop`,`Mamy status PrestaShop Expert i na tej platformie wdrażamy sklepy, z płatnościami i dostawami, które znają Twoi klienci.`],[`Płatności i dostawy`,`BLIK, karty, Apple Pay, InPost i kurierzy.`],[`Migracja i SEO`,`Przenosimy produkty i adresy ze starego sklepu, z przekierowaniami 301, które chronią obecny ruch z Google.`],[`Gwarancja 12 miesięcy i opieka`,`Przez 12 miesięcy od startu naprawiamy błędy w sklepie. Rozwój sklepu możesz powierzyć nam w ramach opieki od 490 zł netto miesięcznie.`]],faq:[[`Ile kosztuje sklep internetowy w Rzeszowie?`,`Tyle samo co dla firm z innych miast: od 5 990 zł netto. Cena zależy od liczby produktów, integracji i zakresu projektu. Wycenę z harmonogramem otrzymasz w 2 dni robocze, a po ustaleniu zakresu cena jest stała.`],[`Czy możemy spotkać się w Rzeszowie?`,`Tak. Nasze biuro jest przy ul. Pańskiej 13A. Spotkanie umówimy po pierwszym kontakcie, a kolejne etapy możemy prowadzić na miejscu, po umówieniu, albo online.`],[`Którą platformę polecacie dla małego sklepu?`,`To zależy od asortymentu i tego, jak chcesz sprzedawać. Shopify i Shoper działają w abonamencie i nie wymagają własnego serwera. PrestaShop i WooCommerce instalujesz na własnym serwerze i masz więcej swobody w rozbudowie. Sklepy wdrażamy na PrestaShop, a jeśli lepiej sprawdzi się platforma abonamentowa, powiemy to wprost przed wyceną.`],[`Czy przeniesiecie mój sklep z innej platformy?`,`Tak. Przenosimy produkty, klientów i zamówienia, a stare adresy URL kierujemy na nowe przekierowaniami 301, które chronią obecny ruch z Google.`],[`Czy zajmiecie się sklepem po starcie?`,`Tak. Przez 12 miesięcy naprawiamy błędy w ramach gwarancji. W opiece, od 490 zł netto miesięcznie, aktualizujemy sklep, robimy kopie zapasowe i dodajemy nowe funkcje.`],[`Czy pracujecie tylko z firmami z Rzeszowa?`,`Nie. Zapraszamy firmy z całego Podkarpacia i z całej Polski. Spotkanie w Rzeszowie jest jedną z opcji, cały projekt można też przeprowadzić online.`]],sec:{k:`Lokalnie`,h:`Tworzenie sklepów internetowych w Rzeszowie`,p:[`Zanim zaprojektujemy pierwszy ekran, chcemy zrozumieć, jak dziś sprzedajesz i jak kupują Twoi klienci. Taką rozmowę najlepiej przeprowadzić na spotkaniu w naszym biurze przy ul. Pańskiej 13A, po umówieniu, albo online.`,`Na tej podstawie doradzamy wybór platformy. Sklepy wdrażamy na PrestaShop, w którym mamy status PrestaShop Expert. Jeśli lepiej sprawdzi się platforma abonamentowa, np. Shopify albo Shoper, powiemy to wprost przed wyceną.`,`Pełny opis tego, jak projektujemy i wdrażamy sklepy, znajdziesz na stronie o tworzeniu sklepów internetowych.`],a:[`Tworzenie sklepów internetowych`,`/uslugi/sklepy-internetowe`]}}"
+  },
+  {
+   "op": "svc",
+   "key": "sklepy-prestashop",
+   "js": "\"sklepy-prestashop\":{k:`Projekt`,t:`Sklepy PrestaShop`,hero:`/img/cv-sklep-hero.webp`,plat:!0,h:`Tworzenie sklepów PrestaShop, które zobaczysz w projekcie *przed wdrożeniem*.`,lead:`Jesteśmy agencją PrestaShop ze statusem PrestaShop Expert. Najpierw projektujemy sklep w Figmie, osobno na komputer i telefon, a potem wdrażamy go na PrestaShop z polskimi płatnościami, dostawami i integracjami. Wycenę z harmonogramem otrzymasz w 2 dni robocze.`,img:w.szD,ph:w.szM,price:`od 5 990 zł netto`,gets:[[`Projekt UX i UI w Figmie`,`Strona główna, kategorie, karta produktu, koszyk i zamówienie, na komputer i telefon. Akceptujesz projekt, zanim powstanie kod.`],[`Wdrożenie PrestaShop`,`Aktualna wersja PrestaShop, wygląd zgodny z projektem, podatki, przewoźnicy i wiadomości do klientów.`],[`Płatności i dostawy`,`BLIK, szybkie przelewy, karty, InPost i kurierzy. Instalujemy tylko moduły, których sklep naprawdę potrzebuje.`],[`Integracje`,`Hurtownie, systemy magazynowe, faktury i marketplace’y, dobrane do tego, jak sprzedajesz.`],[`Import i migracja`,`Produkty, zdjęcia, klienci i zamówienia z obecnego sklepu lub pliku, z przekierowaniami 301, które chronią obecny ruch z Google.`],[`Gwarancja i opieka`,`12 miesięcy gwarancji na naprawę błędów. Aktualizacje PrestaShop i modułów w opiece od 490 zł netto miesięcznie.`]],faq:[[`Ile kosztuje sklep na PrestaShop?`,`Sklep na PrestaShop kosztuje u nas od 5 990 zł netto. Cena zależy od liczby produktów, integracji i zakresu projektu, a po ustaleniu zakresu jest stała. Samo oprogramowanie PrestaShop jest darmowe, osobno płacisz za hosting, domenę i ewentualne płatne moduły.`],[`Co oznacza status PrestaShop Expert?`,`To poziom w programie partnerskim PrestaShop dla agencji, które wdrażają i prowadzą sklepy na tej platformie.`],[`Ile trwa wdrożenie sklepu na PrestaShop?`,`To zależy od liczby produktów, integracji i projektu. Dokładny harmonogram otrzymasz razem z wyceną w 2 dni robocze.`],[`Czy przeniesiecie mój sklep na PrestaShop?`,`Tak. Przenosimy produkty, klientów i zamówienia z innej platformy lub ze starszej wersji PrestaShop, a stare adresy przekierowujemy (301), żeby chronić obecny ruch z Google.`],[`Czy PrestaShop to dobry wybór dla mojego sklepu?`,`Sprawdza się, gdy nie chcesz płacić abonamentu za oprogramowanie i planujesz integracje. Jeśli wolisz szybki start bez serwera, powiemy wprost, że lepsza może być platforma abonamentowa, i pomożemy porównać opcje.`],[`Czy sam dodam produkty i obsłużę zamówienia?`,`Tak. Produkty, zamówienia, promocje i treści obsługujesz w panelu PrestaShop, a w ramach wdrożenia szkolimy Cię z jego obsługi.`],[`Kto zajmie się sklepem po starcie?`,`Przez 12 miesięcy naprawiamy błędy w ramach gwarancji. Aktualizacje, kopie zapasowe i rozwój sklepu prowadzimy w ramach opieki, od 490 zł netto miesięcznie.`]],x:[[`h`,`Dlaczego PrestaShop`],[`p`,`PrestaShop to darmowe oprogramowanie sklepowe open source. Instalujesz je na serwerze, który wybierasz, nie płacisz abonamentu ani prowizji twórcy platformy. Możesz zmienić hosting albo wykonawcę bez przenoszenia sklepu na inny system. Dla polskiego sklepu ważne jest też to, że płatności, przewoźnicy i integracje z marketplace’ami są dostępne jako gotowe moduły.`],[`ul`,[`Bez abonamentu za oprogramowanie.`,`Pełny dostęp do kodu, więc łatwiej o nietypowe funkcje.`,`Gotowe moduły polskich płatności, dostaw i integracji.`,`Dobrze rośnie razem z katalogiem i liczbą kanałów sprzedaży.`]],[`h`,`Jak wygląda wdrożenie`],[`ol`,[`Krótka rozmowa online o asortymencie, klientach i integracjach.`,`Wycena z harmonogramem w 2 dni robocze. Po ustaleniu zakresu cena jest stała.`,`Projekt UX i UI w Figmie, na komputer i telefon. Komentujesz go bezpośrednio w pliku.`,`Wdrożenie PrestaShop, płatności, dostaw i integracji oraz import produktów.`,`Testy zamówień, płatności i wiadomości do klientów na komputerze i telefonie.`,`Start sklepu i 12 miesięcy gwarancji na naprawę błędów.`]],[`h`,`Płatności, dostawy i moduły dla polskiego sklepu`],[`p`,`Konfigurujemy metody, których szukają polscy klienci. W badaniu Gemius E-commerce w Polsce 2025 BLIK wskazało 72% kupujących, a dostawę do paczkomatu wybiera 83%. Każdy moduł to jednak kod, który trzeba aktualizować i który może spowolnić sklep, dlatego instalujemy tylko te, których naprawdę potrzebujesz, i sprawdzamy je najpierw na kopii sklepu.`],[`more`,`Źródło danych o płatnościach i dostawach:`,`https://www.przelewy24.pl/en/news/ecommerce-2025-online-shopping-trends-polish-consumers`,`Przelewy24 o raporcie Gemius „E-commerce w Polsce 2025”`],[`more`,`Przegląd przydatnych modułów:`,`/wiedza/moduly-prestashop`,`Moduły PrestaShop`],[`h`,`Migracja na PrestaShop`],[`p`,`Przenosimy sklepy z platform abonamentowych, z WooCommerce i ze starszych wersji PrestaShop. Przenosimy produkty, kategorie, zdjęcia, klientów i historię zamówień, a każdy stary adres przekierowujemy na nowy (301), żeby chronić obecny ruch z Google. Przed przełączeniem domeny sprawdzamy sklep na wersji testowej.`],[`h`,`Ile kosztuje sklep na PrestaShop`],[`p`,`Wdrożenie sklepu na PrestaShop kosztuje u nas od 5 990 zł netto. Cenę podnoszą głównie liczba produktów i sposób ich importu, liczba integracji, migracja ze starego sklepu i zakres projektu. Po starcie płacisz za hosting i domenę, ewentualne płatne moduły oraz opiekę, jeśli chcesz, żebyśmy aktualizowali i rozwijali sklep (od 490 zł netto miesięcznie).`],[`more`,`Pełne zestawienie kosztów:`,`/wiedza/ile-kosztuje-sklep-internetowy`,`Ile kosztuje sklep internetowy`],[`h`,`Kiedy PrestaShop nie jest najlepszym wyborem`],[`p`,`Jeśli chcesz wystartować w kilka dni, masz kilkanaście produktów i nie chcesz myśleć o serwerze ani aktualizacjach, prostsza będzie platforma abonamentowa, na przykład Shopify albo Shoper. Powiemy Ci to przed wyceną, nawet jeśli oznacza to, że sklep powstanie bez nas.`],[`more`,`Porównanie platform:`,`/wiedza/jaka-platforma-sklepu-internetowego`,`Jaka platforma sklepu internetowego`]]}"
+  },
+  {
+   "op": "svc",
+   "key": "strony-dla-firm-budowlanych",
+   "js": "\"strony-dla-firm-budowlanych\":{k:`Projekt`,t:`Strony dla firm budowlanych`,h:`Strony internetowe dla firm budowlanych i remontowych, które prowadzą *do zapytania o wycenę*.`,lead:`Klient wybiera wykonawcę po zdjęciach realizacji, zakresie usług i opiniach. Projektujemy strony, które pokazują to od pierwszego ekranu na telefonie i prowadzą do rozmowy albo formularza wyceny. Tak pracowaliśmy przy stronach Bud-Mad i Sztuki Wykończeń.`,img:`/img/EHoah9apoeUtRqDuzo47y3a468.jpg`,ph:`/img/Ju2eMnKixbNTm9yuBACV7q2FxKA.jpg`,price:`od 4 900 zł netto`,gets:[[`Oferta podzielona na usługi`,`Osobne sekcje lub podstrony dla każdej usługi, na przykład elewacje, wykończenia pod klucz, remonty.`],[`Galeria realizacji`,`Zdjęcia prawdziwych prac, uporządkowane według rodzaju usługi, żeby klient szybko znalazł podobny projekt.`],[`Opinie klientów`,`Miejsce na opinie przy ofercie i galerii, tam gdzie klient podejmuje decyzję.`],[`Telefon i zapytanie o wycenę`,`Numer widoczny od pierwszego ekranu i krótki formularz z pytaniami, które pomagają Ci przygotować wycenę.`],[`Przygotowanie pod Google`,`Struktura i treści pod frazy typu usługa z miastem, dane strukturalne firmy i wskazówki do Profilu Firmy w Google.`],[`Gwarancja i rozwój`,`12 miesięcy gwarancji na naprawę błędów. Opieka i nowe podstrony, kiedy ich potrzebujesz.`]],faq:[[`Ile kosztuje strona internetowa dla firmy budowlanej?`,`Strona firmowa kosztuje u nas od 4 900 zł netto. Cena zależy od liczby usług i podstron, galerii i tego, kto przygotuje teksty. Po ustaleniu zakresu cena jest stała, a wycenę z harmonogramem otrzymasz w 2 dni robocze.`],[`Nie mam dobrych zdjęć realizacji. Co wtedy?`,`Zaczniemy od tego, co masz, i podpowiemy, jak fotografować kolejne budowy telefonem, żeby galeria rosła razem z firmą.`],[`Czy strona pomoże mi pojawić się w Google w moim mieście?`,`Przygotujemy ją pod wyszukiwanie lokalne: usługi z miastem w treściach, dane firmy, szybkie ładowanie i mapę strony. Pozycji nie obiecujemy, bo zależą też od konkurencji, opinii i Profilu Firmy w Google.`],[`Czy sam dodam nowe realizacje?`,`Tak. Stronę przygotujemy tak, żeby nowe zdjęcia i opisy realizacji dodawać bez programisty.`],[`Pracujecie tylko z firmami z Podkarpacia?`,`Nie. Jesteśmy z Rzeszowa, ale projektujemy strony dla firm z całej Polski. Rozmowy i odbiory prowadzimy online, a w biurze w Rzeszowie możemy spotkać się po umówieniu.`],[`Co, jeśli coś przestanie działać po starcie?`,`Przez 12 miesięcy naprawiamy błędy w ramach gwarancji. Później możesz skorzystać z opieki od 490 zł netto miesięcznie.`]],x:[[`h`,`Co powinna zawierać strona firmy budowlanej`],[`ul`,[`Jasny zakres usług i obszar działania na pierwszym ekranie.`,`Galerię realizacji z krótkim opisem: co, gdzie, w jakim zakresie.`,`Opinie klientów z imieniem lub miejscowością, za ich zgodą.`,`Telefon widoczny na każdym ekranie telefonu, bo część klientów woli zadzwonić niż pisać.`,`Formularz wyceny z kilkoma pytaniami: rodzaj prac, lokalizacja, przybliżony metraż, termin.`,`Informacje, które budują zaufanie: dane firmy, adres, zasady współpracy, gwarancja na prace.`]],[`h`,`Bud-Mad: trzy usługi, galeria i opinie`],[`p`,`Bud-Mad to firma remontowo-budowlana: ocieplanie elewacji, wykończenia pod klucz i remonty. Klienci szukają wykonawcy, któremu mogą zaufać, więc strona miała szybko pokazać zakres usług, prawdziwe realizacje i opinie oraz ułatwić telefon do firmy. Główną akcją jest telefon: przycisk „Zadzwoń teraz” stoi na pierwszym ekranie, a na smartfonie numer wybiera się jednym dotknięciem. Pod ofertą jest galeria realizacji, a dalej opinie klientów podpisane imieniem.`],[`more`,`Zobacz realizację:`,`/realizacje/bud-mad`,`Bud-Mad: strona firmy remontowo-budowlanej`],[`h`,`Sztuka Wykończeń: realizacje i prosta droga do wyceny`],[`p`,`Sztuka Wykończeń to firma wykończeniowa. Klienci wybierają wykonawcę po zdjęciach realizacji i po tym, czy mu ufają. Stara strona nie pokazywała ani jednego, ani drugiego, a kontakt był trudny do znalezienia. Zaczęliśmy od warsztatu i struktury, potem zaprojektowaliśmy stronę wokół zdjęć realizacji i prostego zapytania o wycenę. Treści ułożyliśmy według pytań, które klienci zadają przed remontem.`],[`more`,`Zobacz realizację:`,`/realizacje/sztuka-wykonczen`,`Sztuka Wykończeń: strona firmy wykończeniowej`],[`h`,`Jak pracujemy`],[`ol`,[`Krótka rozmowa o usługach, klientach i obszarze działania.`,`Wycena z harmonogramem w 2 dni robocze. Po ustaleniu zakresu cena jest stała.`,`Struktura i treści ułożone według pytań, które klienci zadają przed remontem lub budową.`,`Projekt w Figmie na komputer i telefon, który komentujesz bezpośrednio w pliku.`,`Wdrożenie, testy formularza i telefonu, podstawy SEO lokalnego.`,`Start strony i 12 miesięcy gwarancji na naprawę błędów.`]],[`tip`,`Zdjęcia realizacji rób zawsze z tego samego miejsca przed pracami i po nich. Takie pary przekonują klientów bardziej niż pojedyncze ujęcia gotowego wnętrza.`],[`more`,`Więcej o stronach dla firm:`,`/uslugi/strony-firmowe`,`Strony internetowe dla firm`],[`more`,`Co jeszcze powinna mieć strona:`,`/wiedza/strona-firmowa-ktora-zbiera-zapytania`,`Strona firmowa, która zbiera zapytania`]]}"
+  },
+  {
+   "op": "rep",
+   "old": "h:`Strony, sklepy i aplikacje, które *zaprojektowaliśmy*.`,lead:`Każdy projekt zaczynamy od tego, jak klient kupuje lub wysyła zapytanie. Zobacz, co zrobiliśmy i dla kogo.`",
+   "new": "h:`Strony firmowe i aplikacje, które *zaprojektowaliśmy*.`,lead:`Przy każdym projekcie opisujemy, z czym przyszedł klient, co postanowiliśmy i dlaczego oraz co otrzymał. Ostatni na liście jest uxaudyt.pl: nasz własny produkt, na którym te same zasady sprawdzamy u siebie.`",
+   "n": 1,
+   "first": false,
+   "note": "cases A1#1"
+  },
+  {
+   "op": "rep",
+   "old": "intro:`Strona firmy wykończeniowej, która pokazuje jakość realizacji i prowadzi do zapytania o wycenę.`",
+   "new": "h:`Sztuka Wykończeń: strona firmy wykończeniowej, która prowadzi do wyceny`,vh:`Realizacje i oferta *na pierwszym planie*`,intro:`Strona firmy, która wykańcza mieszkania i domy pod klucz: od projektu i remontu po materiały i dekorację. Zaprojektowaliśmy ją tak, żeby zdjęcia realizacji budowały zaufanie, a zapytanie o wycenę było zawsze pod ręką.`,svc:[`Strony dla firm budowlanych`,`/uslugi/strony-dla-firm-budowlanych`]",
+   "n": 1,
+   "first": false,
+   "note": "cases A2#intro (+ nowe pola `h`, `vh`)"
+  },
+  {
+   "op": "rep",
+   "old": "ch:`Klienci wybierają wykonawcę po zdjęciach realizacji i zaufaniu. Stara strona nie pokazywała ani jednego, ani drugiego, a kontakt był trudny do znalezienia.`",
+   "new": "ch:`Przy wykończeniu wnętrz klienci wybierają wykonawcę po zdjęciach realizacji i po tym, czy mu ufają. Stara strona nie pokazywała ani jednego, ani drugiego, a kontakt był trudny do znalezienia.`",
+   "n": 1,
+   "first": false,
+   "note": "cases A2#ch"
+  },
+  {
+   "op": "rep",
+   "old": "did:`Zaprojektowaliśmy stronę wokół zdjęć realizacji i prostego zapytania o wycenę. Treści ułożyliśmy według pytań, które klienci zadają przed remontem.`",
+   "new": "did:[`Zdjęcia realizacji postawiliśmy na pierwszym planie. Pierwszy ekran to duże zdjęcie gotowego wnętrza, a realizacje mają własną podstronę z opisami kolejnych projektów. Klient ocenia jakość pracy, zanim przeczyta pierwsze zdanie oferty.`,`Pakietowi pod klucz daliśmy osobną podstronę w menu. Firma bierze w nim na siebie projekt, remont, materiały i dekorację, a to inna decyzja niż zamówienie jednej usługi. Klient, który chce mieć wszystko z głowy, od razu trafia we właściwe miejsce.`,`Treści ułożyliśmy według pytań, które klienci zadają przed remontem, a link do kontaktu jest w nagłówku każdej podstrony. Na telefonie zaprojektowaliśmy duże przyciski i zdjęcia czytelne bez powiększania.`],got:`Stronę z ofertą, osobną podstroną pakietu pod klucz, realizacjami opisanymi projekt po projekcie oraz działami Blog i Inspiracje. Całość zaprojektowaliśmy w wersji na komputer i telefon, a potem wdrożyliśmy.`",
+   "n": 1,
+   "first": false,
+   "note": "cases A2#did + got"
+  },
+  {
+   "op": "rep",
+   "old": "intro:`Strona firmy wykonującej pomiary i analizy ruchu drogowego dla samorządów, projektantów i inwestorów.`",
+   "new": "h:`Simrun: strona B2B firmy od pomiarów i analiz ruchu drogowego`,intro:`Strona firmy, która mierzy i analizuje ruch drogowy, pieszy i rowerowy dla samorządów, projektantów i inwestorów w całej Polsce. Uporządkowaliśmy szeroką ofertę tak, żeby zamawiający szybko znalazł swój rodzaj pomiaru i poprosił o wycenę.`,svc:[`Tworzenie stron internetowych dla firm`,`/uslugi/strony-firmowe`]",
+   "n": 1,
+   "first": false,
+   "note": "cases A3#intro (+ `h`)"
+  },
+  {
+   "op": "rep",
+   "old": "ch:`Szeroki zakres usług trzeba było przedstawić tak, żeby klient instytucjonalny szybko znalazł swój rodzaj pomiaru i zaufał wykonawcy.`",
+   "new": "ch:`Simrun ma szeroką ofertę: od pomiarów na skrzyżowaniach i przejazdach kolejowo-drogowych po prognozy i mikrosymulacje ruchu. Zamawiający z samorządu czy biura projektowego szuka jednej, konkretnej usługi. Musi szybko sprawdzić, czy firma ją wykonuje i czy można jej zaufać.`",
+   "n": 1,
+   "first": false,
+   "note": "cases A3#ch"
+  },
+  {
+   "op": "rep",
+   "old": "did:`Uporządkowaliśmy ofertę w czytelne kategorie pomiarów, dodaliśmy realizacje i jasną drogę do zapytania.`",
+   "new": "did:[`Ofertę podzieliliśmy na dwie grupy, które są też dwiema pozycjami menu: pomiary ruchu oraz analizy i prognozy. To dwa różne zlecenia, badanie w terenie i praca na danych, więc klient od razu wybiera właściwą ścieżkę.`,`Rodzaje pomiarów wypisaliśmy pełnymi nazwami, np. pomiary długości i dynamiki kolejek albo pomiary na przejazdach kolejowo-drogowych. Specjalista rozpoznaje swoje zlecenie na liście bez czytania długich opisów.`,`Prośba o wycenę jest zawsze pod ręką: przycisk „Poproś o wycenę” stoi w nagłówku, na pierwszym ekranie i pod każdą grupą usług, a numer telefonu widać w menu. Pierwszy ekran od razu mówi też, gdzie firma działa: Kraków, Warszawa i cała Polska.`,`Zaufanie budują konkrety: doświadczenie firmy tuż pod pierwszym ekranem i sekcja o tym, co ją wyróżnia, np. własne urządzenia pomiarowe dopasowywane do projektu.`],got:`Stronę z dwiema czytelnymi grupami usług, przyciskiem wyceny w każdej sekcji, danymi biur w Rzeszowie i Krakowie oraz podstawowym przygotowaniem pod Google. Zaprojektowaliśmy ją i wdrożyliśmy.`",
+   "n": 1,
+   "first": false,
+   "note": "cases A3#did + got"
+  },
+  {
+   "op": "rep",
+   "old": "intro:`Strona firmy remontowo-budowlanej: ocieplanie elewacji, wykończenia pod klucz i remonty.`",
+   "new": "h:`Bud-Mad: strona firmy remontowo-budowlanej`,vh:`Oferta, realizacje i opinie *na jednej stronie*`,intro:`Strona firmy remontowo-budowlanej: ocieplanie elewacji, wykończenia pod klucz i remonty mieszkań oraz domów. Zaprojektowaliśmy ją tak, żeby klient w kilka sekund zobaczył, co firma robi, obejrzał realizacje i zadzwonił.`,svc:[`Strony dla firm budowlanych`,`/uslugi/strony-dla-firm-budowlanych`]",
+   "n": 1,
+   "first": false,
+   "note": "cases A4#intro (+ `h`, `vh`)"
+  },
+  {
+   "op": "rep",
+   "old": "did:`Zaprojektowaliśmy stronę z czytelnym podziałem na trzy usługi, galerią realizacji i opiniami klientów. Telefon jest dostępny od pierwszego ekranu, także na telefonie.`",
+   "new": "did:[`Główną akcją jest telefon. Na pierwszym ekranie, obok hasła „Wykańczanie pod klucz”, stoi przycisk „Zadzwoń teraz”, a na smartfonie numer wybiera się jednym dotknięciem.`,`Ofertę pokazaliśmy jako trzy usługi: elewacje, pod klucz i remonty. Każda ma ikonę i jedno zdanie, np. „Wykończymy Twoje mieszkanie od stanu deweloperskiego pod klucz”. Klient od razu wie, czy trafił pod dobry adres, bez czytania długich opisów.`,`Zaraz pod ofertą jest galeria realizacji, a dalej opinie klientów, napisane ich własnymi słowami i podpisane imieniem. Zdjęcia gotowych prac i opinie to dowody, które pomagają zaufać wykonawcy przed pierwszym telefonem.`],got:`Stronę z trzema usługami na jednym ekranie, galerią realizacji, opiniami klientów i telefonem dostępnym od pierwszego ekranu, w wersji na komputer i smartfon. Zaprojektowaliśmy ją i wdrożyliśmy.`",
+   "n": 1,
+   "first": false,
+   "note": "cases A4#did + got"
+  },
+  {
+   "op": "rep",
+   "old": "intro:`Aplikacja społecznościowa dla miłośników muzyki klubowej: wydarzenia, relacje i profile.`",
+   "new": "h:`4clubbers: aplikacja PWA dla fanów muzyki klubowej`,intro:`Aplikacja dla fanów muzyki klubowej w Polsce: festiwale, imprezy, line-upy, bilety i ludzie w jednym miejscu. Zaprojektowaliśmy funkcje społecznościowe drugiego etapu MVP: szukanie ekipy na wydarzenie, tablicę wydarzenia, czaty i narzędzia bezpieczeństwa.`,svc:[`Projektowanie aplikacji mobilnych`,`/uslugi/aplikacje-mobilne`]",
+   "n": 1,
+   "first": false,
+   "note": "cases A5#intro (+ `h`)"
+  },
+  {
+   "op": "rep",
+   "old": "ch:`Pomysł trzeba było zamienić w produkt, który da się szybko sprawdzić z prawdziwymi użytkownikami.`",
+   "new": "ch:`Na stronach wydarzeń aplikacja pokazywała, ile osób się wybiera i ile szuka ekipy. Użytkownik widział tę drugą liczbę, ale nie mógł nic z nią zrobić: nie dało się znaleźć tych osób, napisać do nich ani sprawdzić, z kim ma do czynienia.`",
+   "n": 1,
+   "first": false,
+   "note": "cases A5#ch"
+  },
+  {
+   "op": "rep",
+   "old": "did:`Przeprowadziliśmy warsztat, zaprojektowaliśmy kluczowe ekrany i przygotowaliśmy zakres MVP.`",
+   "new": "did:[`Każde wydarzenie ma jedną tablicę i jeden czat grupowy. Filtry typów wpisów sprawiają, że ogłoszenia „szukam ekipy” i pytania nie giną w ogólnej rozmowie. Tablica, komentarze i czaty działają tak samo, więc użytkownik uczy się tego raz.`,`Bezpieczeństwo jest domyślne. To samo menu „zgłoś, zablokuj, wycisz” jest przy każdym wpisie, komentarzu, czacie i profilu, najwyżej dwa dotknięcia od użytkownika. Usunięcie, blokada czy wyjście z grupy wymagają potwierdzenia z opisem skutków.`,`Zaprojektowaliśmy też stany, o których łatwo zapomnieć: ładowanie, błędy, brak sieci i niewysłane wiadomości. Na festiwalach zasięg bywa słaby, a aplikacja musi wtedy jasno mówić, co się dzieje. O zgodę na powiadomienia, zdjęcia i aparat prosi dopiero wtedy, gdy jest potrzebna, z krótkim wyjaśnieniem.`],got:`162 ekrany drugiego etapu MVP, gotowe do programowania: cztery nowe ścieżki społecznościowe, przypadki brzegowe, moderację i stany błędów. Do tego trzy krótkie ekrany wprowadzenia, które przed pierwszym użyciem tłumaczą ekipy, tablicę i zasady bezpieczeństwa.`",
+   "n": 1,
+   "first": false,
+   "note": "cases A5#did + got"
+  },
+  {
+   "op": "rep",
+   "old": "[`Warsztat produktowy`,`Prototyp`,`Projekt UI`,`MVP`]",
+   "new": "[`Warsztat produktowy`,`Prototyp`,`Projekt UX i UI`,`MVP`]",
+   "n": 1,
+   "first": false,
+   "note": "cases A5#scope"
+  },
+  {
+   "op": "rep",
+   "old": "k:`Usługa online · płatności`",
+   "new": "k:`Nasz produkt · płatności online`",
+   "n": 1,
+   "first": false,
+   "note": "cases A6#k (etykieta)"
+  },
+  {
+   "op": "rep",
+   "old": "intro:`Nasza własna usługa audytów UX sklepów internetowych, z zamówieniem i płatnością online.`",
+   "new": "h:`uxaudyt.pl: nasza usługa audytów UX z płatnością online`,intro:`uxaudyt.pl to nasz własny produkt: serwis, w którym właściciel sklepu lub strony zamawia audyt UX i płaci online bez rozmowy handlowej. Projektujemy go, wdrażamy i rozwijamy sami.`,svc:[`Audyt UX z wdrożeniem poprawek`,`/uslugi/audyt-ux`]",
+   "n": 1,
+   "first": false,
+   "note": "cases A6#intro (+ `h`)"
+  },
+  {
+   "op": "rep",
+   "old": "ch:`Usługę ekspercką trzeba było opisać prosto i pozwolić zamówić ją bez rozmowy handlowej.`",
+   "new": "ch:`Audyt UX to usługa ekspercka. Trudno ją kupić, gdy nie wiadomo, co dokładnie się otrzyma, ile to kosztuje i kiedy będzie gotowe. Chcieliśmy, żeby klient mógł to wszystko sprawdzić sam i zamówić audyt bez rozmowy handlowej.`",
+   "n": 1,
+   "first": false,
+   "note": "cases A6#ch"
+  },
+  {
+   "op": "rep",
+   "old": "did:`Zaprojektowaliśmy stronę z pakietami, przykładowym raportem i płatnością online, oraz bazę poradników o UX sklepów.`",
+   "new": "did:[`Ceny pokazaliśmy wprost, w trzech pakietach: audyt strony, audyt sklepu i audyt sklepu z opieką. Wdrożenie poprawek jest osobną usługą, wycenianą po raporcie. Klient porównuje zakres i cenę bez proszenia o ofertę.`,`Dodaliśmy przykładowy raport w PDF, żeby było widać, za co się płaci: problemy od najważniejszych, zrzut ekranu, wyjaśnienie i propozycja poprawki. Niepewność zmniejszają jasny termin, 5 dni roboczych od zaksięgowania płatności, oraz zwrot pieniędzy, jeśli raport się spóźni albo nie znajdziemy niczego, co realnie wpływa na sprzedaż.`,`Płatność odbywa się z góry przez Stripe: BLIK, Przelewy24 albo karta. Do audytu wystarczy adres sklepu, bez dostępu do panelu. Dla osób, które nie są jeszcze gotowe na zakup, przygotowaliśmy bezpłatną wstępną ocenę, checklisty i poradniki.`],gotk:`Co powstało`,got:`Serwis z trzema pakietami, przykładowym raportem, zamówieniem i płatnością online, bezpłatną wstępną oceną oraz bazą poradników o UX sklepów. Ten sam sposób myślenia o ścieżce zakupu stosujemy w projektach stron i sklepów dla klientów.`",
+   "n": 1,
+   "first": false,
+   "note": "cases A6#did + got"
+  },
+  {
+   "op": "rep",
+   "old": "Poradniki o tym, co pomaga klientom zrozumieć ofertę i kupować. Piszemy z doświadczenia projektów i audytów.",
+   "new": "Praktyczne poradniki o tym, co pomaga klientom zrozumieć ofertę, wysłać zapytanie i kupić. Piszemy na podstawie naszych projektów i audytów UX. Ceny znajdziesz w cenniku.",
+   "n": 1,
+   "first": false,
+   "note": "cases B#1"
+  },
+  {
+   "op": "rep",
+   "old": "t:`Strona firmowa, która zbiera zapytania: 7 elementów, których nie może zabraknąć`",
+   "new": "t:`Co powinna zawierać strona firmowa, która zbiera zapytania: 7 elementów`",
+   "n": 1,
+   "first": false,
+   "note": "cases C1#1"
+  },
+  {
+   "op": "rep",
+   "old": "Strona firmowa zbiera zapytania, gdy ma: nagłówek mówiący, co robisz i dla kogo, jedno wyraźne wezwanie do działania, ofertę opisaną językiem klienta, prawdziwe realizacje i opinie, cenę lub widełki, prosty formularz oraz szybką wersję na telefon.",
+   "new": "Strona firmowa, która zbiera zapytania, powinna zawierać siedem elementów: nagłówek mówiący, co robisz i dla kogo, jedno wyraźne wezwanie do działania, ofertę opisaną językiem klienta, prawdziwe realizacje i opinie, cenę lub widełki, prosty formularz oraz szybką wersję na telefon. Brak któregokolwiek z nich to dla odwiedzającego powód, żeby wrócić do Google i sprawdzić konkurencję.",
+   "n": 1,
+   "first": false,
+   "note": "cases C1#2"
+  },
+  {
+   "op": "rep",
+   "old": "Brak jakiejkolwiek informacji o cenie to jeden z częstszych powodów, dla których ludzie opuszczają stronę bez kontaktu. Nie musisz publikować cennika. Wystarczy „od” albo opis, od czego zależy koszt. To filtruje niedopasowanych klientów i ośmiela tych właściwych.",
+   "new": "Cena to jedno z pierwszych pytań klienta. Gdy strona milczy na ten temat, odwiedzający musi zgadywać albo pisać tylko po to, żeby się dowiedzieć, czy go stać. Nie musisz publikować cennika. Wystarczy „od” albo opis, od czego zależy koszt. To filtruje niedopasowanych klientów i ośmiela tych właściwych.",
+   "n": 1,
+   "first": false,
+   "note": "cases C1#3"
+  },
+  {
+   "op": "rep",
+   "old": "Duża część ruchu na stronach firmowych przychodzi z telefonów. Sprawdź swoją stronę na smartfonie: czy tekst jest czytelny bez powiększania, czy przyciski łatwo kliknąć kciukiem, czy strona ładuje się szybko. Ciężkie zdjęcia i zbędne skrypty to najczęstsze hamulce.",
+   "new": "Sprawdź w Google Analytics, jaka część Twoich odwiedzających korzysta z telefonu. Potem otwórz stronę na smartfonie: czy tekst jest czytelny bez powiększania, czy przyciski łatwo kliknąć kciukiem, czy strona ładuje się szybko. Ciężkie zdjęcia i zbędne skrypty to najczęstsze hamulce.",
+   "n": 1,
+   "first": false,
+   "note": "cases C1#4"
+  },
+  {
+   "op": "rep",
+   "old": "Jeśli chcesz, przejrzymy Twoją stronę i powiemy, co poprawić w pierwszej kolejności. Wycenę nowej strony otrzymasz w 2 dni robocze.",
+   "new": "Jeśli planujesz nową stronę, zaczynamy od tych siedmiu punktów. Projekt zobaczysz w Figmie, zanim powstanie kod, a wycenę z harmonogramem otrzymasz w 2 dni robocze.",
+   "n": 1,
+   "first": false,
+   "note": "cases C1#5"
+  },
+  {
+   "op": "rep",
+   "old": "Zaprojektujemy taką stronę dla Ciebie:",
+   "new": "Tak projektujemy strony firmowe:",
+   "n": 1,
+   "first": false,
+   "note": "cases C1#6"
+  },
+  {
+   "op": "rep",
+   "old": "Cena strony internetowej zależy od zakresu: strategii, treści, projektu UX i UI, wdrożenia, SEO, integracji i utrzymania. Szablon jest tańszy, projekt na miarę droższy, ale lepiej sprzedaje. W Creative Vision strona firmowa kosztuje od 4 900 zł netto, a opieka od 490 zł netto miesięcznie.",
+   "new": "Strona internetowa dla firmy kosztuje w Creative Vision od 4 900 zł netto, a opieka nad nią od 490 zł netto miesięcznie. Ostateczna cena zależy od zakresu: liczby podstron, treści, projektu UX i UI, integracji i przygotowania pod Google. Strona na gotowym szablonie zwykle kosztuje mniej, projekt dla Twojej firmy więcej, bo obejmuje pracę nad tym, jak klient ma dojść do zapytania.",
+   "n": 1,
+   "first": false,
+   "note": "cases C2#1"
+  },
+  {
+   "op": "rep",
+   "old": "Projekt UX i UI: makiety i projekt graficzny na desktop i telefon.",
+   "new": "Projekt UX i UI: makiety i projekt graficzny na komputer i telefon.",
+   "n": 1,
+   "first": false,
+   "note": "cases C2#2"
+  },
+  {
+   "op": "rep",
+   "old": "Utrzymanie: hosting, aktualizacje, kopie zapasowe, drobne zmiany po starcie.",
+   "new": "Utrzymanie: hosting, aktualizacje, kopie zapasowe, drobne zmiany po publikacji.",
+   "n": 1,
+   "first": false,
+   "note": "cases C2#3"
+  },
+  {
+   "op": "rep",
+   "old": "U nas strona firmowa zaczyna się od 4 900 zł netto, a sklep na PrestaShop od 5 990 zł netto. Stała opieka po starcie kosztuje od 490 zł netto miesięcznie. Ostateczna cena zależy od liczby podstron, ilości treści do przygotowania i integracji. Wycenę z harmonogramem otrzymasz w 2 dni robocze.",
+   "new": "U nas strona firmowa zaczyna się od 4 900 zł netto, a sklep internetowy od 5 990 zł netto. Stała opieka kosztuje od 490 zł netto miesięcznie. Ostateczna cena zależy od liczby podstron, ilości treści do przygotowania i integracji. Wycenę z harmonogramem otrzymasz w 2 dni robocze, a po ustaleniu zakresu cena jest stała. Na wdrożoną stronę dajemy 12 miesięcy gwarancji na naprawę błędów.",
+   "n": 1,
+   "first": false,
+   "note": "cases C2#4"
+  },
+  {
+   "op": "rep",
+   "old": "Zmiany i rozwój po starcie strony.",
+   "new": "Zmiany i rozwój strony po publikacji.",
+   "n": 1,
+   "first": false,
+   "note": "cases C2#5"
+  },
+  {
+   "op": "rep",
+   "old": "Obejrzyj realizacje wykonawcy i zapytaj o efekty, a nie tylko o wygląd.",
+   "new": "Obejrzyj realizacje wykonawcy i zapytaj, jaki problem rozwiązywał każdy projekt.",
+   "n": 1,
+   "first": false,
+   "note": "cases C2#6"
+  },
+  {
+   "op": "rep",
+   "old": "[`more`,`Szukasz wykonawcy w Rzeszowie?`,`/strony-internetowe-rzeszow`,`Strony internetowe Rzeszów`]",
+   "new": "[`more`,`Zobacz, co obejmuje nasza oferta:`,`/uslugi/strony-firmowe`,`Tworzenie stron internetowych dla firm`]",
+   "n": 1,
+   "first": false,
+   "note": "cases C2#7"
+  },
+  {
+   "op": "rep",
+   "old": "t:`UX karty produktu: co sprawia, że klient klika „Dodaj do koszyka”`",
+   "new": "t:`Karta produktu w sklepie internetowym: co sprawia, że klient klika „Dodaj do koszyka”`",
+   "n": 1,
+   "first": false,
+   "note": "cases C3#1"
+  },
+  {
+   "op": "rep",
+   "old": "Klient może trafić do sklepu z Google, z reklamy albo z Instagrama, ale decyzja prawie zawsze zapada na karcie produktu. To tutaj odpowiada sobie na pytania: czy to jest to, czego szukam, ile zapłacę razem z dostawą, kiedy to dostanę i czy mogę zaufać temu sklepowi. Dobra karta produktu odpowiada na te pytania, zanim klient zdąży je zadać.",
+   "new": "Klient może trafić do sklepu z Google, z reklamy albo z Instagrama. Zwykle to na karcie produktu odpowiada sobie na najważniejsze pytania: czy to jest to, czego szukam, ile zapłacę razem z dostawą, kiedy przyjdzie paczka i czy mogę zaufać temu sklepowi. Dobra karta produktu odpowiada na nie, zanim klient zdąży je zadać.",
+   "n": 1,
+   "first": false,
+   "note": "cases C3#2"
+  },
+  {
+   "op": "rep",
+   "old": "Cena powinna być widoczna od razu, przy nazwie produktu. Niespodziewane koszty dostawy na końcu zamówienia to jedna z najczęstszych przyczyn porzucania koszyka. Pokaż koszt i czas dostawy już na karcie produktu, najlepiej z informacją, od jakiej kwoty dostawa jest darmowa.",
+   "new": "Cena powinna być widoczna od razu, przy nazwie produktu. Zbyt wysokie dodatkowe koszty, takie jak dostawa, podatki i opłaty, to według Baymard Institute najczęstszy powód porzucenia zamówienia: wskazało go 40% kupujących z USA, którzy przerwali zakup (pomijając osoby, które tylko się rozglądały). Pokaż koszt i czas dostawy już na karcie produktu, najlepiej z informacją, od jakiej kwoty dostawa jest darmowa.",
+   "n": 1,
+   "first": false,
+   "note": "cases C3#3"
+  },
+  {
+   "op": "rep",
+   "old": "UX to to, jak strona działa. UI to to, jak wygląda. Wyjaśniamy różnicę na przykładach i podpowiadamy, czego oczekiwać od projektanta.",
+   "new": "UX opisuje, jak strona działa. UI opisuje, jak wygląda. Wyjaśniamy różnicę na przykładach i podpowiadamy, czego oczekiwać od projektanta.",
+   "n": 1,
+   "first": false,
+   "note": "cases C4#1"
+  },
+  {
+   "op": "rep",
+   "old": "UX to to, jak strona działa i czy użytkownik łatwo osiąga cel. UI to to, jak wygląda: kolory, typografia, przyciski. Dobry projekt zaczyna od UX, czyli struktury i makiet, a potem dopracowuje UI.",
+   "new": "UX (user experience) to sposób, w jaki strona działa: czy użytkownik łatwo znajduje to, czego szuka, i osiąga cel. UI (user interface) to jej wygląd: kolory, typografia, przyciski. Dobry projekt zaczyna od UX, czyli struktury i makiet, a potem dopracowuje UI.",
+   "n": 1,
+   "first": false,
+   "note": "cases C4#2"
+  },
+  {
+   "op": "rep",
+   "old": "Skróty UI i UX pojawiają się w niemal każdej ofercie na stronę czy sklep. Często używa się ich zamiennie, choć oznaczają co innego. Gdy rozumiesz różnicę, łatwiej ocenić, co dostajesz w projekcie i za co płacisz.",
+   "new": "Skróty UI i UX pojawiają się w wielu ofertach na stronę czy sklep. Często używa się ich zamiennie, choć oznaczają co innego. Gdy rozumiesz różnicę, łatwiej ocenić, co otrzymasz w projekcie i za co płacisz.",
+   "n": 1,
+   "first": false,
+   "note": "cases C4#3"
+  },
+  {
+   "op": "rep",
+   "old": "Projektu na desktop i na telefon.",
+   "new": "Projektu na komputer i na telefon.",
+   "n": 1,
+   "first": false,
+   "note": "cases C4#4"
+  },
+  {
+   "op": "rep",
+   "old": "Uzasadnienia decyzji projektowych, a nie tylko „tak ładniej”.",
+   "new": "Uzasadnienia każdej decyzji projektowej. Samo „tak ładniej” nie wystarczy.",
+   "n": 1,
+   "first": false,
+   "note": "cases C4#5"
+  },
+  {
+   "op": "rep",
+   "old": "AI jest dziś w ofercie niemal każdej platformy e-commerce i każdej agencji. Część zastosowań realnie oszczędza czas i pomaga sprzedawać, część to głównie marketing. Poniżej przegląd tego, co ma sens w małym i średnim sklepie, oraz tego, na co uważać.",
+   "new": "Funkcje AI oferuje dziś wiele platform e-commerce i agencji. Część zastosowań realnie oszczędza czas, część to głównie marketing. Poniżej przegląd tego, co ma sens w małym i średnim sklepie, oraz tego, na co uważać.",
+   "n": 1,
+   "first": false,
+   "note": "cases C5#1"
+  },
+  {
+   "op": "rep",
+   "old": "Klienci coraz częściej wpisują pytania zamiast nazw produktów, np. „krzesło do małej kuchni”. Wyszukiwarka oparta na AI lepiej radzi sobie z synonimami, literówkami i takimi opisowymi zapytaniami. Przy dużym katalogu to jedna z inwestycji, które najszybciej przekładają się na wygodę klientów.",
+   "new": "Część klientów wpisuje w wyszukiwarkę sklepu opis zamiast nazwy produktu, np. „krzesło do małej kuchni”. Wyszukiwarka oparta na AI lepiej radzi sobie z synonimami, literówkami i takimi opisowymi zapytaniami. Sprawdź w statystykach wyszukiwarki swojego sklepu, ile zapytań kończy się brakiem wyników: to pokaże, czy ta inwestycja ma u Ciebie sens.",
+   "n": 1,
+   "first": false,
+   "note": "cases C5#2"
+  },
+  {
+   "op": "rep",
+   "old": "AI pomaga usuwać tło, poprawiać światło i przygotowywać grafiki do kampanii. Uważaj z generowaniem zdjęć samych produktów: klient musi dostać dokładnie to, co widział na zdjęciu.",
+   "new": "AI pomaga usuwać tło, poprawiać światło i przygotowywać grafiki do kampanii. Uważaj z generowaniem zdjęć samych produktów: klient musi otrzymać dokładnie to, co widział na zdjęciu.",
+   "n": 1,
+   "first": false,
+   "note": "cases C5#3"
+  },
+  {
+   "op": "rep",
+   "old": "Klienci zaczynają szukać i kupować produkty w rozmowie z AI. Co to oznacza dla Twojego sklepu i co możesz zrobić już teraz.",
+   "new": "Część klientów szuka i porównuje produkty w rozmowie z AI. Co to oznacza dla Twojego sklepu i co możesz zrobić już teraz.",
+   "n": 1,
+   "first": false,
+   "note": "cases C6#1"
+  },
+  {
+   "op": "rep",
+   "old": "Coraz więcej osób zaczyna zakupy nie od wyszukiwarki, ale od rozmowy z asystentem AI: „poleć mi wygodny fotel do czytania do 2 000 zł”. Asystent porównuje produkty i podsuwa konkretne sklepy. Duże firmy technologiczne idą krok dalej i pozwalają kupić produkt bez wychodzenia z rozmowy.",
+   "new": "Część osób zaczyna zakupy od rozmowy z asystentem AI zamiast od wyszukiwarki: „poleć mi wygodny fotel do czytania do 2 000 zł”. Asystent porównuje produkty i podsuwa konkretne sklepy. OpenAI i Google testują też zakup bez wychodzenia z rozmowy.",
+   "n": 1,
+   "first": false,
+   "note": "cases C6#2"
+  },
+  {
+   "op": "rep",
+   "old": "OpenAI uruchomiło we wrześniu 2025 roku Instant Checkout w ChatGPT, oparty na otwartym standardzie Agentic Commerce Protocol, stworzonym razem ze Stripe. Na start działało to w USA, dla wybranych sprzedawców. Google na początku 2026 roku zapowiedziało zakupy bezpośrednio w trybie AI Mode i w Gemini oraz własny standard Universal Commerce Protocol, rozwijany m.in. z Shopify, Etsy i Walmartem. W Polsce te funkcje dopiero się pojawiają, ale kierunek jest jasny.",
+   "new": "OpenAI uruchomiło we wrześniu 2025 roku Instant Checkout w ChatGPT, oparty na otwartym standardzie Agentic Commerce Protocol, stworzonym razem ze Stripe. Działało to w USA, dla wybranych sprzedawców. W marcu 2026 OpenAI ogłosiło, że nie będzie dalej rozwijać Instant Checkout jako osobnej funkcji: sprzedawcy mogą korzystać z własnych kas, a nacisk przesuwa się na wyszukiwanie produktów. Google w styczniu 2026 roku zapowiedziało zakupy bezpośrednio w AI Mode i w Gemini oraz standard Universal Commerce Protocol, rozwijany m.in. z Shopify, Etsy i Walmartem. W chwili ogłoszenia obie funkcje zakupu w rozmowie obejmowały sprzedawców z USA. Formy zakupu w rozmowie z AI szybko się zmieniają. Niezależnie od nich asystent poleca sklepy na podstawie danych o produktach.",
+   "n": 1,
+   "first": false,
+   "note": "cases C6#3"
+  },
+  {
+   "op": "rep",
+   "old": "Asystent AI nie ogląda Twojej strony tak jak człowiek. Czyta dane: nazwy, opisy, ceny, dostępność, opinie, warunki dostawy. Sklep z kompletnymi, uporządkowanymi danymi ma większą szansę, że zostanie polecony. Sklep z ogólnikowymi opisami i brakującymi parametrami po prostu znika z odpowiedzi.",
+   "new": "Asystent AI czyta Twój sklep inaczej niż człowiek. Patrzy na dane: nazwy, opisy, ceny, dostępność, opinie, warunki dostawy. Sklep z kompletnymi, uporządkowanymi danymi ma większą szansę, że zostanie polecony. Sklep z ogólnikowymi opisami i brakującymi parametrami ma ją mniejszą.",
+   "n": 1,
+   "first": false,
+   "note": "cases C6#4"
+  },
+  {
+   "op": "rep",
+   "old": "Pisz opisy, które odpowiadają na pytania klientów, a nie tylko wymieniają cechy.",
+   "new": "Pisz opisy, które odpowiadają na pytania klientów: do czego służy produkt, dla kogo jest, czym różni się od podobnych.",
+   "n": 1,
+   "first": false,
+   "note": "cases C6#5"
+  },
+  {
+   "op": "rep",
+   "old": "Cena sklepu internetowego zależy od wybranej drogi (platforma abonamentowa, PrestaShop lub WooCommerce, sklep pisany od zera), zakresu projektu, integracji i migracji. Po starcie dochodzą hosting, moduły, prowizje płatności i opieka. W Creative Vision sklep na PrestaShop kosztuje od 5 990 zł netto.",
+   "new": "Sklep na PrestaShop kosztuje w Creative Vision od 5 990 zł netto. Ostateczna cena zależy od wybranej drogi (platforma abonamentowa, PrestaShop lub WooCommerce, sklep pisany od zera), zakresu projektu, integracji i migracji. Po uruchomieniu dochodzą stałe koszty: hosting lub abonament, moduły, prowizje płatności i opieka.",
+   "n": 1,
+   "first": false,
+   "note": "cases C7#1"
+  },
+  {
+   "op": "rep",
+   "old": "Najczęściej integracje i niestandardowe funkcje. Każde połączenie z zewnętrznym systemem trzeba zaprojektować, wdrożyć i przetestować. Drugi czynnik to liczba różnych szablonów stron: osobny układ dla każdej kategorii to więcej pracy niż spójny system. Trzeci to migracja z innej platformy, zwłaszcza gdy sklep ma już ruch z Google i trzeba zachować jego pozycje.",
+   "new": "Najczęściej integracje i niestandardowe funkcje. Każde połączenie z zewnętrznym systemem trzeba zaprojektować, wdrożyć i przetestować. Drugi czynnik to liczba różnych szablonów stron: osobny układ dla każdej kategorii to więcej pracy niż spójny system. Trzeci to migracja z innej platformy, zwłaszcza gdy sklep ma już ruch z Google: wtedy potrzebne są przekierowania 301, które chronią obecny ruch.",
+   "n": 1,
+   "first": false,
+   "note": "cases C7#2"
+  },
+  {
+   "op": "rep",
+   "old": "Sklep na PrestaShop projektujemy i wdrażamy od 5 990 zł netto. W cenie jest projekt UX i UI, wdrożenie, płatności i dostawy, import produktów, SEO techniczne oraz szkolenie. Wycenę z harmonogramem otrzymasz w 2 dni robocze.",
+   "new": "Sklep na PrestaShop projektujemy i wdrażamy od 5 990 zł netto. W cenie jest projekt UX i UI, wdrożenie, płatności i dostawy, import produktów, SEO techniczne oraz szkolenie z obsługi panelu. Mamy status PrestaShop Expert. Wycenę z harmonogramem otrzymasz w 2 dni robocze, a po ustaleniu zakresu cena jest stała. Na wdrożony sklep dajemy 12 miesięcy gwarancji na naprawę błędów.",
+   "n": 1,
+   "first": false,
+   "note": "cases C7#4"
+  },
+  {
+   "op": "rep",
+   "old": "Testy, szkolenie i start.",
+   "new": "Testy, szkolenie z obsługi panelu i uruchomienie.",
+   "n": 1,
+   "first": false,
+   "note": "cases C7#5"
+  },
+  {
+   "op": "rep",
+   "old": "Policz koszty w skali roku, a nie tylko cenę startu.",
+   "new": "Policz koszty w skali roku, razem z abonamentem, modułami i opieką.",
+   "n": 1,
+   "first": false,
+   "note": "cases C7#6"
+  },
+  {
+   "op": "rep",
+   "old": "Zapytaj, co dzieje się po starcie: kto aktualizuje sklep i jak szybko reaguje.",
+   "new": "Zapytaj, co dzieje się po uruchomieniu: kto aktualizuje sklep i jak szybko reaguje.",
+   "n": 1,
+   "first": false,
+   "note": "cases C7#7"
+  },
+  {
+   "op": "rep",
+   "old": "Szczegóły naszej oferty:",
+   "new": "Zobacz, co obejmuje sklep od 5 990 zł netto:",
+   "n": 1,
+   "first": false,
+   "note": "cases C7#8"
+  },
+  {
+   "op": "rep",
+   "old": "PrestaShop to oprogramowanie do prowadzenia sklepu internetowego, rozwijane jako open source. Sam system pobierasz za darmo, instalujesz na swoim serwerze i masz pełną kontrolę nad sklepem. W Polsce to jedna z najpopularniejszych platform sklepowych, zwłaszcza w małych i średnich firmach.",
+   "new": "PrestaShop to oprogramowanie do prowadzenia sklepu internetowego, rozwijane jako open source. Sam system pobierasz za darmo, instalujesz na swoim serwerze i masz pełną kontrolę nad sklepem. Polscy operatorzy płatności i dostaw, np. PayU, Przelewy24, Tpay i InPost, udostępniają do niego własne moduły.",
+   "n": 1,
+   "first": false,
+   "note": "cases C8#1"
+  },
+  {
+   "op": "rep",
+   "old": "WooCommerce to wtyczka do WordPressa, dobra, gdy sklep jest dodatkiem do strony z treściami. Shoper to polska platforma abonamentowa: szybki start, ale mniej swobody. PrestaShop to samodzielny system sklepowy, który dobrze rośnie razem z katalogiem i liczbą integracji.",
+   "new": "WooCommerce to wtyczka do WordPressa, dobra, gdy sklep jest dodatkiem do strony z treściami. Shoper to polska platforma abonamentowa, a Shopify zagraniczna: obie dają szybki start, w zamian za mniej swobody i miesięczny abonament. PrestaShop to samodzielny system sklepowy, który dobrze rośnie razem z katalogiem i liczbą integracji. Doradzamy uczciwie, więc nie każdemu polecamy PrestaShop.",
+   "n": 1,
+   "first": false,
+   "note": "cases C8#2"
+  },
+  {
+   "op": "rep",
+   "old": "[`more`,`Wdrażamy sklepy na PrestaShop:`,`/uslugi/sklepy-internetowe`,`Tworzenie sklepów internetowych`]",
+   "new": "[`more`,`Mamy status PrestaShop Expert w programie partnerskim PrestaShop. Wdrażamy na nim sklepy od projektu UX po uruchomienie:`,`/uslugi/sklepy-prestashop`,`Wdrożenie sklepu na PrestaShop`]",
+   "n": 1,
+   "first": false,
+   "note": "cases C8#4"
+  },
+  {
+   "op": "rep",
+   "old": "[`more`,`Szukasz wykonawcy sklepu?`,`/agencja-ecommerce`,`Agencja e-commerce`]",
+   "new": "[`more`,`Moduły, które przydają się w polskim sklepie:`,`/wiedza/moduly-prestashop`,`Moduły PrestaShop`]",
+   "n": 1,
+   "first": false,
+   "note": "cases C8#5"
+  },
+  {
+   "op": "rep",
+   "old": "Klienci w Polsce oczekują BLIK-a i szybkich przelewów. Operatorzy płatności, np. PayU, Przelewy24 czy Tpay, udostępniają własne moduły do PrestaShop. Zwykle lepiej wybrać jednego operatora, który obsłuży BLIK, przelewy i karty, niż instalować kilka modułów naraz.",
+   "new": "W polskim sklepie warto mieć BLIK i szybkie przelewy. Operatorzy płatności, np. PayU, Przelewy24 czy Tpay, udostępniają własne moduły do PrestaShop. Zwykle lepiej wybrać jednego operatora, który obsłuży BLIK, przelewy i karty, niż instalować kilka modułów naraz.",
+   "n": 1,
+   "first": false,
+   "note": "cases C9#1"
+  },
+  {
+   "op": "rep",
+   "old": "Paczkomaty to w Polsce standard, a InPost udostępnia moduł do PrestaShop z mapą wyboru paczkomatu. Do tego dochodzą moduły kurierów albo brokerów przesyłek, dzięki którym etykiety drukujesz prosto z panelu zamówień.",
+   "new": "Jeśli wysyłasz paczki, daj klientom wybór paczkomatu. InPost udostępnia moduł do PrestaShop z mapą wyboru paczkomatu. Do tego dochodzą moduły kurierów albo brokerów przesyłek, dzięki którym etykiety drukujesz prosto z panelu zamówień.",
+   "n": 1,
+   "first": false,
+   "note": "cases C9#2"
+  },
+  {
+   "op": "rep",
+   "old": "Przyjazne adresy URL i przekierowania 301 (część z tego PrestaShop ma od razu).",
+   "new": "Przyjazne adresy URL i przekierowania 301 (przyjazne adresy PrestaShop ma w standardzie, przekierowania zwykle wymagają modułu).",
+   "n": 1,
+   "first": false,
+   "note": "cases C9#3"
+  },
+  {
+   "op": "rep",
+   "old": "Instaluj najpierw na kopii sklepu, nie na działającym sklepie.",
+   "new": "Instaluj najpierw na kopii sklepu i dopiero po testach na działającym.",
+   "n": 1,
+   "first": false,
+   "note": "cases C9#4"
+  },
+  {
+   "op": "rep",
+   "old": "[`more`,`Budujemy sklepy na PrestaShop:`,`/uslugi/sklepy-internetowe`,`Tworzenie sklepów internetowych`]",
+   "new": "[`more`,`Mamy status PrestaShop Expert. Projektujemy i wdrażamy sklepy na PrestaShop:`,`/uslugi/sklepy-prestashop`,`Agencja PrestaShop: tworzenie sklepów`]",
+   "n": 1,
+   "first": false,
+   "note": "cases C9#5"
+  },
+  {
+   "op": "rep",
+   "old": "Projektowanie UX/UI ma siedem etapów: rozmowa i cele, analiza, architektura informacji, makiety, prototyp i testy, projekt graficzny oraz przekazanie do wdrożenia. Dzięki temu błędy poprawia się na makietach, a nie w gotowej stronie.",
+   "new": "Projektowanie UX/UI ma siedem etapów: rozmowa i cele, analiza, architektura informacji, makiety, prototyp i testy, projekt graficzny oraz przekazanie do wdrożenia. Dzięki temu błędy poprawia się na makietach, zanim powstanie kod, gdy zmiana jest najtańsza.",
+   "n": 1,
+   "first": false,
+   "note": "cases C10#1"
+  },
+  {
+   "op": "rep",
+   "old": "Projektowanie UX/UI to etap, w którym strona albo sklep powstaje „na papierze”, zanim ktokolwiek napisze kod. Dobrze poprowadzony oszczędza pieniądze, bo błędy poprawia się na makietach, a nie w gotowym wdrożeniu. Poniżej opisujemy, jak ten proces wygląda u nas.",
+   "new": "Projektowanie UX/UI to etap, w którym strona albo sklep powstaje „na papierze”, zanim ktokolwiek napisze kod. Dobrze poprowadzony oszczędza pieniądze: przesunięcie sekcji na makiecie zajmuje chwilę, a w gotowym wdrożeniu oznacza przeróbki. Poniżej opisujemy, jak ten proces wygląda u nas.",
+   "n": 1,
+   "first": false,
+   "note": "cases C10#2"
+  },
+  {
+   "op": "rep",
+   "old": "Makiety pokazują układ bez kolorów i grafiki. Dzięki temu rozmawiamy o treści i kolejności sekcji, a nie o odcieniu niebieskiego. Projektujemy osobno widok na komputer i na telefon.",
+   "new": "Makiety pokazują układ bez kolorów i grafiki. Dzięki temu rozmawiamy o treści i kolejności sekcji, zanim przyjdzie czas na wybór odcienia niebieskiego. Projektujemy osobno widok na komputer i na telefon.",
+   "n": 1,
+   "first": false,
+   "note": "cases C10#3"
+  },
+  {
+   "op": "rep",
+   "old": "Poproś projektanta o makiety przed grafiką. Jeśli od razu dostajesz kolorowy projekt, większość decyzji o układzie zapadła bez Twojego udziału.",
+   "new": "Poproś projektanta o makiety przed grafiką. Jeśli od razu otrzymujesz kolorowy projekt, większość decyzji o układzie zapadła bez Twojego udziału.",
+   "n": 1,
+   "first": false,
+   "note": "cases C10#4"
+  },
+  {
+   "op": "rep",
+   "old": "To zależy od liczby szablonów stron. Strona firmowa ma ich zwykle kilka, sklep więcej: stronę główną, kategorię, kartę produktu, koszyk i zamówienie. Dokładny harmonogram podajemy razem z wyceną.",
+   "new": "To zależy od liczby szablonów stron. Strona firmowa ma ich zwykle kilka, sklep więcej: stronę główną, kategorię, kartę produktu, koszyk i zamówienie. Dokładny harmonogram otrzymasz razem z wyceną, w 2 dni robocze.",
+   "n": 1,
+   "first": false,
+   "note": "cases C10#5"
+  },
+  {
+   "op": "rep",
+   "old": "Zacznij od makiet: kolejność sekcji, nagłówki, przyciski. Dopiero potem projekt graficzny. Równolegle projektuj wersję na telefon, bo z telefonów przychodzi duża część ruchu.",
+   "new": "Zacznij od makiet: kolejność sekcji, nagłówki, przyciski. Dopiero potem projekt graficzny. Równolegle projektuj wersję na telefon: wielu klientów pierwszy raz zobaczy Twoją firmę na ekranie smartfona.",
+   "n": 1,
+   "first": false,
+   "note": "cases C11#1"
+  },
+  {
+   "op": "rep",
+   "old": "Po starcie obserwuj, skąd przychodzą odwiedzający i ile wysyłają zapytań. Dodawaj realizacje, artykuły i nowe usługi. Strona, która się rozwija, z czasem zbiera coraz więcej ruchu z Google.",
+   "new": "Po publikacji obserwuj, skąd przychodzą odwiedzający i ile wysyłają zapytań. Dodawaj realizacje, artykuły i nowe usługi. Strona, która się rozwija, ma większą szansę na ruch z Google niż taka, której nikt nie zmienia od lat.",
+   "n": 1,
+   "first": false,
+   "note": "cases C11#2"
+  },
+  {
+   "op": "rep",
+   "old": "Kreator wystarczy, gdy potrzebujesz prostej wizytówki szybko. Agencja ma sens, gdy strona ma być głównym źródłem klientów: zaprojektuje strukturę, treści i ścieżkę do kontaktu. U nas strona firmowa kosztuje od 4 900 zł netto.",
+   "new": "Kreator wystarczy, gdy potrzebujesz prostej wizytówki szybko i masz czas, żeby samodzielnie przygotować teksty, zdjęcia i ustawienia. Agencja ma sens, gdy strona ma być głównym źródłem klientów: zaprojektuje strukturę, treści i ścieżkę do kontaktu. U nas strona firmowa kosztuje od 4 900 zł netto, wycenę z harmonogramem otrzymasz w 2 dni robocze, a po ustaleniu zakresu cena jest stała.",
+   "n": 1,
+   "first": false,
+   "note": "cases C11#3"
+  },
+  {
+   "op": "rep",
+   "old": "[`more`,`Szukasz wykonawcy?`,`/uslugi/strony-firmowe`,`Strony internetowe dla firm`]",
+   "new": "[`more`,`Wolisz zlecić stronę? Zobacz, co obejmuje oferta od 4 900 zł netto:`,`/uslugi/strony-firmowe`,`Tworzenie stron internetowych dla firm`]",
+   "n": 1,
+   "first": false,
+   "note": "cases C11#4"
+  },
+  {
+   "op": "rep",
+   "old": "t:`Cennik: ile kosztuje strona, sklep i aplikacja w Creative Vision`",
+   "new": "t:`Cennik: ile kosztuje strona i sklep internetowy w Creative Vision`",
+   "n": 1,
+   "first": false,
+   "note": "cases C12#1"
+  },
+  {
+   "op": "rep",
+   "old": "Strona firmowa kosztuje u nas od 4 900 zł netto, sklep internetowy od 5 990 zł netto, a opieka po starcie od 490 zł netto miesięcznie. Aplikacje mobilne i audyty UX wyceniamy indywidualnie. Wycenę z harmonogramem otrzymasz w 2 dni robocze. Pracujemy z firmami z całej Polski.",
+   "new": "Strona firmowa kosztuje u nas od 4 900 zł netto, sklep internetowy od 5 990 zł netto, a opieka od 490 zł netto miesięcznie. Aplikacje mobilne i audyty UX wyceniamy indywidualnie. Wycenę z harmonogramem otrzymasz w 2 dni robocze, a po ustaleniu zakresu cena jest stała. Na wdrożoną stronę lub sklep dajemy 12 miesięcy gwarancji na naprawę błędów.",
+   "n": 1,
+   "first": false,
+   "note": "cases C12#2"
+  },
+  {
+   "op": "rep",
+   "old": "Audyt UX sklepu lub strony: wycena po krótkiej rozmowie.",
+   "new": "Audyt UX sklepu lub strony: pakiety z cenami na uxaudyt.pl, audyt z wdrożeniem poprawek wyceniamy indywidualnie.",
+   "n": 1,
+   "first": false,
+   "note": "cases C12#3"
+  },
+  {
+   "op": "rep",
+   "old": "Ceny podajemy netto. Dokładną kwotę ustalamy po rozmowie, bo zależy od zakresu, treści i integracji. Wycena jest bezpłatna i do niczego nie zobowiązuje.",
+   "new": "Ceny podajemy netto. Dokładną kwotę ustalamy po rozmowie, bo zależy od zakresu, treści i integracji. Wycena jest bezpłatna i do niczego nie zobowiązuje. Gdy zaakceptujesz zakres, cena się nie zmienia.",
+   "n": 1,
+   "first": false,
+   "note": "cases C12#4"
+  },
+  {
+   "op": "rep",
+   "old": "Migracja ze starego sklepu z przekierowaniami, żeby nie stracić pozycji w Google.",
+   "new": "Migracja ze starego sklepu z przekierowaniami 301, które chronią obecny ruch z Google.",
+   "n": 1,
+   "first": false,
+   "note": "cases C12#5"
+  },
+  {
+   "op": "rep",
+   "old": "Wdrożenie, testy i szkolenie z obsługi.",
+   "new": "Wdrożenie, testy na telefonach i komputerach oraz szkolenie z obsługi panelu.",
+   "n": 1,
+   "first": false,
+   "note": "cases C12#6"
+  },
+  {
+   "op": "rep",
+   "old": "Start strony lub sklepu, a potem opieka i rozwój, jeśli jej potrzebujesz.",
+   "new": "Publikacja strony lub sklepu, 12 miesięcy gwarancji na naprawę błędów, a jeśli chcesz, stała opieka i rozwój.",
+   "n": 1,
+   "first": false,
+   "note": "cases C12#7"
+  },
+  {
+   "op": "rep",
+   "old": "Jesteśmy studiem projektowym z Rzeszowa, ale projektujemy strony i sklepy dla firm z całej Polski. Większość projektów prowadzimy zdalnie: rozmowy, warsztaty i odbiory odbywają się online.",
+   "new": "Jesteśmy studiem projektowym z Rzeszowa (ul. Pańska 13A) i projektujemy strony oraz sklepy dla firm z całej Polski. Większość projektów prowadzimy zdalnie: rozmowy, warsztaty i odbiory odbywają się online.",
+   "n": 1,
+   "first": false,
+   "note": "cases C12#8"
+  },
+  {
+   "op": "rep",
+   "old": "Wybierając agencję e-commerce, pytaj o konkretny zakres prac, platformę i jej koszty po starcie, prawa do projektu i kodu, przygotowanie pod Google, przekierowania przy migracji, harmonogram, testy na telefonach i warunki opieki. Dobra oferta odpowiada na te pytania na piśmie, zanim podpiszesz umowę.",
+   "new": "Wybierając agencję e-commerce, zadaj jej 10 pytań: o zakres prac, platformę i jej stałe koszty, prawa do projektu i kodu, przygotowanie pod Google, przekierowania przy migracji, harmonogram, kontakt, testy, samodzielną edycję i opiekę. Dobra oferta odpowiada na nie na piśmie, zanim podpiszesz umowę.",
+   "n": 1,
+   "first": false,
+   "note": "cases C13#1"
+  },
+  {
+   "op": "rep",
+   "old": "Sprawdź nasze ceny:",
+   "new": "Nasze ceny i to, co zawierają:",
+   "n": 1,
+   "first": false,
+   "note": "cases C13#4"
+  },
+  {
+   "op": "rep",
+   "old": "[`more`,`Szukasz wykonawcy?`,`/agencja-ecommerce`,`Agencja e-commerce`]",
+   "new": "[`more`,`Tak pracujemy jako agencja e-commerce: projekt w Figmie przed kodem, stała cena po ustaleniu zakresu i 12 miesięcy gwarancji:`,`/agencja-ecommerce`,`Agencja e-commerce Creative Vision`]",
+   "n": 1,
+   "first": false,
+   "note": "cases C13#5"
+  },
+  {
+   "op": "ins",
+   "anchor": "Jedna dobrze opisana realizacja (wyzwanie, co zrobiliśmy, efekt) przekonuje bardziej niż galeria dwudziestu zdjęć bez kontekstu.",
+   "blocks": [
+    "[`more`,`Przykład opisanej realizacji:`,`/realizacje/sztuka-wykonczen`,`Strona firmy wykończeniowej Sztuka Wykończeń`]"
+   ],
+   "note": "cases C1"
+  },
+  {
+   "op": "ins",
+   "anchor": "Sprawdź stronę na telefonie i w PageSpeed Insights.",
+   "blocks": [
+    "[`more`,`Cały proces od pomysłu do publikacji opisaliśmy w poradniku:`,`/wiedza/jak-stworzyc-strone-internetowa`,`Jak stworzyć stronę internetową dla firmy`]"
+   ],
+   "note": "cases C1"
+  },
+  {
+   "op": "ins",
+   "anchor": "U nas strona firmowa zaczyna się od 4 900 zł netto, a sklep internetowy od 5 990 zł netto. Stała opieka kosztuje od 490 zł netto miesięcznie. Ostateczna cena zależy od liczby podstron, ilości treści do przygotowania i integracji. Wycenę z harmonogramem otrzymasz w 2 dni robocze, a po ustaleniu zakresu cena jest stała. Na wdrożoną stronę dajemy 12 miesięcy gwarancji na naprawę błędów.",
+   "blocks": [
+    "[`more`,`Pełne ceny i to, co jest w nich zawarte:`,`/wiedza/cennik`,`Cennik stron i sklepów`]"
+   ],
+   "note": "cases C2"
+  },
+  {
+   "op": "ins",
+   "anchor": "Zmiany i rozwój strony po publikacji.",
+   "blocks": [
+    "[`more`,`Stałą opiekę możesz zlecić nam:`,`/uslugi/opieka`,`Opieka nad stroną i sklepem`]"
+   ],
+   "note": "cases C2"
+  },
+  {
+   "op": "ins",
+   "anchor": "Cena powinna być widoczna od razu, przy nazwie produktu. Zbyt wysokie dodatkowe koszty, takie jak dostawa, podatki i opłaty, to według Baymard Institute najczęstszy powód porzucenia zamówienia: wskazało go 40% kupujących z USA, którzy przerwali zakup (pomijając osoby, które tylko się rozglądały). Pokaż koszt i czas dostawy już na karcie produktu, najlepiej z informacją, od jakiej kwoty dostawa jest darmowa.",
+   "blocks": [
+    "[`more`,`Źródło danych o porzuconych koszykach:`,`https://baymard.com/lists/cart-abandonment-rate`,`Baymard Institute: Cart Abandonment Rate`]"
+   ],
+   "note": "cases C3"
+  },
+  {
+   "op": "ins",
+   "anchor": "Kartę produktu analizujemy w każdym audycie UX sklepu. Jeśli chcesz wiedzieć, co blokuje sprzedaż w Twoim sklepie, zacznij od audytu.",
+   "blocks": [
+    "[`more`,`Projektujesz nowy sklep? Kartę produktu projektujemy osobno na komputer i telefon:`,`/uslugi/sklepy-internetowe`,`Projektowanie sklepu internetowego`]"
+   ],
+   "note": "cases C3"
+  },
+  {
+   "op": "ins",
+   "anchor": "Gotowego projektu w Figmie, który da się wdrożyć.",
+   "blocks": [
+    "[`more`,`Tak pracujemy przy stronach firmowych: makiety i projekt zobaczysz, zanim powstanie kod.`,`/uslugi/strony-firmowe`,`Projektowanie stron internetowych`]"
+   ],
+   "note": "cases C4"
+  },
+  {
+   "op": "ins",
+   "anchor": "Zacznij od jednego zastosowania, które rozwiązuje konkretny problem, np. opisy dla 200 produktów bez treści. Zmierz efekt i dopiero wtedy idź dalej.",
+   "blocks": [
+    "[`more`,`Drugi krok to przygotowanie sklepu na zakupy przez ChatGPT i Gemini:`,`/wiedza/sklep-a-zakupy-przez-asystentow-ai`,`Jak przygotować sklep na zakupy przez asystentów AI`]",
+    "[`more`,`Planujesz nowy sklep albo przebudowę? Zaczynamy od tego, jak klienci szukają i kupują:`,`/uslugi/sklepy-internetowe`,`Tworzenie sklepów internetowych`]"
+   ],
+   "note": "cases C5"
+  },
+  {
+   "op": "ins",
+   "anchor": "OpenAI uruchomiło we wrześniu 2025 roku Instant Checkout w ChatGPT, oparty na otwartym standardzie Agentic Commerce Protocol, stworzonym razem ze Stripe. Działało to w USA, dla wybranych sprzedawców. W marcu 2026 OpenAI ogłosiło, że nie będzie dalej rozwijać Instant Checkout jako osobnej funkcji: sprzedawcy mogą korzystać z własnych kas, a nacisk przesuwa się na wyszukiwanie produktów. Google w styczniu 2026 roku zapowiedziało zakupy bezpośrednio w AI Mode i w Gemini oraz standard Universal Commerce Protocol, rozwijany m.in. z Shopify, Etsy i Walmartem. W chwili ogłoszenia obie funkcje zakupu w rozmowie obejmowały sprzedawców z USA. Formy zakupu w rozmowie z AI szybko się zmieniają. Niezależnie od nich asystent poleca sklepy na podstawie danych o produktach.",
+   "blocks": [
+    "[`more`,`Źródło o Instant Checkout:`,`https://businessnow.mt/chatgpt-launches-in-app-shopping-for-us-users/`,`ChatGPT launches in-app shopping (BusinessNow, 30.09.2025)`]",
+    "[`more`,`Źródło o zmianie kursu OpenAI:`,`https://storyboard18.com/digital/openai-reduces-chatgpt-shopping-focus-shifts-to-product-discovery-93192.html`,`OpenAI scales back ChatGPT shopping (Storyboard18, 25.03.2026)`]",
+    "[`more`,`Źródło o Universal Commerce Protocol:`,`https://www.techcrunch.com/2026/01/11/google-announces-a-new-protocol-to-facilitate-commerce-using-ai-agents/`,`Google announces Universal Commerce Protocol (TechCrunch, 11.01.2026)`]"
+   ],
+   "note": "cases C6"
+  },
+  {
+   "op": "ins",
+   "anchor": "Zapytaj ChatGPT lub Gemini o produkt, który sprzedajesz, tak jak zrobiłby to klient. Sprawdź, czy Twój sklep pojawia się w odpowiedzi i jakie informacje asystent podaje o konkurencji.",
+   "blocks": [
+    "[`more`,`Dane strukturalne, feed i porządek w opisach możemy wdrożyć w ramach opieki nad sklepem:`,`/uslugi/opieka`,`Opieka nad stroną i sklepem`]",
+    "[`more`,`Więcej o tym, co AI realnie daje małemu sklepowi:`,`/wiedza/ai-w-sklepie-internetowym`,`AI w sklepie internetowym`]"
+   ],
+   "note": "cases C6"
+  },
+  {
+   "op": "ins",
+   "anchor": "Sklep na PrestaShop projektujemy i wdrażamy od 5 990 zł netto. W cenie jest projekt UX i UI, wdrożenie, płatności i dostawy, import produktów, SEO techniczne oraz szkolenie z obsługi panelu. Mamy status PrestaShop Expert. Wycenę z harmonogramem otrzymasz w 2 dni robocze, a po ustaleniu zakresu cena jest stała. Na wdrożony sklep dajemy 12 miesięcy gwarancji na naprawę błędów.",
+   "blocks": [
+    "[`more`,`Wszystkie nasze ceny w jednym miejscu:`,`/wiedza/cennik`,`Cennik stron i sklepów`]",
+    "[`more`,`Zakładasz pierwszy sklep? Wszystkie kroki po kolei:`,`/wiedza/jak-zalozyc-sklep-internetowy`,`Jak założyć sklep internetowy krok po kroku`]"
+   ],
+   "note": "cases C7"
+  },
+  {
+   "op": "ins",
+   "anchor": "Sklep pisany od zera: ma sens przy nietypowych procesach, ale jest najdroższy i powstaje najdłużej.",
+   "blocks": [
+    "[`more`,`Czym jest PrestaShop i kiedy warto go wybrać:`,`/wiedza/co-to-jest-prestashop`,`Co to jest PrestaShop`]",
+    "[`more`,`Porównanie platform z cenami:`,`/wiedza/jaka-platforma-sklepu-internetowego`,`Jaka platforma sklepu internetowego`]"
+   ],
+   "note": "cases C7"
+  },
+  {
+   "op": "ins",
+   "anchor": "Zanim kupisz moduł, sprawdź, czy tej funkcji nie ma już w PrestaShop albo w module, który masz. Mniej modułów to szybszy sklep i mniej problemów przy aktualizacjach.",
+   "blocks": [
+    "[`more`,`Aktualizacje PrestaShop i modułów, sprawdzane najpierw na kopii sklepu, możesz zlecić nam:`,`/uslugi/opieka`,`Opieka nad sklepem internetowym`]"
+   ],
+   "note": "cases C9"
+  },
+  {
+   "op": "ins",
+   "anchor": "To zależy od liczby szablonów stron. Strona firmowa ma ich zwykle kilka, sklep więcej: stronę główną, kategorię, kartę produktu, koszyk i zamówienie. Dokładny harmonogram otrzymasz razem z wyceną, w 2 dni robocze.",
+   "blocks": [
+    "[`more`,`Tak wygląda ten proces w praktyce, od projektu w Figmie do wdrożenia:`,`/uslugi/strony-firmowe`,`Projektowanie stron internetowych dla firm`]",
+    "[`more`,`Projektujesz sklep? Ten sam proces obejmuje kategorię, kartę produktu i koszyk:`,`/uslugi/sklepy-internetowe`,`Projektowanie sklepów internetowych`]"
+   ],
+   "note": "cases C10"
+  },
+  {
+   "op": "ins",
+   "anchor": "Żeby stworzyć stronę internetową dla firmy: ustal cel i odbiorców, wybierz domenę i platformę, zaplanuj podstrony, przygotuj treści, zaprojektuj układ i wygląd, wdróż stronę, zadbaj o SEO i analitykę, a potem opublikuj ją i rozwijaj. Możesz to zrobić sam w kreatorze albo zlecić agencji.",
+   "blocks": [
+    "[`p`,`Ten przewodnik jest dla właścicieli małych i średnich firm, którzy chcą, żeby strona przynosiła zapytania. Opisujemy osiem kroków w kolejności, w jakiej przechodzimy je przy każdym projekcie. Każdy z nich możesz zrobić sam albo zlecić.`]"
+   ],
+   "note": "cases C11"
+  },
+  {
+   "op": "ins",
+   "anchor": "Teksty pisz językiem klientów: co robisz, dla kogo, gdzie i od czego zależy cena. Zbierz zdjęcia z prawdziwych realizacji i opinie klientów. Treści to najczęściej niedoszacowany etap.",
+   "blocks": [
+    "[`more`,`Co dokładnie powinno znaleźć się na stronie:`,`/wiedza/strona-firmowa-ktora-zbiera-zapytania`,`7 elementów strony, która zbiera zapytania`]"
+   ],
+   "note": "cases C11"
+  },
+  {
+   "op": "ins",
+   "anchor": "Kreator wystarczy, gdy potrzebujesz prostej wizytówki szybko i masz czas, żeby samodzielnie przygotować teksty, zdjęcia i ustawienia. Agencja ma sens, gdy strona ma być głównym źródłem klientów: zaprojektuje strukturę, treści i ścieżkę do kontaktu. U nas strona firmowa kosztuje od 4 900 zł netto, wycenę z harmonogramem otrzymasz w 2 dni robocze, a po ustaleniu zakresu cena jest stała.",
+   "blocks": [
+    "[`more`,`Ile to kosztuje i od czego zależy cena:`,`/wiedza/ile-kosztuje-strona-internetowa`,`Ile kosztuje strona internetowa`]"
+   ],
+   "note": "cases C11"
+  },
+  {
+   "op": "ins",
+   "anchor": "Audyt UX sklepu lub strony: pakiety z cenami na uxaudyt.pl, audyt z wdrożeniem poprawek wyceniamy indywidualnie.",
+   "blocks": [
+    "[`more`,`Ceny pakietów audytu UX:`,`https://www.uxaudyt.pl`,`uxaudyt.pl`]"
+   ],
+   "note": "cases C12"
+  },
+  {
+   "op": "ins",
+   "anchor": "Jesteśmy studiem projektowym z Rzeszowa (ul. Pańska 13A) i projektujemy strony oraz sklepy dla firm z całej Polski. Większość projektów prowadzimy zdalnie: rozmowy, warsztaty i odbiory odbywają się online.",
+   "blocks": [
+    "[`more`,`Co obejmuje opieka od 490 zł netto miesięcznie:`,`/uslugi/opieka`,`Opieka nad stroną i sklepem`]"
+   ],
+   "note": "cases C12"
+  },
+  {
+   "op": "ins",
+   "anchor": "WooCommerce to wtyczka do WordPressa, dobra, gdy sklep jest dodatkiem do strony z treściami. Shoper to polska platforma abonamentowa, a Shopify zagraniczna: obie dają szybki start, w zamian za mniej swobody i miesięczny abonament. PrestaShop to samodzielny system sklepowy, który dobrze rośnie razem z katalogiem i liczbą integracji. Doradzamy uczciwie, więc nie każdemu polecamy PrestaShop.",
+   "blocks": [
+    "[`more`,`Porównanie platform z cenami:`,`/wiedza/jaka-platforma-sklepu-internetowego`,`Jaka platforma sklepu internetowego`]"
+   ],
+   "note": "S3"
+  },
+  {
+   "op": "art",
+   "slug": "jak-zalozyc-sklep-internetowy",
+   "article": {
+    "s": "jak-zalozyc-sklep-internetowy",
+    "k": "Sklepy",
+    "t": "Jak założyć sklep internetowy krok po kroku: poradnik na 2026 rok",
+    "seo": "Jak założyć sklep internetowy krok po kroku (2026)",
+    "d": "Od pomysłu i formalności, przez wybór platformy, płatności i regulamin, po projekt, testy i start. 10 kroków ze źródłami danych.",
+    "r": 10,
+    "img": "szD",
+    "b": [
+     [
+      "sum",
+      "Żeby założyć sklep internetowy, sprawdź pomysł i marżę, wybierz formę działalności, platformę i hosting, ustaw płatności i dostawy, przygotuj regulamin i politykę prywatności, zaprojektuj ścieżkę zakupu, dodaj produkty, przetestuj zamówienia i dopiero wtedy wystartuj z promocją. Poniżej każdy krok po kolei, z linkami do źródeł."
+     ],
+     [
+      "p",
+      "Ten poradnik jest dla osób, które otwierają pierwszy sklep albo przenoszą sprzedaż z Allegro czy mediów społecznościowych na własną stronę. Nie sprzedajemy abonamentu żadnej platformy. Sklepy wdrażamy na PrestaShop, a przy wyborze platformy doradzamy też inne rozwiązania. Piszemy o tym, co widzimy w projektach, i zaznaczamy, gdzie warto zapytać księgową albo prawnika."
+     ],
+     [
+      "h",
+      "Krok 1. Sprawdź pomysł i policz marżę"
+     ],
+     [
+      "p",
+      "Zanim wybierzesz platformę, odpowiedz na kilka pytań na kartce. Co sprzedajesz i komu? Gdzie Twoi klienci kupują dziś podobne produkty? Ile zarobisz na jednym zamówieniu po odjęciu ceny zakupu, prowizji za płatność, kosztu wysyłki i opakowania? Jeśli marża na jednym zamówieniu jest bardzo niska, sklep będzie potrzebował dużego ruchu, a ruch kosztuje."
+     ],
+     [
+      "ul",
+      [
+       "Sprawdź konkurencję: ceny, koszty dostawy, czas wysyłki i to, jak opisują produkty.",
+       "Policz średnią wartość koszyka, przy której sprzedaż ma sens.",
+       "Zdecyduj, czy sklep ma być jedynym kanałem, czy uzupełnieniem sprzedaży na marketplace’ach.",
+       "Zapisz 3–5 funkcji, bez których sklep nie zadziała, na przykład warianty rozmiarów, sprzedaż hurtowa albo integracja z hurtownią."
+      ]
+     ],
+     [
+      "h",
+      "Krok 2. Załatw formalności"
+     ],
+     [
+      "p",
+      "Na start nie zawsze musisz zakładać firmę. W 2026 roku działalność nierejestrowana jest możliwa, dopóki przychód w żadnym kwartale nie przekroczy 225% minimalnego wynagrodzenia, czyli 10 813,50 zł przy płacy minimalnej 4 806 zł (Infor). To dobry sposób, żeby sprawdzić pomysł, ale ma ograniczenia, na przykład przy sprzedaży niektórych towarów czy współpracy z firmami."
+     ],
+     [
+      "p",
+      "Gdy sprzedaż rośnie, rejestrujesz jednoosobową działalność w CEIDG. Wpis jest bezpłatny i możesz go złożyć online przez biznes.gov.pl. Przy okazji wybierasz formę opodatkowania i decydujesz, czy jesteś czynnym podatnikiem VAT. Jeśli wystawiasz faktury firmom, sprawdź też zasady Krajowego Systemu e-Faktur, który w 2026 roku stał się obowiązkowy dla większości przedsiębiorców."
+     ],
+     [
+      "tip",
+      "Formę opodatkowania, VAT i kasę fiskalną omów z księgową, zanim przyjmiesz pierwsze zamówienie. Zmiana decyzji później bywa kłopotliwa."
+     ],
+     [
+      "more",
+      "Źródło limitu działalności nierejestrowanej:",
+      "https://www.infor.pl/twoje-pieniadze/koszty-utrzymania/7528877,nierejestrowana-dzialalnosc-gospodarcza-takie-limity-obowiazuja-w-2026-roku.html",
+      "Infor: limity działalności nierejestrowanej w 2026"
+     ],
+     [
+      "h",
+      "Krok 3. Wybierz platformę sklepu"
+     ],
+     [
+      "p",
+      "To decyzja, która najmocniej wpływa na koszty i swobodę rozwoju. Masz dwie drogi. Platforma abonamentowa (na przykład Shopify, Shoper, IdoSell) daje szybki start: płacisz miesięczny abonament, a dostawca dba o serwer i aktualizacje. Oprogramowanie open source (na przykład PrestaShop albo WooCommerce) jest darmowe, ale instalujesz je na własnym hostingu i odpowiadasz za aktualizacje, sam albo z wykonawcą."
+     ],
+     [
+      "ul",
+      [
+       "Abonament: mniej spraw technicznych, ale ograniczenia wyglądu i funkcji wynikają z planu, a przy niektórych planach płacisz też opłatę od transakcji.",
+       "Open source: sklep i dane są Twoje, łatwiej o nietypowe funkcje i integracje, ale potrzebujesz hostingu i opieki technicznej.",
+       "W obu przypadkach sprawdź, czy są gotowe moduły do płatności, kurierów, faktur i systemu magazynowego, z którego korzystasz."
+      ]
+     ],
+     [
+      "more",
+      "Porównanie platform z cenami:",
+      "/wiedza/jaka-platforma-sklepu-internetowego",
+      "Jaka platforma sklepu internetowego"
+     ],
+     [
+      "h",
+      "Krok 4. Domena i hosting"
+     ],
+     [
+      "p",
+      "Domenę kup na siebie lub na swoją firmę, nie na wykonawcę. Wybierz krótką nazwę, którą łatwo podyktować przez telefon. Przy platformie abonamentowej hosting jest w cenie. Przy PrestaShop czy WooCommerce wybierasz serwer sam: sprawdź, czy spełnia wymagania systemu (na przykład wersję PHP), czy ma kopie zapasowe i certyfikat SSL."
+     ],
+     [
+      "p",
+      "Ta sama zasada dotyczy wszystkich kont: hostingu, operatora płatności, Google Analytics, Search Console i profili w mediach społecznościowych. Zakładaj je na siebie i dawaj wykonawcy dostęp. Jeśli kiedyś zmienisz firmę, która opiekuje się sklepem, nie stracisz danych ani historii."
+     ],
+     [
+      "h",
+      "Krok 5. Płatności i dostawy"
+     ],
+     [
+      "p",
+      "Klienci oczekują metod płatności i dostawy, które znają. W badaniu Gemius E-commerce w Polsce 2025 72% kupujących wskazało BLIK, 64% szybki przelew, a 43% kartę. Dostawę do paczkomatu wybiera 83% badanych (dane za Przelewy24)."
+     ],
+     [
+      "ul",
+      [
+       "Podpisz umowę z operatorem płatności, który obsługuje BLIK, szybkie przelewy i karty.",
+       "Ustal metody dostawy: paczkomaty, kurier, odbiór osobisty, jeśli masz punkt.",
+       "Pokaż koszt dostawy jak najwcześniej, najlepiej już na karcie produktu.",
+       "Zdecyduj, od jakiej kwoty dostawa jest darmowa, i policz, czy marża to wytrzyma."
+      ]
+     ],
+     [
+      "more",
+      "Źródło danych o płatnościach i dostawach:",
+      "https://www.przelewy24.pl/en/news/ecommerce-2025-online-shopping-trends-polish-consumers",
+      "Przelewy24 o raporcie Gemius „E-commerce w Polsce 2025”"
+     ],
+     [
+      "h",
+      "Krok 6. Regulamin, polityka prywatności i prawa konsumenta"
+     ],
+     [
+      "p",
+      "Sklep, który sprzedaje osobom prywatnym, musi spełniać przepisy o prawach konsumenta i ochronie danych. Najważniejsze punkty, o które pytają klienci i które sprawdza UOKiK:"
+     ],
+     [
+      "ul",
+      [
+       "Regulamin sklepu z danymi firmy, procesem zamówienia, płatnościami, dostawą, reklamacjami i zwrotami.",
+       "Prawo odstąpienia od umowy: konsument ma 14 dni na odstąpienie bez podania przyczyny, a Ty masz 14 dni na zwrot pieniędzy od otrzymania jego oświadczenia (ustawa o prawach konsumenta).",
+       "Polityka prywatności i zgody na pliki cookies zgodne z RODO.",
+       "Informacja o najniższej cenie z 30 dni przed obniżką przy każdej promocji. Ten wymóg obowiązuje w Polsce od 1 stycznia 2023 roku."
+      ]
+     ],
+     [
+      "tip",
+      "Gotowe wzory regulaminów są dobrym punktem wyjścia, ale dopasuj je do swojego asortymentu i procesu zwrotów. Przy nietypowej sprzedaży (produkty na zamówienie, subskrypcje, sprzedaż za granicę) warto zapłacić prawnikowi za przegląd."
+     ],
+     [
+      "h",
+      "Krok 7. Zaprojektuj ścieżkę zakupu"
+     ],
+     [
+      "p",
+      "O tym, czy klient kupi, decyduje to, czy szybko znajdzie produkt, zrozumie, co kupuje, i bez przeszkód zapłaci. Według Baymard Institute najczęstszą przyczyną porzucania koszyka na etapie zamówienia są zbyt wysokie dodatkowe koszty, na przykład dostawy (40% odpowiedzi), a 18% badanych zrezygnowało, bo sklep wymagał założenia konta. Dane pochodzą z badania kupujących w USA, ale te same bariery łatwo sprawdzić we własnym sklepie."
+     ],
+     [
+      "ol",
+      [
+       "Strona główna: od razu widać, co sprzedajesz, i jak przejść do kategorii.",
+       "Kategorie i wyszukiwarka: filtry, które odpowiadają na pytania klientów (rozmiar, kolor, cena, dostępność).",
+       "Karta produktu: dobre zdjęcia, konkretny opis, cena, koszt i czas dostawy, wyraźny przycisk „Do koszyka”.",
+       "Koszyk i zamówienie: zakup bez zakładania konta, krótki formularz, płatności, które zna klient.",
+       "Wersja na telefon zaprojektowana osobno, bo według tego samego badania Gemius 82% Polaków kupuje w sieci przez smartfon."
+      ]
+     ],
+     [
+      "p",
+      "Najtaniej poprawić te elementy w projekcie, zanim powstanie kod. Dlatego każdy sklep projektujemy najpierw w Figmie, osobno na komputer i telefon."
+     ],
+     [
+      "more",
+      "Źródło danych o porzuconych koszykach:",
+      "https://baymard.com/lists/cart-abandonment-rate",
+      "Baymard Institute: Cart Abandonment Rate"
+     ],
+     [
+      "more",
+      "Jak zaprojektować kartę produktu:",
+      "/wiedza/ux-karty-produktu",
+      "UX karty produktu"
+     ],
+     [
+      "h",
+      "Krok 8. Dodaj produkty i treści"
+     ],
+     [
+      "p",
+      "Przygotuj produkty w arkuszu, zanim zaczniesz je wpisywać do panelu. Ułatwi to import i późniejsze zmiany. Dla każdego produktu potrzebujesz nazwy, ceny, stanu magazynowego, wariantów, wagi do wysyłki, kilku zdjęć i opisu, który odpowiada na pytania klienta. Same dane producenta nie wystarczą. Dodaj też strony „O nas”, „Kontakt”, „Dostawa i płatności” oraz „Zwroty i reklamacje”."
+     ],
+     [
+      "h",
+      "Krok 9. Przetestuj sklep przed startem"
+     ],
+     [
+      "ul",
+      [
+       "Złóż kilka zamówień testowych każdą metodą płatności i dostawy.",
+       "Sprawdź maile do klienta: potwierdzenie, wysyłka, zwrot.",
+       "Przejdź całą ścieżkę na telefonie, na słabym internecie.",
+       "Sprawdź, czy ceny, promocje i informacja o najniższej cenie z 30 dni wyświetlają się poprawnie.",
+       "Podłącz Google Analytics 4 i Google Search Console, żeby od pierwszego dnia widzieć ruch i błędy."
+      ]
+     ],
+     [
+      "h",
+      "Krok 10. Wystartuj i zacznij promocję"
+     ],
+     [
+      "p",
+      "Sklep bez ruchu nie sprzedaje. Na początek wybierz dwa lub trzy kanały, które możesz prowadzić regularnie, zamiast próbować wszystkiego naraz."
+     ],
+     [
+      "ul",
+      [
+       "Wyszukiwarka Google: opisy kategorii i produktów, które odpowiadają na pytania klientów, oraz poradniki wokół Twojego asortymentu. Na efekty tego kanału czeka się miesiącami.",
+       "Reklamy produktowe: Google Merchant Center pokazuje Twoje produkty z ceną i zdjęciem w wynikach wyszukiwania.",
+       "Media społecznościowe: tam, gdzie są Twoi klienci, z pokazaniem produktu w użyciu.",
+       "Newsletter: najtańszy sposób na drugie zamówienie od osób, które już kupiły.",
+       "Marketplace’y: Allegro czy Erli mogą przynieść pierwsze zamówienia i opinie, zanim sklep zbuduje własny ruch."
+      ]
+     ],
+     [
+      "p",
+      "Po kilku tygodniach sprawdź w analityce, na którym etapie klienci odpadają: na karcie produktu, w koszyku czy przy płatności. Poprawiaj najpierw ten etap, który traci najwięcej osób."
+     ],
+     [
+      "more",
+      "Gdy sklep ma ruch, ale mało zamówień:",
+      "https://www.uxaudyt.pl",
+      "Audyt UX sklepu w uxaudyt.pl"
+     ],
+     [
+      "h",
+      "Najczęstsze błędy przy zakładaniu sklepu"
+     ],
+     [
+      "ul",
+      [
+       "Wybór platformy po cenie pierwszego miesiąca, bez policzenia kosztów na kilka lat i bez sprawdzenia integracji.",
+       "Domena, hosting albo konto operatora płatności założone na wykonawcę zamiast na właściciela sklepu.",
+       "Koszt dostawy widoczny dopiero w ostatnim kroku zamówienia.",
+       "Wymuszanie zakładania konta przed zakupem.",
+       "Sklep sprawdzany tylko na komputerze, choć większość klientów wejdzie z telefonu.",
+       "Brak analityki od pierwszego dnia, przez co nie wiadomo, co poprawiać.",
+       "Start bez planu na ruch: sklep jest gotowy, ale nikt o nim nie wie."
+      ]
+     ],
+     [
+      "h",
+      "Ile trwa założenie sklepu internetowego?"
+     ],
+     [
+      "p",
+      "Prosty sklep na platformie abonamentowej, z gotowym szablonem i kilkunastoma produktami, możesz uruchomić sam w kilka dni. Sklep z własnym projektem, importem produktów, integracjami i migracją ze starej platformy to zwykle projekt na kilka tygodni, a czas zależy głównie od liczby produktów, integracji i tego, jak szybko przygotujesz treści. Najdłużej trwają zwykle rzeczy po stronie właściciela: zdjęcia, opisy, regulamin i umowy z operatorami. Zacznij je przygotowywać równolegle z wyborem platformy."
+     ],
+     [
+      "h",
+      "Czy da się założyć sklep internetowy za darmo?"
+     ],
+     [
+      "p",
+      "Częściowo. PrestaShop i WooCommerce są darmowe, ale płacisz za domenę, hosting, często za moduły i szablon. Platformy abonamentowe dają okres próbny (Shoper 14 dni, Shopify 3 dni), po którym zaczyna się abonament. Darmowy jest więc start testowy, a sprzedający sklep zawsze ma jakieś stałe koszty. Policz je na trzy lata do przodu, żeby porównać opcje uczciwie."
+     ],
+     [
+      "more",
+      "Szczegółowe koszty:",
+      "/wiedza/ile-kosztuje-sklep-internetowy",
+      "Ile kosztuje sklep internetowy"
+     ],
+     [
+      "h",
+      "Samodzielnie czy z wykonawcą?"
+     ],
+     [
+      "p",
+      "Prosty sklep na platformie abonamentowej możesz złożyć sam z gotowego szablonu. Wykonawca ma sens, gdy potrzebujesz projektu dopasowanego do Twoich klientów, integracji z hurtownią lub systemem magazynowym, migracji ze starego sklepu albo gdy nie chcesz sam pilnować aktualizacji. W Creative Vision sklep internetowy kosztuje od 5 990 zł netto. Wycenę z harmonogramem otrzymasz w 2 dni robocze, a cena po ustaleniu zakresu jest stała. Po starcie przez 12 miesięcy naprawiamy błędy w ramach gwarancji."
+     ],
+     [
+      "more",
+      "Zaprojektujemy i wdrożymy Twój sklep:",
+      "/uslugi/sklepy-internetowe",
+      "Tworzenie sklepów internetowych"
+     ]
+    ]
+   }
+  },
+  {
+   "op": "art",
+   "slug": "ile-kosztuje-aplikacja-mobilna",
+   "article": {
+    "s": "ile-kosztuje-aplikacja-mobilna",
+    "k": "Aplikacje",
+    "t": "Ile kosztuje aplikacja mobilna i od czego zależy cena",
+    "seo": "Ile kosztuje aplikacja mobilna? Koszty i widełki 2026",
+    "d": "Widełki cen aplikacji mobilnych ze źródłami, stawki godzinowe, koszty publikacji i utrzymania. Co podnosi cenę i jak ją obniżyć przez MVP lub PWA.",
+    "r": 8,
+    "img": "cl2",
+    "b": [
+     [
+      "sum",
+      "Koszt aplikacji mobilnej zależy od liczby funkcji, platform (iOS, Android, oba), backendu i projektu. Przykładowo polski software house MDS Software podaje w 2026 roku 32–64 tys. zł netto za prosty MVP i ponad 120 tys. zł za rozbudowaną aplikację. Do tego dochodzą opłaty sklepów z aplikacjami i utrzymanie, szacowane przez Netguru i Droids On Roids na 15–20% kosztu budowy rocznie. Każdą aplikację wyceniamy indywidualnie po rozmowie i warsztacie."
+     ],
+     [
+      "p",
+      "Pytanie „ile kosztuje aplikacja” przypomina pytanie „ile kosztuje dom”. Odpowiedź zależy od tego, co budujesz. Poniżej zebraliśmy widełki opublikowane przez firmy, które tworzą aplikacje, wyjaśniamy, skąd biorą się różnice, i pokazujemy, jak zmniejszyć ryzyko, zanim wydasz większość budżetu."
+     ],
+     [
+      "h",
+      "Widełki cen na rynku"
+     ],
+     [
+      "p",
+      "Firmy podają ceny w różny sposób, więc porównuj je ostrożnie. Przykłady z 2026 roku:"
+     ],
+     [
+      "ul",
+      [
+       "MDS Software (Polska): prosty MVP na iOS i Android z najważniejszymi funkcjami 32–64 tys. zł netto i 6–10 tygodni; aplikacja z backendem i kontami użytkowników 64–144 tys. zł, 2–4 miesiące; rozbudowana aplikacja z płatnościami, integracjami i panelem administracyjnym od 120 tys. zł.",
+       "Netguru: MVP na jedną platformę zwykle 25–60 tys. USD; prosta aplikacja bez backendu od 15 tys. USD.",
+       "Droids On Roids: znacznie wyższe kwoty, bo liczą pełny zespół i usługi wokół produktu; podstawowa aplikacja od ok. 150 tys. USD."
+      ]
+     ],
+     [
+      "p",
+      "Różnice sięgają kilku razy, bo każda firma inaczej definiuje „prostą aplikację” i inaczej liczy zakres: czasem w cenie jest tylko programowanie, czasem także analiza, projekt, testy, backend i zarządzanie projektem. Dlatego pytaj zawsze, co dokładnie obejmuje wycena."
+     ],
+     [
+      "more",
+      "Źródło:",
+      "https://mdssoftware.pl/en/wiedza/business/ile-kosztuje-aplikacja-mobilna",
+      "MDS Software: ile kosztuje aplikacja mobilna"
+     ],
+     [
+      "more",
+      "Źródło:",
+      "https://www.netguru.com/pl/blog/koszt-tworzenia-aplikacji-mobilnej",
+      "Netguru: koszt tworzenia aplikacji mobilnej"
+     ],
+     [
+      "more",
+      "Źródło:",
+      "https://www.thedroidsonroids.com/blog/mobile-app-development-cost",
+      "Droids On Roids: mobile app development cost"
+     ],
+     [
+      "h",
+      "Stawki godzinowe"
+     ],
+     [
+      "p",
+      "Większość wycen to liczba godzin pomnożona przez stawkę. Droids On Roids podaje dla Polski 30–65 USD za godzinę. Netguru dla Europy Środkowo-Wschodniej podaje 55–80 USD dla programisty mid i 80–120 USD dla seniora oraz 40–80 USD dla projektanta UX/UI. MDS Software pokazuje stawkę 120 zł netto za godzinę w rozliczeniu godzinowym. Stawka to tylko połowa równania. Doświadczony zespół może zrobić to samo w krótszym czasie."
+     ],
+     [
+      "h",
+      "Od czego zależy cena aplikacji"
+     ],
+     [
+      "ul",
+      [
+       "Platformy: tylko iOS, tylko Android, obie, aplikacja wieloplatformowa (na przykład Flutter, React Native) albo PWA działająca w przeglądarce.",
+       "Funkcje: logowanie, profile, płatności, powiadomienia, mapy, czat, kalendarz, praca bez internetu.",
+       "Backend i panel administracyjny: gdzie są dane, kto nimi zarządza i jak.",
+       "Integracje: systemy płatności, CRM, ERP, zewnętrzne API.",
+       "Projekt UX/UI: liczba ekranów, stany błędów, dostępność, własny system komponentów.",
+       "Testy i jakość: na ilu urządzeniach i wersjach systemu sprawdzamy aplikację.",
+       "Bezpieczeństwo i przepisy: dane osobowe, dane medyczne, płatności."
+      ]
+     ],
+     [
+      "h",
+      "Natywna, wieloplatformowa czy PWA"
+     ],
+     [
+      "p",
+      "Sposób budowy aplikacji wpływa na cenę bardziej niż wygląd ekranów. W uproszczeniu masz trzy drogi:"
+     ],
+     [
+      "ul",
+      [
+       "Aplikacja natywna: osobny kod dla iOS i osobny dla Androida. Najlepszy dostęp do funkcji telefonu i wydajność, ale zwykle najwyższy koszt, bo część pracy robisz dwa razy.",
+       "Aplikacja wieloplatformowa (na przykład Flutter, React Native): jeden kod dla obu systemów, publikowany w App Store i Google Play. Dla wielu aplikacji biznesowych to rozsądny kompromis między kosztem a możliwościami.",
+       "PWA: aplikacja działająca w przeglądarce, którą użytkownik może dodać do ekranu telefonu. Jeden kod, bez publikacji w sklepach, ze zmianami widocznymi od razu. Dobra na sprawdzenie pomysłu i do narzędzi wewnętrznych."
+      ]
+     ],
+     [
+      "p",
+      "W wycenach Droids On Roids różnica między aplikacją we Flutterze a natywną o tym samym zakresie sięga kilkudziesięciu procent. Nie oznacza to, że tańsza droga zawsze wystarczy. Wybór warto oprzeć na funkcjach, których naprawdę potrzebujesz w pierwszej wersji."
+     ],
+     [
+      "h",
+      "Koszty poza budową"
+     ],
+     [
+      "ul",
+      [
+       "Konto deweloperskie Apple: 99 USD rocznie.",
+       "Konto Google Play: jednorazowo 25 USD.",
+       "Serwer i usługi chmurowe dla backendu, rosnące razem z liczbą użytkowników.",
+       "Utrzymanie i rozwój: Netguru i Droids On Roids szacują je na 15–20% pierwotnego kosztu budowy rocznie. Obejmuje aktualizacje pod nowe wersje iOS i Androida, poprawki błędów i drobne zmiany."
+      ]
+     ],
+     [
+      "more",
+      "Źródło opłaty Apple:",
+      "https://developer.apple.com/programs/",
+      "Apple Developer Program"
+     ],
+     [
+      "more",
+      "Źródło opłaty Google Play:",
+      "https://support.google.com/googleplay/android-developer/answer/6112435?hl=en",
+      "Google Play Console: rejestracja konta"
+     ],
+     [
+      "tip",
+      "Licząc budżet, dodaj do kosztu budowy co najmniej rok utrzymania. Aplikacja, której nikt nie aktualizuje, po kolejnej wersji systemu potrafi przestać działać poprawnie."
+     ],
+     [
+      "h",
+      "Jak obniżyć koszt bez utraty sensu produktu"
+     ],
+     [
+      "ol",
+      [
+       "Warsztat na start: ustal cel, użytkowników i jedną najważniejszą rzecz, którą aplikacja ma robić.",
+       "Klikalny prototyp: sprawdź pomysł na telefonie z kilkoma prawdziwymi użytkownikami, zanim powstanie kod. Poprawki w Figmie kosztują ułamek poprawek w gotowej aplikacji.",
+       "MVP: zbuduj pierwszą wersję tylko z funkcjami, bez których produkt nie ma sensu. Resztę dodawaj po opiniach użytkowników.",
+       "Rozważ PWA: aplikacja działająca w przeglądarce, którą można dodać do ekranu telefonu. Jeden kod zamiast dwóch i bez publikacji w sklepach. Sprawdź jednak, czy funkcje, których potrzebujesz (powiadomienia, aparat, praca w tle), działają tak, jak oczekujesz, na iOS i Androidzie."
+      ]
+     ],
+     [
+      "more",
+      "Przykład PWA:",
+      "/realizacje/4clubbers",
+      "4clubbers: aplikacja mobilna PWA"
+     ],
+     [
+      "h",
+      "Jak przygotować się do wyceny"
+     ],
+     [
+      "p",
+      "Im więcej wiesz przed rozmową, tym dokładniejsza będzie wycena. Przygotuj odpowiedzi na kilka pytań:"
+     ],
+     [
+      "ul",
+      [
+       "Kto będzie używał aplikacji i jaki problem ma rozwiązać?",
+       "Jakie 3–5 funkcji musi mieć pierwsza wersja?",
+       "Na jakich telefonach ma działać i czy potrzebujesz publikacji w App Store i Google Play?",
+       "Czy masz już backend, system lub API, z którym aplikacja ma się łączyć?",
+       "Jaki masz budżet i termin, nawet orientacyjnie?"
+      ]
+     ],
+     [
+      "h",
+      "Na co uważać w ofertach"
+     ],
+     [
+      "ul",
+      [
+       "Bardzo niska cena bez opisu zakresu: zapytaj, czy obejmuje projekt, backend, testy i publikację.",
+       "Brak etapu prototypu: bez niego pierwsze poprawki pojawiają się dopiero w kodzie, gdzie kosztują najwięcej.",
+       "Niejasne prawa do kodu i projektu: ustal, kto jest właścicielem kodu, kont w sklepach z aplikacjami i plików projektu.",
+       "Brak planu utrzymania: zapytaj, ile kosztuje aktualizacja po nowej wersji iOS lub Androida."
+      ]
+     ],
+     [
+      "h",
+      "Jak wyceniamy aplikacje w Creative Vision"
+     ],
+     [
+      "p",
+      "Aplikacje wyceniamy indywidualnie, bo zakres każdej jest inny. Zaczynamy od krótkiej rozmowy i warsztatu produktowego. Potem przygotowujemy klikalny prototyp w Figmie, który sprawdzisz na telefonie, zanim powstanie kod. Możemy zaprojektować i zbudować MVP na iOS i Android albo przygotować sam projekt i prototyp dla Twojego zespołu programistów. Projekt prowadzi Marcin Bednarz, który od 13 lat projektuje produkty cyfrowe, w tym dla firm z branży budowlanej, logistycznej i medycznej."
+     ],
+     [
+      "more",
+      "Zobacz, jak pracujemy nad aplikacjami:",
+      "/uslugi/aplikacje-mobilne",
+      "Projektowanie i tworzenie aplikacji mobilnych"
+     ],
+     [
+      "more",
+      "Wszystkie ceny w jednym miejscu:",
+      "/wiedza/cennik",
+      "Cennik Creative Vision"
+     ]
+    ]
+   }
+  },
+  {
+   "op": "art",
+   "slug": "jaka-platforma-sklepu-internetowego",
+   "article": {
+    "s": "jaka-platforma-sklepu-internetowego",
+    "k": "Sklepy",
+    "t": "PrestaShop, Shopify, Shoper, WooCommerce czy IdoSell: jaką platformę sklepu wybrać",
+    "seo": "Jaka platforma sklepu internetowego? Porównanie 2026",
+    "d": "PrestaShop, Shopify, Shoper, WooCommerce i IdoSell: ceny z cenników, koszty ukryte, wady i zalety. Kiedy wybrać którą platformę sklepu.",
+    "r": 9,
+    "img": "sm4",
+    "b": [
+     [
+      "sum",
+      "Shoper, Shopify i IdoSell to platformy abonamentowe: szybki start, serwer i aktualizacje po stronie dostawcy, miesięczna opłata. PrestaShop i WooCommerce to darmowe oprogramowanie open source: sklep jest Twój, ale płacisz za hosting, wdrożenie i opiekę. Wybór zależy od asortymentu, budżetu na 2–3 lata, potrzebnych integracji i tego, ile spraw technicznych chcesz oddać dostawcy."
+     ],
+     [
+      "p",
+      "Mamy status PrestaShop Expert i sklepy wdrażamy na PrestaShop. Dlatego w tym porównaniu piszemy też, kiedy PrestaShop nie jest dobrym wyborem. Ceny sprawdziliśmy 3 listopada 2026 roku na stronach platform i w ich publikacjach. Abonamenty często się zmieniają, więc przed decyzją sprawdź aktualny cennik."
+     ],
+     [
+      "h",
+      "Dwa modele: abonament czy własne oprogramowanie"
+     ],
+     [
+      "ul",
+      [
+       "Abonament (SaaS): Shopify, Shoper, IdoSell. Płacisz co miesiąc, a dostawca utrzymuje serwer, bezpieczeństwo i aktualizacje. Możliwości zależą od planu i dostępnych aplikacji. Przeniesienie sklepu na inną platformę wymaga migracji.",
+       "Open source: PrestaShop, WooCommerce. Oprogramowanie jest darmowe, instalujesz je na własnym hostingu. Masz pełny dostęp do kodu i danych, ale odpowiadasz za aktualizacje i bezpieczeństwo, sam albo z wykonawcą."
+      ]
+     ],
+     [
+      "h",
+      "PrestaShop"
+     ],
+     [
+      "p",
+      "Samodzielny system sklepowy open source na licencji OSL 3.0. Według projektu PrestaShop działa na nim ponad 300 000 sklepów na świecie. Bieżąca wersja to PrestaShop 9, która wymaga serwera z PHP 8.1 lub nowszym."
+     ],
+     [
+      "ul",
+      [
+       "Koszt: oprogramowanie 0 zł. Płacisz za hosting, domenę, płatne moduły i szablon, wdrożenie oraz opiekę.",
+       "Mocne strony: brak abonamentu i prowizji dla twórcy platformy, dużo polskich modułów (płatności, InPost, integracje z marketplace’ami), łatwo zmienić hosting albo wykonawcę.",
+       "Słabe strony: potrzebujesz kogoś, kto aktualizuje sklep i moduły; zbyt wiele modułów spowalnia sklep; większe aktualizacje wersji wymagają testów.",
+       "Wybierz, gdy: chcesz mieć sklep na własność, masz większy katalog lub nietypowe potrzeby, planujesz integracje z hurtowniami czy ERP.",
+       "Nie wybieraj, gdy: chcesz wystartować w kilka dni sam, bez nikogo, kto zadba o serwer i aktualizacje."
+      ]
+     ],
+     [
+      "more",
+      "Źródło:",
+      "https://prestashop-project.org/about",
+      "PrestaShop Project: about"
+     ],
+     [
+      "more",
+      "Więcej o PrestaShop:",
+      "/wiedza/co-to-jest-prestashop",
+      "Co to jest PrestaShop"
+     ],
+     [
+      "h",
+      "WooCommerce"
+     ],
+     [
+      "p",
+      "Darmowa wtyczka sklepu do WordPressa. Sama wtyczka nie ma abonamentu ani prowizji od sprzedaży."
+     ],
+     [
+      "ul",
+      [
+       "Koszt: wtyczka 0 zł. WooCommerce szacuje hosting na 25–350 USD miesięcznie zależnie od ruchu, a płatne rozszerzenia na 29–299 USD rocznie za każde.",
+       "Mocne strony: dobry wybór, gdy sklep jest częścią strony z dużą ilością treści, bloga albo poradników; bardzo dużo wtyczek.",
+       "Słabe strony: każda wtyczka to osobny kod do aktualizacji; przy dużym katalogu potrzebny jest wydajny hosting.",
+       "Wybierz, gdy: masz już stronę na WordPressie albo treści są dla Ciebie równie ważne jak sprzedaż.",
+       "Nie wybieraj, gdy: planujesz bardzo duży katalog i rozbudowaną logistykę bez wsparcia technicznego."
+      ]
+     ],
+     [
+      "more",
+      "Źródło cen:",
+      "https://woocommerce.com/pricing/",
+      "WooCommerce: pricing"
+     ],
+     [
+      "h",
+      "Shopify"
+     ],
+     [
+      "p",
+      "Globalna platforma abonamentowa. Na polskiej stronie ceny podawane są w złotych."
+     ],
+     [
+      "ul",
+      [
+       "Koszt (kwiecień 2026, ifirma.pl): Basic 109 zł miesięcznie lub 79 zł przy płatności rocznej, Grow 319 zł lub 239 zł, Advanced 1 630 zł lub 1 220 zł. Przy zewnętrznej bramce płatności Shopify pobiera dodatkowo 2% (Basic), 1% (Grow) lub 0,6% (Advanced) od transakcji. Okres próbny: 3 dni.",
+       "Mocne strony: bardzo szybki start, dopracowany panel, tysiące aplikacji, dobra obsługa sprzedaży za granicę.",
+       "Słabe strony: część polskich płatności i integracji działa przez aplikacje zewnętrzne; koszty aplikacji i opłat transakcyjnych rosną razem ze sprzedażą.",
+       "Wybierz, gdy: sprzedajesz markę, także za granicą, i wolisz zajmować się marketingiem niż serwerem.",
+       "Nie wybieraj, gdy: potrzebujesz głębokich zmian w procesie zamówienia albo nietypowych polskich integracji bez dodatkowych opłat."
+      ]
+     ],
+     [
+      "more",
+      "Źródło cen:",
+      "https://www.ifirma.pl/blog/ile-kosztuje-sklep-na-shopify-przeglad-wydatkow/",
+      "ifirma.pl: ile kosztuje sklep na Shopify"
+     ],
+     [
+      "h",
+      "Shoper"
+     ],
+     [
+      "p",
+      "Polska platforma abonamentowa, z polskimi płatnościami, dostawami i wsparciem po polsku."
+     ],
+     [
+      "ul",
+      [
+       "Koszt: plan Standard w cenie regularnej 299 zł netto miesięcznie, przy czym na pierwszy rok Shoper zwykle daje promocję. Plan Premium od 729 zł netto miesięcznie. Shoper nie pobiera opłaty od zamówienia. Okres próbny: 14 dni bez karty płatniczej.",
+       "Mocne strony: szybki start, polskie integracje na miejscu, przewidywalny koszt bez opłaty od zamówienia.",
+       "Słabe strony: mniej swobody w wyglądzie i logice sklepu niż w open source; po promocji pierwszego roku abonament jest wyraźnie wyższy.",
+       "Wybierz, gdy: sprzedajesz głównie w Polsce, chcesz szybko wystartować i nie potrzebujesz nietypowych funkcji.",
+       "Nie wybieraj, gdy: wiesz, że będziesz potrzebować głębokich zmian w kodzie sklepu."
+      ]
+     ],
+     [
+      "more",
+      "Źródło cen:",
+      "https://www.shoper.pl/cennik-sklepu-shoper",
+      "Shoper: cennik"
+     ],
+     [
+      "h",
+      "IdoSell"
+     ],
+     [
+      "p",
+      "Polska platforma abonamentowa skierowana do sklepów, które szybko rosną i mają rozbudowaną logistykę."
+     ],
+     [
+      "ul",
+      [
+       "Koszt: abonament miesięczny zależny od planu, w części planów z opłatą za każde zamówienie ze sklepu. Aktualny cennik: idosell.com.",
+       "Mocne strony: dużo funkcji w standardzie, w tym narzędzia do magazynu, marketplace’ów i sprzedaży wielokanałowej.",
+       "Słabe strony: opłata od zamówienia sprawia, że koszt rośnie razem ze sprzedażą; panel ma dużo opcji, więc wymaga czasu na naukę.",
+       "Wybierz, gdy: masz już sprzedaż, wiele kanałów (sklep, marketplace’y, hurt) i chcesz mieć je w jednym systemie.",
+       "Nie wybieraj, gdy: dopiero sprawdzasz pomysł i liczy się niski koszt stały."
+      ]
+     ],
+     [
+      "more",
+      "Aktualny cennik:",
+      "https://www.idosell.com/pl/cennik/",
+      "IdoSell: cennik"
+     ],
+     [
+      "h",
+      "Ukryte koszty, które łatwo przeoczyć"
+     ],
+     [
+      "ul",
+      [
+       "Płatne aplikacje i moduły: przy każdej platformie część funkcji kosztuje dodatkowo.",
+       "Opłaty od transakcji lub zamówień: Shopify przy zewnętrznej bramce płatności, IdoSell w planach z opłatą za zamówienie, do tego prowizja operatora płatności przy każdej platformie.",
+       "Cena po promocji: porównuj abonament w cenie regularnej, po zakończeniu promocji.",
+       "Aktualizacje i opieka: przy open source płacisz za nie wykonawcy lub poświęcasz własny czas.",
+       "Migracja w przyszłości: przeniesienie sklepu na inną platformę kosztuje i wymaga przekierowań 301, które chronią ruch z Google."
+      ]
+     ],
+     [
+      "tip",
+      "Policz koszt każdej platformy na 3 lata: wdrożenie + abonament lub hosting + moduły + opłaty od sprzedaży przy Twojej prognozie zamówień. Dopiero ta liczba pokazuje różnicę."
+     ],
+     [
+      "h",
+      "Pytania, które pomogą wybrać"
+     ],
+     [
+      "ol",
+      [
+       "Ile produktów i wariantów będziesz mieć za rok?",
+       "Z jakimi systemami sklep musi się łączyć (hurtownia, magazyn, księgowość, marketplace’y)?",
+       "Czy sprzedajesz tylko w Polsce, czy także za granicą?",
+       "Kto będzie dbał o aktualizacje i bezpieczeństwo?",
+       "Czy wolisz wyższy koszt stały i spokój, czy niższy abonament i więcej własnej odpowiedzialności?"
+      ]
+     ],
+     [
+      "h",
+      "Jak doradzamy wybór platformy"
+     ],
+     [
+      "p",
+      "Rozmawiamy o asortymencie, budżecie i sposobie sprzedaży. Sklepy wdrażamy na PrestaShop, w którym mamy status PrestaShop Expert. Jeśli z rozmowy wyjdzie, że lepiej sprawdzi się platforma abonamentowa, powiemy to wprost przed wyceną. Sklep na PrestaShop najpierw projektujemy w Figmie, osobno na komputer i telefon, więc widzisz go przed wdrożeniem. Kosztuje u nas od 5 990 zł netto, a wycenę z harmonogramem otrzymasz w 2 dni robocze."
+     ],
+     [
+      "more",
+      "Sklep na PrestaShop:",
+      "/uslugi/sklepy-prestashop",
+      "Agencja PrestaShop: tworzenie sklepów"
+     ],
+     [
+      "more",
+      "Jak projektujemy sklepy:",
+      "/uslugi/sklepy-internetowe",
+      "Tworzenie sklepów internetowych"
+     ],
+     [
+      "more",
+      "Zanim wybierzesz platformę:",
+      "/wiedza/jak-zalozyc-sklep-internetowy",
+      "Jak założyć sklep internetowy krok po kroku"
+     ]
+    ]
+   }
+  }
+ ],
+ "seo": {
+  "index": {
+   "title": "Agencja interaktywna: strony i sklepy www | Creative Vision",
+   "description": "Agencja interaktywna z Rzeszowa. Projekt zobaczysz przed wdrożeniem, wycenę w 2 dni robocze. Strona od 4 900 zł, sklep od 5 990 zł netto."
+  },
+  "o-nas": {
+   "title": "O nas: studio projektowe z Rzeszowa | Creative Vision",
+   "description": "Studio z Rzeszowa prowadzone przez Marcina Bednarza, projektanta z 13-letnim doświadczeniem. Strony, sklepy i aplikacje dla firm z całej Polski."
+  },
+  "kontakt": {
+   "title": "Kontakt i bezpłatna wycena w 2 dni | Creative Vision",
+   "description": "Napisz, czego potrzebujesz: strona, sklep, aplikacja lub audyt UX. Odpiszemy w 1 dzień roboczy, wycenę z harmonogramem otrzymasz w 2 dni robocze."
+  },
+  "uslugi__sklepy-internetowe": {
+   "title": "Tworzenie sklepów internetowych | Creative Vision",
+   "description": "Projektowanie i tworzenie sklepów internetowych na PrestaShop: projekt UX w Figmie, BLIK, InPost, migracja. Status PrestaShop Expert. Od 5 990 zł netto."
+  },
+  "uslugi__strony-firmowe": {
+   "title": "Tworzenie stron internetowych dla firm | Creative Vision",
+   "description": "Tworzenie stron internetowych dla firm z całej Polski: treści pod klientów, projekt w Figmie, wdrożenie we Framerze, SEO na start. Od 4 900 zł netto."
+  },
+  "uslugi__aplikacje-mobilne": {
+   "title": "Projektowanie aplikacji mobilnych i MVP | Creative Vision",
+   "description": "Projektowanie i tworzenie aplikacji mobilnych: warsztat, klikalny prototyp, projekt UX/UI, MVP na iOS i Android lub PWA. Wycena indywidualna."
+  },
+  "uslugi__audyt-ux": {
+   "title": "Audyt UX i optymalizacja sklepu | Creative Vision",
+   "description": "Audyt UX jako początek przebudowy sklepu: analiza ścieżki zakupu, projekt nowych widoków i wdrożenie. Sam raport zamówisz online w uxaudyt.pl."
+  },
+  "uslugi__opieka": {
+   "title": "Opieka nad stroną i sklepem internetowym | Creative Vision",
+   "description": "Opieka nad stroną i sklepem: aktualizacje, kopie zapasowe, poprawki, nowe funkcje, SEO techniczne i aktualizacje PrestaShop. Od 490 zł netto/mies."
+  },
+  "agencja-ecommerce": {
+   "title": "Agencja e-commerce: projekt i wdrożenie | Creative Vision",
+   "description": "Agencja e-commerce dla sklepów z całej Polski: strategia, projekt UX/UI, wdrożenie na PrestaShop, migracja, audyt i opieka. Wycena w 2 dni robocze."
+  },
+  "strony-internetowe-rzeszow": {
+   "title": "Strony internetowe Rzeszów: tworzenie stron www",
+   "description": "Tworzymy strony internetowe dla firm z Rzeszowa i Podkarpacia: projekt UX/UI, szybkie wdrożenie, SEO lokalne. Ul. Pańska 13A. Od 4 900 zł netto."
+  },
+  "sklepy-internetowe-rzeszow": {
+   "title": "Sklepy internetowe Rzeszów: tworzenie sklepów",
+   "description": "Projektujemy i tworzymy sklepy internetowe dla firm z Rzeszowa i Podkarpacia: UX, BLIK, InPost, migracja, SEO. PrestaShop Expert. Od 5 990 zł netto."
+  },
+  "realizacje": {
+   "title": "Realizacje: strony firmowe i aplikacje | Creative Vision",
+   "description": "Strony firmowe, aplikacja PWA i nasz własny serwis z płatnościami online. Przy każdym projekcie: z czym przyszedł klient, co postanowiliśmy i dlaczego."
+  },
+  "realizacje__sztuka-wykonczen": {
+   "title": "Sztuka Wykończeń: strona firmy wykończeniowej | Realizacja",
+   "description": "Strona firmy, która wykańcza mieszkania i domy pod klucz. Jak ułożyliśmy ją wokół zdjęć realizacji i zapytania o wycenę: decyzje projektowe i zakres prac."
+  },
+  "realizacje__simrun": {
+   "title": "Simrun: strona B2B firmy od pomiarów ruchu | Realizacja",
+   "description": "Strona firmy, która mierzy i analizuje ruch drogowy dla samorządów i inwestorów. Jak podzieliliśmy szeroką ofertę B2B, żeby prowadziła do prośby o wycenę."
+  },
+  "realizacje__bud-mad": {
+   "title": "Bud-Mad: strona firmy remontowo-budowlanej | Realizacja",
+   "description": "Strona firmy remontowo-budowlanej: elewacje, wykończenia pod klucz, remonty. Jak zaprojektowaliśmy ją pod telefon do firmy, realizacje i opinie klientów."
+  },
+  "realizacje__4clubbers": {
+   "title": "4clubbers: aplikacja PWA dla fanów muzyki | Realizacja",
+   "description": "Aplikacja dla fanów muzyki klubowej: festiwale, imprezy, bilety i ludzie. Jak zaprojektowaliśmy szukanie ekipy, tablicę wydarzenia, czaty i bezpieczeństwo."
+  },
+  "realizacje__uxaudyt": {
+   "title": "uxaudyt.pl: nasz serwis z płatnością online | Realizacja",
+   "description": "uxaudyt.pl to nasz własny produkt: audyty UX zamawiane i opłacane online, bez rozmowy handlowej. Jakie decyzje podjęliśmy, żeby klient kupił z pewnością."
+  },
+  "wiedza": {
+   "title": "Poradniki: strony, sklepy, UX i AI | Creative Vision",
+   "description": "Poradniki o stronach firmowych, sklepach internetowych, UX i AI: ceny, platformy, PrestaShop, karta produktu. Piszemy na podstawie projektów i audytów."
+  },
+  "wiedza__strona-firmowa-ktora-zbiera-zapytania": {
+   "title": "Co powinna zawierać strona firmowa? 7 elementów",
+   "description": "Co powinna zawierać strona internetowa firmy, żeby zbierała zapytania: nagłówek, oferta, dowody, cena, formularz, szybkość. 7 elementów z przykładami."
+  },
+  "wiedza__ile-kosztuje-strona-internetowa": {
+   "title": "Ile kosztuje strona internetowa w 2026? | Creative Vision",
+   "description": "Ile kosztuje strona internetowa w 2026: od czego zależy cena, ile kosztuje utrzymanie, ukryte koszty i jak porównywać oferty. Przykład: od 4 900 zł netto."
+  },
+  "wiedza__ux-karty-produktu": {
+   "title": "Karta produktu w sklepie: co poprawić w UX | Creative Vision",
+   "description": "Karta produktu to miejsce decyzji o zakupie. Zdjęcia, cena, przycisk, opis, zaufanie: co pomaga, co blokuje i najczęstsze błędy z audytów UX."
+  },
+  "wiedza__ui-a-ux-roznice": {
+   "title": "UI a UX: różnice na przykładach | Creative Vision",
+   "description": "UX opisuje, jak strona działa, a UI, jak wygląda. Różnica między UI a UX na przykładach i czego oczekiwać od projektanta strony lub sklepu."
+  },
+  "wiedza__ai-w-sklepie-internetowym": {
+   "title": "AI w sklepie internetowym w 2026 | Creative Vision",
+   "description": "Wyszukiwarka, opisy produktów, rekomendacje, obsługa klienta. Przegląd zastosowań AI, które mają sens w małym i średnim sklepie internetowym."
+  },
+  "wiedza__sklep-a-zakupy-przez-asystentow-ai": {
+   "title": "Zakupy przez ChatGPT i Gemini: jak przygotować sklep",
+   "description": "Część klientów szuka i porównuje produkty w rozmowie z AI. Co to oznacza dla Twojego sklepu i co zrobić już teraz: dane, feed, opisy, schema."
+  },
+  "wiedza__ile-kosztuje-sklep-internetowy": {
+   "title": "Ile kosztuje sklep internetowy w 2026? | Creative Vision",
+   "description": "Ile kosztuje sklep internetowy w 2026: abonament, PrestaShop, WooCommerce czy sklep na zamówienie, koszty po starcie i jak porównywać oferty."
+  },
+  "wiedza__co-to-jest-prestashop": {
+   "title": "Co to jest PrestaShop? Zalety i koszty | Creative Vision",
+   "description": "PrestaShop to darmowe oprogramowanie sklepów. Jak działa, ile naprawdę kosztuje i kiedy wybrać go zamiast WooCommerce, Shopify lub Shopera."
+  },
+  "wiedza__moduly-prestashop": {
+   "title": "Moduły PrestaShop dla polskiego sklepu | Creative Vision",
+   "description": "Płatności BLIK, InPost, BaseLinker, SEO, opinie i integracje. Moduły PrestaShop dla polskiego sklepu i jak je wybierać bez spowalniania sklepu."
+  },
+  "wiedza__projektowanie-ux-ui": {
+   "title": "Projektowanie UX/UI krok po kroku | Creative Vision",
+   "description": "Jak wygląda projektowanie UX/UI strony, sklepu i aplikacji: rozmowa, analiza, architektura informacji, makiety, prototyp, projekt graficzny i wdrożenie."
+  },
+  "wiedza__jak-stworzyc-strone-internetowa": {
+   "title": "Jak stworzyć stronę internetową dla firmy? 8 kroków",
+   "description": "Jak stworzyć stronę internetową dla firmy krok po kroku: cel, domena, struktura, treści, projekt, wdrożenie, SEO. Kiedy wystarczy kreator, a kiedy agencja."
+  },
+  "wiedza__cennik": {
+   "title": "Cennik stron i sklepów internetowych 2026 | Creative Vision",
+   "description": "Strona firmowa od 4 900 zł netto, sklep od 5 990 zł netto, opieka od 490 zł netto/mies. Co zawiera cena, od czego zależy i jak wygląda wycena."
+  },
+  "wiedza__jak-wybrac-agencje-e-commerce": {
+   "title": "Jak wybrać agencję e-commerce? 10 pytań | Creative Vision",
+   "description": "Pytania do agencji przed zleceniem strony lub sklepu: zakres, platforma, prawa do projektu, SEO, opieka i koszty po starcie. Lista do skopiowania."
+  },
+  "uslugi__sklepy-prestashop": {
+   "title": "Agencja PrestaShop: tworzenie sklepów | Creative Vision",
+   "description": "Tworzenie sklepów PrestaShop od projektu UX w Figmie po wdrożenie. Status PrestaShop Expert. Od 5 990 zł netto, wycena w 2 dni robocze."
+  },
+  "uslugi__strony-dla-firm-budowlanych": {
+   "title": "Strona internetowa dla firmy budowlanej | Creative Vision",
+   "description": "Strony dla firm budowlanych i remontowych: oferta, galeria realizacji, opinie i szybki kontakt. Od 4 900 zł netto. Zobacz Bud-Mad i Sztukę Wykończeń."
+  },
+  "wiedza__jak-zalozyc-sklep-internetowy": {
+   "title": "Jak założyć sklep internetowy krok po kroku (2026)",
+   "description": "Od pomysłu i formalności, przez wybór platformy, płatności i regulamin, po projekt, testy i start. 10 kroków ze źródłami danych."
+  },
+  "wiedza__ile-kosztuje-aplikacja-mobilna": {
+   "title": "Ile kosztuje aplikacja mobilna? Koszty i widełki 2026",
+   "description": "Widełki cen aplikacji mobilnych ze źródłami, stawki godzinowe, koszty publikacji i utrzymania. Co podnosi cenę i jak ją obniżyć przez MVP lub PWA."
+  },
+  "wiedza__jaka-platforma-sklepu-internetowego": {
+   "title": "Jaka platforma sklepu internetowego? Porównanie 2026",
+   "description": "PrestaShop, Shopify, Shoper, WooCommerce i IdoSell: ceny z cenników, koszty ukryte, wady i zalety. Kiedy wybrać którą platformę sklepu."
+  }
+ },
+ "pages": [
+  [
+   "/uslugi/sklepy-prestashop",
+   "usluga",
+   "sklepy-prestashop"
+  ],
+  [
+   "/uslugi/strony-dla-firm-budowlanych",
+   "usluga",
+   "strony-dla-firm-budowlanych"
+  ],
+  [
+   "/wiedza/jak-zalozyc-sklep-internetowy",
+   "artykul",
+   "jak-zalozyc-sklep-internetowy"
+  ],
+  [
+   "/wiedza/ile-kosztuje-aplikacja-mobilna",
+   "artykul",
+   "ile-kosztuje-aplikacja-mobilna"
+  ],
+  [
+   "/wiedza/jaka-platforma-sklepu-internetowego",
+   "artykul",
+   "jaka-platforma-sklepu-internetowego"
+  ]
+ ]
+}
