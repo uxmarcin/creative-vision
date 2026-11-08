@@ -49,6 +49,11 @@ const PERSON = { '@type': 'Person', '@id': SITE + '/#marcin', name: 'Marcin Bedn
 const WEBSITE = { '@type': 'WebSite', '@id': SITE + '/#website', url: SITE + '/', name: 'Creative Vision', inLanguage: 'pl-PL', publisher: { '@id': SITE + '/#org' } };
 const plain = (t) => String(t || '').replace(/\*/g, '');
 const crumbs = (list) => ({ '@type': 'BreadcrumbList', itemListElement: list.map(([name, url], i) => ({ '@type': 'ListItem', position: i + 1, name, item: SITE + url })) });
+// wstążka żałobna przy logo: żałoba narodowa 8-9.11.2026 (Kraków do 11.11); znika sama po 11.11
+const MOURN_FROM = '2026-11-08', MOURN_TO = '2026-11-11';
+const MOURN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 34"><g fill="#fff" stroke="#0B0B0B" stroke-width="1.1" stroke-linejoin="round"><path d="M11 12 15.5 14 9 33 2.5 30.5Z"/><path d="M13 12 8.5 14 15 33 21.5 30.5Z"/><path fill-rule="evenodd" d="M12 13C3 7 5 1 12 1s9 6 0 12ZM12 9.6C8.6 7 9 4 12 4s3.4 3 0 5.6Z"/></g></svg>';
+const MOURN = `<script>try{var d=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Warsaw'}).format(new Date());if(d>='${MOURN_FROM}'&&d<='${MOURN_TO}')document.documentElement.setAttribute('data-zaloba','')}catch(e){}</script>`
+  + `<style>html[data-zaloba] .sw-lg{position:relative}html[data-zaloba] .sw-lg::after{content:"";position:absolute;left:-24px;top:-20px;width:24px;height:34px;background:url("data:image/svg+xml,${encodeURIComponent(MOURN_SVG)}") center/contain no-repeat;pointer-events:none}@media (max-width:809px){html[data-zaloba] .sw-lg::after{left:-16px;top:-16px;width:19px;height:27px}}</style>`;
 // mobilny pasek kontaktu: telefon jednym dotknięciem i wycena (tylko na telefonach)
 const MBAR = '<nav class="cv-mbar" aria-label="Szybki kontakt"><a href="tel:+48534154230">Zadzwoń</a><a href="/kontakt" class="pri">Bezpłatna wycena</a></nav>'
   + '<style>.cv-mbar{display:none}@media (max-width:809px){.cv-mbar{display:grid;grid-template-columns:1fr 1.7fr;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:40;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#000;border-top:1px solid rgba(255,255,255,.14);transform:translateY(110%);visibility:hidden;transition:transform .35s cubic-bezier(.2,.7,.2,1),visibility .35s}.cv-mbar.on{transform:none;visibility:visible}.cv-mbar a{display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 12px;font:600 13px/1 Satoshi,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:0}.cv-mbar a.pri{background:#fff;color:#0B0B0B;border-color:#fff}.cv-mbar a.pri::after{content:"→";letter-spacing:0}.cv-mbar a:focus-visible{outline:2px solid #fff;outline-offset:3px}body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}body:has(.sw-ck) .cv-mbar,body:has(.sw-mnav.on) .cv-mbar{display:none}}@media (prefers-reduced-motion:reduce){.cv-mbar{transition:none}}</style>';
@@ -155,6 +160,7 @@ for (const p of pages) {
 <link rel="preload" href="/fonts/satoshi-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/fonts/fonts.css">
 <style>${css}</style>
+${MOURN}
 <link rel="modulepreload" href="${js}">
 <script type="application/ld+json">${jsonld(p, title, desc, url)}</script>
 </head>
