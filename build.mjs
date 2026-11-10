@@ -178,6 +178,7 @@ ${p.path === '/kontakt' ? '' : MBAR}
   console.log('✓', p.path.padEnd(48), (doc.length / 1024).toFixed(0) + ' KB');
 }
 fs.copyFileSync(path.join(ROOT, 'src/404.html'), path.join(OUT, '404.html'));
+fs.copyFileSync(path.join(ROOT, 'src/polityka-cookies.html'), path.join(OUT, 'polityka-cookies.html'));
 const today = new Date().toISOString().slice(0, 10);
 fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
