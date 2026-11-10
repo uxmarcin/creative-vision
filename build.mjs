@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import { RELATED_HTML } from './src/related.mjs';
 const require = createRequire(import.meta.url);
 const esbuild = require(process.env.ESBUILD || 'esbuild');
 const { renderToString } = await import('react-dom/server');
@@ -160,6 +161,7 @@ for (const p of pages) {
 </head>
 <body>
 <div id="app">${html}</div>
+${RELATED_HTML}
 <script type="application/json" id="cv-props">${JSON.stringify(p.props).replace(/</g, '\\u003c')}</script>
 <script type="module" src="${js}"></script>
 <script src="/fx/fluid.js?v=2611022125" defer></script>
