@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { RELATED_HTML } from './src/related.mjs';
+import { GTAG_HTML } from './src/gtag.mjs';
 const require = createRequire(import.meta.url);
 const esbuild = require(process.env.ESBUILD || 'esbuild');
 const { renderToString } = await import('react-dom/server');
@@ -134,6 +135,7 @@ for (const p of pages) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+${GTAG_HTML}
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
 <link rel="canonical" href="${url}">
