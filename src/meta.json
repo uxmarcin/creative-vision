@@ -208,5 +208,25 @@
   "icon": "https://framerusercontent.com/images/5nu54lUTuTBKgAmsftppZDI0Y.png",
   "apple": null,
   "lang": "pl"
+ },
+ "realizacje__jctp-academy": {
+  "title": "Creative Vision · Strony, sklepy i aplikacje mobilne",
+  "description": "Projektujemy i wdrażamy strony firmowe, sklepy PrestaShop i aplikacje mobilne od UX. Bezpłatna wycena w 2 dni robocze.",
+  "canonical": "https://creative-vision.pl/realizacje/jctp-academy",
+  "og_image": "https://framerusercontent.com/images/8UVLCs9mZlPZ2VeP799CS9tiSg.png",
+  "robots": "max-image-preview:large",
+  "icon": "https://framerusercontent.com/images/5nu54lUTuTBKgAmsftppZDI0Y.png",
+  "apple": null,
+  "lang": "pl"
+ },
+ "realizacje__bzimny": {
+  "title": "Creative Vision · Strony, sklepy i aplikacje mobilne",
+  "description": "Projektujemy i wdrażamy strony firmowe, sklepy PrestaShop i aplikacje mobilne od UX. Bezpłatna wycena w 2 dni robocze.",
+  "canonical": "https://creative-vision.pl/realizacje/bzimny",
+  "og_image": "https://framerusercontent.com/images/8UVLCs9mZlPZ2VeP799CS9tiSg.png",
+  "robots": "max-image-preview:large",
+  "icon": "https://framerusercontent.com/images/5nu54lUTuTBKgAmsftppZDI0Y.png",
+  "apple": null,
+  "lang": "pl"
  }
 }

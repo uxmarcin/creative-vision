@@ -146,5 +146,13 @@
   "realizacje__tekma": {
     "title": "Tekma.app: rekrutacja i onboarding na dowodach | Realizacja",
     "description": "Aplikacja webowa do rekrutacji i onboardingu: karty oceny z wagami, Notetaker, sugestie AI z cytatami i plan 90 dni. Projekt UX/UI, strona i kod."
+  },
+  "realizacje__jctp-academy": {
+    "title": "JCTP Academy: strona szkoleń barberskich | Realizacja",
+    "description": "Strona szkoleń barberskich z Rzeszowa: trzy szkolenia z cenami, terminy z liczbą wolnych miejsc, zaliczka online i panel do samodzielnej edycji treści."
+  },
+  "realizacje__bzimny": {
+    "title": "bzimny.com: strona trenera z płatnością online | Realizacja",
+    "description": "Strona trenera personalnego z Rzeszowa: prowadzenie online i treningi 1:1, pakiety z jawną ceną, zamówienie z płatnością Stripe i panel do edycji treści."
   }
 }
