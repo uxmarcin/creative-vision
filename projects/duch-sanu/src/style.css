@@ -681,3 +681,53 @@ main.co{padding-top:48px;padding-bottom:96px;padding-left:var(--pad);padding-rig
   .lada-img{inset:auto;left:50%;bottom:0;transform:translateX(-50%);width:min(100cqw,calc(74cqh * 16 / 9));height:auto;aspect-ratio:16/9;background-size:cover;-webkit-mask:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
   .lada-img::before{background:linear-gradient(180deg,var(--n900) 0,rgba(11,31,34,.6) 22%,transparent 45%)}
 }
+
+/* bramka wieku: Safari na iOS liczyło szerokość karty od treści, nie od ekranu */
+.gate{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 16px 64px;overflow-y:auto;overflow-x:hidden;height:100dvh;box-sizing:border-box}
+.gate-card{width:min(560px,calc(100vw - 32px));max-width:none;box-sizing:border-box;flex:none;min-width:0}
+.gate-card>*{max-width:100%;min-width:0}
+.gate-card .yr,.gate-card [class*=year],.gate-card .digits{max-width:100%}
+@media (max-width:720px){
+  .gate-card{padding:28px 20px 24px;gap:14px;border-radius:24px}
+  .gate-card .sy{width:168px}.gate-card h2{font-size:34px}
+  .gate-legal{position:static;margin-top:14px;padding:0 8px;font-size:10px;flex:none}
+}
+
+/* mobile: przyciski CTA na pełną szerokość */
+@media (max-width:720px){
+  .btn{width:100%;justify-content:center;box-sizing:border-box}
+  .sticky-buy .btn,.kr-mini .btn,.card-row .btn,.fields .btn,.hdr .btn{width:auto}
+  .buyrow .btn{width:auto;flex:1 1 auto;min-width:0}
+  .hero-cta{flex-direction:column;align-items:stretch;width:100%}
+  .lada-act{flex-direction:column;align-items:stretch;width:100%;gap:12px}.lada-act .link{align-self:center}
+  .lada-row{width:100%}
+  .sec-head{flex-wrap:wrap}.sec-head .btn{margin-top:4px}
+  .news{flex-direction:column;align-items:stretch}.news input{width:100%;box-sizing:border-box}
+  .pair{flex-direction:column;align-items:stretch}
+}
+
+/* lada na telefonie: strzałki, przesunięcie palcem, lista nazw – i całość w jednym ekranie */
+.lada-nav,.lada-pick{display:none}
+@media (max-width:720px){
+  .hero-cta .btn{width:100%}
+  .news{box-shadow:none;padding:0;border-radius:0;gap:10px;width:100%}
+  .news input{height:52px;padding:0 20px;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(244,242,236,.3)}
+  .lada-top{padding:18px 20px 0;gap:6px}
+  .lada-bottle{width:92px;height:136px;padding:16px 0;margin-bottom:0}
+  .lada-label{height:100px;margin-top:2px}
+  .lada-name{font-size:32px}.lada-desc{font-size:15px}
+  .lada-row{gap:10px}.lada-act{gap:8px;margin-top:2px}.lada-act .btn{height:50px}
+  .lada-img{height:clamp(230px,calc(100svh - 470px),380px);touch-action:pan-y}
+  .glass.on{pointer-events:none}.glass.on b,.glass.on small,.glass.on i{display:none}
+  .lada-nav{display:grid;place-items:center;position:absolute;z-index:4;top:50%;width:44px;height:44px;margin-top:-22px;border-radius:50%;border:0;background:rgba(11,31,34,.62);color:var(--m50);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);cursor:pointer}
+  .lada-nav.prev{left:12px}.lada-nav.next{right:12px}
+  .lada-nav:active{background:var(--gold3);color:var(--n900)}
+  .lada-pick{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:6px 12px 12px;position:relative;z-index:3;background:var(--n900);-webkit-overflow-scrolling:touch}
+  .lada-pick::-webkit-scrollbar{display:none}
+  .lada-pick button{flex:none;height:44px;padding:0 14px;border:0;background:none;border-radius:999px;font:800 14px/1 var(--logo);text-transform:uppercase;white-space:nowrap;color:rgba(244,242,236,.6)}
+  .lada-pick button.on{color:var(--n900);background:var(--gold3)}
+  #wybierz{scroll-margin-top:8px}
+}
+.gate{justify-content:flex-start}.gate-card{margin-top:auto}.gate-card:last-child{margin-bottom:auto}
+@media (max-width:720px){.gate-legal{margin-bottom:auto}}
+@media (min-width:721px){.gate-card{margin-bottom:auto}}

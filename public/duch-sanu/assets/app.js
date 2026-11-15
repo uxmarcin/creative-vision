@@ -105,7 +105,7 @@
       const g = glasses[i], b = beer(g.dataset.slug);
       glasses.forEach((x, j) => { x.classList.toggle('on', j === i); x.classList.toggle('near', Math.abs(j - i) === 1); });
       lada.style.setProperty('--x', g.style.left);
-      const im = $('.lada-img', lada); if (matchMedia('(max-width:720px)').matches) { const Wc = im.clientWidth, Wi = im.clientHeight * 16 / 9; im.style.backgroundPosition = `${Math.round(Wc / 2 - parseFloat(g.style.left) / 100 * Wi)}px center`; im.style.setProperty('--x', '50%'); } else im.style.backgroundPosition = '';
+      const im = $('.lada-img', lada); if (matchMedia('(max-width:720px)').matches) { const Wc = im.clientWidth, Wi = im.clientHeight * 16 / 9; const gx = parseFloat(g.style.left) / 100 * Wi, pos = Math.round(Math.min(0, Math.max(Wc - Wi, Wc / 2 - gx))); im.style.backgroundPosition = `${pos}px center`; lada.style.setProperty('--x', ((gx + pos) / Wc * 100).toFixed(1) + '%'); } else im.style.backgroundPosition = '';
       $('#lada-label').style.backgroundImage = `url(${B}/img/piwa/${b.slug}.webp)`;
       $('#lada-meta').textContent = `${b.style} · ${b.abv}%` + (b.ext ? ` · ${b.ext}°` : '');
       $('#lada-name').textContent = b.name;
@@ -113,7 +113,28 @@
       $('#lada-add').dataset.add = b.slug; $('#lada-add').firstChild.textContent = `Do koszyka · ${zl(b.price)} `;
       $('#lada-more').href = `${B}/piwo/${b.slug}`;
       tabs.forEach(t => t.classList.toggle('on', t.dataset.fam === g.dataset.fam));
+      cur = i;
+      picks.forEach((x, j) => x.classList.toggle('on', j === i));
+      const pk = picks[i]; if (pk) pick.scrollTo({ left: pk.offsetLeft - (pick.clientWidth - pk.offsetWidth) / 2, behavior: 'smooth' });
     };
+    /* telefon: wybór piwa strzałkami, przesunięciem palca i listą nazw pod zdjęciem */
+    let cur = 2;
+    const img = $('.lada-img', lada), n = glasses.length, step = d => set((cur + d + n) % n);
+    const pick = document.createElement('div'); pick.className = 'lada-pick';
+    const picks = glasses.map((g, i) => { const x = document.createElement('button'); x.type = 'button'; x.textContent = beer(g.dataset.slug).name; x.addEventListener('click', () => set(i)); pick.appendChild(x); return x; });
+    lada.appendChild(pick);
+    [['prev', -1, 'Poprzednie piwo', 'M15 5l-7 7 7 7'], ['next', 1, 'Następne piwo', 'M9 5l7 7-7 7']].forEach(([c, d, l, path]) => {
+      const x = document.createElement('button'); x.type = 'button'; x.className = 'lada-nav ' + c; x.setAttribute('aria-label', l);
+      x.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`;
+      x.addEventListener('click', e => { e.stopPropagation(); step(d); }); img.appendChild(x);
+    });
+    let tx = null, ty = 0;
+    img.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+    img.addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; tx = null; if (Math.abs(dx) > 36 && Math.abs(dx) > Math.abs(dy) * 1.3) step(dx < 0 ? 1 : -1); }, { passive: true });
+    addEventListener('resize', () => set(cur));
+    img.addEventListener('click', e => { if (!matchMedia('(max-width:720px)').matches || e.target.closest('.lada-nav')) return;
+      const r = img.getBoundingClientRect(), Wi = r.height * 16 / 9, x = (e.clientX - r.left - (parseFloat(img.style.backgroundPosition) || 0)) / Wi * 100;
+      let best = 0; glasses.forEach((g, j) => { if (Math.abs(parseFloat(g.style.left) - x) < Math.abs(parseFloat(glasses[best].style.left) - x)) best = j; }); set(best); });
     glasses.forEach((g, i) => g.addEventListener('click', () => set(i)));
     tabs.forEach(t => t.addEventListener('click', () => { const i = glasses.findIndex(g => g.dataset.fam === t.dataset.fam); if (i > -1) set(i); else location.href = `${B}/piwa?smak=${t.dataset.fam}`; }));
     set(2);
