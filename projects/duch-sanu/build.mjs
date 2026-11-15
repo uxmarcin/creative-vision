@@ -217,9 +217,9 @@ const kreator = head('Kreator skrzynki – Duch Sanu (projekt)', 'Złóż własn
 <div class="slots" id="slots"></div>
 <div style="display:flex;gap:14px;align-items:center"><img id="kr-crate-img" src="" alt="" style="width:64px;height:64px;object-fit:contain;background:var(--m100);border-radius:12px"><div><b id="kr-crate-name"></b><br><span class="muted" style="font-size:13px">celofan, sznurek i bilecik w komplecie</span></div></div>
 <div class="kr-list" id="kr-list"></div>
-<div style="display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid var(--m200);padding-top:14px"><div><b>Razem</b><br><span style="color:var(--ok);font-size:13px" id="kr-hint"></span></div><b style="font-size:24px" id="kr-sum"></b></div>
+<div class="kr-foot"><div style="display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid var(--m200);padding-top:14px"><div><b>Razem</b><br><span style="color:var(--ok);font-size:13px" id="kr-hint"></span></div><b style="font-size:24px" id="kr-sum"></b></div>
 <div class="bar"><i id="kr-bar"></i></div><button class="btn btn-gold btn-block" id="kr-go"></button>
-<button class="link" id="kr-surprise" style="justify-content:center">✦ Niespodzianka Ducha – uzupełnij za mnie</button></div>
+<button class="link" id="kr-surprise" style="justify-content:center">✦ Niespodzianka Ducha – uzupełnij za mnie</button></div></div>
 <div><div class="chips" style="margin:0 0 20px"><button class="chip fchip on" data-fam="all">Wszystkie</button>${FAMILIES.map(f => `<button class="chip fchip" data-fam="${f.id}"><i style="background:${f.color}"></i>${f.name}</button>`).join('')}</div>
 <div class="kr-pick">${BEERS.map(b => `<div class="pick" data-slug="${b.slug}" data-fam="${b.fam.join(' ')}"><div class="im" style="--c:${b.color}">${img(`piwa/${b.slug}.webp`, b.name)}</div><b>${b.name}</b><small>${b.abv}% · ${zl(b.price)}</small><div class="ctl"></div></div>`).join('')}</div></div></div>
 <div class="kr-mini"><div><b id="kr-mini-n">0/6</b><span id="kr-mini-sum"></span></div><button class="btn btn-gold" id="kr-mini-go">Do koszyka</button></div></main>` + footer() + shell();

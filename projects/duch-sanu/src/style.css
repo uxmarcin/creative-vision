@@ -643,3 +643,16 @@ main.co{padding-top:48px;padding-bottom:96px;padding-left:var(--pad);padding-rig
 .eb,.card .sty,.badge,.promo,.demo-bar,.mono{font-weight:500}
 .card h3,.h3,.beast-body h3,.pick b,.line h4,.steps b,.facts b,.blk-h h2,.sum h3{font-weight:500;letter-spacing:-.01em}
 .nums b,.beast-body h3{font-weight:300}
+
+/* kreator: lewa kolumna mieści się w oknie, przewija się w środku, a suma i przycisk są zawsze widoczne */
+.kr-box{top:84px;max-height:calc(100vh - 104px);overflow-y:auto;overscroll-behavior:contain;padding-bottom:0;gap:16px;scrollbar-width:thin}
+.kr-foot{position:sticky;bottom:0;background:#fff;display:flex;flex-direction:column;gap:12px;padding:4px 0 20px;margin-top:auto;z-index:2}
+.kr-foot::before{content:"";position:absolute;left:0;right:0;top:-18px;height:18px;background:linear-gradient(transparent,#fff);pointer-events:none}
+.slots{align-items:start;padding:12px;gap:8px}
+.slot{aspect-ratio:auto;height:0;padding-bottom:116%}
+.slot.empty::after{position:absolute;inset:0;display:grid;place-items:center}
+.slots.s12 .slot{padding-bottom:128%}
+.kr-list{font-size:13px;gap:6px}
+@media (max-width:1180px){.kr-box{position:static;max-height:none;overflow:visible;padding-bottom:20px}.kr-foot{position:static;padding-bottom:0}.kr-foot::before{display:none}}
+.slot,.slots.s12 .slot{height:auto;padding:0;aspect-ratio:128/150}
+.slot.empty{padding:0;color:inherit}
