@@ -731,3 +731,20 @@ main.co{padding-top:48px;padding-bottom:96px;padding-left:var(--pad);padding-rig
 .gate{justify-content:flex-start}.gate-card{margin-top:auto}.gate-card:last-child{margin-bottom:auto}
 @media (max-width:720px){.gate-legal{margin-bottom:auto}}
 @media (min-width:721px){.gate-card{margin-bottom:auto}}
+
+/* lada na telefonie v2: duże szklanki, delikatny plus nad wybraną, nazwa i cena na szkle – bez przycisku koszyka */
+.lada-plus,.lada-tag{display:none}
+@media (max-width:720px){
+  #lada-add{display:none}
+  .lada-act{margin-top:0}
+  .lada-img{height:clamp(320px,calc(100svh - 372px),520px);background-size:auto 130%!important}
+  .lada-img::before{background:linear-gradient(180deg,var(--n900),transparent 22%)}
+  .lada-spot{background:radial-gradient(ellipse 38% 46% at var(--x,50%) 56%,transparent 0,rgba(11,31,34,.1) 50%,rgba(11,31,34,.66) 100%)}
+  .glass,.glass.on{display:none!important}
+  .lada-plus{display:grid;place-items:center;position:absolute;z-index:4;left:var(--x,50%);top:13%;width:46px;height:46px;margin-left:-23px;border-radius:50%;border:1px solid rgba(244,242,236,.55);background:rgba(11,31,34,.28);color:var(--m50);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);transition:left .45s cubic-bezier(.2,.7,.2,1),background .2s,transform .2s}
+  .lada-plus:active{background:var(--gold3);border-color:var(--gold3);color:var(--n900);transform:scale(.92)}
+  .lada-tag{display:flex;flex-direction:column;align-items:center;gap:5px;position:absolute;z-index:3;left:var(--x,50%);top:50%;transform:translateX(-50%);width:132px;text-align:center;pointer-events:none;transition:left .45s cubic-bezier(.2,.7,.2,1);text-shadow:0 1px 10px rgba(6,18,20,.85),0 0 2px rgba(6,18,20,.6)}
+  .lada-tag b{font:800 12px/1.1 var(--logo);letter-spacing:.08em;text-transform:uppercase;color:rgba(244,242,236,.92)}
+  .lada-tag em{font:300 italic 26px/1 var(--serif);color:#fff}
+  .lada-nav{top:auto;bottom:14px;margin-top:0;width:40px;height:40px;background:rgba(11,31,34,.5)}
+}
