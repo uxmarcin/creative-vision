@@ -501,3 +501,29 @@ input,select{font:inherit}
   .promises{grid-template-columns:1fr;gap:12px}
 }
 @media (max-width:720px){.tile[style*="flex-direction:row"] img{width:42%!important;height:auto!important;align-self:stretch;object-fit:cover}}
+
+/* ===== smart sticky header: chowa się przy przewijaniu w dół, wraca przy przewijaniu w górę ===== */
+.hdr{transition:transform .5s cubic-bezier(.2,.8,.2,1),background-color .35s,box-shadow .35s,backdrop-filter .35s;will-change:transform}
+.hdr-in{transition:height .35s cubic-bezier(.2,.8,.2,1)}
+.hdr.hide{transform:translateY(-110%)}
+.hdr.compact .hdr-in{height:64px}
+.hdr .brand small{transition:opacity .25s,max-height .3s,margin .3s;max-height:12px;overflow:hidden}
+.hdr.compact .brand small{opacity:0;max-height:0;margin:0}
+.hdr .brand svg{transition:transform .5s cubic-bezier(.2,.8,.2,1),width .35s,height .35s}
+.hdr.compact .brand svg{width:30px;height:37px}
+.brand:hover svg{transform:rotate(-8deg) scale(1.06)}
+.hdr.compact:not(.on-photo){background:rgba(244,242,236,.82);backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);box-shadow:0 12px 30px -18px rgba(11,31,34,.35)}
+.hdr.on-photo.is-fixed{position:fixed;top:0;background:rgba(11,31,34,.78);backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);box-shadow:0 14px 40px -16px rgba(0,0,0,.5)}
+.hdr.on-photo.is-fixed .search{box-shadow:inset 0 0 0 1px rgba(244,242,236,.22)}
+.hdr .progress{position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:linear-gradient(90deg,var(--gold),var(--gold3));transform-origin:left;transform:scaleX(var(--p,0));opacity:0;transition:opacity .3s}
+.hdr.compact .progress{opacity:1}
+.nav a{position:relative;padding:4px 0}
+.nav a::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:1.5px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.nav a:hover::after,.nav a.on::after{transform:scaleX(1);transform-origin:left}
+.nav a:hover{color:inherit}
+.cart-count.bump{animation:bump .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bump{30%{transform:scale(1.6)}60%{transform:scale(.9)}}
+.hdr .act a{transition:transform .2s}
+.hdr .act a:hover{transform:translateY(-1px)}
+@media (prefers-reduced-motion:reduce){.hdr,.hdr-in,.hdr .brand svg{transition:none}.cart-count.bump{animation:none}}
+@media (max-width:720px){.hdr.compact .hdr-in{height:54px}.hdr.compact .brand svg{width:24px;height:30px}}

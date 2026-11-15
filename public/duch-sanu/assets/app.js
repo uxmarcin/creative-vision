@@ -10,6 +10,29 @@
     set(k, v) { try { localStorage.setItem('ds_' + k, JSON.stringify(v)) } catch {} }
   };
 
+  /* ---------- smart sticky header ---------- */
+  const hdr = $('.hdr');
+  if (hdr) {
+    const onPhoto = hdr.classList.contains('on-photo');
+    let lastY = scrollY, ticking = false;
+    const baseTop = hdr.getBoundingClientRect().top + scrollY;
+    const here = location.pathname.replace(/\/$/, '');
+    $$('.nav a').forEach(a => { if (a.getAttribute('href') === here) a.classList.add('on'); });
+    const update = () => {
+      const y = Math.max(0, scrollY), dy = y - lastY, h = document.documentElement;
+      const start = onPhoto ? 260 : baseTop + 120;
+      hdr.classList.toggle('compact', y > (onPhoto ? 260 : 40));
+      if (onPhoto) hdr.classList.toggle('is-fixed', y > 260);
+      if (y <= start) hdr.classList.remove('hide');
+      else if (dy > 6 && !$('#drawer')?.classList.contains('on')) hdr.classList.add('hide');
+      else if (dy < -6) hdr.classList.remove('hide');
+      hdr.style.setProperty('--p', (y / Math.max(1, h.scrollHeight - innerHeight)).toFixed(4));
+      lastY = y; ticking = false;
+    };
+    addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    update();
+  }
+
   /* ---------- age gate ---------- */
   const gate = $('#gate');
   if (gate && !store.get('age', false)) {
@@ -35,7 +58,7 @@
   function add(item, qty = 1, open = true) {
     const ex = cart.find(l => l.id === item.id);
     if (ex) ex.qty += qty; else cart.push({ ...item, qty });
-    save(); toast(`Dodano: ${item.name}`); if (open) openCart();
+    save(); toast(`Dodano: ${item.name}`); $$('.cart-count').forEach(c => { c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); }); if (open) openCart();
   }
   window.dsAdd = add;
   function beerItem(b, pack = 1) {

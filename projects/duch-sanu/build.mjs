@@ -44,7 +44,7 @@ const header = (photo = false) => `${photo ? '' : demoBar}<div class="promo"><sp
 <button class="burger" aria-label="Menu" onclick="location.href='${B}/piwa'">${ic('menu')}</button>
 <a class="brand" href="${B}" aria-label="Duch Sanu – strona główna">${deer()}<span><img class="wm" src="${B}/img/logo/napis-${photo ? 'jasny' : 'ciemny'}.webp" alt="Duch Sanu" width="120" height="30"><small>STĄD PŁYNIE NASZA DUMA</small></span></a>
 <div class="act"><a class="search" href="${B}/piwa">${ic('search')}Szukaj piwa, stylu, smaku…</a><a class="acc" href="#" aria-label="Konto">${ic('user')}</a><a class="cart-btn" href="#" data-cart aria-label="Koszyk">${ic('bag')}<span class="cart-count" hidden>0</span></a></div>
-</div></header>`;
+</div><span class="progress" aria-hidden="true"></span></header>`;
 
 const footer = () => `<footer class="ftr"><div class="wrap">
 <div class="ftr-top"><div>${deer('deer-z')}<h2>Poczuj ducha Sanu.</h2><p class="muted" style="max-width:560px">Dołącz do Klubu Ducha – 10% na pierwsze zamówienie, wcześniejszy dostęp do nowych warek i zaproszenia na warzenie nad Sanem.</p></div>
