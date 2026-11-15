@@ -37,10 +37,10 @@ const head = (title, desc) => `<!doctype html><html lang="pl"><head><meta charse
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Sancreek&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${B}/assets/style.css?v=${V}"></head><body>`;
 
-const demoBar = `<div class="demo-bar">Projekt koncepcyjny sklepu Duch Sanu przygotowany przez <a href="/">Creative Vision</a> · zamówienia w tej wersji nie są realizowane</div>`;
-const header = (photo = false) => `${photo ? '' : demoBar}<div class="promo"><span>Warzone nad Sanem w otwartych kadziach</span><span>Wysyłka InPost w 24 h</span><span>Darmowa dostawa od 199 zł</span><span>Odbiór osobisty w Bachórzu</span></div>
+const demoBar = `<div class="demo-bar">Projekt koncepcyjny<span class="hide-m"> sklepu Duch Sanu</span> · <a href="/">Creative Vision</a><span class="hide-m"> · zamówienia w tej wersji nie są realizowane</span></div>`;
+const header = (photo = false) => `${demoBar}<div class="promo"><span>Warzone nad Sanem w otwartych kadziach</span><span>Wysyłka InPost w 24 h</span><span>Darmowa dostawa od 199 zł</span><span>Odbiór osobisty w Bachórzu</span></div>
 <header class="hdr${photo ? ' on-photo' : ''}"><div class="wrap hdr-in">
-<nav class="nav"><a href="${B}/piwa">Piwa</a><a href="${B}/prezenty">Zestawy i prezenty</a><a href="${B}/kreator">Kreator skrzynki</a><a href="${B}#bestiariusz">Bestiariusz</a><a href="${B}#legenda">Legenda</a></nav>
+<nav class="nav"><a href="${B}/piwa">Piwa</a><a href="${B}/prezenty">Prezenty</a><a href="${B}/kreator">Kreator</a><a href="${B}#bestiariusz">Bestiariusz</a><a href="${B}#legenda">Legenda</a></nav>
 <button class="burger" aria-label="Menu" onclick="location.href='${B}/piwa'">${ic('menu')}</button>
 <a class="brand" href="${B}" aria-label="Duch Sanu – strona główna">${deer()}<span><img class="wm" src="${B}/img/logo/napis-${photo ? 'jasny' : 'ciemny'}.webp" alt="Duch Sanu" width="120" height="30"><small>STĄD PŁYNIE NASZA DUMA</small></span></a>
 <div class="act"><a class="search" href="${B}/piwa">${ic('search')}Szukaj piwa, stylu, smaku…</a><a class="acc" href="#" aria-label="Konto">${ic('user')}</a><a class="cart-btn" href="#" data-cart aria-label="Koszyk">${ic('bag')}<span class="cart-count" hidden>0</span></a></div>
@@ -74,7 +74,7 @@ const shell = () => `<div class="scrim"></div><aside class="drawer" id="drawer" 
 const card = (b, badge = b.badge) => `<article class="card" data-fam="${b.fam.join(' ')}" data-series="${b.series}" data-abv="${b.abv}" data-price="${b.price}" data-i="${BEERS.indexOf(b)}">
 <a class="card-img" href="${B}/piwo/${b.slug}" style="--c:${b.color}">${badge ? `<span class="badge">${badge}</span>` : ''}${img(`piwa/${b.slug}.webp`, b.name)}</a>
 <button class="fav" aria-label="Do ulubionych">${ic('heart')}</button>
-<div><div class="sty">${b.style} · ${b.abv}%</div><h3><a href="${B}/piwo/${b.slug}">${b.name}</a></h3><p>${b.short}</p></div>
+<div><div class="sty">${b.style.replace('Premium · ', '')} · ${b.abv}%</div><h3><a href="${B}/piwo/${b.slug}">${b.name}</a></h3><p>${b.short}</p></div>
 <div class="card-row"><div><div class="price">${zl(b.price)}</div><div class="unit">500 ml · ${perL(b.price)}</div></div><button class="add" data-add="${b.slug}" aria-label="Dodaj ${esc(b.name)} do koszyka">${ic('plus')}</button></div></article>`;
 
 const write = (p, html) => { const f = join(OUT, p); mkdirSync(dirname(f), { recursive: true }); writeFileSync(f, html); };
@@ -90,7 +90,7 @@ const home = head('Duch Sanu – piwo, które ma duszę rzeki | sklep (projekt)'
 <section class="hero" style="background-image:url(${B}/img/foto/hero-san-mgla.webp)">
 <svg class="ghost" viewBox="50 50 726 910" aria-hidden="true"><use href="${B}/img/logo/jelen.svg#d"/></svg><div class="glow"></div>
 <img class="bottle" src="${B}/img/piwa/lesne-widmo.webp" alt="Butelka Leśne Widmo" fetchpriority="high">
-<div class="wrap" style="width:100%"><div class="hero-in"><p class="eb light" style="margin:0 0 24px">Browar nad Sanem · Bachórz, Pogórze Dynowskie</p>
+<div class="wrap" style="width:100%"><div class="hero-in"><p class="eb light" style="margin:0 0 24px">Browar nad Sanem · Bachórz<span class="hide-m">, Pogórze Dynowskie</span></p>
 <h1 class="h1">Piwo, które ma <em class="it">duszę</em> rzeki.</h1>
 <p>Warzymy powoli, w otwartych kadziach, tam gdzie San zwalnia przed Pogórzem. 24 piwa – od rześkiego Pilsa po porter Czarne Złoto leżakowany 180 dni.</p>
 <div class="hero-cta"><a class="btn btn-gold" href="${B}/piwa">Odkryj nasze piwa ${ic('arrow')}</a><a class="btn btn-ghost" href="${B}/kreator">Złóż własną skrzynkę</a></div></div></div>
@@ -135,18 +135,18 @@ ${GLASSES.map(([s, x, f]) => `<button class="glass" style="left:${x}%" data-slug
 
 <section class="map" id="mapa"><div class="wrap"><div style="position:relative;z-index:2;max-width:520px"><p class="eb light">06 — Rzeka</p><h2 class="h2" style="margin:14px 0 18px">Od Bieszczad po Bachórz.</h2><p class="muted">San niesie wodę z Bieszczad aż pod nasz browar. Wkrótce: mapa szlaków, schronisk i miejsc, w których nalejesz Ducha Sanu.</p><a class="btn" style="background:var(--m50);color:var(--t1);margin-top:20px" href="#">Znajdź Ducha Sanu w okolicy ${ic('pin')}</a></div>
 <div class="map-river"><svg viewBox="0 0 820 420" fill="none" style="width:100%"><path d="M20 380 C 120 360, 140 280, 230 270 S 360 320, 420 250 S 520 120, 600 150 S 720 90, 800 40" stroke="#6F98A0" stroke-width="10" stroke-linecap="round"/><path d="M20 380 C 120 360, 140 280, 230 270 S 360 320, 420 250 S 520 120, 600 150 S 720 90, 800 40" stroke="#E2C98F" stroke-width="1.5" stroke-dasharray="2 8" stroke-linecap="round"/></svg>
-${[['Bieszczady · źródła Sanu', 92, 4], ['Lesko', 73, 30], ['Sanok', 51, 52], ['Dynów', 28, 58]].map(([n, x, y]) => `<span class="pin" style="left:${x}%;top:${y}%"><i></i>${n}</span>`).join('')}<span class="pin main" style="left:8%;top:84%">${deer()}Bachórz · browar</span></div></div></section>
+${[['Bieszczady · źródła Sanu', 100, 2, ' end'], ['Lesko', 73, 30, ''], ['Sanok', 51, 52, ''], ['Dynów', 28, 58, '']].map(([n, x, y, c]) => `<span class="pin${c}" style="left:${x}%;top:${y}%"><i></i>${n}</span>`).join('')}<span class="pin main start" style="left:0%;top:86%">${deer()}Bachórz · browar</span></div></div></section>
 
 <section class="sec soft"><div class="wrap">
 <div class="sec-head"><div><p class="eb">07 — Prezenty</p><h2 class="h2">Prezent z duszą.</h2></div><a class="btn btn-line" href="${B}/prezenty">Wszystkie zestawy ${ic('arrow')}</a></div>
-<div class="gift-grid"><a class="tile" href="${B}/prezenty">${img('merch/zestaw-mis-wojtek.webp', 'Zestaw Miś Wojtek', 'style="height:460px;object-fit:cover"')}<div class="in" style="flex-direction:row;align-items:flex-end;gap:20px"><div style="flex:1"><p class="eb">Zestaw · bestseller prezentowy</p><h3 class="h2" style="font-size:40px">Miś Wojtek</h3><p class="muted" style="margin:6px 0 0">Plaster Miodu, Borówka Zero i szklanka 250 ml – z historią niedźwiedzia, który przeszedł z żołnierzami pół świata.</p></div><div style="text-align:right"><b style="font-size:22px">39,99 zł</b><br><button class="add" style="margin-top:10px" data-add="zestaw-mis-wojtek" aria-label="Dodaj zestaw">${ic('plus')}</button></div></div></a>
+<div class="gift-grid"><a class="tile" href="${B}/prezenty">${img('merch/zestaw-mis-wojtek.webp', 'Zestaw Miś Wojtek', 'class="wojtek-img"')}<div class="in wojtek-in"><div style="flex:1"><p class="eb">Zestaw · bestseller prezentowy</p><h3 class="h2" style="font-size:40px">Miś Wojtek</h3><p class="muted" style="margin:6px 0 0">Plaster Miodu, Borówka Zero i szklanka 250 ml – z historią niedźwiedzia, który przeszedł z żołnierzami pół świata.</p></div><div style="text-align:right"><b style="font-size:22px">39,99 zł</b><br><button class="add" style="margin-top:10px" data-add="zestaw-mis-wojtek" aria-label="Dodaj zestaw">${ic('plus')}</button></div></div></a>
 <div style="display:grid;gap:20px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">${['nosidelko-rys-3', 'kufel'].map(s => { const m = MERCH.find(x => x.slug === s); return `<div class="tile">${img(`merch/${m.img}.webp`, m.name, 'style="height:250px"')}<div class="in"><span class="mono muted" style="font-size:10px;text-transform:uppercase">${m.tag}</span><b class="h3" style="font-size:21px">${m.name}</b><span><b>${zl(m.price)}</b></span></div></div>`; }).join('')}</div>
 <div class="tile" style="flex-direction:row;align-items:center;background:var(--n800);color:var(--m50)">${img('merch/tshirt-wilk.webp', 'Koszulka Wilk', 'style="width:240px;height:240px;object-fit:cover"')}<div class="in"><p class="eb light">Kolekcja „Bieszczady”</p><b style="font:300 italic 34px/1.05 var(--serif)">Wolność ma kierunek.</b><span class="muted">Koszulki: jeleń, wilk, miś, ryś · 54,99 zł</span></div></div></div></div></div></section>
 
 <section class="sec" style="background:var(--n800);color:var(--m50)"><div class="wrap club">
 <div><p class="eb light">08 — Klub Ducha</p><h2 class="h2" style="margin-top:14px">Co miesiąc skrzynka, której <em class="it gold">jeszcze</em> nie piłeś.</h2>
 <ul class="checks"><li>−10% na każdą skrzynkę i darmowa dostawa</li><li>Nowe warki i limitki 7 dni przed premierą</li><li>Głosowanie nad kolejnym smakiem</li><li>Zaproszenie na warzenie w Bachórzu</li><li>Pauza lub rezygnacja jednym kliknięciem</li></ul>
-<a class="btn btn-gold" href="${B}/kreator">Dołącz od 99 zł / mies. ${ic('arrow')}</a> <span class="muted" style="font-size:14px;margin-left:12px">Pierwsza skrzynka z kuflem gratis</span></div>
+<a class="btn btn-gold" href="${B}/kreator">Dołącz od 99 zł / mies. ${ic('arrow')}</a> <span class="muted club-note">Pierwsza skrzynka z kuflem gratis</span></div>
 <div class="member"><span class="mono" style="letter-spacing:.2em;font-weight:500">KLUB DUCHA</span><img src="${B}/img/logo/napis-ciemny.webp" alt="Duch Sanu"><span class="mono" style="font-size:12px;opacity:.75">Członek No. 0427 · od listopada 2026</span></div></div></section>
 
 <section class="sec"><div class="wrap">
@@ -205,7 +205,7 @@ ${b.f.map((v, i) => `<div class="fl-row"><span>${FL[i]}</span><span class="segs"
 <div class="pair"><p class="eb">Do czego pasuje</p><h2 class="h2" style="font-size:44px;margin:12px 0 18px">Na stół</h2>${b.pair.map(p => `<div><b>${p}</b></div>`).join('')}</div></div>
 <div class="wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:64px;margin-top:64px"><div class="spec"><p class="eb">Specyfikacja</p>${[['Styl', b.style], ['Alkohol', b.abv + '% obj.'], ['Ekstrakt', b.ext ? b.ext + '% wag.' : '—'], ['Chmiele', b.hops], ['Opakowanie', `butelka 500 ml z ${b.cap === 'kapsel' ? 'kapslem' : 'pałąkiem'}, bezzwrotna`], ['Producent', 'Duch Sanu Sp. z o.o., Bachórz']].map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>
 <div><p class="eb">Opinie</p><div class="review" style="margin-top:16px"><b class="h3">Bądź pierwszym, który oceni ${b.name}</b><span class="muted">Opinię wystawisz bez zakładania konta – wyślemy link po dostawie.</span><span class="stars" style="color:var(--m200)">★★★★★</span></div></div></div></section>
-<section class="sec soft"><div class="wrap"><div class="sec-head"><div><p class="eb">Skrzynka sama się nie złoży</p><h2 class="h2">Pasuje do ${b.name}</h2></div></div><div class="grid">${related.slice(0, 4).map(r => card(r)).join('')}</div></div></section>
+<section class="sec soft"><div class="wrap"><div class="sec-head"><div><p class="eb">Skrzynka sama się nie złoży</p><h2 class="h2">Dobierz do kompletu</h2></div></div><div class="grid">${related.slice(0, 4).map(r => card(r)).join('')}</div></div></section>
 <div class="sticky-buy"><img src="${B}/img/piwa/${b.slug}.webp" alt=""><div><b>${b.name}</b><br><span id="sticky-sub"></span></div><button class="btn btn-gold" id="sticky-cta">Do koszyka</button></div>` + footer() + shell();
   write(`duch-sanu/piwo/${b.slug}.html`, html);
 }
@@ -221,19 +221,20 @@ const kreator = head('Kreator skrzynki – Duch Sanu (projekt)', 'Złóż własn
 <div class="bar"><i id="kr-bar"></i></div><button class="btn btn-gold btn-block" id="kr-go"></button>
 <button class="link" id="kr-surprise" style="justify-content:center">✦ Niespodzianka Ducha – uzupełnij za mnie</button></div>
 <div><div class="chips" style="margin:0 0 20px"><button class="chip fchip on" data-fam="all">Wszystkie</button>${FAMILIES.map(f => `<button class="chip fchip" data-fam="${f.id}"><i style="background:${f.color}"></i>${f.name}</button>`).join('')}</div>
-<div class="kr-pick">${BEERS.map(b => `<div class="pick" data-slug="${b.slug}" data-fam="${b.fam.join(' ')}"><div class="im" style="--c:${b.color}">${img(`piwa/${b.slug}.webp`, b.name)}</div><b>${b.name}</b><small>${b.abv}% · ${zl(b.price)}</small><div class="ctl"></div></div>`).join('')}</div></div></div></main>` + footer() + shell();
+<div class="kr-pick">${BEERS.map(b => `<div class="pick" data-slug="${b.slug}" data-fam="${b.fam.join(' ')}"><div class="im" style="--c:${b.color}">${img(`piwa/${b.slug}.webp`, b.name)}</div><b>${b.name}</b><small>${b.abv}% · ${zl(b.price)}</small><div class="ctl"></div></div>`).join('')}</div></div></div>
+<div class="kr-mini"><div><b id="kr-mini-n">0/6</b><span id="kr-mini-sum"></span></div><button class="btn btn-gold" id="kr-mini-go">Do koszyka</button></div></main>` + footer() + shell();
 write('duch-sanu/kreator.html', kreator);
 
 /* ================= GIFTS ================= */
 const prezenty = head('Zestawy i prezenty – Duch Sanu (projekt)', 'Zestaw Miś Wojtek, nosidełka, kufel i koszulki z kolekcji Bieszczady.') + header() + `
 <main class="wrap"><div class="list-head"><p class="eb">Zestawy, nosidełka i merch</p><h1 class="h1">Prezent z duszą</h1><p class="muted" style="max-width:560px">Gotowe zestawy, nosidełka do skompletowania w kreatorze i kolekcja „Bieszczady”. Bilecik z życzeniami dodamy gratis.</p></div>
-<div class="grid" style="padding-bottom:96px">${MERCH.map(m => `<article class="card"><div class="card-img" style="--c:#C9A35B;background:#fff"><span class="badge">${m.tag}</span><img src="${B}/img/merch/${m.img}.webp" alt="${esc(m.name)}" loading="lazy" style="inset:0;width:100%;height:100%;object-fit:${m.tag === 'Merch' && m.img.startsWith('tshirt') ? 'cover' : 'contain'}"></div><div><h3 style="font-size:24px">${m.name}</h3><p>${m.note}</p></div><div class="card-row"><div class="price">${zl(m.price)}</div>${m.tag === 'Nosidełko' ? `<a class="btn btn-line" style="margin-left:auto;height:44px;padding:0 18px" href="${B}/kreator">Skomponuj</a>` : `<button class="add" data-add="${m.slug}" aria-label="Dodaj">${ic('plus')}</button>`}</div></article>`).join('')}</div></main>` + footer() + shell();
+<div class="grid" style="padding-bottom:96px">${MERCH.map(m => `<article class="card"><div class="card-img plain"><span class="badge">${m.tag}</span><img src="${B}/img/merch/${m.img}.webp" alt="${esc(m.name)}" loading="lazy" style="inset:0;width:100%;height:100%;object-fit:${m.tag === 'Merch' && m.img.startsWith('tshirt') ? 'cover' : 'contain'}"></div><div><h3 style="font-size:24px">${m.name}</h3><p>${m.note}</p></div><div class="card-row"><div class="price">${zl(m.price)}</div>${m.tag === 'Nosidełko' ? `<a class="btn btn-line" style="margin-left:auto;height:44px;padding:0 18px" href="${B}/kreator">Skomponuj</a>` : `<button class="add" data-add="${m.slug}" aria-label="Dodaj">${ic('plus')}</button>`}</div></article>`).join('')}</div></main>` + footer() + shell();
 write('duch-sanu/prezenty.html', prezenty);
 
 /* ================= CHECKOUT ================= */
 const opt = (name, id, title, sub, price, on, data = '') => `<label class="opt"><input type="radio" name="${name}" id="${id}" ${on ? 'checked' : ''} ${data}><span><b>${title}</b><small>${sub}</small></span>${price ? `<span class="pr2">${price}</span>` : ''}</label>`;
 const kasa = head('Kasa – Duch Sanu (projekt)', 'Zamówienie na jednej stronie.') + demoBar + `
-<header class="wrap co-hdr"><a class="link" href="${B}/piwa">${ic('back')}Wróć do sklepu</a><a href="${B}"><img class="wm" src="${B}/img/logo/napis-ciemny.webp" alt="Duch Sanu" height="30"></a><span class="link" style="justify-content:flex-end">${ic('lock')}Bezpieczna płatność</span></header>
+<header class="wrap co-hdr"><a class="link" href="${B}/piwa">${ic('back')}<span class="hide-m">Wróć do sklepu</span></a><a href="${B}"><img class="wm" src="${B}/img/logo/napis-ciemny.webp" alt="Duch Sanu" height="30"></a><span class="link" style="justify-content:flex-end">${ic('lock')}<span class="hide-m">Bezpieczna płatność</span></span></header>
 <main class="wrap co" id="checkout"><form id="co-form" novalidate><h1>Kasa</h1>
 <div class="express"><button type="button" data-express>Apple Pay</button><button type="button" data-express>Google Pay</button><button type="button" onclick="document.getElementById('pay-blik').click();document.querySelector('.blik input').focus()">BLIK</button></div>
 <div class="or">albo zamów jako gość – konto nie jest potrzebne</div>
@@ -258,10 +259,10 @@ write('duch-sanu/kasa.html', kasa);
 const conf = head('Dziękujemy! – Duch Sanu (projekt)', 'Potwierdzenie zamówienia.') + header() + `
 <main class="wrap" id="confirm" style="padding:88px var(--pad) 120px"><div class="split"><div><div class="ok">${ic('check')}</div><p class="eb" style="margin-top:24px">Zamówienie <span id="c-no">DS-2026-0427</span> · opłacone</p>
 <h1 class="h2" style="font-size:clamp(44px,5.5vw,72px);margin:14px 0 22px">Dziękujemy, <span id="c-name">Anno</span>!<br>Duch Sanu już pakuje Twoje piwa.</h1>
-<p class="muted" style="font-size:17px;max-width:600px">Potwierdzenie wysłaliśmy na <b id="c-mail">Twój e-mail</b>. Kwota: <b id="c-total"></b> · Dostawa: <b id="c-ship"></b>. Gdy paczka wyjedzie z Bachórza, dostaniesz SMS.</p>
+<p class="muted" style="font-size:17px;max-width:600px">Potwierdzenie wysłaliśmy na <b id="c-mail">Twój e-mail</b>. Kwota: <b id="c-total">186,91 zł</b> · Dostawa: <b id="c-ship">Paczkomat InPost</b>. Gdy paczka wyjedzie z Bachórza, dostaniesz SMS.</p>
 <div class="timeline"><div class="on"><b>Opłacone</b><span>przed chwilą</span></div><div><b>Pakujemy</b><span>do jutra 14:00</span></div><div><b>W drodze</b><span>InPost</span></div><div><b>Odbiór</b><span>paczkomat / browar</span></div></div></div>
 <div class="white-box">${img('merch/nosidelko-drewno-6.webp', '')}</div></div>
-<div class="duo" style="margin-top:72px;grid-template-columns:repeat(3,1fr)"><div class="legend" style="--c:var(--n800)"><p class="eb light">Zapisz się w 1 klik</p><h3 class="h3" style="font-size:30px;font-weight:300">Załóż konto z tego zamówienia</h3><p style="font-style:normal;font-family:var(--sans);font-size:14px">Hasło ustawisz w mailu. Śledzenie paczki i szybsze zakupy.</p><a class="btn btn-gold" href="#">Załóż konto</a></div>
+<div class="trio"><div class="legend" style="--c:var(--n800)"><p class="eb light">Zapisz się w 1 klik</p><h3 class="h3" style="font-size:30px;font-weight:300">Załóż konto z tego zamówienia</h3><p style="font-style:normal;font-family:var(--sans);font-size:14px">Hasło ustawisz w mailu. Śledzenie paczki i szybsze zakupy.</p><a class="btn btn-gold" href="#">Załóż konto</a></div>
 <div class="pair"><p class="eb">Klub Ducha</p><h3 class="h3" style="font-size:30px;font-weight:300;margin:10px 0">Następna skrzynka 10% taniej</h3><a class="btn btn-line" href="${B}/kreator">Dołącz do Klubu</a></div>
 <div class="pair"><p class="eb">Po degustacji</p><h3 class="h3" style="font-size:30px;font-weight:300;margin:10px 0">Oceń piwa – bez logowania</h3><span class="stars">★★★★★</span></div></div></main>` + footer() + shell();
 write('duch-sanu/potwierdzenie.html', conf);

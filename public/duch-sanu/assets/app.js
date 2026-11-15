@@ -183,6 +183,7 @@
       btn.textContent = n === size ? `Dodaj skrzynkę do koszyka · ${zl(sum)}` : `Dobierz jeszcze ${size - n} ${size - n === 1 ? 'piwo' : size - n < 5 ? 'piwa' : 'piw'}`;
       $('#kr-hint').textContent = n < size && c.disc ? `Pełna skrzynka = −${c.disc * 100}% na piwa` : n === size ? 'Gotowe! Możesz jeszcze dodać bilecik w koszyku.' : '';
       $$('.pick').forEach(p => { const q = picks[p.dataset.slug] || 0; p.classList.toggle('on', q > 0); p.querySelector('.ctl').innerHTML = q ? `<div class="stepper"><button data-k="${p.dataset.slug}" data-v="-1">−</button><span>${q}</span><button data-k="${p.dataset.slug}" data-v="1">+</button></div>` : `<button class="add-sm" data-k="${p.dataset.slug}" data-v="1">+ Dodaj</button>`; });
+      $('#kr-mini-n').textContent = `${n}/${size}`; $('#kr-mini-sum').textContent = zl(sum); $('#kr-mini-go').disabled = n !== size;
       kr._sum = sum; kr._flat = flat;
     };
     kr.addEventListener('click', e => {
@@ -191,6 +192,7 @@
     });
     $('#kr-surprise').onclick = () => { const pool = D.beers.filter(b => +b.abv.replace(',', '.') > 0); while (total() < size) { const b = pool[Math.floor(Math.random() * pool.length)]; picks[b.slug] = (picks[b.slug] || 0) + 1; } draw(); toast('Duch Sanu dobrał resztę za Ciebie'); };
     $('#kr-go').onclick = () => { const c = crate(); add({ id: 'skrzynka-' + Date.now(), name: `Skrzynka · ${size} piw`, price: Math.round(kr._sum * 100) / 100, img: `${B}/img/merch/${c.img}.webp`, color: '#C9A35B', note: Object.entries(picks).map(([s, q]) => (q > 1 ? q + '× ' : '') + beer(s).name).join(', '), bottles: size }); };
+    $('#kr-mini-go').onclick = () => $('#kr-go').click();
     $$('.fchip').forEach(c => c.addEventListener('click', () => { $$('.fchip').forEach(x => x.classList.toggle('on', x === c)); $$('.pick').forEach(p => p.hidden = c.dataset.fam !== 'all' && !p.dataset.fam.split(' ').includes(c.dataset.fam)); }));
     draw();
   }
