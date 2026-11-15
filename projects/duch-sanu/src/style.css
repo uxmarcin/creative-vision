@@ -656,3 +656,28 @@ main.co{padding-top:48px;padding-bottom:96px;padding-left:var(--pad);padding-rig
 @media (max-width:1180px){.kr-box{position:static;max-height:none;overflow:visible;padding-bottom:20px}.kr-foot{position:static;padding-bottom:0}.kr-foot::before{display:none}}
 .slot,.slots.s12 .slot{height:auto;padding:0;aspect-ratio:128/150}
 .slot.empty{padding:0;color:inherit}
+
+/* lada v4: cała sekcja mieści się w jednym ekranie – opis piwa leży na zdjęciu */
+.lada-row{display:flex;flex-direction:column;align-items:center;gap:12px}
+@media (min-width:721px){
+  .lada{height:calc(100svh - 40px);min-height:600px;max-height:840px}
+  .lada-img{position:absolute;inset:0;aspect-ratio:auto;height:100%;background-position:center bottom}
+  .lada-img::before{background:linear-gradient(180deg,var(--n900) 0,rgba(11,31,34,.92) 26%,rgba(11,31,34,.35) 48%,transparent 62%)}
+  .lada-top{padding:22px 32px 0;gap:8px}
+  .lada-bottle{width:104px;height:150px;padding:18px 0;margin-bottom:2px}
+  .lada-label{height:108px;margin-top:3px}
+  .lada-name{font-size:clamp(40px,4.6vw,64px)}
+  .lada-row{flex-direction:row;gap:28px;margin-top:6px}
+  .lada-desc{font-size:18px}
+  .lada-act{margin-top:0}.lada-act .btn{height:48px;padding:0 22px}
+  .glass{top:auto;bottom:3%;height:66%}
+  #wybierz{scroll-margin-top:8px}
+}
+.glass b{white-space:nowrap}.glass.on b{font-size:19px}.glass b{font-size:16px}
+.lada-hint{display:none}
+@media (min-width:721px){.lada-img{background-size:100% auto;background-repeat:no-repeat;background-color:var(--n900)}}
+@media (min-width:721px){
+  .lada{container-type:size}
+  .lada-img{inset:auto;left:50%;bottom:0;transform:translateX(-50%);width:min(100cqw,calc(74cqh * 16 / 9));height:auto;aspect-ratio:16/9;background-size:cover;-webkit-mask:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+  .lada-img::before{background:linear-gradient(180deg,var(--n900) 0,rgba(11,31,34,.6) 22%,transparent 45%)}
+}
