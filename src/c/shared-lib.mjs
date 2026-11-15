@@ -276,6 +276,8 @@ a.fx-cell:hover::after{transform:scaleX(1)}
 .sw-gal>span:first-child{border-radius:24px!important;box-shadow:0 0 0 1px rgba(255,255,255,.12)!important;align-self:end;aspect-ratio:auto!important}
 .sw-gal>span:first-child img{height:auto!important;aspect-ratio:16/10;object-position:50% 0!important}
 .sw-views .sfw{border-radius:20px!important}
+/* Widoki desktop bez zaokrągleń (15.11) */
+.sw-bw,.sw-bw img,.sfw,.sfw>img,.sw-shot .d,.sw-shot .sfw,.sw-views .sfw,.st-media>.sfw,.st-media .d,.sw-ct-m .im,.sw-ct-m .im img{border-radius:0!important}
 .sw-2c h2.sw-k{margin:0;font-weight:600!important;font-size:13px;letter-spacing:.14em}
 .sw-next a{background-image:var(--grad);background-repeat:no-repeat;background-position:0 100%;background-size:0 2px;padding-bottom:6px;transition:background-size .6s cubic-bezier(.2,.7,.2,1)}
 .sw-next a:hover{background-size:100% 2px}
