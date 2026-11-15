@@ -101,8 +101,8 @@ const home = head('Duch Sanu – piwo, które ma duszę rzeki | sklep (projekt)'
 <section class="sec"><div class="wrap">
 <div class="sec-head"><div><p class="eb">01 — Wybierz po smaku</p><h2 class="h2">Na co masz dziś ochotę?</h2></div><p>Podejdź do lady i wybierz szklankę. Każda to inne piwo Ducha Sanu.</p></div>
 <div class="lada" id="lada">
-<div class="lada-top"><div class="lada-label" id="lada-label" role="img" aria-label="Etykieta wybranego piwa"></div>
-<div><p class="eb light" id="lada-meta" style="margin:0"></p><h3 class="lada-name" id="lada-name"></h3><p class="lada-desc" id="lada-desc" style="margin:0"></p></div>
+<div class="lada-top"><div class="lada-bottle"><div class="lada-label" id="lada-label" role="img" aria-label="Etykieta wybranego piwa"></div></div>
+<p class="eb light" id="lada-meta" style="margin:0"></p><h3 class="lada-name" id="lada-name"></h3><p class="lada-desc" id="lada-desc" style="margin:0"></p>
 <div class="lada-act"><button class="btn btn-gold" id="lada-add" data-add="czarne-zloto">Do koszyka ${ic('arrow')}</button><a class="link" id="lada-more" href="#" style="color:var(--m50)">Poznaj piwo ${ic('arrow')}</a></div></div>
 <div class="lada-img" style="background-image:url(${B}/img/foto/lada-szklanki.webp)"><div class="lada-spot"></div>
 ${GLASSES.map(([s, x, f]) => `<button class="glass" style="left:${x}%" data-slug="${s}" data-fam="${f}" aria-label="${by(s).name}"><b>${by(s).name}</b><small>${zl(by(s).price)}</small><i></i></button>`).join('')}
