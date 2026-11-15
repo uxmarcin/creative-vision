@@ -34,7 +34,7 @@ const DATA = JSON.stringify({ base: B, beers: BEERS.map(({ slug, name, style, ab
 const head = (title, desc) => `<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="${B}/img/logo/jelen.svg"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Sancreek&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${B}/assets/style.css?v=${V}"></head><body>`;
 
 const demoBar = `<div class="demo-bar">Projekt koncepcyjny<span class="hide-m"> sklepu Duch Sanu</span> · <a href="/">Creative Vision</a><span class="hide-m"> · zamówienia w tej wersji nie są realizowane</span></div>`;

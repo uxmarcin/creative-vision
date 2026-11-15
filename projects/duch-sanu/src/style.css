@@ -4,7 +4,7 @@
   --m50:#F4F2EC;--m100:#ECEAE2;--m200:#DCD8CC;
   --gold:#C9A35B;--gold3:#E2C98F;--buk:#9C4A2A;--swierk:#2F4A3A;--san:#6F98A0;--ok:#3E7B4F;
   --t1:#0F2A2E;--t2:#5B6B6A;
-  --serif:'Fraunces',Georgia,serif;--sans:'Instrument Sans',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;--logo:'Sancreek','Fraunces',serif;
+  --serif:'Rubik',system-ui,sans-serif;--sans:'Rubik',system-ui,sans-serif;--mono:'Rubik',system-ui,sans-serif;--logo:'Rubik',system-ui,sans-serif;
   --wrap:1312px;--pad:64px;--r:24px;
 }
 *{box-sizing:border-box}
@@ -635,3 +635,11 @@ main.co{padding-top:48px;padding-bottom:96px;padding-left:var(--pad);padding-rig
   .lada-name{font-size:36px}
   .lada-act{flex-direction:column;width:100%;gap:12px}.lada-act .btn{width:100%}
 }
+
+/* jeden krój: Rubik */
+.lada-name,.marquee-track span,.glass b,.logo-font{font-weight:800;letter-spacing:0}
+.lada-name{letter-spacing:-.01em}
+.h1,.h2,.buy h1,.co h1,.dr-head h3,.gate-card h2,.ftr-top h2{letter-spacing:-.035em}
+.eb,.card .sty,.badge,.promo,.demo-bar,.mono{font-weight:500}
+.card h3,.h3,.beast-body h3,.pick b,.line h4,.steps b,.facts b,.blk-h h2,.sum h3{font-weight:500;letter-spacing:-.01em}
+.nums b,.beast-body h3{font-weight:300}

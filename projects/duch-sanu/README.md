@@ -5,7 +5,7 @@ Figma: https://www.figma.com/design/o3oq29VBHRiwUNF4ucmEoR
 
 ## Co jest w demo
 - Bramka wieku (rok urodzenia, zapamiętana w przeglądarce).
-- Strona główna: hero z konturem jelenia z logo, pasek nazw (krój Sancreek), lada ze szklankami (klik = wybór piwa),
+- Strona główna: hero z konturem jelenia z logo, pasek nazw, lada ze szklankami (klik = wybór piwa),
   bestsellery, Bestiariusz (Seria Premium), kreator skrzynki, legenda, mapa Sanu, prezenty, Klub Ducha, opinie.
 - `/duch-sanu/piwa` – 24 piwa, rodziny smaku, filtry (seria, % alkoholu, bez glutenu), sortowanie.
 - `/duch-sanu/piwo/<slug>` – 24 karty piw: galeria, pakiety 1/3/6 (−5%), profil smaku, nuty, legenda, parowanie, specyfikacja.
