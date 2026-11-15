@@ -20,6 +20,7 @@ ErrorDocument 404 /404.html
   # Zmiana nazw podstron (2026-10): stałe przekierowania
   RewriteRule ^uslugi/sklep-prestashop/?$ /uslugi/sklepy-internetowe [L,R=301]
   RewriteRule ^agencja-prestashop/?$ /agencja-ecommerce [L,R=301]
+  RewriteRule ^realizacje/simrun/?$ /realizacje [L,R=301]
 
   # /index.html → /
   RewriteCond %{THE_REQUEST} \s/index\.html[\s?] [NC]

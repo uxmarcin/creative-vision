@@ -59,16 +59,6 @@
   "apple": null,
   "lang": "pl"
  },
- "realizacje__simrun": {
-  "title": "Creative Vision · Strony, sklepy i aplikacje mobilne",
-  "description": "Projektujemy i wdrażamy strony firmowe, sklepy PrestaShop i aplikacje mobilne od UX. Bezpłatna wycena w 2 dni robocze.",
-  "canonical": "https://creative-vision.pl/realizacje/simrun",
-  "og_image": "https://framerusercontent.com/images/8UVLCs9mZlPZ2VeP799CS9tiSg.png",
-  "robots": "max-image-preview:large",
-  "icon": "https://framerusercontent.com/images/5nu54lUTuTBKgAmsftppZDI0Y.png",
-  "apple": null,
-  "lang": "pl"
- },
  "realizacje__sztuka-wykonczen": {
   "title": "Creative Vision · Strony, sklepy i aplikacje mobilne",
   "description": "Projektujemy i wdrażamy strony firmowe, sklepy PrestaShop i aplikacje mobilne od UX. Bezpłatna wycena w 2 dni robocze.",
@@ -223,6 +213,16 @@
   "title": "Creative Vision · Strony, sklepy i aplikacje mobilne",
   "description": "Projektujemy i wdrażamy strony firmowe, sklepy PrestaShop i aplikacje mobilne od UX. Bezpłatna wycena w 2 dni robocze.",
   "canonical": "https://creative-vision.pl/realizacje/bzimny",
+  "og_image": "https://framerusercontent.com/images/8UVLCs9mZlPZ2VeP799CS9tiSg.png",
+  "robots": "max-image-preview:large",
+  "icon": "https://framerusercontent.com/images/5nu54lUTuTBKgAmsftppZDI0Y.png",
+  "apple": null,
+  "lang": "pl"
+ },
+ "realizacje__goldengun": {
+  "title": "Creative Vision · Strony, sklepy i aplikacje mobilne",
+  "description": "Projektujemy i wdrażamy strony firmowe, sklepy PrestaShop i aplikacje mobilne od UX. Bezpłatna wycena w 2 dni robocze.",
+  "canonical": "https://creative-vision.pl/realizacje/goldengun",
   "og_image": "https://framerusercontent.com/images/8UVLCs9mZlPZ2VeP799CS9tiSg.png",
   "robots": "max-image-preview:large",
   "icon": "https://framerusercontent.com/images/5nu54lUTuTBKgAmsftppZDI0Y.png",

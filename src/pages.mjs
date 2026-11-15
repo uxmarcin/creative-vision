@@ -2,8 +2,8 @@
 const p = (path, view, item = '') => ({ path, props: { view, item, base: '', quoteUrl: '' } });
 export const pages = [
   p('/', 'home'),
+  p('/realizacje/goldengun', 'realizacja', 'goldengun'),
   p('/realizacje/sztuka-wykonczen', 'realizacja', 'sztuka-wykonczen'),
-  p('/realizacje/simrun', 'realizacja', 'simrun'),
   p('/realizacje/4clubbers', 'realizacja', '4clubbers'),
   p('/realizacje/tekma', 'realizacja', 'tekma'),
   p('/realizacje/jctp-academy', 'realizacja', 'jctp-academy'),

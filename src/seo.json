@@ -19,10 +19,6 @@
     "title": "Bud-Mad: strona firmy remontowo-budowlanej | Realizacja",
     "description": "Strona firmy remontowo-budowlanej: elewacje, wykończenia pod klucz, remonty. Jak zaprojektowaliśmy ją pod telefon do firmy, realizacje i opinie klientów."
   },
-  "realizacje__simrun": {
-    "title": "Simrun: strona B2B firmy od pomiarów ruchu | Realizacja",
-    "description": "Strona firmy, która mierzy i analizuje ruch drogowy dla samorządów i inwestorów. Jak podzieliliśmy szeroką ofertę B2B, żeby prowadziła do prośby o wycenę."
-  },
   "realizacje__sztuka-wykonczen": {
     "title": "Sztuka Wykończeń: strona firmy wykończeniowej | Realizacja",
     "description": "Strona firmy, która wykańcza mieszkania i domy pod klucz. Jak ułożyliśmy ją wokół zdjęć realizacji i zapytania o wycenę: decyzje projektowe i zakres prac."
@@ -154,5 +150,9 @@
   "realizacje__bzimny": {
     "title": "bzimny.com: strona trenera z płatnością online | Realizacja",
     "description": "Strona trenera personalnego z Rzeszowa: prowadzenie online i treningi 1:1, pakiety z jawną ceną, zamówienie z płatnością Stripe i panel do edycji treści."
+  },
+  "realizacje__goldengun": {
+    "title": "GoldenGun.pl: redesign sklepu z biżuterią | Realizacja",
+    "description": "Audyt UX i projekt sklepu z biżuterią złotą i srebrną: przewodnik po rozmiarach, karta produktu z certyfikatem próby i zamówienie na jednej stronie z BLIK-iem."
   }
 }
