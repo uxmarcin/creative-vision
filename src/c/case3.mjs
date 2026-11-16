@@ -169,3 +169,34 @@ export function rl3(V, B) {
   }
   return h + '</div></section>';
 }
+
+// oferta na stronie głównej (układ jak webmetric.com, styl Creative Vision)
+const OF = [
+  ['Sklepy internetowe', [
+    ['Sklep internetowy', '/uslugi/sklepy-internetowe', 'art-jak-zalozyc-sklep-internetowy', 'Chcesz sklepu, w którym klienci kupują bez wahania?', 'Projektujemy całą drogę klienta: od wyszukiwarki i karty produktu po płatność BLIK-iem. Zanim powstanie kod, klikasz gotowy prototyp i widzisz, jak będzie wyglądał zakup. Sklep od 5 990 zł netto.'],
+    ['Sklep na PrestaShop', '/uslugi/sklepy-prestashop', 'art-co-to-jest-prestashop', 'Szukasz platformy bez miesięcznego abonamentu?', 'Jako PrestaShop Expert wdrażamy sklepy na platformie, która należy do Ciebie. Dobieramy moduły, łączymy płatności i dostawy, a każdą zmianę sprawdzamy najpierw na kopii sklepu.'],
+    ['Migracja sklepu', '/uslugi/sklepy-internetowe', 'art-jaka-platforma-sklepu-internetowego', 'Przenosisz sklep z innej platformy?', 'Przenosimy produkty, klientów i treści, a przekierowania 301 chronią ruch, który już masz z Google. Klienci nie zauważą przeprowadzki, zauważą tylko wygodniejszy sklep.'],
+    ['Płatności i integracje', '/uslugi/sklepy-internetowe', 'art-ile-kosztuje-sklep-internetowy', 'Chcesz, żeby zamówienie zajmowało minutę?', 'Łączymy sklep z BLIK-iem, kartami, Apple Pay, InPostem i importem produktów od dostawców. Klient płaci tak, jak lubi, a Ty nie przepisujesz zamówień ręcznie.']]],
+  ['Strony internetowe', [
+    ['Strona firmowa', '/uslugi/strony-firmowe', 'art-strona-firmowa-ktora-zbiera-zapytania', 'Strona ładnie wygląda, ale nie przynosi zapytań?', 'Projektujemy stronę, która w kilka sekund mówi, co robisz i dlaczego warto wybrać właśnie Ciebie. Każda podstrona prowadzi do jednego kroku: telefonu albo formularza. Strona od 4 900 zł netto.'],
+    ['Strony dla firm budowlanych', '/uslugi/strony-dla-firm-budowlanych', 'art-jak-stworzyc-strone-internetowa', 'Prowadzisz firmę budowlaną lub remontową?', 'Klienci wybierają wykonawcę po zdjęciach realizacji i opiniach. Pokazujemy Twoje prace na pierwszym planie, a przycisk „Zadzwoń” jest zawsze pod kciukiem.'],
+    ['Strony internetowe Rzeszów', '/strony-internetowe-rzeszow', 'art-ile-kosztuje-strona-internetowa', 'Szukasz studia w Rzeszowie?', 'Pracujemy przy ul. Pańskiej 13A i chętnie spotkamy się na miejscu. Z firmami z całej Polski pracujemy zdalnie, równie sprawnie.']]],
+  ['UX/UI Design', [
+    ['Audyt UX', '/uslugi/audyt-ux', 'art-ux-karty-produktu', 'Masz ruch, ale sprzedaży jest za mało?', 'Sprawdzamy sklep oczami klienta, krok po kroku od strony głównej po płatność. Dostajesz listę konkretnych poprawek ułożoną od tych, które dadzą najwięcej, a jeśli chcesz, sami je wdrożymy. Audyt od 1 900 zł netto.'],
+    ['Projektowanie UX/UI', '/wiedza/projektowanie-ux-ui', 'art-projektowanie-ux-ui', 'Chcesz zobaczyć projekt, zanim zapłacisz za kod?', 'Projektujemy w Figmie ekrany na telefon i komputer, a potem składamy je w klikalny prototyp. Testujesz go jak gotowy produkt i zmieniasz, co chcesz, zanim powstanie pierwsza linijka kodu.'],
+    ['Aplikacje mobilne', '/uslugi/aplikacje-mobilne', 'art-ile-kosztuje-aplikacja-mobilna', 'Masz pomysł na aplikację?', 'Zaczynamy od warsztatu, na którym zamieniamy pomysł w listę funkcji. Potem projekt, prototyp i pierwsza wersja na iOS i Android, gotowa, żeby pokazać ją użytkownikom.']]],
+  ['Opieka i rozwój', [
+    ['Opieka nad stroną i sklepem', '/uslugi/opieka', 'art-moduly-prestashop', 'Nie chcesz martwić się aktualizacjami?', 'Dbamy o aktualizacje, kopie zapasowe i bezpieczeństwo, a nowe funkcje dodajemy, kiedy ich potrzebujesz. Opieka od 490 zł netto miesięcznie.'],
+    ['SEO techniczne', '/uslugi/opieka', 'art-sklep-a-zakupy-przez-asystentow-ai', 'Chcesz, żeby Google i asystenci AI rozumieli Twoją ofertę?', 'Przyspieszamy ładowanie, porządkujemy adresy podstron i dodajemy dane strukturalne. Twoja oferta staje się czytelna dla wyszukiwarki i dla ChatGPT czy Gemini.'],
+    ['Agencja e-commerce', '/agencja-ecommerce', 'art-jak-wybrac-agencje-e-commerce', 'Potrzebujesz partnera na dłużej?', 'Rozwijamy sklep razem z Tobą: planujemy zmiany, mierzymy efekty i co miesiąc wdrażamy kolejne poprawki. Wszystkie sprawy sklepu załatwiasz w jednym miejscu.']]]
+];
+export function of3() {
+  let h = '<div class="sw-w of3"><p class="sw-k">Oferta</p><h2 class="of3-h">Chcesz, żeby strona i sklep sprzedawały więcej? <span class="sw-gr">Pomożemy Ci w tym.</span></h2>';
+  OF.forEach(([cat, items], ci) => {
+    h += '<div class="of3-row" data-of><div class="of3-l"><span class="of3-n">0' + (ci + 1) + '</span><h3>' + esc(cat) + '</h3><div class="of3-tabs" role="tablist" aria-label="' + esc(cat) + '">' +
+      items.map((it, i) => '<button type="button" role="tab" aria-selected="' + (i ? 'false' : 'true') + '" class="of3-t' + (i ? '' : ' on') + '" data-i="' + i + '"><span>' + esc(it[0]) + '</span>' + ic('arrow', 'of3-a') + '</button>').join('') + '</div></div>' +
+      '<div class="of3-m">' + items.map((it, i) => '<div class="of3-p' + (i ? '' : ' on') + '" role="tabpanel" data-i="' + i + '"' + (i ? ' hidden' : '') + '><h4>' + esc(it[3]) + '</h4><p>' + esc(it[4]) + '</p><a class="sw-tl" href="' + it[1] + '">Zobacz więcej</a></div>').join('') + '</div>' +
+      '<div class="of3-im">' + items.map((it, i) => '<img class="' + (i ? '' : 'on') + '" data-i="' + i + '" src="/img/' + it[2] + '.webp" alt="" loading="lazy" decoding="async">').join('') + '</div></div>';
+  });
+  return h + '</div>';
+}
