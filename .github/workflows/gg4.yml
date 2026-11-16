@@ -26,18 +26,14 @@ jobs:
           w=$w;h=round(im.size[1]*w/im.size[0]);im=im.resize((w,h),Image.LANCZOS)
           im.save('public/img/gg4-$slug.webp','WEBP',quality=90,method=6)"
           done <<'L'
-          hero 3ee702bd-b70a-422e-b4d5-53ece854e583 2880
-          listing 2aa04444-fc34-4fd7-94cc-07e7ce1ed819 2880
-          produkt 5ed3f0e8-6141-472d-a2ca-6b8d4ebee493 2880
-          rozmiar 6c657f9f-ddff-471f-8365-2015842cf621 2880
-          koszyk 87a2a732-1aa4-481a-a3fc-41a9adb06dfe 2880
-          zamowienie 92320634-e099-4101-9990-4f0f57ddbbd6 2880
-          mobile-hero 649b02b6-58b7-4ed1-8703-4d90fae29d1c 1170
-          mobile-produkt afa52020-fe7f-48b4-8de2-34d539f21393 1170
-          mobile-rozmiar 3a130e47-da44-4320-bdd1-9a2383edc475 1170
-          mobile-dodano 078e8008-04e9-4697-8dde-3e24406cbace 1170
-          mobile-zamowienie 50e82ce8-1444-43e8-b648-77e6c78d666c 1170
+          m-menu 5af47596-7bc3-4a4d-9e0a-86eaef5dbe42 1170
+          m-szukaj c7a0a805-352f-4fc3-b6e6-81363dbbfdff 1170
+          m-listing 00aaafd4-bc6e-483d-a18d-be78a9579dff 1170
+          m-filtry 08536f16-52f0-4e80-b9c1-14eef9115df0 1170
+          m-koszyk 1e355a9b-c882-4683-949c-5ff2f101b3c5 1170
+          m-paczkomat 97ea5f8f-be51-41f6-8429-95760373a45d 1170
+          m-potwierdzenie 6ac29333-0771-40c8-a340-cb0f99fc99a1 1170
           L
           ls -la public/img/gg4-*
           git config user.name bot && git config user.email bot@users.noreply.github.com
-          git add public/img/gg4-*.webp && git commit -m "GoldenGun: ekrany x4" && git push
+          git add public/img/gg4-m-*.webp && git commit -m "GoldenGun: ekrany x4" && git push
