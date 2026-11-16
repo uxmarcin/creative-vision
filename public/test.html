@@ -89,8 +89,8 @@ body.gtxt h1 .g{background:var(--grad);-webkit-background-clip:text;background-c
       <button data-m="4">5 · Lawa</button><button data-m="5">6 · Kula</button>
       <button data-m="6">7 · Sygnet 3D</button><button data-m="7">8 · Sygnet 3D + mesh</button>
     </div>
-    <label><span>Prędkość <b id="v-speed"></b></span><input id="speed" type="range" min="0" max="3" step="0.05"></label>
-    <label><span>Intensywność <b id="v-int"></b></span><input id="int" type="range" min="0.1" max="1.5" step="0.05"></label>
+    <label><span>Prędkość <b id="v-speed"></b></span><input id="speed" type="range" min="0" max="6" step="0.05"></label>
+    <label><span>Intensywność <b id="v-int"></b></span><input id="int" type="range" min="0.1" max="2.5" step="0.05"></label>
     <label><span>Skala <b id="v-scale"></b></span><input id="scale" type="range" min="0.4" max="3" step="0.05"></label>
     <label><span>Ciemność pod tekstem <b id="v-mask"></b></span><input id="mask" type="range" min="0" max="1" step="0.05"></label>
     <label><span>Ziarno <b id="v-grain"></b></span><input id="grain" type="range" min="0" max="0.15" step="0.005"></label>
@@ -104,7 +104,7 @@ body.gtxt h1 .g{background:var(--grad);-webkit-background-clip:text;background-c
 
 <script>
 (()=>{
-const D={m:1,speed:1,int:0.9,scale:1,mask:0.6,grain:0.04,mouse:1,gtext:1};
+const D={m:1,speed:3,int:1.5,scale:1.55,mask:1,grain:0,mouse:1,gtext:1};
 const S={...D};
 try{const h=new URLSearchParams(location.hash.slice(1));for(const k in D){if(h.has(k))S[k]=parseFloat(h.get(k));}}catch(e){}
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
