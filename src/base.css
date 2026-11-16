@@ -210,3 +210,14 @@ html.gg3js .gg3 .gg3-rv.in{opacity:1;transform:none}
 .sw .sw-mnav-b{display:flex;align-items:center;justify-content:center;height:56px;font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase}
 .sw .sw-mnav-b.p{background:#fff;color:#0b0b0b}
 .sw .sw-mnav-b.s{border:1px solid rgba(255,255,255,.4);color:#fff}
+/* poświata marki za ekranami w case study (17.11) */
+.gg3-shots,.gg3-md,.gg3 .gg3-sticky article>img{position:relative;isolation:isolate}
+.gg3-shots::before,.gg3-md::before{content:'';position:absolute;z-index:-1;left:8%;right:8%;top:14%;bottom:-2%;background:linear-gradient(90deg,#E9685F,#AC2069 35%,#88409F 55%,#3E63EF 78%,#51BAD4);filter:blur(70px);opacity:.28;pointer-events:none}
+.gg3-dark .gg3-md::before,.gg3-shots::before{opacity:.42}
+.gg3-sticky article{isolation:isolate}
+.gg3-sticky article>img{box-shadow:0 30px 80px -30px rgba(136,64,159,.35),0 20px 60px -30px rgba(62,99,239,.3)}
+.gg3-mob figure{position:relative;isolation:isolate}
+.gg3-mob figure::before{content:'';position:absolute;z-index:-1;inset:18% 10% 10%;background:linear-gradient(160deg,#E9685F,#88409F 50%,#3E63EF);filter:blur(40px);opacity:.3}
+@media (prefers-reduced-transparency:reduce){.gg3-shots::before,.gg3-md::before,.gg3-mob figure::before{display:none}}
+/* pasek Opisz projekt na telefonie */
+@media (max-width:640px){.gg3-mcta-in{flex-direction:column;align-items:stretch;gap:20px;padding:32px 0}.gg3-mcta-in .gg3-ic{display:block}.gg3-mcta-in p{font-size:20px}.gg3-mcta-in .sw-ob{justify-content:center;width:100%;height:56px}}
