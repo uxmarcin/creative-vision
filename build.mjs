@@ -47,7 +47,7 @@ const ORG = {
 };
 // katalog usług z cenami: te same fakty co na stronach usług
 ORG.hasOfferCatalog = { '@type': 'OfferCatalog', name: 'Usługi Creative Vision', itemListElement: Object.entries(SVC).filter(([k]) => !/rzeszow|agencja/.test(k)).map(([k, v]) => { const m = /od ([\d ]+) zł/.exec(v.price || ''); const o = { '@type': 'Offer', itemOffered: { '@type': 'Service', name: v.t, url: SITE + '/uslugi/' + k } }; if (m) o.priceSpecification = { '@type': 'PriceSpecification', minPrice: +m[1].replace(/ /g, ''), priceCurrency: 'PLN', valueAddedTaxIncluded: false }; return o; }) };
-const PERSON = { '@type': 'Person', '@id': SITE + '/#marcin', name: 'Marcin Bednarz', jobTitle: 'Projektant UX', email: 'marcin@creative-vision.pl', worksFor: { '@id': SITE + '/#org' }, image: SITE + '/img/1xr8IhxdxklrGfoPQf1BntgnNA.webp', sameAs: ['https://www.linkedin.com/in/marcin-bednarz-a3328910a/', 'https://marcinbednarz.pl'] };
+const PERSON = { '@type': 'Person', '@id': SITE + '/#marcin', name: 'Marcin Bednarz', jobTitle: 'Projektant UX', email: 'kontakt@creative-vision.pl', worksFor: { '@id': SITE + '/#org' }, image: SITE + '/img/1xr8IhxdxklrGfoPQf1BntgnNA.webp', sameAs: ['https://www.linkedin.com/in/marcin-bednarz-a3328910a/', 'https://marcinbednarz.pl'] };
 const WEBSITE = { '@type': 'WebSite', '@id': SITE + '/#website', url: SITE + '/', name: 'Creative Vision', inLanguage: 'pl-PL', publisher: { '@id': SITE + '/#org' } };
 const plain = (t) => String(t || '').replace(/\*/g, '');
 const crumbs = (list) => ({ '@type': 'BreadcrumbList', itemListElement: list.map(([name, url], i) => ({ '@type': 'ListItem', position: i + 1, name, item: SITE + url })) });
