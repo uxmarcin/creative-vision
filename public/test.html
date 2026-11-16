@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Test hero · Creative Vision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bk:#0b0b0b;--wh:#fff;--md:rgba(255,255,255,.66);--ln:rgba(255,255,255,.16);
+--grad:linear-gradient(90deg,#E9685F 0%,#E03F3B 20%,#AC2069 40%,#88409F 60%,#3E63EF 80%,#51BAD4 100%)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bk);color:var(--wh);font-family:'Jost',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+#bg{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;background:
+ radial-gradient(60% 70% at 78% 30%,rgba(172,32,105,.55),transparent 70%),
+ radial-gradient(50% 60% at 90% 80%,rgba(62,99,239,.45),transparent 70%),
+ radial-gradient(40% 50% at 60% 10%,rgba(233,104,95,.4),transparent 70%),var(--bk)}
+.hero{position:relative;z-index:1;min-height:100svh;display:flex;flex-direction:column;padding:0 clamp(24px,6.1vw,88px)}
+.nav{display:flex;align-items:center;gap:40px;height:110px}
+.logo{display:flex;align-items:center;gap:12px;font-weight:500;font-size:22px;letter-spacing:-.01em;white-space:nowrap}
+.logo .sig{height:28px;width:auto;display:block}
+.links{display:flex;gap:34px;margin-left:auto;font-size:17px}
+.links a{opacity:.85;transition:opacity .2s}.links a:hover{opacity:1}
+.btn{display:inline-flex;align-items:center;gap:12px;font-weight:500;font-size:14px;letter-spacing:.1em;text-transform:uppercase;padding:22px 32px;border:1px solid transparent;transition:background .25s,color .25s,border-color .25s}
+.btn-w{background:#fff;color:var(--bk)}.btn-w:hover{background:transparent;color:#fff;border-color:#fff}
+.btn-g{border-color:rgba(255,255,255,.4);color:#fff;backdrop-filter:blur(6px)}.btn-g:hover{background:#fff;color:var(--bk)}
+.nav .btn{padding:15px 22px;margin-left:24px}
+.main{flex:1;display:flex;flex-direction:column;justify-content:center;max-width:860px;padding:40px 0 60px}
+.kick{font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--md);margin-bottom:28px}
+h1{font-weight:400;font-size:clamp(46px,6.2vw,92px);line-height:1.04;letter-spacing:-.035em}
+h1 .g{display:block}
+body.gtxt h1 .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{margin-top:36px;max-width:540px;font-size:20px;line-height:1.55;color:rgba(255,255,255,.8)}
+.ctas{display:flex;gap:16px;margin-top:52px;flex-wrap:wrap}
+.proof{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ln);padding:22px 0 30px;font-size:15px;color:var(--md)}
+@media (max-width:1000px){.links,.nav .btn{display:none}.proof{grid-template-columns:1fr 1fr;row-gap:10px}}
+/* panel efektów */
+.fx{position:fixed;right:20px;bottom:20px;z-index:10;width:300px;background:rgba(11,11,11,.82);backdrop-filter:blur(14px);border:1px solid var(--ln);font-size:13px;color:#fff}
+.fx summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;display:flex;justify-content:space-between}
+.fx summary::-webkit-details-marker{display:none}
+.fx[open] summary{border-bottom:1px solid var(--ln)}
+.fx .in{padding:14px 16px 16px;display:grid;gap:14px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.modes button{font:inherit;color:#fff;background:transparent;border:1px solid var(--ln);padding:9px 8px;cursor:pointer;text-align:left}
+.modes button[aria-pressed=true]{background:#fff;color:var(--bk)}
+.fx label{display:grid;gap:6px;color:var(--md)}
+.fx label span{display:flex;justify-content:space-between}
+.fx input[type=range]{width:100%;accent-color:#fff}
+.fx .row{display:flex;gap:8px;align-items:center;color:var(--md)}
+.fx .act{display:flex;gap:6px}
+.fx .act button{flex:1;font:inherit;color:#fff;background:transparent;border:1px solid var(--ln);padding:9px;cursor:pointer}
+.fx .hint{color:rgba(255,255,255,.45);font-size:12px;line-height:1.5}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#fff;color:#0b0b0b;padding:10px 16px;font-size:13px;opacity:0;transition:opacity .3s;z-index:11;pointer-events:none}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.btn{transition:none}}
+</style>
+</head>
+<body class="gtxt">
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="hero">
+  <header class="nav">
+    <a class="logo" href="/" aria-label="Creative Vision, strona główna"><svg class="sig" viewBox="0 6 138 114" aria-hidden="true"><path fill="currentColor" d="M0 79.003C0 71.3194 2.27883 63.8084 6.54785 57.42C10.8169 51.0318 16.8846 46.0528 23.9834 43.1133L24.6514 42.8448C31.5705 40.1291 39.1288 39.4539 46.4287 40.9073C53.9639 42.4076 60.8857 46.1083 66.3174 51.543C68.777 54.004 68.7755 57.9936 66.3145 60.4532C63.8534 62.9124 59.8647 62.9111 57.4053 60.4503C53.7358 56.7787 49.0597 54.2784 43.9688 53.2647C39.0366 52.2827 33.9297 52.7386 29.2549 54.5733L28.8037 54.7549C24.1572 56.679 20.1651 59.8964 17.2979 64.0196L17.0234 64.421C14.1391 68.7373 12.5996 73.8119 12.5996 79.003C12.5996 84.1939 14.1393 89.2683 17.0234 93.584C19.9077 97.9 24.0074 101.264 28.8037 103.25L29.2549 103.432C33.9296 105.267 39.0359 105.723 43.9678 104.741C49.0592 103.727 53.7358 101.226 57.4053 97.5548C59.8649 95.0939 63.8535 95.0933 66.3145 97.5528C68.7755 100.012 68.7769 104.001 66.3174 106.462C60.8858 111.897 53.9646 115.598 46.4297 117.099H46.4287C39.1288 118.552 31.5704 117.877 24.6514 115.161L23.9834 114.892C16.8845 111.952 10.817 106.973 6.54785 100.585C2.27874 94.1969 3.92188e-05 86.6862 0 79.003Z"/><path fill="currentColor" d="M71.9223 11.0645C75.225 9.97021 78.7898 11.7608 79.8843 15.0635L91.5337 50.2188C92.6278 53.5214 90.8373 57.0863 87.5346 58.1807C84.232 59.2748 80.6671 57.4842 79.5727 54.1816L67.9233 19.0264C66.8291 15.7237 68.6197 12.1589 71.9223 11.0645Z"/><path fill="currentColor" d="M123.06 44.2973C124.255 41.0292 127.872 39.3483 131.141 40.5424C134.408 41.7366 136.089 45.3535 134.895 48.6215L111.113 113.709C110.193 116.228 107.78 117.887 105.1 117.846C102.419 117.805 100.057 116.072 99.2147 113.527L87.5829 78.3901C86.4894 75.0871 88.2801 71.5228 91.5829 70.4291C94.886 69.3356 98.4503 71.127 99.5438 74.4301L105.488 92.3871L123.06 44.2973Z"/></svg><span>creative vision</span></a>
+    <nav class="links" aria-label="Główna">
+      <a href="/uslugi/sklepy-internetowe">Sklepy</a><a href="/uslugi/strony-internetowe">Strony</a><a href="/realizacje">Realizacje</a><a href="/wiedza/cennik">Cennik</a><a href="/o-nas">O nas</a><a href="/wiedza">Wiedza</a><a href="/kontakt">Kontakt</a>
+    </nav>
+    <a class="btn btn-w" href="/kontakt">Bezpłatna wycena <span aria-hidden="true">→</span></a>
+  </header>
+  <main class="main">
+    <p class="kick">Studio projektowe · Rzeszów · cała Polska</p>
+    <h1>Agencja User Experience,<span class="g">której możesz zaufać.</span></h1>
+    <p class="lead">Projektujemy strony, sklepy i aplikacje. Cały projekt widzisz, zanim powstanie kod, a cena po wycenie jest stała.</p>
+    <div class="ctas">
+      <a class="btn btn-w" href="/kontakt">Bezpłatna wycena w 2 dni <span aria-hidden="true">→</span></a>
+      <a class="btn btn-g" href="/realizacje">Zobacz realizacje <span aria-hidden="true">→</span></a>
+    </div>
+  </main>
+  <div class="proof"><span>13 lat projektowania</span><span>PrestaShop Expert</span><span>Stała cena po wycenie</span><span>12 miesięcy gwarancji</span></div>
+</div>
+
+<details class="fx">
+  <summary>Efekty tła <span aria-hidden="true">H</span></summary>
+  <div class="in">
+    <div class="modes" role="group" aria-label="Postać gradientu">
+      <button data-m="0">1 · Jedwab</button><button data-m="1">2 · Mesh</button>
+      <button data-m="2">3 · Zorza</button><button data-m="3">4 · Wstęgi</button>
+      <button data-m="4">5 · Lawa</button><button data-m="5">6 · Kula</button>
+    </div>
+    <label><span>Prędkość <b id="v-speed"></b></span><input id="speed" type="range" min="0" max="3" step="0.05"></label>
+    <label><span>Intensywność <b id="v-int"></b></span><input id="int" type="range" min="0.1" max="1.5" step="0.05"></label>
+    <label><span>Skala <b id="v-scale"></b></span><input id="scale" type="range" min="0.4" max="3" step="0.05"></label>
+    <label><span>Ciemność pod tekstem <b id="v-mask"></b></span><input id="mask" type="range" min="0" max="1" step="0.05"></label>
+    <label><span>Ziarno <b id="v-grain"></b></span><input id="grain" type="range" min="0" max="0.15" step="0.005"></label>
+    <label class="row"><input id="mouse" type="checkbox"> Reakcja na kursor</label>
+    <label class="row"><input id="gtext" type="checkbox"> Gradient w haśle</label>
+    <div class="act"><button id="copy">Kopiuj link z ustawieniami</button><button id="rand">Losuj</button></div>
+    <p class="hint">Klawisze 1–6 zmieniają postać, H chowa panel. Ustawienia zapisują się w adresie strony.</p>
+  </div>
+</details>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(()=>{
+const D={m:1,speed:1,int:0.9,scale:1,mask:0.6,grain:0.04,mouse:1,gtext:1};
+const S={...D};
+try{const h=new URLSearchParams(location.hash.slice(1));for(const k in D){if(h.has(k))S[k]=parseFloat(h.get(k));}}catch(e){}
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cv=document.getElementById('bg');
+const gl=cv.getContext('webgl',{antialias:false,premultipliedAlpha:false});
+const $=id=>document.getElementById(id);
+function sync(){
+  document.querySelectorAll('.modes button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.m===S.m));
+  for(const k of ['speed','int','scale','mask','grain']){$(k).value=S[k];$('v-'+k).textContent=(+S[k]).toFixed(2);}
+  $('mouse').checked=!!S.mouse;$('gtext').checked=!!S.gtext;document.body.classList.toggle('gtxt',!!S.gtext);
+  history.replaceState(null,'','#'+new URLSearchParams(Object.entries(S).map(([k,v])=>[k,String(+(+v).toFixed(3))])).toString());
+}
+document.querySelectorAll('.modes button').forEach(b=>b.onclick=()=>{S.m=+b.dataset.m;sync();});
+for(const k of ['speed','int','scale','mask','grain'])$(k).oninput=e=>{S[k]=+e.target.value;sync();};
+$('mouse').onchange=e=>{S.mouse=e.target.checked?1:0;sync();};
+$('gtext').onchange=e=>{S.gtext=e.target.checked?1:0;sync();};
+const toast=t=>{const el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),1800);};
+$('copy').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);toast('Link skopiowany');}catch(e){toast('Skopiuj adres z paska przeglądarki');}};
+$('rand').onclick=()=>{S.speed=+(0.4+Math.random()*1.4).toFixed(2);S.int=+(0.6+Math.random()*0.7).toFixed(2);S.scale=+(0.6+Math.random()*1.6).toFixed(2);sync();};
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key>='1'&&e.key<='6'){S.m=+e.key-1;sync();}if(e.key==='h'||e.key==='H'){const f=document.querySelector('.fx');f.style.display=f.style.display==='none'?'':'none';}});
+sync();
+if(innerWidth>1000)document.querySelector('.fx').open=true;
+if(!gl){return;}
+const vs='attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+const fs=`precision highp float;
+uniform vec2 R;uniform float T;uniform vec2 MS;uniform float MODE,INT,SC,MASK,GR;
+const vec3 C0=vec3(.914,.408,.373),C1=vec3(.878,.247,.231),C2=vec3(.675,.125,.412),C3=vec3(.533,.251,.624),C4=vec3(.243,.388,.937),C5=vec3(.318,.729,.831);
+vec3 pal(float t){t=fract(t)*6.;float f=smoothstep(0.,1.,fract(t));
+ if(t<1.)return mix(C0,C1,f);if(t<2.)return mix(C1,C2,f);if(t<3.)return mix(C2,C3,f);if(t<4.)return mix(C3,C4,f);if(t<5.)return mix(C4,C5,f);return mix(C5,C0,f);}
+float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+ return mix(mix(h21(i),h21(i+vec2(1,0)),f.x),mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;mat2 r=mat2(.8,.6,-.6,.8);for(int i=0;i<5;i++){v+=a*n2(p);p=r*p*2.02;a*=.5;}return v;}
+void main(){
+ vec2 uv=gl_FragCoord.xy/R;float asp=R.x/R.y;
+ vec2 p=(gl_FragCoord.xy-.5*R)/R.y; p+=MS*.12; p/=SC;
+ vec3 col=vec3(0.);float a=0.;
+ if(MODE<.5){ // jedwab: domain warping
+  vec2 q=vec2(fbm(p*1.4+vec2(0.,T*.06)),fbm(p*1.4+vec2(5.2,1.3)-T*.05));
+  float r=fbm(p*1.4+3.2*q+vec2(1.7,9.2)+T*.03);
+  col=pal(r*1.3+q.x*.6+T*.015);a=pow(smoothstep(.3,.95,r),1.6)*1.25;
+ }else if(MODE<1.5){ // mesh: ruchome punkty kolorów
+  vec3 acc=vec3(0.);float ws=0.;float md=9.;
+  for(int i=0;i<6;i++){float fi=float(i);
+   vec2 c=vec2(.55*asp*.5*sin(T*.11*(1.+fi*.13)+fi*1.7)+.25*asp*.5,.45*cos(T*.09*(1.+fi*.17)+fi*2.3));
+   float d=length(p-c);md=min(md,d);float w=1./pow(d*d+.02,1.4);
+   vec3 ci=fi<.5?C0:fi<1.5?C1:fi<2.5?C2:fi<3.5?C3:fi<4.5?C4:C5;acc+=ci*w;ws+=w;}
+  col=acc/ws;a=.55+.45*smoothstep(1.1,.0,md);
+  a*=.75+.25*fbm(p*2.+T*.05);
+ }else if(MODE<2.5){ // zorza
+  float y=uv.y;vec3 acc=vec3(0.);
+  for(int i=0;i<3;i++){float fi=float(i);
+   float c=.62-fi*.12+.12*(fbm(vec2(p.x*1.3+T*.07+fi*3.,T*.04+fi))-.5)*2.;
+   float band=exp(-pow((y-c)*(5.+fi*2.),2.));
+   float str=.55+.45*fbm(vec2(p.x*9.+fi*7.,T*.25));
+   acc+=pal(p.x*.25+fi*.18+T*.02)*band*str;}
+  col=acc;a=clamp(length(acc)*1.2,0.,1.);col=col/max(a,.001);
+ }else if(MODE<3.5){ // wstęgi
+  vec3 acc=vec3(0.);
+  for(int i=0;i<5;i++){float fi=float(i);
+   float y0=.12*sin(p.x*1.6+T*.35+fi*1.3)+.08*sin(p.x*3.1-T*.25+fi*2.1)+(fi-2.)*.07+.08;
+   float d=abs(p.y-y0);
+   acc+=pal(fi*.17+p.x*.2+T*.02)*(exp(-d*55.)*.9+exp(-d*9.)*.35);}
+  col=acc;a=clamp(max(max(acc.r,acc.g),acc.b),0.,1.);col=col/max(a,.001);
+ }else if(MODE<4.5){ // lawa: metaballe
+  float f=0.;vec3 acc=vec3(0.);
+  for(int i=0;i<7;i++){float fi=float(i);
+   vec2 c=vec2(.6*sin(T*.21*(1.+fi*.1)+fi*2.1)+.35,.42*sin(T*.17*(1.+fi*.15)+fi*1.3));
+   float r=.11+.05*sin(fi*3.1);float v=r*r/dot(p-c,p-c);f+=v;acc+=pal(fi/7.+T*.01)*v;}
+  col=acc/max(f,.001);a=smoothstep(.75,1.15,f)+.35*smoothstep(.15,.9,f);
+ }else{ // kula
+  vec2 c=vec2(.42*asp*.5+.12*sin(T*.2),.05*cos(T*.17));vec2 d=p-c;float r=length(d);
+  float ang=atan(d.y,d.x)/6.2831+T*.03+.25*fbm(d*3.+T*.1);
+  col=pal(ang);a=smoothstep(.62,.18,r)+.25*smoothstep(.95,.3,r);
+  a*=.85+.15*fbm(d*6.-T*.2);
+ }
+ a=clamp(a*INT,0.,1.);
+ float m=mix(1.,smoothstep(-.05,.85,uv.x+.15*(1.-uv.y)),MASK);
+ vec3 bg=vec3(.043);
+ vec3 o=mix(bg,col,a*m);
+ o+=(h21(gl_FragCoord.xy+fract(T)*97.)-.5)*GR;
+ gl_FragColor=vec4(o,1.);
+}`;
+const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(o));return o;};
+const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,vs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(pr);gl.useProgram(pr);
+const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+const loc=gl.getAttribLocation(pr,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+const U={};for(const n of ['R','T','MS','MODE','INT','SC','MASK','GR'])U[n]=gl.getUniformLocation(pr,n);
+const Q=0.5;
+function size(){const w=Math.round(innerWidth*Q),h=Math.round(innerHeight*Q);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;gl.viewport(0,0,w,h);}}
+let mx=0,my=0,tx=0,ty=0;addEventListener('pointermove',e=>{tx=(e.clientX/innerWidth-.5);ty=-(e.clientY/innerHeight-.5);});
+let t=0,last=performance.now(),run=true;
+document.addEventListener('visibilitychange',()=>{run=!document.hidden;if(run){last=performance.now();requestAnimationFrame(frame);}});
+function frame(now){if(!run)return;size();const dt=Math.min(.05,(now-last)/1000);last=now;if(!reduce)t+=dt*S.speed;
+ const k=S.mouse?1:0;mx+=(tx*k-mx)*.04;my+=(ty*k-my)*.04;
+ gl.uniform2f(U.R,cv.width,cv.height);gl.uniform1f(U.T,t+20.);gl.uniform2f(U.MS,mx,my);gl.uniform1f(U.MODE,S.m);gl.uniform1f(U.INT,S.int);gl.uniform1f(U.SC,S.scale);gl.uniform1f(U.MASK,S.mask);gl.uniform1f(U.GR,S.grain);
+ gl.drawArrays(gl.TRIANGLES,0,3);requestAnimationFrame(frame);}
+cv.style.background='var(--bk)';requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
