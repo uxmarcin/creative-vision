@@ -1,0 +1,22 @@
+name: mobshots
+on:
+  push:
+    branches: [img/mobshots]
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: |
+          pip install pillow
+          npm i --no-save playwright@1.48.2
+          npx playwright install --with-deps chromium
+          node tools/mobshots.mjs
+          ls -la public/img/mob-* || true
+          git config user.name bot && git config user.email bot@users.noreply.github.com
+          git add public/img/mob-*.webp && git commit -m "Zrzuty z telefonu z działających stron" && git push
