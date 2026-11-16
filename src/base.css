@@ -221,3 +221,6 @@ html.gg3js .gg3 .gg3-rv.in{opacity:1;transform:none}
 @media (prefers-reduced-transparency:reduce){.gg3-shots::before,.gg3-md::before,.gg3-mob figure::before{display:none}}
 /* pasek Opisz projekt na telefonie */
 @media (max-width:640px){.gg3-mcta-in{flex-direction:column;align-items:stretch;gap:20px;padding:32px 0}.gg3-mcta-in .gg3-ic{display:block}.gg3-mcta-in p{font-size:20px}.gg3-mcta-in .sw-ob{justify-content:center;width:100%;height:56px}}
+/* rozdziały na przemian: zrzut po lewej, opis po prawej co drugi (17.11) */
+@media (min-width:1001px){.gg3-sticky article:nth-child(even){grid-template-columns:8fr 4fr}.gg3-sticky article:nth-child(even) .t{order:2}}
+@media (max-width:640px){.sw .sw-f3-grid>.sw-f3-col:nth-child(2){grid-column:1/-1}.sw .sw-f3-col a{overflow-wrap:anywhere}}
