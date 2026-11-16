@@ -184,3 +184,10 @@ html.gg3js .gg3 .gg3-rv.in{opacity:1;transform:none}
 @media (max-width:1000px){.gg3-2c{grid-template-columns:1fr;gap:32px}.gg3-goals{grid-template-columns:1fr 1fr;row-gap:32px}.gg3-proc ol{grid-template-columns:1fr 1fr;row-gap:40px}.gg3-axis{display:none}.gg3-sticky article,.gg3-zig article{grid-template-columns:1fr;gap:24px}.gg3-zig article:nth-child(even) .t{order:0}.gg3-sticky .t{position:static}.gg3-stack .t{grid-template-columns:1fr}.gg3-stack .t p,.gg3-stack .t h3+p{grid-column:1;grid-row:auto}.gg3-stack .t h3+p{margin-top:16px}.gg3-mob{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 24px;margin:0 -24px;padding:0 24px 8px}.gg3-mob figure{flex:0 0 62%;scroll-snap-align:start}.gg3-cta{grid-template-columns:1fr;gap:32px}.gg3-mcta-in{flex-wrap:wrap}}
 @media (max-width:640px){.gg3 section{padding:72px 0}.gg3 .gg3-shots-s{padding-bottom:72px}.gg3-facts dl{grid-template-columns:1fr}.gg3-find,.gg3-goals{grid-template-columns:1fr}.gg3-nums{gap:48px}.gg3-proc ol{grid-template-columns:1fr}.gg3-txt,.gg3 p.gg3-txt{font-size:17px}.gg3-cta{margin-top:72px}.gg3-stack article{padding-bottom:72px}.gg3-zig article,.gg3-sticky article{padding:40px 0}.gg3-phs{gap:12px}.gg3-mcta-in .gg3-ic{display:none}}
 @media (prefers-reduced-motion:reduce){html.gg3js .gg3 .gg3-rv{opacity:1;transform:none;transition:none}.gg3-axis i{transition:none}}
+
+/* zrzuty ekranów jak w case study: płaskie, bez ramek urządzeń i paska przeglądarki (17.11) */
+.sw-iph.flat{aspect-ratio:780/1688;border:1px solid rgba(128,128,128,.28);background:#fff;overflow:hidden}
+.sw-iph.flat .ss{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 0}
+.sfw{border:1px solid rgba(128,128,128,.28)}
+.sfw .bar.sf{display:none!important}
+.cvt-hn-g img{aspect-ratio:780/1688!important;object-position:50% 0;border:1px solid rgba(255,255,255,.12)}

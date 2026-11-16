@@ -141,7 +141,7 @@ export function cs3(t, e, nxt) {
   }
   // zachęta po sekcji telefonu
   const what = { 'goldengun': 'swój sklep internetowy', '4clubbers': 'swoją aplikację', 'tekma': 'stronę swojego produktu', 'uxaudyt': 'swój sklep albo stronę' }[t] || 'swoją firmę i stronę, której potrzebujesz';
-  h += '<section class="gg3-mcta"><div class="sw-w"><div class="gg3-mcta-in">' + ic('message') + '<p><b>Opisz ' + esc(what) + '.</b> Wycenę otrzymasz tego samego dnia.</p><a class="sw-ob" href="/kontakt">Opisz projekt <span aria-hidden="true">→</span></a></div></div></section>';
+  h += '<section class="gg3-mcta"><div class="sw-w"><div class="gg3-mcta-in">' + ic('message') + '<p><b>Opisz ' + esc(what) + '.</b> Wycenę otrzymasz tego samego dnia.</p><a class="sw-ob" href="/kontakt">Opisz projekt</a></div></div></section>';
   // co powstało
   if (!gg && e.gotl) h += '<section class="gg3-sec gg3-be"><div class="sw-w gg3-2c"><div>' + kick(e.gotk || 'Co powstało') + '<h2>' + gr(t === 'uxaudyt' ? 'Co działa *dziś*' : 'Co dostał *klient*') + '</h2></div><ul class="gg3-got">' + e.gotl.map(g => '<li>' + ic('check') + '<span>' + esc(g) + '</span></li>').join('') + '</ul></div></section>';
   // następny projekt i CTA
