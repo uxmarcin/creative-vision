@@ -197,8 +197,9 @@ void main(){
    vec2 c=vec2(.55*asp*.5*sin(T*.11*(1.+fi*.13)+fi*1.7)+.25*asp*.5,.45*cos(T*.09*(1.+fi*.17)+fi*2.3));
    float d=length(p-c);md=min(md,d);float w=1./pow(d*d+.02,1.4);
    vec3 ci=fi<.5?C0:fi<1.5?C1:fi<2.5?C2:fi<3.5?C3:fi<4.5?C4:C5;acc+=ci*w;ws+=w;}
-  col=acc/ws;a=.55+.45*smoothstep(1.1,.0,md);
-  a*=.75+.25*fbm(p*2.+T*.05);
+  col=acc/ws;col=clamp(mix(vec3(dot(col,vec3(.3,.59,.11))),col,1.7),0.,1.);col=pow(col,vec3(.9));
+  a=pow(smoothstep(.62,.0,md),1.5);
+  a*=.8+.2*fbm(p*2.+T*.05);
  }else if(MODE<2.5){ // zorza
   float y=uv.y;vec3 acc=vec3(0.);
   for(int i=0;i<3;i++){float fi=float(i);
@@ -233,7 +234,7 @@ void main(){
   a*=.85+.15*fbm(d*6.-T*.2);
  }
  a=clamp(a*INT,0.,1.);
- float m=mix(1.,smoothstep(-.05,.85,uv.x+.15*(1.-uv.y)),MASK);
+ float m=mix(1.,smoothstep(.12,.95,uv.x+.12*(1.-uv.y)),MASK);
  vec3 bg=vec3(.043);
  vec3 o=mix(bg,col,a*m);
  o+=(h21(gl_FragCoord.xy+fract(T)*97.)-.5)*GR;
