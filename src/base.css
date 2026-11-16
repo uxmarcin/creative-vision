@@ -74,3 +74,6 @@ html.cv-mhjs .cv-mh:not(.go) .cv-mrv{opacity:0;transform:translateY(28px)}
 .cv-tbl td:first-child{grid-column:1/-1;font-weight:500}
 .cv-tbl td:nth-child(2){font-size:14px}
 }
+/* spójny styl: wszędzie ostre rogi (decyzja 16.11) */
+*,*::before,*::after{border-radius:0!important}
+input[type=radio],input[type=checkbox]{border-radius:revert!important}
