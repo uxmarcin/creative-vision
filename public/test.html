@@ -14,7 +14,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bk);color:var(--wh);font-family:'Jost',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
-#bg{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;background:
+#bg{position:fixed;inset:-8%;width:116%;height:116%;display:block;z-index:0;background:
  radial-gradient(60% 70% at 78% 30%,rgba(172,32,105,.55),transparent 70%),
  radial-gradient(50% 60% at 90% 80%,rgba(62,99,239,.45),transparent 70%),
  radial-gradient(40% 50% at 60% 10%,rgba(233,104,95,.4),transparent 70%),var(--bk)}
@@ -107,6 +107,7 @@ body.gtxt h1 .g .wd{background:var(--grad);background-repeat:no-repeat;-webkit-b
     <label><span>Intensywność <b id="v-int"></b></span><input id="int" type="range" min="0.1" max="2.5" step="0.05"></label>
     <label><span>Skala <b id="v-scale"></b></span><input id="scale" type="range" min="0.4" max="3" step="0.05"></label>
     <label><span>Ciemność pod tekstem <b id="v-mask"></b></span><input id="mask" type="range" min="0" max="1" step="0.05"></label>
+    <label><span>Rozmycie <b id="v-blur"></b></span><input id="blur" type="range" min="0" max="100" step="1"></label>
     <label><span>Ziarno <b id="v-grain"></b></span><input id="grain" type="range" min="0" max="0.15" step="0.005"></label>
     <label class="row"><input id="mouse" type="checkbox"> Reakcja na kursor</label>
     <label class="row"><input id="gtext" type="checkbox"> Gradient w haśle</label>
@@ -119,7 +120,7 @@ body.gtxt h1 .g .wd{background:var(--grad);background-repeat:no-repeat;-webkit-b
 
 <script>
 (()=>{
-const D={m:1,speed:3,int:1.5,scale:1.55,mask:1,grain:0,mouse:1,gtext:1};
+const D={m:1,speed:3,int:1.5,scale:1.55,mask:1,grain:0,blur:40,mouse:1,gtext:1};
 const S={...D};
 try{const h=new URLSearchParams(location.hash.slice(1));for(const k in D){if(h.has(k))S[k]=parseFloat(h.get(k));}}catch(e){}
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -128,12 +129,13 @@ const gl=cv.getContext('webgl',{antialias:false,premultipliedAlpha:false});
 const $=id=>document.getElementById(id);
 function sync(){
   document.querySelectorAll('.modes button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.m===S.m));
-  for(const k of ['speed','int','scale','mask','grain']){$(k).value=S[k];$('v-'+k).textContent=(+S[k]).toFixed(2);}
+  for(const k of ['speed','int','scale','mask','grain','blur']){$(k).value=S[k];$('v-'+k).textContent=k==='blur'?Math.round(S[k])+' px':(+S[k]).toFixed(2);}
+  cv.style.filter=S.blur>0?`blur(${S.blur}px) saturate(1.15)`:'';
   $('mouse').checked=!!S.mouse;$('gtext').checked=!!S.gtext;document.body.classList.toggle('gtxt',!!S.gtext);
   history.replaceState(null,'','#'+new URLSearchParams(Object.entries(S).map(([k,v])=>[k,String(+(+v).toFixed(3))])).toString());
 }
 document.querySelectorAll('.modes button').forEach(b=>b.onclick=()=>{S.m=+b.dataset.m;sync();});
-for(const k of ['speed','int','scale','mask','grain'])$(k).oninput=e=>{S[k]=+e.target.value;sync();};
+for(const k of ['speed','int','scale','mask','grain','blur'])$(k).oninput=e=>{S[k]=+e.target.value;sync();};
 $('mouse').onchange=e=>{S.mouse=e.target.checked?1:0;sync();};
 $('gtext').onchange=e=>{S.gtext=e.target.checked?1:0;sync();};
 const toast=t=>{const el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),1800);};
@@ -195,10 +197,10 @@ void main(){
   vec3 acc=vec3(0.);float ws=0.;float md=9.;
   for(int i=0;i<6;i++){float fi=float(i);
    vec2 c=vec2(.55*asp*.5*sin(T*.11*(1.+fi*.13)+fi*1.7)+.25*asp*.5,.45*cos(T*.09*(1.+fi*.17)+fi*2.3));
-   float d=length(p-c);md=min(md,d);float w=1./pow(d*d+.02,1.4);
+   float d=length(p-c);md=min(md,d);float w=1./pow(d*d+.09,1.15);
    vec3 ci=fi<.5?C0:fi<1.5?C1:fi<2.5?C2:fi<3.5?C3:fi<4.5?C4:C5;acc+=ci*w;ws+=w;}
   col=acc/ws;col=clamp(mix(vec3(dot(col,vec3(.3,.59,.11))),col,1.7),0.,1.);col=pow(col,vec3(.9));
-  a=pow(smoothstep(.62,.0,md),1.5);
+  a=pow(smoothstep(.78,.0,md),1.4);
   a*=.8+.2*fbm(p*2.+T*.05);
  }else if(MODE<2.5){ // zorza
   float y=uv.y;vec3 acc=vec3(0.);
