@@ -307,3 +307,15 @@ html.cv-lock .sw-nav{position:relative;z-index:41}
 .sw .sw-mnav li{font-size:26px!important}
 .sw .sw-mnav li a{padding:8px 0}
 .sw .sw-mnav-cta{margin-top:32px}
+/* menu mobilne: logo i zamknięcie zawsze na wierzchu, płynące tło marki (17.11) */
+html.cv-lock .sw-top{z-index:100!important}
+html.cv-lock .sw-nav{position:fixed!important;top:0;left:0;right:0;z-index:70!important;background:transparent}
+.sw .sw-mnav{z-index:60!important;isolation:isolate;overflow-x:hidden}
+.sw .sw-mnav::before,.sw .sw-mnav::after{content:'';position:fixed;z-index:-1;width:120vw;height:60vh;left:-10vw;pointer-events:none;filter:blur(60px);opacity:0;transition:opacity .6s}
+.sw .sw-mnav::before{bottom:-20vh;background:radial-gradient(40% 50% at 20% 50%,#E9685F,transparent 70%),radial-gradient(40% 50% at 55% 60%,#AC2069,transparent 70%),radial-gradient(40% 50% at 85% 40%,#3E63EF,transparent 70%);animation:cvMn1 14s ease-in-out infinite alternate}
+.sw .sw-mnav::after{bottom:-35vh;background:radial-gradient(35% 45% at 70% 50%,#88409F,transparent 70%),radial-gradient(30% 40% at 30% 40%,#51BAD4,transparent 70%);animation:cvMn2 18s ease-in-out infinite alternate}
+.sw .sw-mnav.on::before{opacity:.85}.sw .sw-mnav.on::after{opacity:.7}
+@keyframes cvMn1{0%{transform:translate3d(-8%,0,0) rotate(0)}100%{transform:translate3d(8%,-8%,0) rotate(8deg)}}
+@keyframes cvMn2{0%{transform:translate3d(10%,0,0) scale(1)}100%{transform:translate3d(-10%,-10%,0) scale(1.15)}}
+@media (prefers-reduced-motion:reduce){.sw .sw-mnav::before,.sw .sw-mnav::after{animation:none}}
+.sw .sw-mnav{padding-top:120px!important;padding-bottom:calc(32px + env(safe-area-inset-bottom))!important}
