@@ -263,3 +263,15 @@ html.gg3js .gg3 .gg3-rv.in{opacity:1;transform:none}
 @media (max-width:1000px){.rl3-pair{grid-template-columns:1fr;gap:96px}.rl3 .sw-w{gap:96px}.rl3-c.big .rl3-st{aspect-ratio:16/10}.rl3-c.big .rl3-sc,.rl3-sc{width:78%}}
 @media (max-width:640px){.rl3 .sw-w{gap:72px}.rl3-pair{gap:72px}.rl3-go{width:44px;height:44px}.rl3-m{margin-top:20px}}
 @media (prefers-reduced-motion:reduce){.rl3-sc,.rl3-sc .m{transition:none}}
+/* strona główna: Case Study z przestrzenią i sceną z ekranami (17.11) */
+.sw .sw-ct{grid-template-columns:300px 1fr;gap:96px}
+.sw .sw-ct-l{gap:18px}
+.sw .sw-ct-m .im.cv-st{aspect-ratio:16/10;background:#0b0b0b;display:flex;align-items:center;justify-content:center;isolation:isolate;overflow:hidden}
+.sw .sw-ct-m .im.cv-st::after{display:none}
+.sw .sw-ct-m .im.cv-st::before{content:'';position:absolute;z-index:-1;left:15%;right:15%;top:25%;bottom:-10%;background:linear-gradient(90deg,#E9685F,#AC2069 35%,#88409F 55%,#3E63EF 78%,#51BAD4);filter:blur(80px);opacity:.35}
+.sw .sw-ct-m .cv-st .sc{position:relative;width:72%;display:block}
+.sw .sw-ct-m .cv-st img.d{width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;object-position:top;border:1px solid rgba(255,255,255,.14);box-shadow:0 40px 90px rgba(0,0,0,.6)}
+.sw .sw-ct-m .cv-st img.m{position:absolute;right:-9%;bottom:-12%;width:21%;height:auto;aspect-ratio:390/844;object-fit:cover;object-position:top;border:1px solid rgba(255,255,255,.14);box-shadow:0 30px 70px rgba(0,0,0,.6)}
+.sw .sw-ct-m h3{margin-top:48px!important}
+.sw .sw-ct-m p{max-width:640px}
+@container (max-width:1000px){.sw .sw-ct{grid-template-columns:1fr;gap:32px}.sw .sw-ct-m .cv-st .sc{width:80%}}
