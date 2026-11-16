@@ -51,6 +51,7 @@ const P = {
   'award': '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
   'clock': '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
   'buoy': '<circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/><circle cx="12" cy="12" r="4"/>',
+  'arrow': '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
   'shapes': '<path d="M8.3 10a.7.7 0 0 1-.626-1.079L11.4 3a.7.7 0 0 1 1.198-.043L16.3 8.9a.7.7 0 0 1-.572 1.1Z"/><rect x="3" y="14" width="7" height="7" rx="1"/><circle cx="17.5" cy="17.5" r="3.5"/>'
 };
 const ic = (n, cls = 'gg3-ic') => '<svg class="' + cls + '" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (P[n] || P.check) + '</svg>';
@@ -151,4 +152,20 @@ export function cs3(t, e, nxt) {
   // następny projekt i CTA
   h += '<section class="gg3-next gg3-dark"><div class="sw-w">' + kick('Następny projekt') + '<a class="gg3-nx" href="/realizacje/' + nxt[0] + '">' + esc(nxt[1]) + ' <span aria-hidden="true">→</span></a><div class="gg3-cta"><h2>' + (t === 'uxaudyt' || t === '4clubbers' || t === 'tekma' ? 'Masz pomysł na *produkt*? Porozmawiajmy' : (t === 'goldengun' ? 'Twój sklep też może sprzedawać *łatwiej*' : 'Twoja strona też może *zbierać zapytania*')).replace(/\*([^*]+)\*/g, '<span class="sw-gr">$1</span>') + '</h2><div class="gg3-cta-r"><a class="sw-ob sw-ob-w" href="/kontakt">Zamów bezpłatną wycenę</a><p>Odpiszemy w ciągu 1 dnia roboczego, pn–pt 9:00–17:00.</p></div></div></div></section>';
   return h;
+}
+
+// indeks realizacji: duże sceny z ekranami, układ pełna szerokość / para
+export function rl3(V, B) {
+  const shot = k => k === 'goldengun' ? ['/img/gg4-hero.webp', '/img/gg4-mobile-hero.webp'] : [B[k].d, B[k].m];
+  const card = (k, big) => {
+    const e = B[k], [d, m] = shot(k);
+    return '<a class="rl3-c' + (big ? ' big' : '') + '" href="/realizacje/' + k + '"><div class="rl3-st"><div class="rl3-sc">' + img(d, 'Realizacja ' + e.n, 'd', big ? 0 : 1) + (m ? img(m, e.n + ' na telefonie', 'm') : '') + '</div></div><div class="rl3-m"><div><h2>' + esc(e.n) + '</h2><p>' + esc(e.k) + '</p></div><span class="rl3-go" aria-hidden="true">' + ic('arrow') + '</span></div></a>';
+  };
+  let h = '<section class="rl3"><div class="sw-w">', i = 0, row = 0;
+  while (i < V.length) {
+    if (row % 2 === 0) { h += card(V[i], 1); i++; }
+    else { h += '<div class="rl3-pair">' + V.slice(i, i + 2).map(k => card(k, 0)).join('') + '</div>'; i += 2; }
+    row++;
+  }
+  return h + '</div></section>';
 }
