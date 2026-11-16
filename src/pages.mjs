@@ -8,7 +8,6 @@ export const pages = [
   p('/realizacje/tekma', 'realizacja', 'tekma'),
   p('/realizacje/jctp-academy', 'realizacja', 'jctp-academy'),
   p('/realizacje/bzimny', 'realizacja', 'bzimny'),
-  p('/realizacje/uxaudyt', 'realizacja', 'uxaudyt'),
   p('/uslugi/sklepy-internetowe', 'usluga', 'sklepy-internetowe'),
   p('/uslugi/strony-firmowe', 'usluga', 'strony-firmowe'),
   p('/uslugi/audyt-ux', 'usluga', 'audyt-ux'),

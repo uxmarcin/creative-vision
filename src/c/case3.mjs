@@ -72,6 +72,9 @@ const GG = {
   mob: [['/img/gg4-mobile-hero.webp', 'Strona główna'], ['/img/gg4-mobile-produkt.webp', 'Karta produktu'], ['/img/gg4-mobile-rozmiar.webp', 'Rozmiar'], ['/img/gg4-mobile-dodano.webp', 'Dodano do koszyka'], ['/img/gg4-mobile-zamowienie.webp', 'Zamówienie']]
 };
 
+// dodatkowe ekrany z telefonu do płynącego paska
+export const MOBX = {};
+
 // układ rozdziałów, ikony rozdziałów, nagłówek z wyróżnieniem, kolejność tła
 export const CS3 = {
   'goldengun': { lay: 'sticky', h: 'GoldenGun.pl: sklep z biżuterią, w którym rozmiar i płatność *przestają być problemem.*', k: 'Case study · E-commerce · Biżuteria', lead: 'Zaczęliśmy od audytu UX, który pokazał, gdzie sklep traci klientów. Potem zaprojektowaliśmy go od nowa: ponad 40 ekranów na telefon i komputer, od strony głównej po płatność BLIK-iem.' },
@@ -80,7 +83,7 @@ export const CS3 = {
   'bud-mad': { lay: 'stack', h: 'Bud-Mad: strona firmy remontowo-budowlanej, *z której się dzwoni*', ic: ['phone', 'grid', 'image', 'quote'], chH: 'Wykonawcę wybiera się *po zaufaniu*', solH: 'Oferta, realizacje i opinie *na jednej stronie*' },
   'tekma': { lay: 'zig', h: 'Tekma.app: strona aplikacji do *rekrutacji i wdrażania* pracowników', ic: ['devices', 'click', 'route', 'compare', 'usercheck', 'login'], chH: 'Aplikacji HR nie wybiera się *po jednym zdaniu*', solH: 'Produkt pokazany *w działaniu*', mobH: 'Wygodnie także *na telefonie*' },
   'jctp-academy': { lay: 'stack', h: 'JCTP Academy: strona szkoleń barberskich *z zapisem online*', ic: ['quote', 'route', 'target', 'calendar', 'pin', 'sliders'], chH: 'Szkolenie to decyzja, *nie impuls*', solH: 'Od pierwszego kliknięcia *do zapisu*', mobH: 'Zapis wygodny *na telefonie*' },
-  'bzimny': { lay: 'sticky', h: 'bzimny.com: strona trenera personalnego *z płatnością online*', ic: ['user', 'layers', 'tag', 'award', 'card', 'sliders'], chH: 'Mniej pytań o cenę, *więcej treningów*', solH: 'Od pierwszego ekranu *do płatności*', mobH: 'Pakiet kupisz *w kilka dotknięć*' },
+  'bzimny': { lay: 'sticky', h: 'bzimny.com: strona trenera personalnego *z płatnością online*', ic: ['user', 'layers', 'tag', 'award', 'card', 'sliders'], chH: 'Mniej pytań o cenę, *więcej treningów*', solH: 'Od pierwszego ekranu *do płatności*', mobH: 'Pakiet kupisz *w kilka kliknięć*' },
   'uxaudyt': { lay: 'zig', h: 'uxaudyt.pl: nasza usługa audytów UX *z płatnością online*', ic: ['tag', 'filetext', 'clock', 'buoy'], chH: 'Usługę ekspercką też można *kupić sama*', solH: 'Wszystko, czego potrzeba *przed zakupem*', mobH: 'Zamówienie wygodne *na telefonie*', dark: 1 }
 };
 
@@ -135,9 +138,10 @@ export function cs3(t, e, nxt) {
     if (e.m && !seen.has(e.m)) mob.unshift([e.m, '']);
     if (e.screens) e.screens.forEach(([p, n]) => { if (!seen.has(p)) { seen.add(p); mob.push([p, n]); } });
   }
+  (MOBX[t] || []).forEach(p => { if (!mob.some(m => m[0] === p)) mob.push([p, '']); });
   if (mob.length >= 3 && (gg || C.mobH)) {
-    mob = mob.slice(0, 5);
-    h += '<section class="gg3-sec' + (C.dark ? ' gg3-be' : ' gg3-dark') + '"><div class="sw-w"><div class="gg3-2c gg3-solhd"><div>' + kick('Telefon') + '<h2>' + gr(gg ? 'Projektowany najpierw *na telefon*' : C.mobH) + '</h2></div>' + (gg ? '<p class="gg3-txt">' + esc(GG.mobP) + '</p>' : '') + '</div><div class="gg3-mob">' + mob.map(([p, n]) => '<figure>' + img(p, n || e.n + ' na telefonie') + (n ? '<figcaption>' + esc(n) + '</figcaption>' : '') + '</figure>').join('') + '</div></div></section>';
+    const fig = (aria) => mob.map(([p, n]) => '<figure' + (aria ? ' aria-hidden="true"' : '') + '>' + img(p, aria ? '' : (n || e.n + ' na telefonie')) + (n ? '<figcaption>' + esc(n) + '</figcaption>' : '') + '</figure>').join('');
+    h += '<section class="gg3-sec gg3-mobs' + (C.dark ? ' gg3-be' : ' gg3-dark') + '"><div class="sw-w"><div class="gg3-2c gg3-solhd"><div>' + kick('Telefon') + '<h2>' + gr(gg ? 'Projektowany najpierw *na telefon*' : C.mobH) + '</h2></div>' + (gg ? '<p class="gg3-txt">' + esc(GG.mobP) + '</p>' : '') + '</div></div><div class="gg3-mq" style="--n:' + mob.length + '"><div class="gg3-mq-t">' + fig(0) + fig(1) + '</div></div></section>';
   }
   // zachęta po sekcji telefonu
   const what = { 'goldengun': 'swój sklep internetowy', '4clubbers': 'swoją aplikację', 'tekma': 'stronę swojego produktu', 'uxaudyt': 'swój sklep albo stronę' }[t] || 'swoją firmę i stronę, której potrzebujesz';
