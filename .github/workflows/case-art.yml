@@ -1,0 +1,29 @@
+name: case-art
+on:
+  push:
+    branches: [img/case-art]
+jobs:
+  dl:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          pip install pillow
+          B=https://www.figma.com/api/mcp/asset
+          while read slug id; do
+            curl -fsSL -o /tmp/$slug.png "$B/$id.png"
+            python3 -c "from PIL import Image;im=Image.open('/tmp/$slug.png').convert('RGB');im.thumbnail((1400,1400));im.save('public/img/case-$slug.webp','WEBP',quality=84)"
+          done <<'L'
+          goldengun 83c7e420-6ac1-42f3-9d70-a0ff4e4dce30
+          sztuka-wykonczen 5ecdf623-4dbd-4c56-a21e-a2bfd545aeec
+          4clubbers e90b6ac1-4fa6-44cb-92bc-e633a1df966b
+          bud-mad 26c70990-d106-4299-8cdd-4b245d75fd94
+          tekma 325310bd-ad9b-45e1-b752-3d671eb434b4
+          jctp-academy 2efd3a78-9186-4db4-a256-b0497052a668
+          bzimny 04011eba-ee86-4e9f-8c4f-4517dad61486
+          uxaudyt 2acfade4-7ce0-468f-acf0-874b528f971c
+          L
+          git config user.name bot && git config user.email bot@users.noreply.github.com
+          git add public/img/case-*.webp && git commit -m "Ilustracje case study" && git push
