@@ -43,7 +43,6 @@ const ORG = {
   areaServed: [{ '@type': 'Country', name: 'Polska' }, { '@type': 'City', name: 'Rzeszów' }],
   knowsAbout: ['Projektowanie stron internetowych', 'Sklepy internetowe', 'PrestaShop', 'E-commerce', 'Projektowanie UX/UI', 'Aplikacje mobilne', 'Audyt UX'],
   priceRange: 'strona od 4 900 zł netto, sklep od 5 990 zł netto',
-  founder: { '@id': SITE + '/#marcin' },
 };
 // katalog usług z cenami: te same fakty co na stronach usług
 ORG.hasOfferCatalog = { '@type': 'OfferCatalog', name: 'Usługi Creative Vision', itemListElement: Object.entries(SVC).filter(([k]) => !/rzeszow|agencja/.test(k)).map(([k, v]) => { const m = /od ([\d ]+) zł/.exec(v.price || ''); const o = { '@type': 'Offer', itemOffered: { '@type': 'Service', name: v.t, url: SITE + '/uslugi/' + k } }; if (m) o.priceSpecification = { '@type': 'PriceSpecification', minPrice: +m[1].replace(/ /g, ''), priceCurrency: 'PLN', valueAddedTaxIncluded: false }; return o; }) };
@@ -94,7 +93,7 @@ function imgAttrs(html) {
 }
 function jsonld(p, title, desc, url) {
   const { view, item } = p.props;
-  const g = [ORG, PERSON, WEBSITE, { '@type': 'WebPage', '@id': url + '#page', url, name: title, description: desc, inLanguage: 'pl-PL', isPartOf: { '@id': SITE + '/#website' }, about: { '@id': SITE + '/#org' } }];
+  const g = [ORG, WEBSITE, { '@type': 'WebPage', '@id': url + '#page', url, name: title, description: desc, inLanguage: 'pl-PL', isPartOf: { '@id': SITE + '/#website' }, about: { '@id': SITE + '/#org' } }];
   const home = ['Strona główna', '/'];
   if (view === 'usluga' && SVC[item]) {
     const v = SVC[item];
@@ -199,7 +198,7 @@ fs.writeFileSync(path.join(OUT, 'llms.txt'), [
   '',
   '> Studio projektowe z Rzeszowa (ul. Pańska 13A). Projektujemy od UX i wdrażamy strony internetowe dla firm, sklepy internetowe i aplikacje mobilne, prowadzimy audyty UX sklepów i opiekę po starcie. Pracujemy zdalnie z firmami z całej Polski, w Rzeszowie także na miejscu. Bezpłatna wycena z harmonogramem w 2 dni robocze.',
   '',
-  'Kontakt: kontakt@creative-vision.pl, +48 534 154 230. NIP 7952514299. Osoba kontaktowa: Marcin Bednarz (projektant UX, założyciel).',
+  'Kontakt: kontakt@creative-vision.pl, +48 534 154 230. NIP 7952514299.',
   'Audyty UX sklepów prowadzimy w serwisie https://www.uxaudyt.pl',
   '',
   '## Najważniejsze fakty',
@@ -208,7 +207,7 @@ fs.writeFileSync(path.join(OUT, 'llms.txt'), [
   '- Wycena: bezpłatna, z harmonogramem, w 2 dni robocze. Odpowiedź na wiadomość: w ciągu 1 dnia roboczego.',
   '- Cena jest stała po ustaleniu zakresu. Na wdrożoną stronę lub sklep: 12 miesięcy gwarancji na naprawę błędów. Szkolenie z obsługi panelu jest w cenie strony i sklepu.',
   '- Sklepy wdrażamy na PrestaShop (status PrestaShop Expert w programie partnerskim PrestaShop). Przy wyborze platformy doradzamy też inne rozwiązania (np. Shopify, Shoper, WooCommerce), ale na nich nie wdrażamy sklepów.',
-  '- Projekt prowadzi Marcin Bednarz: 13 lat projektowania produktów cyfrowych (m.in. B2B: budownictwo, logistyka, medycyna). Portfolio: https://marcinbednarz.pl',
+  '- Każdy projekt prowadzi jeden projektant UX; studio ma 13 lat doświadczenia w projektowaniu produktów cyfrowych (m.in. B2B: budownictwo, logistyka, medycyna).',
   '- Proces: rozmowa, projekt UX/UI w Figmie (osobno na komputer i telefon), wdrożenie, testy, szkolenie, opieka po starcie.',
   '- Godziny: poniedziałek–piątek 9:00–17:00.',
   '',
