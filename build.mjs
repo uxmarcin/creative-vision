@@ -169,6 +169,7 @@ ${RELATED_HTML}
 <script src="/fx/fluid.js?v=2611022125" defer></script>
 <script src="/fx/reveal.js?v=2611032300" defer></script>
 ${p.path === '/' ? '<script src="/fx/mesh.js?v=2611162300" defer></script>' : ''}
+${p.path === '/wiedza/cennik' ? '<script src="/fx/tabs.js?v=2611162330" defer></script>' : ''}
 ${p.path === '/kontakt' ? '' : MBAR}
 </body>
 </html>
