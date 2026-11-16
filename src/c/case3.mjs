@@ -74,7 +74,7 @@ const GG = {
 };
 
 // dodatkowe ekrany z telefonu do płynącego paska
-export const MOBX = {"goldengun": ["/img/gg4-m-menu.webp", "/img/gg4-m-szukaj.webp", "/img/gg4-m-listing.webp", "/img/gg4-m-filtry.webp", "/img/gg4-m-koszyk.webp", "/img/gg4-m-paczkomat.webp", "/img/gg4-m-potwierdzenie.webp"], "sztuka-wykonczen": ["/img/ClZgLXkzgRN8EtGimizHz4ciwuQ.webp"], "4clubbers": ["/img/mob-4clubbers-01.webp", "/img/mob-4clubbers-02.webp", "/img/mob-4clubbers-03.webp", "/img/mob-4clubbers-04.webp", "/img/mob-4clubbers-05.webp", "/img/mob-4clubbers-06.webp", "/img/mob-4clubbers-07.webp", "/img/mob-4clubbers-08.webp", "/img/mob-4clubbers-09.webp", "/img/eISy4D5iz2HY6Q3rF08lkaU.webp", "/img/qZ22WeFOd9ymGkMH59lP19BrM.webp"], "bud-mad": ["/img/mob-bud-mad-01.webp", "/img/mob-bud-mad-03.webp", "/img/mob-bud-mad-05.webp"], "tekma": ["/img/mob-tekma-01.webp", "/img/mob-tekma-02.webp", "/img/mob-tekma-03.webp", "/img/mob-tekma-04.webp", "/img/mob-tekma-05.webp", "/img/mob-tekma-06.webp", "/img/mob-tekma-07.webp", "/img/mob-tekma-08.webp", "/img/mob-tekma-09.webp", "/img/tekma-mobile-pulpit.webp", "/img/tekma-mobile-kandydat.webp", "/img/tekma-mobile-check-in.webp"], "jctp-academy": ["/img/jctp-mobile-hero.webp", "/img/jctp-mobile-szkolenia.webp", "/img/jctp-mobile-terminy.webp", "/img/jctp-mobile-salony.webp"], "bzimny": ["/img/mob-bzimny-01.webp", "/img/mob-bzimny-02.webp", "/img/mob-bzimny-03.webp", "/img/mob-bzimny-04.webp", "/img/mob-bzimny-05.webp", "/img/mob-bzimny-06.webp", "/img/mob-bzimny-07.webp", "/img/mob-bzimny-08.webp", "/img/mob-bzimny-09.webp", "/img/bzimny-mobile-pakiety.webp", "/img/bzimny-mobile-od-zakupu.webp"]};
+export const MOBX = {"goldengun": ["/img/gg4-m-menu.webp", "/img/gg4-m-szukaj.webp", "/img/gg4-m-listing.webp", "/img/gg4-m-filtry.webp", "/img/gg4-m-koszyk.webp", "/img/gg4-m-paczkomat.webp", "/img/gg4-m-potwierdzenie.webp"], "sztuka-wykonczen": ["/img/ClZgLXkzgRN8EtGimizHz4ciwuQ.webp"], "4clubbers": ["/img/mob-4clubbers-01.webp", "/img/mob-4clubbers-02.webp", "/img/mob-4clubbers-03.webp", "/img/mob-4clubbers-04.webp", "/img/mob-4clubbers-05.webp", "/img/mob-4clubbers-06.webp", "/img/mob-4clubbers-07.webp", "/img/mob-4clubbers-08.webp", "/img/mob-4clubbers-09.webp", "/img/eISy4D5iz2HY6Q3rF08lkaU.webp", "/img/qZ22WeFOd9ymGkMH59lP19BrM.webp"], "bud-mad": ["/img/mob-bud-mad-03.webp", "/img/mob-bud-mad-05.webp"], "tekma": ["/img/mob-tekma-01.webp", "/img/mob-tekma-02.webp", "/img/mob-tekma-03.webp", "/img/mob-tekma-04.webp", "/img/mob-tekma-05.webp", "/img/mob-tekma-06.webp", "/img/mob-tekma-07.webp", "/img/mob-tekma-08.webp", "/img/mob-tekma-09.webp", "/img/tekma-mobile-pulpit.webp", "/img/tekma-mobile-kandydat.webp", "/img/tekma-mobile-check-in.webp"], "jctp-academy": ["/img/jctp-mobile-hero.webp", "/img/jctp-mobile-szkolenia.webp", "/img/jctp-mobile-terminy.webp", "/img/jctp-mobile-salony.webp"], "bzimny": ["/img/mob-bzimny-01.webp", "/img/mob-bzimny-02.webp", "/img/mob-bzimny-03.webp", "/img/mob-bzimny-04.webp", "/img/mob-bzimny-05.webp", "/img/mob-bzimny-06.webp", "/img/mob-bzimny-07.webp", "/img/mob-bzimny-08.webp", "/img/mob-bzimny-09.webp", "/img/bzimny-mobile-pakiety.webp", "/img/bzimny-mobile-od-zakupu.webp"]};
 
 // układ rozdziałów, ikony rozdziałów, nagłówek z wyróżnieniem, kolejność tła
 export const CS3 = {
@@ -97,7 +97,7 @@ function media(s, alt) {
 }
 
 export function cs3(t, e, nxt) {
-  const C = CS3[t], gg = t === 'goldengun';
+  const C = CS3[t], gg = t === 'goldengun', slug = t;
   const art = '/img/case-' + t + '.webp';
   let h = '';
   // zrzuty pod hero
@@ -124,7 +124,7 @@ export function cs3(t, e, nxt) {
   h += ch.filter(s => s.img || s.phones).map(s => {
     const t = '<div class="t">' + ic(s.i) + '<h3>' + esc(s.h) + '</h3>' + (s.sub ? '<h4>' + esc(s.sub) + '</h4>' : '') + s.p.map(p => '<p>' + esc(p) + '</p>').join('') + '</div>';
     if (gg) return '<article>' + t + img(s.img, s.h) + '</article>';
-    if (s.img === e.d && !s.phones) return '<article class="solo">' + t + '</article>';
+    if (s.img === e.d && !s.phones) { const ph = [...new Set([s.phone, e.m, ...(MOBX[slug] || [])].filter(Boolean))].slice(0, 3); const sm = { phones: ph }; return '<article>' + (C.lay === 'stack' ? media(sm, s.h) + t : t + media(sm, s.h)) + '</article>'; }
     return '<article>' + (C.lay === 'stack' ? media(s, s.h) + t : t + media(s, s.h)) + '</article>';
   }).join('');
   // rozdziały bez zrzutu (np. panel) jako karta tekstowa
