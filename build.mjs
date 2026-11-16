@@ -155,7 +155,7 @@ ${GTAG_HTML}
 <meta name="twitter:image" content="${img}">
 <link rel="icon" href="/img/5nu54lUTuTBKgAmsftppZDI0Y.png">
 <link rel="preload" href="/fonts/jost-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="/fonts/fonts.css?v=2611170300">
 ${p.path === '/' ? '<script>if(!matchMedia("(prefers-reduced-motion: reduce)").matches){document.documentElement.classList.add("cv-mhjs");setTimeout(function(){var h=document.querySelector(".cv-mh");if(h)h.classList.add("go")},2500)}</script>' : ''}
 <style>${css}</style>
 <link rel="modulepreload" href="${js}">
