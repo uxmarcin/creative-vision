@@ -278,3 +278,23 @@ html.gg3js .gg3 .gg3-rv.in{opacity:1;transform:none}
 .gg3 .gg3-phs{align-items:start}
 .gg3 .gg3-phs img{aspect-ratio:390/844;object-fit:cover;object-position:top}
 .gg3 .gg3-phs img:nth-child(2){transform:translateY(40px)}
+/* zdjęcie projektanta w stylu futuremind (17.11) */
+.cv-pm{display:flex;gap:24px;align-items:flex-end;margin-top:48px;padding-top:32px;border-top:1px solid rgba(11,11,11,.12)}
+.cv-pm img{width:120px;height:150px;object-fit:cover;filter:grayscale(1);flex:none;display:block}
+.cv-pm div{display:flex;flex-direction:column;gap:6px}
+.cv-pm .k{font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.6}
+.cv-pm b{font-size:24px;font-weight:500;letter-spacing:-.01em}
+.cv-pm span{font-size:15px;opacity:.75}
+.cv-pm a{margin-top:6px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;text-decoration:underline;text-underline-offset:3px}
+.sw .sw-kt-adv.cv-fm{display:grid!important;grid-template-columns:320px 1fr!important;gap:72px;align-items:end;background:#F4F4F4;padding:64px!important;max-width:1264px}
+.sw .cv-fm .ph{display:block!important}
+.sw .cv-fm .ph img{width:100%;aspect-ratio:4/5;object-fit:cover;filter:grayscale(1);display:block}
+.sw .cv-fm h3{font-size:28px;font-weight:500;margin-top:24px!important}
+@container (max-width:1000px){.sw .sw-kt-adv.cv-fm{grid-template-columns:1fr!important;padding:32px 24px!important;gap:32px}.sw .cv-fm .ph img{max-width:260px}}
+.sw .sw-kt-adv.cv-fm{grid-template-columns:360px 1fr!important;gap:96px!important;align-items:center!important;padding:0!important;background:#F2EEE9;overflow:hidden}
+.sw .cv-fm .ph{width:100%!important;max-width:none!important;margin:0!important;height:100%}
+.sw .cv-fm .ph img{width:100%!important;height:100%!important;min-height:480px;aspect-ratio:auto;object-fit:cover;object-position:50% 20%}
+.sw .cv-fm .tx{padding:64px 64px 64px 0}
+@container (max-width:1000px){.sw .sw-kt-adv.cv-fm{grid-template-columns:1fr!important;gap:0!important}.sw .cv-fm .ph img{min-height:0;aspect-ratio:4/4}.sw .cv-fm .tx{padding:32px 24px 40px}}
+.sw .sw-kt-adv.cv-fm{width:calc(100% - 176px);max-width:1264px;margin-left:auto!important;margin-right:auto!important}
+@container (max-width:1000px){.sw .sw-kt-adv.cv-fm{width:calc(100% - 48px)}.sw .cv-fm .tx{padding:32px 24px 40px!important}}
