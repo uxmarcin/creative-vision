@@ -298,3 +298,12 @@ html.gg3js .gg3 .gg3-rv.in{opacity:1;transform:none}
 @container (max-width:1000px){.sw .sw-kt-adv.cv-fm{grid-template-columns:1fr!important;gap:0!important}.sw .cv-fm .ph img{min-height:0;aspect-ratio:4/4}.sw .cv-fm .tx{padding:32px 24px 40px}}
 .sw .sw-kt-adv.cv-fm{width:calc(100% - 176px);max-width:1264px;margin-left:auto!important;margin-right:auto!important}
 @container (max-width:1000px){.sw .sw-kt-adv.cv-fm{width:calc(100% - 48px)}.sw .cv-fm .tx{padding:32px 24px 40px!important}}
+/* menu mobilne przyklejone do ekranu, strona pod spodem się nie przewija (17.11) */
+html.cv-lock,html.cv-lock body{overflow:hidden!important;overscroll-behavior:none;touch-action:none}
+html.cv-lock .sw-top{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:#0b0b0b!important}
+.sw .sw-mnav{position:fixed!important;inset:0!important;height:100vh;height:100dvh;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;z-index:40}
+html.cv-lock .sw-nav{position:relative;z-index:41}
+.sw .sw-mnav{justify-content:flex-start!important}
+.sw .sw-mnav li{font-size:26px!important}
+.sw .sw-mnav li a{padding:8px 0}
+.sw .sw-mnav-cta{margin-top:32px}
