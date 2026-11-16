@@ -2,6 +2,37 @@
 
 Kierunek: **czarno-biały, typograficzny, spokojny**, w duchu framer.com, z **kolorowym gradientem marki** jako głównym znakiem rozpoznawczym. Mocny kontrast czerni i bieli, cienkie linie zamiast cieni, gradient w wyróżnionych słowach treści. Zapisane z obecnego kodu (`src/c/shared-lib.mjs`, styl `.sw…`) i decyzji właściciela z listopada 2026. Kierunek nie był porównywany z bazą UXKIN (narzędzia niepodłączone).
 
+## Kierunek nowej strony (16.11.2026, do wdrożenia)
+
+Status: **kierunek wybrany, kod jeszcze bez zmian**. Reszta tego pliku opisuje stronę produkcyjną (Satoshi). Poniższe decyzje zastąpią odpowiednie sekcje dopiero przy wdrożeniu nowej wersji. Projekty: Figma `51ZClDsvjpEYK7cerMvKsr`, strony „Hero · propozycje” i „Mapa · obecna strona (1:1)”.
+
+**Kierunek: „ostra geometria”.** Zostaje to, co już jest marką: czerń i biel, cienkie linie, gradient marki w jednym słowie nagłówka. Zmienia się charakter: z miękkiego (Satoshi, zaokrąglone logo, promienie 28px) na geometryczny i ostry (Jost, proste cięcia, ostre rogi). Powód: Jost i nowy sygnet mają ostre wierzchołki i proste cięcia, a zaokrąglone boxy 28px by się z nimi gryzły.
+
+| Decyzja | Wartość | Rola / powód |
+|---|---|---|
+| Krój | **Jost** 400 / 500 / 600 (Google Fonts, hostowany lokalnie) | cała strona; zastępuje Satoshi (decyzja właściciela 16.11) |
+| Utility | IBM Plex Mono 400 | bez zmian: tylko linia prawna w stopce |
+| Body | **18px** / 1.6 (min. 17px) | Jost ma niższą wysokość x niż Satoshi, więc przy 17px wygląda na mniejszy |
+| H1 hero | clamp(56px, 7.8cqi, 112px), interlinia 1.0, tracking -.035em, 500 | nagłówek jest głównym obrazem hero |
+| H2 sekcji | clamp(32px, 3.3cqi, 48px), 1.1, 500 | bez zmian skali |
+| Etykiety, przyciski | 13–14px wersaliki, tracking .1–.14em, 500–600 | bez zmian |
+| Logo | komponent „Logo · creative vision · Jost” | napis Jost Medium, sygnet z prostymi cięciami; kreska akcentu to przedłużenie ramienia V |
+| Kolor | bez zmian (tokeny z sekcji „Kolor”) | czerń, biel, beż `#F2EEE9`, gradient marki |
+| Gradient | jedno słowo lub fraza na nagłówek; dozwolona **jedna rozmyta poświata w hero** | wyjątek od zakazu gradientów w tle: tylko hero, krycie do 45%, nigdzie indziej |
+| Promienie | przyciski 0; boxy, karty, formularz **0–4px** (zamiast 28px); pigułki 999px zostają dla tagów i przełączników | spójność z ostrym krojem i sygnetem. **Do potwierdzenia** |
+| Cienie | brak; głębia z linii 1px | bez zmian |
+| Ikony | Lucide, obrys 1.5, zakończenia proste (`stroke-linecap: butt`) | pasują do cięć Josta |
+| Ruch | jedno mocne wejście w hero, reszta jak dotąd | bez ruchu przy `prefers-reduced-motion` |
+
+Kontrast: gradient marki na czerni ma w najciemniejszym miejscu (`#88409F`) ok. 3:1, więc tylko w dużych nagłówkach (od 24px), nigdy w tekście ciągłym.
+
+Otwarte decyzje właściciela:
+1. Koncept hero: A (typografia + kaskada ekranów), B (przełączniki z ceną), C (wideo na cały ekran), D (skreślenie + taśmy realizacji), E (jasne hero z kulą światła).
+2. Logo: wariant biały czy z akcentem w gradiencie.
+3. Promienie boxów: 0–4px (zalecane) czy zostają 28px.
+
+Kierunek nie był porównywany z bazą UXKIN (narzędzia niepodłączone). Hero oparte na przykładach z Mobbin: Unseen Studio, Locomotive, Freshman, basement.studio, OFF+BRAND, Webflow.
+
 ## Kolor
 
 | Token | Wartość | Rola |
