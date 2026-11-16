@@ -5,7 +5,7 @@ html,body{background:#0B0B0B}
 /* hero strony głównej: płynący mesh gradient (fx/mesh.js) */
 .cv-mhs{position:relative;overflow:hidden;isolation:isolate}
 .cv-mhs>.sw-hero.cv-mh{position:relative;z-index:1}
-.cv-mh>canvas.cv-mesh{position:absolute;z-index:0;top:-6%;height:112%;left:50%;width:calc(100vw + 240px);transform:translateX(-50%);pointer-events:none;display:block;filter:blur(40px) saturate(1.15);-webkit-mask-image:linear-gradient(#000 78%,transparent);mask-image:linear-gradient(#000 78%,transparent)}
+.cv-mh>canvas.cv-mesh{position:absolute;z-index:0;top:-160px;height:calc(106% + 160px);left:50%;width:calc(100vw + 240px);transform:translateX(-50%);pointer-events:none;display:block;filter:blur(40px) saturate(1.15);-webkit-mask-image:linear-gradient(#000 78%,transparent);mask-image:linear-gradient(#000 78%,transparent)}
 .cv-mh>.cv-mh-in,.cv-mh>.cv-mh-proof{position:relative;z-index:1}
 .sw-hero.cv-mh{position:relative;z-index:1;min-height:max(680px,calc(100svh - 140px))!important;display:flex;flex-direction:column;justify-content:space-between;padding:0 88px;max-width:1440px;margin:0 auto}
 .cv-mh-in{display:flex;flex-direction:column;justify-content:center;flex:1;padding:40px 0 48px;max-width:1000px}
@@ -25,3 +25,8 @@ html.cv-mhjs .cv-mh:not(.go) .cv-mrv{opacity:0;transform:translateY(28px)}
 .cv-mag{transition:transform .5s cubic-bezier(.2,.8,.2,1),background .25s,color .25s,border-color .25s}
 @media (max-width:1000px){.sw-hero.cv-mh{padding:0 24px;min-height:0!important}.sw-hero h1.cv-mh-h{font-size:42px}.cv-mh-in{padding:40px 0 48px}.cv-mh-proof{grid-template-columns:1fr 1fr;row-gap:10px}.sw-hero .cv-mh-lead{font-size:17px;margin-top:24px!important}.cv-mh-cta{margin-top:36px}.cv-mh-cta .sw-ob{width:100%}}
 @media (prefers-reduced-motion:reduce){.cv-mh .wd,.cv-mh .cv-mrv{transition:none}.cv-mag{transform:none!important}}
+
+.sw:has(.cv-mhs) .sw-top:not(.is-s){background:transparent!important;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none}
+.sw-top{transition:background .35s,box-shadow .3s}
+.cv-mhs{margin-top:-140px;padding-top:140px}
+@media (max-width:1000px){.cv-mhs{margin-top:-80px;padding-top:80px}}
