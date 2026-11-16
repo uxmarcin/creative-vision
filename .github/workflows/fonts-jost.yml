@@ -1,0 +1,20 @@
+name: Pobierz font Jost
+on:
+  push:
+    branches: [fonts/jost]
+jobs:
+  fonts:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          curl -fsSL -o public/fonts/jost-latin.woff2 https://fonts.gstatic.com/s/jost/v20/92zatBhPNqw73oTd4jQmfxI.woff2
+          curl -fsSL -o public/fonts/jost-latin-ext.woff2 https://fonts.gstatic.com/s/jost/v20/92zatBhPNqw73ord4jQmfxIC7w.woff2
+          ls -la public/fonts
+          git config user.name "github-actions"; git config user.email "actions@github.com"
+          git rm -q .github/workflows/fonts-jost.yml
+          git add public/fonts/jost-*.woff2
+          git commit -m "Font Jost (latin, latin-ext) z Google Fonts, hostowany lokalnie"
+          git push
