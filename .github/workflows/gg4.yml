@@ -1,0 +1,37 @@
+name: gg4
+on:
+  push:
+    branches: [img/gg4]
+jobs:
+  dl:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          pip install pillow
+          B=https://www.figma.com/api/mcp/asset
+          while read slug id w; do
+            curl -fsSL -o /tmp/$slug.png "$B/$id.png"
+            python3 -c "
+          from PIL import Image
+          im=Image.open('/tmp/$slug.png').convert('RGB');print('$slug',im.size)
+          w=$w;h=round(im.size[1]*w/im.size[0]);im=im.resize((w,h),Image.LANCZOS)
+          im.save('public/img/gg4-$slug.webp','WEBP',quality=90,method=6)"
+          done <<'L'
+          hero 3ee702bd-b70a-422e-b4d5-53ece854e583 2880
+          listing 2aa04444-fc34-4fd7-94cc-07e7ce1ed819 2880
+          produkt 5ed3f0e8-6141-472d-a2ca-6b8d4ebee493 2880
+          rozmiar 6c657f9f-ddff-471f-8365-2015842cf621 2880
+          koszyk 87a2a732-1aa4-481a-a3fc-41a9adb06dfe 2880
+          zamowienie 92320634-e099-4101-9990-4f0f57ddbbd6 2880
+          mobile-hero 649b02b6-58b7-4ed1-8703-4d90fae29d1c 1170
+          mobile-produkt afa52020-fe7f-48b4-8de2-34d539f21393 1170
+          mobile-rozmiar 3a130e47-da44-4320-bdd1-9a2383edc475 1170
+          mobile-dodano 078e8008-04e9-4697-8dde-3e24406cbace 1170
+          mobile-zamowienie 50e82ce8-1444-43e8-b648-77e6c78d666c 1170
+          L
+          ls -la public/img/gg4-*
+          git config user.name bot && git config user.email bot@users.noreply.github.com
+          git add public/img/gg4-*.webp && git commit -m "GoldenGun: ekrany x4" && git push
