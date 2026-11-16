@@ -57,12 +57,7 @@ body.gtxt h1 .g{background:var(--grad);-webkit-background-clip:text;background-c
 .toast.on{opacity:1}
 @media (prefers-reduced-motion:reduce){.btn{transition:none}}
 /* smaczki UX */
-.spot{position:fixed;left:0;top:0;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;pointer-events:none;z-index:1;
- background:radial-gradient(circle,rgba(255,255,255,.14),rgba(255,255,255,.05) 35%,transparent 65%);mix-blend-mode:overlay;opacity:0;transition:opacity .6s}
-.spot.on{opacity:1}
-.dot{position:fixed;left:0;top:0;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:#fff;pointer-events:none;z-index:20;mix-blend-mode:difference;transition:width .3s,height .3s,margin .3s,opacity .3s;opacity:0}
-.dot.on{opacity:1}.dot.big{width:64px;height:64px;margin:-32px 0 0 -32px}
-@media (pointer:coarse){.spot,.dot{display:none}}
+
 .rv{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
 .ready .rv{opacity:1;transform:none}
 h1 .ln{display:block;padding-bottom:.16em;margin-bottom:-.16em}
@@ -79,7 +74,6 @@ body.gtxt h1 .g .wd{background:var(--grad);background-repeat:no-repeat;-webkit-b
 </head>
 <body class="gtxt">
 <canvas id="bg" aria-hidden="true"></canvas>
-<div class="spot" aria-hidden="true"></div><div class="dot" aria-hidden="true"></div>
 <div class="hero">
   <header class="nav">
     <a class="logo" href="/" aria-label="Creative Vision, strona główna"><svg class="sig" viewBox="0 6 138 114" aria-hidden="true"><path fill="currentColor" d="M0 79.003C0 71.3194 2.27883 63.8084 6.54785 57.42C10.8169 51.0318 16.8846 46.0528 23.9834 43.1133L24.6514 42.8448C31.5705 40.1291 39.1288 39.4539 46.4287 40.9073C53.9639 42.4076 60.8857 46.1083 66.3174 51.543C68.777 54.004 68.7755 57.9936 66.3145 60.4532C63.8534 62.9124 59.8647 62.9111 57.4053 60.4503C53.7358 56.7787 49.0597 54.2784 43.9688 53.2647C39.0366 52.2827 33.9297 52.7386 29.2549 54.5733L28.8037 54.7549C24.1572 56.679 20.1651 59.8964 17.2979 64.0196L17.0234 64.421C14.1391 68.7373 12.5996 73.8119 12.5996 79.003C12.5996 84.1939 14.1393 89.2683 17.0234 93.584C19.9077 97.9 24.0074 101.264 28.8037 103.25L29.2549 103.432C33.9296 105.267 39.0359 105.723 43.9678 104.741C49.0592 103.727 53.7358 101.226 57.4053 97.5548C59.8649 95.0939 63.8535 95.0933 66.3145 97.5528C68.7755 100.012 68.7769 104.001 66.3174 106.462C60.8858 111.897 53.9646 115.598 46.4297 117.099H46.4287C39.1288 118.552 31.5704 117.877 24.6514 115.161L23.9834 114.892C16.8845 111.952 10.817 106.973 6.54785 100.585C2.27874 94.1969 3.92188e-05 86.6862 0 79.003Z"/><path fill="currentColor" d="M71.9223 11.0645C75.225 9.97021 78.7898 11.7608 79.8843 15.0635L91.5337 50.2188C92.6278 53.5214 90.8373 57.0863 87.5346 58.1807C84.232 59.2748 80.6671 57.4842 79.5727 54.1816L67.9233 19.0264C66.8291 15.7237 68.6197 12.1589 71.9223 11.0645Z"/><path fill="currentColor" d="M123.06 44.2973C124.255 41.0292 127.872 39.3483 131.141 40.5424C134.408 41.7366 136.089 45.3535 134.895 48.6215L111.113 113.709C110.193 116.228 107.78 117.887 105.1 117.846C102.419 117.805 100.057 116.072 99.2147 113.527L87.5829 78.3901C86.4894 75.0871 88.2801 71.5228 91.5829 70.4291C94.886 69.3356 98.4503 71.127 99.5438 74.4301L105.488 92.3871L123.06 44.2973Z"/></svg><span>creative vision</span></a>
@@ -152,11 +146,7 @@ const play=()=>{document.body.classList.remove('ready');void document.body.offse
 const fitG=()=>{const g=document.querySelector('h1 .g');if(!g)return;const gw=g.offsetWidth;g.querySelectorAll('.wd').forEach(w=>{w.style.backgroundSize=gw+'px 100%';w.style.backgroundPosition=(-(w.offsetLeft-g.offsetLeft))+'px 0';w.style.backgroundOrigin='border-box';});};
 fitG();addEventListener('resize',fitG);document.fonts&&document.fonts.ready.then(fitG);
 play();$('replay').onclick=play;
-if(!reduce&&matchMedia('(pointer:fine)').matches){const sp=document.querySelector('.spot'),dt=document.querySelector('.dot');let sx=innerWidth/2,sy=innerHeight/2,cx=sx,cy=sy;
- addEventListener('pointermove',e=>{cx=e.clientX;cy=e.clientY;sp.classList.add('on');dt.classList.add('on');dt.style.transform=`translate(${cx}px,${cy}px)`;});
- document.addEventListener('pointerleave',()=>{sp.classList.remove('on');dt.classList.remove('on');});
- document.querySelectorAll('a,button,input').forEach(el=>{el.addEventListener('pointerenter',()=>dt.classList.add('big'));el.addEventListener('pointerleave',()=>dt.classList.remove('big'));});
- (function lp(){sx+=(cx-sx)*.12;sy+=(cy-sy)*.12;sp.style.transform=`translate(${sx}px,${sy}px)`;requestAnimationFrame(lp);})();}
+
 if(!reduce&&matchMedia('(pointer:fine)').matches){document.querySelectorAll('.mag').forEach(el=>{
  el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();const x=(e.clientX-r.left-r.width/2)/r.width,y=(e.clientY-r.top-r.height/2)/r.height;el.style.transform=`translate(${x*26}px,${y*18}px)`;});
  el.addEventListener('pointerleave',()=>{el.style.transform='';});});}
@@ -266,5 +256,6 @@ function frame(now){if(!run)return;size();const dt=Math.min(.05,(now-last)/1000)
 cv.style.background='var(--bk)';requestAnimationFrame(frame);
 })();
 </script>
+<script src="/fx/fluid.js?v=2611022125" defer></script>
 </body>
 </html>
