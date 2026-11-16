@@ -191,3 +191,11 @@ html.gg3js .gg3 .gg3-rv.in{opacity:1;transform:none}
 .sfw{border:1px solid rgba(128,128,128,.28)}
 .sfw .bar.sf{display:none!important}
 .cvt-hn-g img{aspect-ratio:780/1688!important;object-position:50% 0;border:1px solid rgba(255,255,255,.12)}
+/* stopka jak futuremind.com (17.11) */
+.sw-f3{background:#151515!important}
+.sw .sw-f3-col a,.sw .sw-f3-col span,.sw .sw-f3-legal,.sw .sw-f3-legal a,.sw .sw-f3-legal button,.sw .sw-f3-tag,.sw .sw-f3-sub,.sw .sw-f3-field span{font-size:13px!important;letter-spacing:.06em!important;text-transform:uppercase!important;line-height:1.5}
+.sw .sw-f3-col{gap:14px}
+.sw .sw-f3-brand svg{width:200px;height:auto}
+.sw .sw-f3-cta h2{font-weight:300!important;letter-spacing:-.03em!important}
+.sw .sw-f3-sub{opacity:.8;margin-top:20px!important}
+.sw .sw-f3-legal{opacity:.55}
