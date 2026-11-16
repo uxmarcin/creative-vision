@@ -87,6 +87,7 @@ body.gtxt h1 .g{background:var(--grad);-webkit-background-clip:text;background-c
       <button data-m="0">1 · Jedwab</button><button data-m="1">2 · Mesh</button>
       <button data-m="2">3 · Zorza</button><button data-m="3">4 · Wstęgi</button>
       <button data-m="4">5 · Lawa</button><button data-m="5">6 · Kula</button>
+      <button data-m="6">7 · Sygnet 3D</button><button data-m="7">8 · Sygnet 3D + mesh</button>
     </div>
     <label><span>Prędkość <b id="v-speed"></b></span><input id="speed" type="range" min="0" max="3" step="0.05"></label>
     <label><span>Intensywność <b id="v-int"></b></span><input id="int" type="range" min="0.1" max="1.5" step="0.05"></label>
@@ -96,7 +97,7 @@ body.gtxt h1 .g{background:var(--grad);-webkit-background-clip:text;background-c
     <label class="row"><input id="mouse" type="checkbox"> Reakcja na kursor</label>
     <label class="row"><input id="gtext" type="checkbox"> Gradient w haśle</label>
     <div class="act"><button id="copy">Kopiuj link z ustawieniami</button><button id="rand">Losuj</button></div>
-    <p class="hint">Klawisze 1–6 zmieniają postać, H chowa panel. Ustawienia zapisują się w adresie strony.</p>
+    <p class="hint">Klawisze 1–8 zmieniają postać, H chowa panel. Ustawienia zapisują się w adresie strony.</p>
   </div>
 </details>
 <div class="toast" id="toast" role="status"></div>
@@ -123,7 +124,7 @@ $('gtext').onchange=e=>{S.gtext=e.target.checked?1:0;sync();};
 const toast=t=>{const el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),1800);};
 $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);toast('Link skopiowany');}catch(e){toast('Skopiuj adres z paska przeglądarki');}};
 $('rand').onclick=()=>{S.speed=+(0.4+Math.random()*1.4).toFixed(2);S.int=+(0.6+Math.random()*0.7).toFixed(2);S.scale=+(0.6+Math.random()*1.6).toFixed(2);sync();};
-addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key>='1'&&e.key<='6'){S.m=+e.key-1;sync();}if(e.key==='h'||e.key==='H'){const f=document.querySelector('.fx');f.style.display=f.style.display==='none'?'':'none';}});
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key>='1'&&e.key<='8'){S.m=+e.key-1;sync();}if(e.key==='h'||e.key==='H'){const f=document.querySelector('.fx');f.style.display=f.style.display==='none'?'':'none';}});
 sync();
 if(innerWidth>1000)document.querySelector('.fx').open=true;
 if(!gl){return;}
@@ -137,6 +138,27 @@ float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(
 float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
  return mix(mix(h21(i),h21(i+vec2(1,0)),f.x),mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x),f.y);}
 float fbm(vec2 p){float v=0.,a=.5;mat2 r=mat2(.8,.6,-.6,.8);for(int i=0;i<5;i++){v+=a*n2(p);p=r*p*2.02;a*=.5;}return v;}
+mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
+float sdSeg(vec2 p,vec2 a,vec2 b){vec2 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);return length(pa-ba*h);}
+float sig2(vec2 p){p.x+=.45;
+ float r=abs(length(p)-.6)-.11;float ang=atan(p.y,p.x);float w=(abs(ang)-.78)*length(p);float c=max(r,-w);
+ float s=sdSeg(p,vec2(.6,.92),vec2(.76,.36))-.1;
+ float v=min(sdSeg(p,vec2(.96,.58),vec2(1.24,-.62)),sdSeg(p,vec2(1.24,-.62),vec2(1.52,.58)))-.105;
+ return min(c,min(s,v));}
+float map(vec3 q){float d2=sig2(q.xy);vec2 w=vec2(d2,abs(q.z)-.2);return min(max(w.x,w.y),0.)+length(max(w,0.));}
+vec3 sigScene(vec2 p,float T,vec2 MS,float SC,float INT,out float hit){
+ vec3 ro=vec3(0.,0.,6.8);vec3 rd=normalize(vec3(p-vec2(.56,.02),-1.7));
+ float ay=sin(T*.22)*.45-.3+MS.x*1.1,ax=sin(T*.17)*.18+.1-MS.y*.7;
+ float t=0.;hit=0.;vec3 q;
+ for(int i=0;i<110;i++){vec3 pp=ro+rd*t;q=pp/SC;q.xz=rot(ay)*q.xz;q.yz=rot(ax)*q.yz;float d=map(q)*SC;if(d<.0015){hit=1.;break;}t+=d;if(t>12.)break;}
+ if(hit<.5)return vec3(0.);
+ vec2 e=vec2(.002,0.);vec3 n=normalize(vec3(map(q+e.xyy)-map(q-e.xyy),map(q+e.yxy)-map(q-e.yxy),map(q+e.yyx)-map(q-e.yyx)));
+ vec3 an=abs(n);float k=16.;vec3 g=fract(q*k);vec3 l=smoothstep(.86,.97,g)+smoothstep(.14,.03,g);
+ float gl2=an.z>an.x&&an.z>an.y?max(l.x,l.y):(an.x>an.y?max(l.y,l.z):max(l.x,l.z));
+ vec3 ld=normalize(vec3(-.4,.6,.8));float dif=.35+.65*max(dot(n,ld),0.);
+ vec3 c=pal(q.x*.28+q.y*.12+T*.03);
+ float fr=pow(1.-abs(n.z),2.);
+ return vec3(.02)+gl2*mix(vec3(1.),c,.55)*dif*INT*.9+c*fr*.35*INT;}
 void main(){
  vec2 uv=gl_FragCoord.xy/R;float asp=R.x/R.y;
  vec2 p=(gl_FragCoord.xy-.5*R)/R.y; p+=MS*.12; p/=SC;
@@ -174,6 +196,12 @@ void main(){
    vec2 c=vec2(.6*sin(T*.21*(1.+fi*.1)+fi*2.1)+.35,.42*sin(T*.17*(1.+fi*.15)+fi*1.3));
    float r=.11+.05*sin(fi*3.1);float v=r*r/dot(p-c,p-c);f+=v;acc+=pal(fi/7.+T*.01)*v;}
   col=acc/max(f,.001);a=smoothstep(.75,1.15,f)+.35*smoothstep(.15,.9,f);
+ }else if(MODE>5.5){ // sygnet 3D (8 = z mesh w tle)
+  float hit;vec3 sc=sigScene(p*SC,T,MS,1.,INT,hit);
+  vec3 bgc=vec3(0.);float ba=0.;
+  if(MODE>6.5){vec3 acc=vec3(0.);float ws=0.;for(int i=0;i<6;i++){float fi=float(i);vec2 c=vec2(.5*sin(T*.11*(1.+fi*.13)+fi*1.7)+.35,.42*cos(T*.09*(1.+fi*.17)+fi*2.3));float d=length(p-c);float w=1./pow(d*d+.03,1.4);vec3 ci=fi<.5?C0:fi<1.5?C1:fi<2.5?C2:fi<3.5?C3:fi<4.5?C4:C5;acc+=ci*w;ws+=w;}bgc=acc/ws;ba=.38;}
+  col=mix(bgc,sc,hit);a=mix(ba,1.,hit);
+  gl_FragColor=vec4(mix(vec3(.043),col,a*mix(1.,smoothstep(-.05,.85,uv.x+.15*(1.-uv.y)),MASK*(1.-hit)))+(h21(gl_FragCoord.xy+fract(T)*97.)-.5)*GR,1.);return;
  }else{ // kula
   vec2 c=vec2(.42*asp*.5+.12*sin(T*.2),.05*cos(T*.17));vec2 d=p-c;float r=length(d);
   float ang=atan(d.y,d.x)/6.2831+T*.03+.25*fbm(d*3.+T*.1);
