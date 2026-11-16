@@ -227,7 +227,6 @@ html.gg3js .gg3 .gg3-rv.in{opacity:1;transform:none}
 /* płynący pasek ekranów z telefonu, bez nawigacji (17.11) */
 .gg3-mq{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);padding:24px 0 8px}
 .gg3-mq-t{display:flex;width:max-content;animation:gg3mq calc(var(--n)*6s) linear infinite}
-.gg3-mq:hover .gg3-mq-t{animation-play-state:paused}
 .gg3-mq figure{flex:none;width:280px;margin:0;padding-right:32px;position:relative;isolation:isolate}
 .gg3-mq img{display:block;width:100%;aspect-ratio:390/844;object-fit:cover;object-position:top;border:1px solid var(--gg-l)}
 .gg3-mq figcaption{margin-top:16px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--gg-m)}
