@@ -170,7 +170,7 @@ ${RELATED_HTML}
 <script src="/fx/reveal.js?v=2611032300" defer></script>
 ${p.path === '/' ? '<script src="/fx/mesh.js?v=2611162300" defer></script>' : ''}
 ${p.path === '/wiedza/cennik' ? '<script src="/fx/tabs.js?v=2611162330" defer></script>' : ''}
-${p.path === '/realizacje/goldengun' ? '<script src="/fx/case.js?v=2611170100" defer></script>' : ''}
+${p.path.startsWith('/realizacje/') ? '<script src="/fx/case.js?v=2611170200" defer></script>' : ''}
 ${p.path === '/kontakt' ? '' : MBAR}
 </body>
 </html>
