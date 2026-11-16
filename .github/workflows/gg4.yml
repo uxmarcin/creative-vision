@@ -16,7 +16,13 @@ jobs:
             curl -fsSL -o /tmp/$slug.png "$B/$id.png"
             python3 -c "
           from PIL import Image
+          Image.MAX_IMAGE_PIXELS=None
           im=Image.open('/tmp/$slug.png').convert('RGB');print('$slug',im.size)
+          Image.MAX_IMAGE_PIXELS=None
+          r=900/1440 if $w>2000 else 844/390
+          b=(im.size[0]-(5760 if $w>2000 else 1560))//2
+          W=im.size[0]-2*b
+          im=im.crop((b,b,b+W,b+min(im.size[1]-2*b,round(W*r))))
           w=$w;h=round(im.size[1]*w/im.size[0]);im=im.resize((w,h),Image.LANCZOS)
           im.save('public/img/gg4-$slug.webp','WEBP',quality=90,method=6)"
           done <<'L'
