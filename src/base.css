@@ -761,3 +761,9 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .cv-mh-sg .gl{filter:blur(1.6px)!important;opacity:.55!important}
 .cv-mh-sg .gl path{stroke-width:.7!important}
 .cv-mh-sg svg{filter:drop-shadow(0 0 6px rgba(255,255,255,.3))!important}
+/* hero sygnet v6: lekki, biała półprzezroczysta linia, bez filtrów */
+.cv-mh-sg svg{filter:none!important}
+.cv-mh-sg .gl{display:none!important}
+.cv-mh-sg .ln path{stroke:rgba(255,255,255,.34)!important;stroke-width:.15!important}
+.cv-mh-sg{animation:cvsgL 14s ease-in-out infinite!important;filter:none!important;will-change:opacity,transform}
+@keyframes cvsgL{0%,62%{opacity:1;transform:translateY(-50%) scale(1)}100%{opacity:0;transform:translateY(-50%) scale(1.05)}}
