@@ -11,6 +11,6 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           pip install pillow >/dev/null 2>&1
-          python3 tools/stock.py
+          npm i playwright@1.48 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1; node tools/stock.mjs
           git config user.name "github-actions" && git config user.email "actions@github.com"
           git add stock && git commit -m "stock candidates [skip ci]" && git push
