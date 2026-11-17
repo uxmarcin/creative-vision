@@ -189,7 +189,8 @@ const OF = [
     ['Agencja e-commerce', '/agencja-ecommerce', 'art-jak-wybrac-agencje-e-commerce', 'Potrzebujesz partnera na dłużej?', 'Co miesiąc planujemy, mierzymy i wdrażamy kolejne poprawki w Twoim sklepie.']]]
 ];
 const OFT = ['Projekt, wdrożenie i rozwój sklepu, który sprzedaje.', 'Strony, które zamieniają odwiedziny w telefony.', 'Badamy, projektujemy i testujemy, zanim powstanie kod.', 'Dbamy o stronę i sklep także po starcie.'];
-const OFI = [['sklepy2', 'Spotkanie z klientem w biurze z logo Creative Vision na ścianie'], ['strony', 'Dwie projektantki omawiają projekt przy dwóch monitorach'], ['ux', 'Zespół dobiera kolory do projektu interfejsu'], ['opieka3', 'Projektant pokazuje klientce notatki przy laptopie']];
+const OFI = [['sklepy2', 'warsztat', 'rozmowa', 'strony'], ['strony', 'zespol2', 'sklepy2'], ['rozmowa', 'ux', 'warsztat'], ['opieka4', 'ux', 'zespol2']];
+const OFA = { sklepy2: 'Spotkanie z klientem w biurze z logo Creative Vision na ścianie', strony: 'Dwie projektantki omawiają projekt przy dwóch monitorach', ux: 'Zespół dobiera kolory do projektu interfejsu', opieka4: 'Projektant pokazuje klientce notatki przy laptopie, w tle logo Creative Vision', zespol2: 'Zespół Creative Vision przy biurku, w tle logo na ścianie', rozmowa: 'Rozmowa z klientką o projekcie przy tablecie', warsztat: 'Warsztat projektowy przy wspólnym stole' };
 
 /* strony usług: sekcje w stylu case study */
 const UIC = [[/projekt|widok|makiet|prototyp|figm/i, 'pen'], [/wdroż|kod|program/i, 'wrench'], [/płatno|blik/i, 'card'], [/import|produkt|katalog/i, 'package'], [/seo|google|szybk|wyszuk/i, 'search'], [/gwaranc|opiek|bezpiecz|kopi|aktualiz/i, 'shield'], [/telefon|mobil|smartfon|aplikac/i, 'smartphone'], [/formularz|zapyta|kontakt|wiadomo/i, 'message'], [/realizac|galeri|zdję/i, 'image'], [/treś|tekst|blog|opis/i, 'filetext'], [/raport|lista|audyt|analiz|bada/i, 'filecheck'], [/panel|szkolen|obsług/i, 'dashboard'], [/język|wersj/i, 'languages'], [/map|lokal|rzesz/i, 'pin'], [/sklep|koszyk|zamówie/i, 'cart'], [/czas|termin|harmonogram|godzin/i, 'clock'], [/cen|wycen|koszt|budżet/i, 'receipt'], [/test/i, 'click']];
@@ -212,7 +213,7 @@ export function of3() {
     h += '<div class="of3-row" data-of style="' + ['--ll:0;--lw:64%', '--ll:30%;--lw:70%', '--ll:0;--lw:46%', '--ll:44%;--lw:56%'][ci] + '"><i class="of3-line" aria-hidden="true"></i><div class="of3-l"><span class="of3-ic" aria-hidden="true">' + ic(['store', 'devices', 'pen', 'buoy'][ci], 'of3-ci') + '</span><h3>' + esc(cat) + '</h3><p class="of3-tg">' + OFT[ci] + '</p><div class="of3-tabs" role="tablist" aria-label="' + esc(cat) + '">' +
       items.map((it, i) => '<button type="button" role="tab" aria-selected="' + (i ? 'false' : 'true') + '" class="of3-t' + (i ? '' : ' on') + '" data-i="' + i + '"><span>' + esc(it[0]) + '</span>' + ic('arrow', 'of3-a') + '</button>').join('') + '</div></div>' +
       '<div class="of3-m">' + items.map((it, i) => '<div class="of3-p' + (i ? '' : ' on') + '" role="tabpanel" data-i="' + i + '"' + (i ? ' hidden' : '') + '><h4>' + esc(it[3]) + '</h4><p>' + esc(it[4]) + '</p><a class="sw-tl" href="' + it[1] + '">Zobacz więcej</a></div>').join('') + '</div>' +
-      '<div class="of3-im"><img class="on" src="/img/cv-of-' + OFI[ci][0] + '.webp" width="1600" height="1200" alt="' + OFI[ci][1] + '" loading="lazy" decoding="async"></div></div>';
+      '<div class="of3-im">' + OFI[ci].map((k, i) => '<img class="' + (i ? '' : 'on') + '" data-i="' + i + '" src="/img/cv-of-' + k + '.webp" width="1600" height="1200" alt="' + OFA[k] + '" loading="lazy" decoding="async">').join('') + '</div></div>';
   });
   return h + '</div>';
 }
