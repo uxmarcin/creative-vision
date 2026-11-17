@@ -178,7 +178,7 @@ const OF = [
   ['Strony internetowe', [
     ['Strona firmowa', '/uslugi/strony-firmowe', 'art-strona-firmowa-ktora-zbiera-zapytania', 'Strona ładnie wygląda, ale nie przynosi zapytań?', 'W kilka sekund mówi, co robisz i dlaczego warto wybrać Ciebie, a potem prowadzi do telefonu lub formularza. Od 4 900 zł netto.'],
     ['Strony dla firm budowlanych', '/uslugi/strony-dla-firm-budowlanych', 'art-jak-stworzyc-strone-internetowa', 'Prowadzisz firmę budowlaną lub remontową?', 'Twoje realizacje na pierwszym planie, a przycisk „Zadzwoń” zawsze pod kciukiem.'],
-    ['Strony internetowe Rzeszów', '/strony-internetowe-rzeszow', 'art-ile-kosztuje-strona-internetowa', 'Szukasz studia w Rzeszowie?', 'Spotkamy się przy ul. Pańskiej 13A. Z firmami z całej Polski pracujemy zdalnie.']]],
+    ['Strony internetowe Rzeszów', '/strony-internetowe-rzeszow', 'art-ile-kosztuje-strona-internetowa', 'Szukasz studia w Rzeszowie?', 'Umówmy się na spotkanie online. Pokażemy projekt na ekranie i odpowiemy na pytania, bez dojazdów.']]],
   ['UX/UI Design', [
     ['Audyt UX', '/uslugi/audyt-ux', 'art-ux-karty-produktu', 'Klienci wchodzą, oglądają i wychodzą bez zakupu?', 'Sprawdzamy sklep oczami klienta i dajemy listę poprawek od tych, które dadzą najwięcej. Od 1 900 zł netto.'],
     ['Projektowanie UX/UI', '/wiedza/projektowanie-ux-ui', 'art-projektowanie-ux-ui', 'Chcesz zobaczyć projekt, zanim zapłacisz za kod?', 'Ekrany w Figmie i klikalny prototyp. Testujesz go jak gotowy produkt, zanim powstanie kod.'],
