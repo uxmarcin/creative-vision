@@ -609,3 +609,22 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .cv-rh::before{opacity:.95;filter:blur(50px)}
 .cv-rh .sw-ph-hero{padding-top:24px;padding-bottom:120px}
 .cv-rh::before{inset:0 -10% -30% 30%;-webkit-mask-image:linear-gradient(transparent,#000 35%);mask-image:linear-gradient(transparent,#000 35%)}
+/* gradient w tekście: zawsze pełna paleta na szerokości samego tekstu */
+.gg3-sticky article.is-on h3,.rl3-c:hover h2,.gg3-nx:hover{width:fit-content;max-width:100%}
+.sw .sw-svc>div>span{background-image:linear-gradient(90deg,#E9685F,#E03F3B 20%,#AC2069 40%,#88409F 60%,#3E63EF 80%,#51BAD4)!important}
+.sw-gr{-webkit-box-decoration-break:slice;box-decoration-break:slice;background-repeat:no-repeat}
+/* porozmawiaj z projektantem: całe zdjęcie przy prawej krawędzi, mesh w tle */
+.sw .cv-fm .ph{position:relative;isolation:isolate;background:#050505!important;justify-content:flex-end!important;align-items:flex-end!important;padding:28px 0 0!important;min-height:400px!important;overflow:hidden}
+.sw .cv-fm .ph::before{content:'';position:absolute;z-index:-1;inset:-10%;background:radial-gradient(ellipse 45% 35% at 25% 40%,rgba(233,104,95,.75),transparent 70%),radial-gradient(ellipse 40% 40% at 70% 30%,rgba(172,32,105,.7),transparent 70%),radial-gradient(ellipse 45% 40% at 60% 75%,rgba(62,99,239,.65),transparent 70%),radial-gradient(ellipse 35% 30% at 20% 85%,rgba(136,64,159,.6),transparent 70%);filter:blur(40px);opacity:.55;animation:of3smoke2 16s ease-in-out infinite alternate}
+.sw .cv-fm .ph img{width:auto!important;height:380px!important;max-width:none!important;object-fit:contain!important;display:block}
+@container (max-width:1000px){.sw .cv-fm .ph{min-height:0!important}.sw .cv-fm .ph img{height:280px!important}}
+/* następny krok bez zdjęcia: lista korzyści i mesh */
+.cv-cta2.np .cv-cta2-g{grid-template-columns:1fr 420px!important;gap:72px}
+.cv-cta2.np{isolation:isolate}
+.cv-cta2.np::after{content:'';position:absolute;z-index:-1;right:-10%;top:-20%;bottom:-30%;width:60%;background:radial-gradient(ellipse 40% 40% at 35% 40%,rgba(172,32,105,.5),transparent 70%),radial-gradient(ellipse 36% 40% at 70% 35%,rgba(136,64,159,.45),transparent 70%),radial-gradient(ellipse 40% 40% at 60% 75%,rgba(62,99,239,.4),transparent 70%);filter:blur(60px);opacity:.8;animation:cvrh 20s ease-in-out infinite alternate;pointer-events:none}
+.cv-cta2-ls{list-style:none;margin:0;padding:0;border-top:1px solid rgba(255,255,255,.16)}
+.cv-cta2-ls li{display:flex;align-items:center;gap:18px;padding:22px 0;border-bottom:1px solid rgba(255,255,255,.16);font-size:19px;line-height:1.35;color:#fff;text-align:left}
+.cv-cta2-ls span{flex:none;line-height:0}
+.cv-cta2-ci{width:26px;height:26px}
+@container (max-width:900px){.cv-cta2.np .cv-cta2-g{grid-template-columns:1fr!important;gap:40px}.cv-cta2-ls li{font-size:17px;padding:18px 0}}
+@media (prefers-reduced-motion:reduce){.cv-cta2.np::after,.sw .cv-fm .ph::before{animation:none}}
