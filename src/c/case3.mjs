@@ -177,7 +177,7 @@ export function rl3(V, B) {
 // oferta na stronie głównej (układ jak webmetric.com, styl Creative Vision)
 const OF = [
   ['Sklepy internetowe', [
-    ['Sklep internetowy', '/uslugi/sklepy-internetowe', 'art-jak-zalozyc-sklep-internetowy', 'Chcesz sklepu, w którym klienci kupują bez wahania?', 'Projektujemy drogę klienta od wyszukiwarki po płatność BLIK-iem. Zanim powstanie kod, klikasz gotowy prototyp. Od 5 990 zł netto.'],
+    ['Sklep internetowy', '/uslugi/sklepy-internetowe', 'art-jak-zalozyc-sklep-internetowy', 'Marzysz o sklepie, w którym klienci kupują bez wahania?', 'Projektujemy drogę klienta od wyszukiwarki po płatność BLIK-iem. Zanim powstanie kod, klikasz gotowy prototyp. Od 5 990 zł netto.'],
     ['Sklep na PrestaShop', '/uslugi/sklepy-prestashop', 'art-co-to-jest-prestashop', 'Szukasz platformy bez miesięcznego abonamentu?', 'Jako PrestaShop Expert wdrażamy sklep na platformie, która należy do Ciebie. Bez abonamentu i bez niespodzianek.'],
     ['Migracja sklepu', '/uslugi/sklepy-internetowe', 'art-jaka-platforma-sklepu-internetowego', 'Przenosisz sklep z innej platformy?', 'Przenosimy produkty, klientów i treści, a przekierowania 301 chronią ruch z Google.'],
     ['Płatności i integracje', '/uslugi/sklepy-internetowe', 'art-ile-kosztuje-sklep-internetowy', 'Chcesz, żeby zamówienie zajmowało minutę?', 'BLIK, karty, Apple Pay, InPost i import produktów. Klient płaci, jak lubi, a Ty nie przepisujesz zamówień.']]],
