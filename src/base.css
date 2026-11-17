@@ -780,3 +780,9 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .on3-ph{aspect-ratio:16/9!important;object-position:50% 0!important}
 @container (max-width:900px){.on3-phs .sw-w{padding-left:24px;padding-right:24px}.on3-ph{aspect-ratio:4/3!important}}
 .cv-kt-ph{object-position:60% 60%!important}
+/* hero sygnet v7: bez rysowania; statycznie rozmyty, biały, powoli oddycha (tylko opacity) */
+.cv-mh-sg .ln path{animation:none!important;stroke:none!important;fill:rgba(255,255,255,.16)!important;stroke-dashoffset:0!important}
+.cv-mh-sg svg{filter:blur(7px)!important}
+.cv-mh-sg{animation:cvsgO 9s ease-in-out infinite alternate!important;will-change:opacity}
+@keyframes cvsgO{from{opacity:.45}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.cv-mh-sg{animation:none!important}}
