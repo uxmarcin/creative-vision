@@ -536,3 +536,16 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.of3-line{transition:none!important}}
 .sw .sw-ct-m .cv-ct-b{margin:28px 0 0!important;color:#0B0B0B;border-color:#0B0B0B}
 .sw .sw-ct-m .cv-ct-b:hover{background:#0B0B0B;color:#fff}
+/* cennik na home: ikona, etykieta, nagłówek „Dla…”, przycisk */
+.cv-pr-i{display:block;margin-bottom:28px}
+.cv-pr-ic{width:40px;height:40px;display:block}
+.cv-pr-l{display:block;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--ml);margin-bottom:10px}
+.cv-pr.sw-dark .cv-pr-l{color:rgba(255,255,255,.55)}
+.sw .cv-pr-c h3{font-size:26px!important;line-height:1.2!important;max-width:14ch;min-height:2.4em}
+.sw .cv-pr-c .cv-pr-b{margin:auto 0 0!important;align-self:flex-start;padding:16px 26px;font-size:13px;transition:background .35s,color .35s}
+.cv-pr-d{margin-bottom:36px!important}
+.cv-pr.sw-dark .cv-pr-c:hover .cv-pr-b{background:#fff;color:#0B0B0B}
+.cv-pr.pg .cv-pr-c:hover .cv-pr-b{background:#0B0B0B;color:#fff}
+/* oferta: linia rośnie płynnie razem z przewijaniem, bez hovera */
+.of3-line,.of3-row:hover .of3-line{transform:scaleX(var(--lp,.12))!important;transition:transform .25s linear!important}
+@media (prefers-reduced-motion:reduce){.of3-line,.of3-row:hover .of3-line{transform:scaleX(1)!important}}
