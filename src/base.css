@@ -847,3 +847,6 @@ html.cv-lock .cvcb{display:none}
 
 .cvcb{transition:opacity .35s,transform .35s cubic-bezier(.2,.7,.2,1),bottom .35s cubic-bezier(.2,.7,.2,1)}
 body:has(.cv-mbar.on) .cvcb{bottom:calc(84px + env(safe-area-inset-bottom))}
+
+@media (max-width:640px){.cvcb.open::before{content:'';position:fixed;inset:0;background:rgba(0,0,0,.66);animation:cvcbD .3s ease both}.cvcb.open .cvcb-p{z-index:1}}
+@keyframes cvcbD{from{opacity:0}}
