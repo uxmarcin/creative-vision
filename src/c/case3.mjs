@@ -195,7 +195,7 @@ const OF = [
     ['Agencja e-commerce', '/agencja-ecommerce', 'art-jak-wybrac-agencje-e-commerce', 'Potrzebujesz partnera na dłużej?', 'Co miesiąc planujemy, mierzymy i wdrażamy kolejne poprawki w Twoim sklepie.']]]
 ];
 const OFT = ['Projekt, wdrożenie i rozwój sklepu, który sprzedaje.', 'Strony, które zamieniają odwiedziny w telefony.', 'Badamy, projektujemy i testujemy, zanim powstanie kod.', 'Dbamy o stronę i sklep także po starcie.'];
-const OFI = [['sklepy2', 'Spotkanie z klientem w biurze z logo Creative Vision na ścianie'], ['strony', 'Dwie projektantki omawiają projekt przy dwóch monitorach'], ['ux', 'Zespół dobiera kolory do projektu interfejsu'], ['opieka', 'Projektant pokazuje klientce notatki przy laptopie']];
+const OFI = [['sklepy2', 'Spotkanie z klientem w biurze z logo Creative Vision na ścianie'], ['strony', 'Dwie projektantki omawiają projekt przy dwóch monitorach'], ['ux', 'Zespół dobiera kolory do projektu interfejsu'], ['opieka3', 'Projektant pokazuje klientce notatki przy laptopie']];
 export const icH = (n, cls) => ic(n, cls);
 export function of3() {
   let h = '<div class="sw-w of3"><p class="sw-k">Oferta</p><h2 class="of3-h">Chcesz, żeby strona i sklep sprzedawały więcej? <span class="sw-gr">Pomożemy Ci w tym.</span></h2>';
