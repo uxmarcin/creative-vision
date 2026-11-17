@@ -527,3 +527,12 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .of3-row:hover .of3-im::before{opacity:.4!important}
 /* home case study: lista projektów przyklejona przy przewijaniu */
 @container (min-width:1001px){.sw-ct-l{position:sticky;top:128px;align-self:start}}
+/* oferta v6: linia jak na realizacjach (szara + krótki gradient, rośnie po najechaniu), zdjęcie bez gradientu */
+.of3-row{border-top:1px solid rgba(255,255,255,.14)!important}
+.of3-line{display:block!important;position:absolute!important;left:0!important;top:-1px!important;width:100%!important;height:2px!important;background:linear-gradient(90deg,#E9685F,#E03F3B 20%,#AC2069 40%,#88409F 60%,#3E63EF 80%,#51BAD4)!important;background-size:100% 100%!important;animation:none!important;transform-origin:left!important;transform:scaleX(.12)!important;transition:transform 1.2s cubic-bezier(.2,.7,.2,1)!important;opacity:1!important}
+.of3-row:hover .of3-line{transform:scaleX(1)!important}
+.of3-line::before,.of3-line::after,.of3-im::before,.of3-im::after{display:none!important}
+.of3-im{animation:none!important;margin:0!important}
+@media (prefers-reduced-motion:reduce){.of3-line{transition:none!important}}
+.sw .sw-ct-m .cv-ct-b{margin:28px 0 0!important;color:#0B0B0B;border-color:#0B0B0B}
+.sw .sw-ct-m .cv-ct-b:hover{background:#0B0B0B;color:#fff}
