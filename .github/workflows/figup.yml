@@ -6,6 +6,10 @@ jobs:
   up:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
       - run: |
-          while read id name; do curl -sS -f -X POST -F "file=@public/img/cv-of-$name.jpg;type=image/jpeg" "https://mcp.figma.com/mcp/upload/$id/submit?scaleMode=FILL&currentPageId=82%3A2"; echo; done < uploads.txt
+          for u in https://creative-vision.pl/ https://www.creative-vision.pl/; do
+            echo "== $u"; curl -sS -D /tmp/h -o /tmp/b "$u?nocache=$RANDOM"; grep -iE "^(HTTP|cache-control|cf-|x-cache|age|server|last-modified|x-litespeed)" /tmp/h
+            for k in cvgr cv-cta2-ph of3-tg "Marzysz o sklepie" greview cv-of-sklepy2 of3smoke; do printf "%s: %s\n" "$k" "$(grep -c -- "$k" /tmp/b)"; done
+            grep -o '/js/cv-[A-Z0-9]*\.js' /tmp/b | head -1
+          done
+          curl -sS -D - -o /dev/null https://creative-vision.pl/ | grep -iE "cache|age|litespeed|server"
