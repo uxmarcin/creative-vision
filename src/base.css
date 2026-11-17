@@ -841,3 +841,6 @@ html.cv-lock .cvcb{display:none}
 .cv-ih .sw-ph-hero.cv-mh{position:relative}
 .cv-ih canvas.cv-mesh{opacity:.42;top:-120px!important;height:calc(100% + 240px)!important}
 .cv-ih .sw-ph-hero>*:not(canvas){position:relative;z-index:1}
+
+.us3-ps{display:flex;align-items:center;gap:18px;margin-top:28px;padding-top:24px;border-top:1px solid rgba(128,128,128,.25)}.us3-ps img{height:44px;width:auto;margin:-12px 0 -12px -14px;flex:none}.us3-ps span{font-size:14px;letter-spacing:.02em;opacity:.7}
+.us3-ps img{filter:invert(1)}.us3-ps{border-top-color:rgba(255,255,255,.16)}
