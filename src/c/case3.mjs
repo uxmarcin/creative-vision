@@ -161,17 +161,11 @@ export function cs3(t, e, nxt) {
 // indeks realizacji: duże sceny z ekranami, układ pełna szerokość / para
 export function rl3(V, B) {
   const shot = k => k === 'goldengun' ? ['/img/gg4-hero.webp', '/img/gg4-mobile-hero.webp'] : [B[k].d, B[k].m];
-  const card = (k, big) => {
-    const e = B[k], [d, m] = shot(k);
-    return '<a class="rl3-c' + (big ? ' big' : '') + '" style="--pc:' + (PC[k] || '#88409F') + '" href="/realizacje/' + k + '"><div class="rl3-st"><div class="rl3-sc">' + img(d, 'Realizacja ' + e.n, 'd', big ? 0 : 1) + (m ? img(m, e.n + ' na telefonie', 'm') : '') + '</div></div><div class="rl3-m"><div><h2>' + esc(e.n) + '</h2><p>' + esc(e.k) + '</p></div><span class="rl3-go" aria-hidden="true">' + ic('arrow') + '</span></div></a>';
+  const card = (k, n) => {
+    const e = B[k], [d, m] = shot(k), tx = ((e.intro || '').split(/(?<=\.) /)[0] || '');
+    return '<a class="rl3-c rl4' + (n % 2 ? ' rev' : '') + '" style="--pc:' + (PC[k] || '#88409F') + '" href="/realizacje/' + k + '"><div class="rl3-st"><div class="rl3-sc">' + img(d, 'Realizacja ' + e.n, 'd', n ? 1 : 0) + (m ? img(m, e.n + ' na telefonie', 'm') : '') + '</div></div><div class="rl4-tx"><p class="rl4-k">' + esc(e.k) + '</p><h2>' + esc(e.n) + '</h2>' + (tx ? '<p class="rl4-p">' + esc(tx) + '</p>' : '') + '<span class="sw-ob rl4-b">Zobacz realizację</span></div></a>';
   };
-  let h = '<section class="rl3"><div class="sw-w">', i = 0, row = 0;
-  while (i < V.length) {
-    if (row % 2 === 0) { h += card(V[i], 1); i++; }
-    else { h += '<div class="rl3-pair">' + V.slice(i, i + 2).map(k => card(k, 0)).join('') + '</div>'; i += 2; }
-    row++;
-  }
-  return h + '</div></section>';
+  return '<section class="rl3"><div class="sw-w">' + V.map(card).join('') + '</div></section>';
 }
 
 // oferta na stronie głównej (układ jak webmetric.com, styl Creative Vision)
