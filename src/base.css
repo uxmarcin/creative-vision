@@ -506,3 +506,15 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .of3-line::before{top:-110px!important;height:220px!important;background:radial-gradient(ellipse 16% 22% at 16% 50%,rgba(233,104,95,.55),transparent),radial-gradient(ellipse 15% 20% at 38% 46%,rgba(172,32,105,.55),transparent),radial-gradient(ellipse 16% 24% at 60% 54%,rgba(136,64,159,.55),transparent),radial-gradient(ellipse 15% 21% at 82% 48%,rgba(62,99,239,.5),transparent)!important;opacity:.55!important}
 .of3-line::after{top:-90px!important;height:180px!important;background:radial-gradient(ellipse 20% 22% at 28% 50%,rgba(224,63,59,.4),transparent),radial-gradient(ellipse 18% 22% at 72% 50%,rgba(81,186,212,.35),transparent)!important;opacity:.5!important}
 .sw .cv-cta2-ph img{height:88%}
+/* oferta v4: bez dymu; ramka gradientowa za kursorem + mesh za zdjęciem */
+.of3-line{display:none!important}
+.of3-row{border-top:1px solid rgba(255,255,255,.08)!important}
+@property --of3a{syntax:'<angle>';inherits:true;initial-value:0deg}
+.of3-im{overflow:visible!important;--of3a:0deg;animation:of3rot 12s linear infinite}
+.of3-im.cur{animation:none}
+@keyframes of3rot{to{--of3a:360deg}}
+.of3-im::before{content:''!important;position:absolute;inset:-18px!important;z-index:-1;background:conic-gradient(from var(--of3a),#E9685F,#E03F3B,#AC2069,#88409F,#3E63EF,#51BAD4,#E9685F)!important;filter:blur(40px)!important;opacity:.32!important;transition:opacity .5s}
+.of3-row:hover .of3-im::before{opacity:.55!important}
+.of3-im::after{content:'';position:absolute;inset:-1px;z-index:2;padding:2px;background:conic-gradient(from var(--of3a),#E9685F,#E03F3B,#AC2069,#88409F,#3E63EF,#51BAD4,#E9685F);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);pointer-events:none;opacity:.85}
+.of3-im img,.of3-im img.on,.of3-row:hover .of3-im img.on{transform:none!important}
+@media (prefers-reduced-motion:reduce){.of3-im{animation:none}}
