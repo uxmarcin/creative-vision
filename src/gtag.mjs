@@ -26,7 +26,10 @@ export const GTAG_HTML = `<script>window.dataLayer=window.dataLayer||[];function
   `['gclid','utm_source','utm_medium','utm_campaign','utm_term'].forEach(function(k){var v=q.get(k);if(v)s.push(k+'='+v.slice(0,80))});` +
   `if(document.referrer&&document.referrer.indexOf(location.host)<0)s.push('ref='+document.referrer.split('?')[0]);` +
   `s.push('wejscie='+location.pathname);sessionStorage.setItem('cv-src',s.join(' · '))}}catch(e){}` +
-  `var sent=0;window.cvLead=function(){if(sent)return;sent=1;` +
+  `var sent=0;window.cvLead=function(d){if(sent)return;sent=1;` +
+  `try{var u={};if(d&&d.email&&/@/.test(d.email))u.email=String(d.email).trim().toLowerCase();` +
+  `if(d&&d.phone){var p=String(d.phone).replace(/[^0-9]/g,'').replace(/^48(?=[0-9]{9}$)/,'');if(p.length===9)u.phone_number='+48'+p}` +
+  `if(u.email||u.phone_number)gtag('set','user_data',u)}catch(e){}` +
   `gtag('event','conversion',{send_to:'${LEAD}',value:1.0,currency:'PLN'});gtag('event','generate_lead',{form_name:'kontakt'})};` +
   `document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[href^="tel:"],a[href^="mailto:"]');if(!a)return;` +
   `var t=a.getAttribute('href').indexOf('tel:')===0;` +
