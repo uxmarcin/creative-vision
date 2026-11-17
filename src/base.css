@@ -850,3 +850,9 @@ body:has(.cv-mbar.on) .cvcb{bottom:calc(84px + env(safe-area-inset-bottom))}
 
 @media (max-width:640px){.cvcb.open::before{content:'';position:fixed;inset:0;background:rgba(0,0,0,.66);animation:cvcbD .3s ease both}.cvcb.open .cvcb-p{z-index:1}}
 @keyframes cvcbD{from{opacity:0}}
+
+.cvcb-x .cx{display:none}
+@media (max-width:640px){.cvcb-x .cd{display:none}.cvcb-x .cx{display:inline}
+.cvcb.open .cvcb-p:not([hidden]){position:fixed;left:16px;right:16px;top:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:auto;max-width:none;display:flex;flex-direction:column;justify-content:center;overflow:auto;padding:32px 24px 28px}
+.cvcb.open::before{background:rgba(0,0,0,.72)}
+.cvcb.open .cvcb-x{right:6px;top:6px}}
