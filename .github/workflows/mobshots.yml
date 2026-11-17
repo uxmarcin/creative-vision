@@ -19,4 +19,4 @@ jobs:
           node tools/mobshots.mjs
           ls -la public/img/mob-* || true
           git config user.name bot && git config user.email bot@users.noreply.github.com
-          git add public/img/mob-*.webp && git commit -m "Zrzuty z telefonu z działających stron" && git push
+          git add public/img/mob2-*.webp && git commit -m "Czyste zrzuty z telefonu" && git push
