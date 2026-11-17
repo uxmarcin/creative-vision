@@ -2,10 +2,16 @@ name: figup
 on:
   push:
     branches: [img/figup]
+permissions:
+  contents: write
 jobs:
   up:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: |
-          while read id name; do curl -sS -f -X POST -F "file=@public/img/cv-of-$name.jpg;type=image/jpeg" "https://mcp.figma.com/mcp/upload/$id/submit?scaleMode=FILL&currentPageId=82%3A2"; echo; done < uploads.txt
+          npm i playwright@1.48 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
+          pip install pillow >/dev/null 2>&1
+          node tools/sw.mjs
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git add public/img/sw3-* && git commit -m "sw3 shots [skip ci]" && git push
