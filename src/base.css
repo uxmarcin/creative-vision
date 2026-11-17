@@ -380,3 +380,27 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 }
 .of3-row>*{min-width:0}
 .cv-skip:not(:focus-visible){top:-90px!important}
+/* delikatna poświata w kolorze projektu zamiast fioletu (17.11) */
+.gg3-shots::before,.gg3-md::before,.rl3-st::before,.sw .sw-ct-m .im.cv-st::before{background:radial-gradient(closest-side,var(--pc,#88409F),transparent)!important;opacity:.22!important;filter:blur(60px)!important}
+.gg3-dark .gg3-md::before,.gg3-shots::before,.rl3-st::before,.sw .sw-ct-m .im.cv-st::before{opacity:.3!important}
+.rl3-c:hover .rl3-st::before{opacity:.42!important}
+.gg3-mq figure::before,.gg3-mob figure::before{background:var(--pc,#88409F)!important;opacity:.16!important}
+.gg3-sticky article>img{box-shadow:0 30px 80px -30px color-mix(in srgb,var(--pc,#88409F) 45%,transparent)!important}
+/* oferta: gradientowa linia u góry wiersza, ikony kategorii, wyrównane chipy (17.11) */
+.of3-row{position:relative;border-top-color:rgba(255,255,255,.08)!important}
+.of3-line{position:absolute;left:0;top:-1px;height:2px;width:100%;background:linear-gradient(90deg,#E9685F,#E03F3B 20%,#AC2069 40%,#88409F 60%,#3E63EF 80%,#51BAD4);transform-origin:left;transform:scaleX(.18);transition:transform 1.4s cubic-bezier(.2,.7,.2,1)}
+.of3-row.in .of3-line,.of3-row:hover .of3-line{transform:scaleX(1)}
+.of3-n{display:flex!important;align-items:center;gap:14px}
+.of3-ci{width:28px;height:28px;color:#fff;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.of3-row:hover .of3-ci{transform:translateY(-3px) rotate(-6deg)}
+.of3-t.on{background:rgba(255,255,255,.06)}
+@container (max-width:640px){.of3-tabs{scroll-padding:0 24px!important}.of3-line{transform:scaleX(1)}}
+@media (prefers-reduced-motion:reduce){.of3-line{transition:none;transform:scaleX(1)}}
+/* menu: natychmiastowe otwarcie (17.11) */
+.sw .sw-mnav{transition:opacity .15s,visibility .15s!important}
+.sw .sw-mnav li{transition:transform .35s cubic-bezier(.2,.7,.2,1),opacity .25s!important}
+.sw .sw-mnav.on li{transition-delay:0s!important}
+.sw .sw-mnav.on li:nth-child(2){transition-delay:.03s!important}.sw .sw-mnav.on li:nth-child(3){transition-delay:.06s!important}.sw .sw-mnav.on li:nth-child(4){transition-delay:.09s!important}.sw .sw-mnav.on li:nth-child(5){transition-delay:.12s!important}.sw .sw-mnav.on li:nth-child(6){transition-delay:.15s!important}.sw .sw-mnav.on li:nth-child(7){transition-delay:.18s!important}
+.sw .sw-mnav li{transform:translateY(.6rem)!important}.sw .sw-mnav.on li{transform:none!important}
+.sw-burger{touch-action:manipulation}
+.cv-pm img,.sw .cv-fm .ph img{filter:none!important}

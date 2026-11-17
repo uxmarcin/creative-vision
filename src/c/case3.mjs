@@ -73,6 +73,9 @@ const GG = {
   mob: [['/img/gg4-mobile-hero.webp', 'Strona główna'], ['/img/gg4-mobile-produkt.webp', 'Karta produktu'], ['/img/gg4-mobile-rozmiar.webp', 'Rozmiar'], ['/img/gg4-mobile-dodano.webp', 'Dodano do koszyka'], ['/img/gg4-mobile-zamowienie.webp', 'Zamówienie']]
 };
 
+// kolor projektu do delikatnej poświaty za ekranami
+export const PC = {'goldengun':'#B08D57','sztuka-wykonczen':'#BFA58A','4clubbers':'#8B3DFF','bud-mad':'#8C97A3','tekma':'#3E63EF','jctp-academy':'#F26A21','bzimny':'#2F6BFF'};
+
 // dodatkowe ekrany z telefonu do płynącego paska
 export const MOBX = {"goldengun": ["/img/gg4-m-menu.webp", "/img/gg4-m-szukaj.webp", "/img/gg4-m-listing.webp", "/img/gg4-m-filtry.webp", "/img/gg4-m-koszyk.webp", "/img/gg4-m-paczkomat.webp", "/img/gg4-m-potwierdzenie.webp"], "sztuka-wykonczen": ["/img/ClZgLXkzgRN8EtGimizHz4ciwuQ.webp"], "4clubbers": ["/img/mob-4clubbers-01.webp", "/img/mob-4clubbers-02.webp", "/img/mob-4clubbers-03.webp", "/img/mob-4clubbers-04.webp", "/img/mob-4clubbers-05.webp", "/img/mob-4clubbers-06.webp", "/img/mob-4clubbers-07.webp", "/img/mob-4clubbers-08.webp", "/img/mob-4clubbers-09.webp", "/img/eISy4D5iz2HY6Q3rF08lkaU.webp", "/img/qZ22WeFOd9ymGkMH59lP19BrM.webp"], "bud-mad": ["/img/mob-bud-mad-03.webp", "/img/mob-bud-mad-05.webp"], "tekma": ["/img/mob-tekma-01.webp", "/img/mob-tekma-02.webp", "/img/mob-tekma-03.webp", "/img/mob-tekma-04.webp", "/img/mob-tekma-05.webp", "/img/mob-tekma-06.webp", "/img/mob-tekma-07.webp", "/img/mob-tekma-08.webp", "/img/mob-tekma-09.webp", "/img/tekma-mobile-pulpit.webp", "/img/tekma-mobile-kandydat.webp", "/img/tekma-mobile-check-in.webp"], "jctp-academy": ["/img/jctp-mobile-hero.webp", "/img/jctp-mobile-szkolenia.webp", "/img/jctp-mobile-terminy.webp", "/img/jctp-mobile-salony.webp"], "bzimny": ["/img/mob-bzimny-01.webp", "/img/mob-bzimny-02.webp", "/img/mob-bzimny-03.webp", "/img/mob-bzimny-04.webp", "/img/mob-bzimny-05.webp", "/img/mob-bzimny-06.webp", "/img/mob-bzimny-07.webp", "/img/mob-bzimny-08.webp", "/img/mob-bzimny-09.webp", "/img/bzimny-mobile-pakiety.webp", "/img/bzimny-mobile-od-zakupu.webp"]};
 
@@ -151,7 +154,7 @@ export function cs3(t, e, nxt) {
   if (!gg && e.gotl) h += '<section class="gg3-sec gg3-be"><div class="sw-w gg3-2c"><div>' + kick(e.gotk || 'Co powstało') + '<h2>' + gr(t === 'uxaudyt' ? 'Co działa *dziś*' : 'Co dostał *klient*') + '</h2></div><ul class="gg3-got">' + e.gotl.map(g => '<li>' + ic('check') + '<span>' + esc(g) + '</span></li>').join('') + '</ul></div></section>';
   // następny projekt i CTA
   h += '<section class="gg3-next gg3-dark"><div class="sw-w">' + kick('Następny projekt') + '<a class="gg3-nx" href="/realizacje/' + nxt[0] + '">' + esc(nxt[1]) + ' <span aria-hidden="true">→</span></a><div class="gg3-cta"><h2>' + (t === 'uxaudyt' || t === '4clubbers' || t === 'tekma' ? 'Masz pomysł na *produkt*? Porozmawiajmy' : (t === 'goldengun' ? 'Twój sklep też może sprzedawać *łatwiej*' : 'Twoja strona też może *zbierać zapytania*')).replace(/\*([^*]+)\*/g, '<span class="sw-gr">$1</span>') + '</h2><div class="gg3-cta-r"><a class="sw-ob sw-ob-w" href="/kontakt">Zamów bezpłatną wycenę</a><p>Odpiszemy w ciągu 1 dnia roboczego, pn–pt 9:00–17:00.</p></div></div></div></section>';
-  return h;
+  return '<div class="gg3-pcw" style="--pc:' + (PC[slug] || '#88409F') + '">' + h + '</div>';
 }
 
 // indeks realizacji: duże sceny z ekranami, układ pełna szerokość / para
@@ -159,7 +162,7 @@ export function rl3(V, B) {
   const shot = k => k === 'goldengun' ? ['/img/gg4-hero.webp', '/img/gg4-mobile-hero.webp'] : [B[k].d, B[k].m];
   const card = (k, big) => {
     const e = B[k], [d, m] = shot(k);
-    return '<a class="rl3-c' + (big ? ' big' : '') + '" href="/realizacje/' + k + '"><div class="rl3-st"><div class="rl3-sc">' + img(d, 'Realizacja ' + e.n, 'd', big ? 0 : 1) + (m ? img(m, e.n + ' na telefonie', 'm') : '') + '</div></div><div class="rl3-m"><div><h2>' + esc(e.n) + '</h2><p>' + esc(e.k) + '</p></div><span class="rl3-go" aria-hidden="true">' + ic('arrow') + '</span></div></a>';
+    return '<a class="rl3-c' + (big ? ' big' : '') + '" style="--pc:' + (PC[k] || '#88409F') + '" href="/realizacje/' + k + '"><div class="rl3-st"><div class="rl3-sc">' + img(d, 'Realizacja ' + e.n, 'd', big ? 0 : 1) + (m ? img(m, e.n + ' na telefonie', 'm') : '') + '</div></div><div class="rl3-m"><div><h2>' + esc(e.n) + '</h2><p>' + esc(e.k) + '</p></div><span class="rl3-go" aria-hidden="true">' + ic('arrow') + '</span></div></a>';
   };
   let h = '<section class="rl3"><div class="sw-w">', i = 0, row = 0;
   while (i < V.length) {
@@ -173,16 +176,16 @@ export function rl3(V, B) {
 // oferta na stronie głównej (układ jak webmetric.com, styl Creative Vision)
 const OF = [
   ['Sklepy internetowe', [
-    ['Sklep internetowy', '/uslugi/sklepy-internetowe', 'art-jak-zalozyc-sklep-internetowy', 'Chcesz sklepu, w którym klienci kupują bez wahania?', 'Projektujemy drogę klienta od wyszukiwarki po płatność BLIK-iem. Zanim powstanie kod, klikasz gotowy prototyp. Od 5 990 zł netto.'],
+    ['Sklep internetowy', '/uslugi/sklepy-internetowe', 'art-jak-zalozyc-sklep-internetowy', 'Chcesz sklepu, w którym klienci kupują bez wahania?', 'Projektujemy drogę klienta od wyszukiwarki po płatność BLIK-iem. Zanim powstanie kod, klikasz gotowy prototyp. Od 5 990 zł netto.'],
     ['Sklep na PrestaShop', '/uslugi/sklepy-prestashop', 'art-co-to-jest-prestashop', 'Szukasz platformy bez miesięcznego abonamentu?', 'Jako PrestaShop Expert wdrażamy sklep na platformie, która należy do Ciebie. Bez abonamentu i bez niespodzianek.'],
     ['Migracja sklepu', '/uslugi/sklepy-internetowe', 'art-jaka-platforma-sklepu-internetowego', 'Przenosisz sklep z innej platformy?', 'Przenosimy produkty, klientów i treści, a przekierowania 301 chronią ruch z Google.'],
     ['Płatności i integracje', '/uslugi/sklepy-internetowe', 'art-ile-kosztuje-sklep-internetowy', 'Chcesz, żeby zamówienie zajmowało minutę?', 'BLIK, karty, Apple Pay, InPost i import produktów. Klient płaci, jak lubi, a Ty nie przepisujesz zamówień.']]],
   ['Strony internetowe', [
-    ['Strona firmowa', '/uslugi/strony-firmowe', 'art-strona-firmowa-ktora-zbiera-zapytania', 'Strona ładnie wygląda, ale nie przynosi zapytań?', 'W kilka sekund mówi, co robisz i dlaczego warto wybrać Ciebie, a potem prowadzi do telefonu lub formularza. Od 4 900 zł netto.'],
+    ['Strona firmowa', '/uslugi/strony-firmowe', 'art-strona-firmowa-ktora-zbiera-zapytania', 'Strona ładnie wygląda, ale nie przynosi zapytań?', 'W kilka sekund mówi, co robisz i dlaczego warto wybrać Ciebie, a potem prowadzi do telefonu lub formularza. Od 4 900 zł netto.'],
     ['Strony dla firm budowlanych', '/uslugi/strony-dla-firm-budowlanych', 'art-jak-stworzyc-strone-internetowa', 'Prowadzisz firmę budowlaną lub remontową?', 'Twoje realizacje na pierwszym planie, a przycisk „Zadzwoń” zawsze pod kciukiem.'],
     ['Strony internetowe Rzeszów', '/strony-internetowe-rzeszow', 'art-ile-kosztuje-strona-internetowa', 'Szukasz studia w Rzeszowie?', 'Spotkamy się przy ul. Pańskiej 13A. Z firmami z całej Polski pracujemy zdalnie.']]],
   ['UX/UI Design', [
-    ['Audyt UX', '/uslugi/audyt-ux', 'art-ux-karty-produktu', 'Masz ruch, ale sprzedaży jest za mało?', 'Sprawdzamy sklep oczami klienta i dajemy listę poprawek od tych, które dadzą najwięcej. Od 1 900 zł netto.'],
+    ['Audyt UX', '/uslugi/audyt-ux', 'art-ux-karty-produktu', 'Masz ruch, ale sprzedaży jest za mało?', 'Sprawdzamy sklep oczami klienta i dajemy listę poprawek od tych, które dadzą najwięcej. Od 1 900 zł netto.'],
     ['Projektowanie UX/UI', '/wiedza/projektowanie-ux-ui', 'art-projektowanie-ux-ui', 'Chcesz zobaczyć projekt, zanim zapłacisz za kod?', 'Ekrany w Figmie i klikalny prototyp. Testujesz go jak gotowy produkt, zanim powstanie kod.'],
     ['Aplikacje mobilne', '/uslugi/aplikacje-mobilne', 'art-ile-kosztuje-aplikacja-mobilna', 'Masz pomysł na aplikację?', 'Od warsztatu i prototypu po pierwszą wersję na iOS i Android.']]],
   ['Opieka i rozwój', [
@@ -193,7 +196,7 @@ const OF = [
 export function of3() {
   let h = '<div class="sw-w of3"><p class="sw-k">Oferta</p><h2 class="of3-h">Chcesz, żeby strona i sklep sprzedawały więcej? <span class="sw-gr">Pomożemy Ci w tym.</span></h2>';
   OF.forEach(([cat, items], ci) => {
-    h += '<div class="of3-row" data-of><div class="of3-l"><span class="of3-n">0' + (ci + 1) + '</span><h3>' + esc(cat) + '</h3><div class="of3-tabs" role="tablist" aria-label="' + esc(cat) + '">' +
+    h += '<div class="of3-row" data-of><i class="of3-line" aria-hidden="true"></i><div class="of3-l"><span class="of3-n">' + ic(['store', 'devices', 'pen', 'buoy'][ci], 'of3-ci') + '0' + (ci + 1) + '</span><h3>' + esc(cat) + '</h3><div class="of3-tabs" role="tablist" aria-label="' + esc(cat) + '">' +
       items.map((it, i) => '<button type="button" role="tab" aria-selected="' + (i ? 'false' : 'true') + '" class="of3-t' + (i ? '' : ' on') + '" data-i="' + i + '"><span>' + esc(it[0]) + '</span>' + ic('arrow', 'of3-a') + '</button>').join('') + '</div></div>' +
       '<div class="of3-m">' + items.map((it, i) => '<div class="of3-p' + (i ? '' : ' on') + '" role="tabpanel" data-i="' + i + '"' + (i ? ' hidden' : '') + '><h4>' + esc(it[3]) + '</h4><p>' + esc(it[4]) + '</p><a class="sw-tl" href="' + it[1] + '">Zobacz więcej</a></div>').join('') + '</div>' +
       '<div class="of3-im">' + items.map((it, i) => '<img class="' + (i ? '' : 'on') + '" data-i="' + i + '" src="/img/' + it[2] + '.webp" alt="" loading="lazy" decoding="async">').join('') + '</div></div>';

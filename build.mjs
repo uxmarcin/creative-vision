@@ -170,7 +170,8 @@ ${RELATED_HTML}
 <script src="/fx/reveal.js?v=2611032300" defer></script>
 ${p.path === '/' ? '<script src="/fx/mesh.js?v=2611162300" defer></script>' : ''}
 ${p.path === '/wiedza/cennik' ? '<script src="/fx/tabs.js?v=2611162330" defer></script>' : ''}
-${p.path === '/' ? '<script src="/fx/offer.js?v=2611170410" defer></script>' : ''}
+<script>document.addEventListener('click',function(e){if(window.__cvH)return;var b=e.target.closest&&e.target.closest('.sw-burger');if(!b)return;var n=document.querySelector('.sw-mnav');if(!n)return;var o=!n.classList.contains('on');n.classList.toggle('on',o);b.classList.toggle('on',o);b.setAttribute('aria-expanded',o);document.documentElement.classList.toggle('cv-lock',o);if(o)window.__cvY=scrollY},true)</script>
+${p.path === '/' ? '<script src="/fx/offer.js?v=2611170420" defer></script>' : ''}
 ${p.path.startsWith('/realizacje/') ? '<script src="/fx/case.js?v=2611170200" defer></script>' : ''}
 ${p.path === '/kontakt' ? '' : MBAR}
 </body>
