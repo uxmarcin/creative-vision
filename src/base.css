@@ -792,3 +792,30 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .gg3-tilt-in{left:10%!important;top:14%!important;width:104%!important;transform-origin:40% 40%!important;transform:rotateY(var(--ry,0deg)) rotateX(var(--rx,0deg))!important}
 /* następny projekt: strzałka nie znika po najechaniu */
 .gg3-nx:hover span{-webkit-text-fill-color:#51BAD4!important;color:#51BAD4!important;background:none!important}
+/* widżet „Oddzwonimy” */
+.cvcb{position:fixed;right:24px;bottom:24px;z-index:150;font-family:'Jost',system-ui,sans-serif;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .35s,transform .35s cubic-bezier(.2,.7,.2,1)}
+.cvcb.on{opacity:1;transform:none;pointer-events:auto}
+.cvcb.done{display:none}
+.cvcb-b{display:flex;align-items:center;gap:10px;background:#0B0B0B;color:#fff;border:1px solid rgba(255,255,255,.22);padding:14px 20px;font:inherit;font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;position:relative;transition:background .3s,color .3s}
+.cvcb-b::before,.cvcb-p::before{content:'';position:absolute;left:0;right:0;top:-1px;height:2px;background:linear-gradient(90deg,#E9685F,#E03F3B 20%,#AC2069 40%,#88409F 60%,#3E63EF 80%,#51BAD4)}
+.cvcb-b:hover{background:#fff;color:#0B0B0B}
+.cvcb.open .cvcb-b{display:none}
+.cvcb-p{position:relative;width:320px;max-width:calc(100vw - 32px);background:#0B0B0B;color:#fff;border:1px solid rgba(255,255,255,.22);padding:28px 24px 22px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.cvcb-p[hidden]{display:none}
+.cvcb-x{position:absolute;right:8px;top:8px;width:44px;height:44px;background:none;border:0;color:#fff;font-size:26px;line-height:1;cursor:pointer}
+.cvcb-h{font-size:24px;font-weight:500;line-height:1.15;letter-spacing:-.02em;margin:0 36px 8px 0}
+.cvcb-h b{font-weight:500;background:linear-gradient(90deg,#E9685F,#AC2069 45%,#3E63EF 85%,#51BAD4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cvcb-s{font-size:15px;line-height:1.5;color:rgba(255,255,255,.7);margin:0 0 20px}
+.cvcb-l{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.62);margin-bottom:8px}
+.cvcb-p input{width:100%;box-sizing:border-box;background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;font:inherit;font-size:18px;padding:14px;border-radius:0;outline:none}
+.cvcb-p input:focus{border-color:#fff}
+.cvcb-p input::placeholder{color:rgba(255,255,255,.4)}
+.cvcb-e{font-size:14px;color:#FF8F86;margin:8px 0 0}
+.cvcb-go{width:100%;margin-top:14px;background:#fff;color:#0B0B0B;border:1px solid #fff;padding:16px;font:inherit;font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .3s,color .3s}
+.cvcb-go:hover{background:transparent;color:#fff}
+.cvcb-go:disabled{opacity:.6;cursor:default}
+.cvcb-n{font-size:13px;color:rgba(255,255,255,.55);margin:12px 0 0}
+.cvcb-b:focus-visible,.cvcb-go:focus-visible,.cvcb-x:focus-visible{outline:2px solid #fff;outline-offset:2px}
+html.cv-lock .cvcb{display:none}
+@media (max-width:640px){.cvcb{right:16px;bottom:16px}.cvcb-b{padding:14px}.cvcb-b span{display:none}}
+@media (prefers-reduced-motion:reduce){.cvcb{transition:none}}
