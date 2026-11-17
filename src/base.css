@@ -648,3 +648,17 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .sw-hx:has(.cv-kt-ph){align-items:center;gap:72px}
 .sw-hx-a:has(.cv-kt-ph){flex:none;width:min(440px,38%);padding:0}
 @container (max-width:900px){.sw-hx-a:has(.cv-kt-ph){width:100%}}
+/* kontakt: hero bez okruszków i etykiety, mesh jak na home, większy kadr zdjęcia */
+.cv-kh .sw-bc,.cv-kh .sw-k{display:none!important}
+.cv-kh .sw-ph-hero{padding-top:72px!important;padding-bottom:96px!important}
+.cv-kh::before{inset:-10% -10% -30% 20%!important;opacity:1!important;background:radial-gradient(ellipse 36% 42% at 30% 45%,rgba(224,63,59,.6),transparent 70%),radial-gradient(ellipse 34% 40% at 62% 30%,rgba(172,32,105,.7),transparent 70%),radial-gradient(ellipse 38% 44% at 80% 70%,rgba(136,64,159,.65),transparent 70%),radial-gradient(ellipse 30% 36% at 45% 85%,rgba(62,99,239,.5),transparent 70%)!important}
+.sw-hx:has(.cv-kt-ph){gap:88px}
+.sw-hx-a:has(.cv-kt-ph){width:min(560px,44%)}
+.cv-kt-ph{aspect-ratio:5/4;object-position:50% 12%;border:0;box-shadow:0 40px 90px rgba(0,0,0,.55)}
+@container (max-width:900px){.cv-kh .sw-ph-hero{padding-top:40px!important;padding-bottom:56px!important}.sw-hx-a:has(.cv-kt-ph){width:100%}}
+.sw-hx:has(.cv-kt-ph){gap:48px;align-items:stretch}
+.sw-hx:has(.cv-kt-ph)>div:first-child{align-self:center}
+.sw-hx-a:has(.cv-kt-ph){width:56%;margin:-72px -88px -96px 0;position:relative}
+.cv-kt-ph{width:100%;height:100%;min-height:520px;aspect-ratio:auto;object-position:50% 20%;box-shadow:none;clip-path:polygon(22% 0,100% 0,100% 100%,0 100%)}
+.sw-hx-a:has(.cv-kt-ph)::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#E9685F,#AC2069,#88409F,#3E63EF,#51BAD4);clip-path:polygon(22% 0,22.6% 0,.6% 100%,0 100%);pointer-events:none}
+@container (max-width:900px){.sw-hx-a:has(.cv-kt-ph){width:calc(100% + 48px);margin:0 -24px -56px}.cv-kt-ph{min-height:0;aspect-ratio:4/3;clip-path:polygon(0 12%,100% 0,100% 100%,0 100%)}.sw-hx-a:has(.cv-kt-ph)::after{display:none}}
