@@ -1,0 +1,11 @@
+name: figup
+on:
+  push:
+    branches: [img/figup]
+jobs:
+  up:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          while read id name; do curl -sS -f -X POST -F "file=@public/img/cv-of-$name.webp;type=image/webp" "https://mcp.figma.com/mcp/upload/$id/submit?scaleMode=FILL&currentPageId=82%3A2"; echo; done < uploads.txt

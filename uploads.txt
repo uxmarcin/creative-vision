@@ -1,0 +1,4 @@
+6625eb08-7f6a-49aa-af31-588ba9db412a sklepy
+b57135db-71fe-4539-bc8d-0dd7893c1f1c strony
+3070d489-82d5-40ef-b15a-95bbd9f25b32 ux
+c3463758-568f-4417-bc8c-f7d5bf9c9ed5 opieka
