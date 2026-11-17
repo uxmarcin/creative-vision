@@ -445,3 +445,23 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 @media (max-width:640px){.gg3-mq-t.st{padding:0 24px}}
 .gg3-mq img{aspect-ratio:390/664!important;object-fit:cover;object-position:50% 0}
 .gg3-mq figcaption{display:none}
+
+/* oferta v2: oddech, mesh zamiast linii, kafelek ikony, przyciski równo z treścią */
+.of3-row{padding:120px 0!important;gap:72px!important;border-top:0!important}
+.of3-row:first-of-type{padding-top:104px!important}
+.of3-line{left:var(--ll,0)!important;width:var(--lw,100%)!important;top:0!important;height:1px!important;background:linear-gradient(90deg,#E9685F,#E03F3B,#AC2069,#88409F,#3E63EF,#51BAD4,#E9685F)!important;background-size:200% 100%!important;animation:of3mesh 14s ease-in-out infinite alternate;opacity:1;-webkit-mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);transform-origin:center!important}
+.of3-line::after{content:'';position:absolute;left:8%;right:8%;top:-22px;height:44px;background:inherit;background-size:200% 100%;animation:inherit;filter:blur(24px);opacity:.55;border-radius:50%}
+@keyframes of3mesh{0%{background-position:0 0}100%{background-position:100% 0}}
+.of3-ic{position:relative;display:grid;place-items:center;width:64px;height:64px;border:1px solid rgba(255,255,255,.16);isolation:isolate;overflow:hidden;margin-bottom:28px}
+.of3-ic::before{content:'';position:absolute;inset:-40%;z-index:-1;background:conic-gradient(from 0deg,#E9685F,#AC2069,#88409F,#3E63EF,#51BAD4,#E9685F);filter:blur(18px);opacity:.28;animation:of3spin 12s linear infinite}
+.of3-ic::after{content:'';position:absolute;inset:1px;z-index:-1;background:rgba(0,0,0,.72)}
+@keyframes of3spin{to{transform:rotate(360deg)}}
+.of3-ic .of3-ci{width:28px!important;height:28px!important}
+.of3-row:hover .of3-ic::before{opacity:.5}
+.sw .of3-row h3{margin:0 0 12px!important}
+.sw .of3-tg{font-size:17px;line-height:1.55;color:rgba(255,255,255,.6);margin:0 0 40px!important;max-width:30ch}
+.of3-t{margin-left:0!important}
+.of3-m{padding-top:92px!important}
+@media (prefers-reduced-motion:reduce){.of3-line,.of3-line::after,.of3-ic::before{animation:none}}
+@container (max-width:1000px){.of3-row{gap:40px!important}.of3-m{padding-top:0!important}}
+@container (max-width:640px){.of3-row{padding:56px 0!important;gap:20px!important}.of3-ic{width:52px;height:52px;margin-bottom:20px}.sw .of3-tg{margin-bottom:24px!important;font-size:16px}.of3-m{padding-top:16px!important}.of3-line{left:0!important;width:100%!important}}

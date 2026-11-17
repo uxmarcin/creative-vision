@@ -186,7 +186,7 @@ const OF = [
     ['Strony dla firm budowlanych', '/uslugi/strony-dla-firm-budowlanych', 'art-jak-stworzyc-strone-internetowa', 'Prowadzisz firmę budowlaną lub remontową?', 'Twoje realizacje na pierwszym planie, a przycisk „Zadzwoń” zawsze pod kciukiem.'],
     ['Strony internetowe Rzeszów', '/strony-internetowe-rzeszow', 'art-ile-kosztuje-strona-internetowa', 'Szukasz studia w Rzeszowie?', 'Spotkamy się przy ul. Pańskiej 13A. Z firmami z całej Polski pracujemy zdalnie.']]],
   ['UX/UI Design', [
-    ['Audyt UX', '/uslugi/audyt-ux', 'art-ux-karty-produktu', 'Masz ruch, ale sprzedaży jest za mało?', 'Sprawdzamy sklep oczami klienta i dajemy listę poprawek od tych, które dadzą najwięcej. Od 1 900 zł netto.'],
+    ['Audyt UX', '/uslugi/audyt-ux', 'art-ux-karty-produktu', 'Klienci wchodzą, oglądają i wychodzą bez zakupu?', 'Sprawdzamy sklep oczami klienta i dajemy listę poprawek od tych, które dadzą najwięcej. Od 1 900 zł netto.'],
     ['Projektowanie UX/UI', '/wiedza/projektowanie-ux-ui', 'art-projektowanie-ux-ui', 'Chcesz zobaczyć projekt, zanim zapłacisz za kod?', 'Ekrany w Figmie i klikalny prototyp. Testujesz go jak gotowy produkt, zanim powstanie kod.'],
     ['Aplikacje mobilne', '/uslugi/aplikacje-mobilne', 'art-ile-kosztuje-aplikacja-mobilna', 'Masz pomysł na aplikację?', 'Od warsztatu i prototypu po pierwszą wersję na iOS i Android.']]],
   ['Opieka i rozwój', [
@@ -194,11 +194,12 @@ const OF = [
     ['SEO techniczne', '/uslugi/opieka', 'art-sklep-a-zakupy-przez-asystentow-ai', 'Chcesz, żeby Google i asystenci AI rozumieli Twoją ofertę?', 'Szybsze ładowanie, porządne adresy i dane strukturalne. Oferta czytelna dla Google i ChatGPT.'],
     ['Agencja e-commerce', '/agencja-ecommerce', 'art-jak-wybrac-agencje-e-commerce', 'Potrzebujesz partnera na dłużej?', 'Co miesiąc planujemy, mierzymy i wdrażamy kolejne poprawki w Twoim sklepie.']]]
 ];
+const OFT = ['Projekt, wdrożenie i rozwój sklepu, który sprzedaje.', 'Strony, które zamieniają odwiedziny w telefony.', 'Badamy, projektujemy i testujemy, zanim powstanie kod.', 'Dbamy o stronę i sklep także po starcie.'];
 const OFI = [['sklepy2', 'Spotkanie z klientem w biurze z logo Creative Vision na ścianie'], ['strony', 'Dwie projektantki omawiają projekt przy dwóch monitorach'], ['ux', 'Zespół dobiera kolory do projektu interfejsu'], ['opieka', 'Projektant pokazuje klientce notatki przy laptopie']];
 export function of3() {
   let h = '<div class="sw-w of3"><p class="sw-k">Oferta</p><h2 class="of3-h">Chcesz, żeby strona i sklep sprzedawały więcej? <span class="sw-gr">Pomożemy Ci w tym.</span></h2>';
   OF.forEach(([cat, items], ci) => {
-    h += '<div class="of3-row" data-of><i class="of3-line" aria-hidden="true"></i><div class="of3-l"><span class="of3-n">' + ic(['store', 'devices', 'pen', 'buoy'][ci], 'of3-ci') + '0' + (ci + 1) + '</span><h3>' + esc(cat) + '</h3><div class="of3-tabs" role="tablist" aria-label="' + esc(cat) + '">' +
+    h += '<div class="of3-row" data-of style="' + ['--ll:0;--lw:64%', '--ll:30%;--lw:70%', '--ll:0;--lw:46%', '--ll:44%;--lw:56%'][ci] + '"><i class="of3-line" aria-hidden="true"></i><div class="of3-l"><span class="of3-ic" aria-hidden="true">' + ic(['store', 'devices', 'pen', 'buoy'][ci], 'of3-ci') + '</span><h3>' + esc(cat) + '</h3><p class="of3-tg">' + OFT[ci] + '</p><div class="of3-tabs" role="tablist" aria-label="' + esc(cat) + '">' +
       items.map((it, i) => '<button type="button" role="tab" aria-selected="' + (i ? 'false' : 'true') + '" class="of3-t' + (i ? '' : ' on') + '" data-i="' + i + '"><span>' + esc(it[0]) + '</span>' + ic('arrow', 'of3-a') + '</button>').join('') + '</div></div>' +
       '<div class="of3-m">' + items.map((it, i) => '<div class="of3-p' + (i ? '' : ' on') + '" role="tabpanel" data-i="' + i + '"' + (i ? ' hidden' : '') + '><h4>' + esc(it[3]) + '</h4><p>' + esc(it[4]) + '</p><a class="sw-tl" href="' + it[1] + '">Zobacz więcej</a></div>').join('') + '</div>' +
       '<div class="of3-im"><img class="on" src="/img/cv-of-' + OFI[ci][0] + '.webp" width="1600" height="1200" alt="' + OFI[ci][1] + '" loading="lazy" decoding="async"></div></div>';
