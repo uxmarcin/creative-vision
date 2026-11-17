@@ -700,3 +700,25 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .fx-logos:hover .fx-track{animation-play-state:running!important}
 @container (max-width:640px){.sw .cv-intro{padding-top:64px!important}.sw .sw-trust{margin-top:64px;padding-bottom:80px!important}.fx-logos{padding-top:40px!important}.fx-track .it{padding:0 36px!important}}
 .gg3-tilt-in img{opacity:1!important;filter:none!important}
+/* o nas */
+.cv-oh .sw-bc{display:none!important}
+.cv-oh .sw-ph-hero{padding-top:72px!important;padding-bottom:110px!important}
+.on3-phs{background:#000;line-height:0}
+.on3-ph{display:block;width:100%;height:auto;aspect-ratio:21/9;object-fit:cover;object-position:50% 22%}
+.on3-st{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:40px;margin:88px 0 0;padding-top:44px;border-top:1px solid var(--gg-l,rgba(11,11,11,.12))}
+.on3-st div{margin:0}
+.on3-st dt{font-size:clamp(56px,6cqi,88px);font-weight:500;line-height:1;letter-spacing:-.04em;width:fit-content}
+.on3-st dd{margin:14px 0 0;font-size:17px;line-height:1.5;color:var(--gg-m,#555);max-width:24ch}
+.sw .on3 .on3-b{margin:56px 0 0!important;color:#0B0B0B;border-color:#0B0B0B}
+.sw .on3 .on3-b:hover{background:#0B0B0B;color:#fff}
+@container (max-width:900px){.on3-st{grid-template-columns:1fr 1fr;gap:36px 24px;margin-top:56px;padding-top:36px}.on3-ph{aspect-ratio:4/3;object-position:50% 20%}.cv-oh .sw-ph-hero{padding-top:40px!important;padding-bottom:64px!important}}
+/* hero home: mniejszy sygnet, kontury rysują się i znikają */
+.cv-mh-sg{right:7%!important;top:50%!important;height:62%!important;mix-blend-mode:normal!important;color:rgba(255,255,255,.5)!important;-webkit-mask-image:none!important;mask-image:none!important}
+.cv-mh-sg path{stroke-width:.3;stroke-dasharray:1!important;stroke-dashoffset:1;animation:cvsg2 9s cubic-bezier(.5,0,.3,1) infinite!important}
+.cv-mh-sg path:nth-child(2){animation-delay:1.1s!important}.cv-mh-sg path:nth-child(3){animation-delay:2.2s!important}
+@keyframes cvsg2{0%{stroke-dashoffset:1;opacity:0}8%{opacity:1}42%{stroke-dashoffset:0;opacity:1}62%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:-1;opacity:0}}
+@media (prefers-reduced-motion:reduce){.cv-mh-sg path{animation:none!important;stroke-dashoffset:0;opacity:.6}}
+@container (max-width:900px){.cv-mh-sg{height:34%!important;right:6%!important;top:20%!important;opacity:.6}}
+.on3-ph{object-position:50% 3%!important}
+.cv-mh-sg{height:48%!important;right:5%!important}
+@container (max-width:900px){.cv-mh-sg{display:none!important}}
