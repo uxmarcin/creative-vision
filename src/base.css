@@ -628,3 +628,23 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .cv-cta2-ci{width:26px;height:26px}
 @container (max-width:900px){.cv-cta2.np .cv-cta2-g{grid-template-columns:1fr!important;gap:40px}.cv-cta2-ls li{font-size:17px;padding:18px 0}}
 @media (prefers-reduced-motion:reduce){.cv-cta2.np::after,.sw .cv-fm .ph::before{animation:none}}
+/* następny krok v3: nagłówek i CTA w jednym rzędzie, pod spodem oś z gradientem i cztery kolumny z ikonami */
+.cv-cta2.np .cv-cta2-g{grid-template-columns:1fr!important;gap:72px!important}
+.cv-cta2.np .cv-cta2-t{display:grid;grid-template-columns:1fr auto;align-items:end;gap:24px 56px}
+.cv-cta2.np .cv-cta2-t .sw-k{grid-column:1/-1}
+.sw .cv-cta2.np h2{margin:0!important;max-width:16ch}
+.cv-cta2.np .cv-cta-row{flex-direction:column;align-items:flex-start;gap:14px;margin:0}
+.cv-cta2-ls{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:40px;border:0!important;padding-top:44px!important}
+.cv-cta2-ls::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:rgba(255,255,255,.16)}
+.cv-cta2-ls::after{content:'';position:absolute;left:0;top:-1px;height:3px;width:38%;background:linear-gradient(90deg,#E9685F,#E03F3B 20%,#AC2069 40%,#88409F 60%,#3E63EF 80%,#51BAD4)}
+.cv-cta2-ls li{display:flex!important;flex-direction:column;align-items:flex-start!important;gap:0!important;padding:0!important;border:0!important}
+.cv-cta2-ls .cv-cta2-ci{width:32px;height:32px;margin-bottom:20px}
+.cv-cta2-ls b{font-size:21px;font-weight:500;line-height:1.3;color:#fff}
+.cv-cta2-ls small{font-size:17px;line-height:1.5;color:rgba(255,255,255,.62);margin-top:8px}
+@container (max-width:1000px){.cv-cta2-ls{grid-template-columns:1fr 1fr}.cv-cta2.np .cv-cta2-t{grid-template-columns:1fr}}
+@container (max-width:640px){.cv-cta2-ls{grid-template-columns:1fr;gap:32px;padding-top:36px!important}.cv-cta2.np .cv-cta2-g{gap:48px!important}}
+/* kontakt: zdjęcie zespołu z logo w hero */
+.cv-kt-ph{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border:1px solid rgba(255,255,255,.14)}
+.sw-hx:has(.cv-kt-ph){align-items:center;gap:72px}
+.sw-hx-a:has(.cv-kt-ph){flex:none;width:min(440px,38%);padding:0}
+@container (max-width:900px){.sw-hx-a:has(.cv-kt-ph){width:100%}}
