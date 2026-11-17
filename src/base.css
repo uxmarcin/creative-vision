@@ -819,3 +819,12 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 html.cv-lock .cvcb{display:none}
 @media (max-width:640px){.cvcb{right:16px;bottom:16px}.cvcb-b{padding:14px}.cvcb-b span{display:none}}
 @media (prefers-reduced-motion:reduce){.cvcb{transition:none}}
+.cvcb-who{display:flex;align-items:center;gap:12px;margin:0 36px 18px 0}
+.cvcb-who img{width:44px;height:44px;object-fit:cover;object-position:50% 12%;background:#000;border:1px solid rgba(255,255,255,.22);display:block}
+.cvcb-who p{margin:0;display:flex;flex-direction:column;font-size:13px;line-height:1.35;color:rgba(255,255,255,.62)}
+.cvcb-who b{font-size:15px;font-weight:500;color:#fff}
+.cvcb-p #cvcb-n{margin-bottom:14px}
+.cvcb-c{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:13px;line-height:1.45;color:rgba(255,255,255,.8);cursor:pointer}
+.cvcb-p .cvcb-c input{width:18px;height:18px;flex:none;margin:1px 0 0;padding:0;accent-color:#fff}
+.cvcb-e2{font-size:14px;color:#FF8F86;margin:8px 0 0}
+.cvcb-c{margin:14px 0 0}.cvcb-go{margin-top:16px}
