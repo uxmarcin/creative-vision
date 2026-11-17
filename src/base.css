@@ -472,3 +472,37 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .of3-line::after{left:8%;right:8%;top:-15px;height:30px;filter:blur(24px);opacity:.5;border-radius:0}
 .of3-ic::before,.of3-ic::after{display:none!important}
 @media (prefers-reduced-motion:reduce){.of3-line::before,.of3-line::after{animation:none}}
+/* oferta: opis wyśrodkowany w pionie względem zdjęcia */
+@container (min-width:1001px){.of3-m{padding-top:0!important;aspect-ratio:4/3;display:flex;flex-direction:column;justify-content:center;align-self:start}}
+/* hero: ocena Google pobierana z Places API (dane/google.json) */
+.cv-gr{display:inline-flex;align-items:center;gap:12px;margin-top:36px;color:#fff;text-decoration:none;font-size:15px;opacity:0;transform:translateY(8px);transition:opacity .6s,transform .6s cubic-bezier(.2,.7,.2,1)}
+.cv-gr[hidden]{display:none}
+.cv-gr.on{opacity:1;transform:none}
+.cv-gr .g{width:22px;height:22px;flex:none}
+.cv-gr .t{font-weight:500;font-size:17px;letter-spacing:-.01em}
+.cv-gr .s svg{display:block;width:100px;height:20px}
+.cv-gr b{font-weight:500}
+.cv-gr .c{color:rgba(255,255,255,.62);border-left:1px solid rgba(255,255,255,.2);padding-left:12px}
+.cv-gr:hover .c{color:#fff;text-decoration:underline}
+@container (max-width:640px){.cv-gr{flex-wrap:wrap;gap:8px 10px;margin-top:28px}}
+/* oferta: kolorowy dym zamiast linii */
+.of3-line::before{top:-70px!important;height:140px!important;left:-4%!important;right:-4%!important;background:radial-gradient(ellipse 22% 38% at 18% 50%,rgba(233,104,95,.85),transparent 70%),radial-gradient(ellipse 20% 34% at 40% 45%,rgba(172,32,105,.8),transparent 70%),radial-gradient(ellipse 22% 40% at 62% 55%,rgba(136,64,159,.8),transparent 70%),radial-gradient(ellipse 20% 36% at 84% 48%,rgba(62,99,239,.75),transparent 70%)!important;background-size:100% 100%!important;filter:blur(34px);opacity:.42;animation:of3smoke 18s ease-in-out infinite alternate!important}
+.of3-line::after{top:-40px!important;height:80px!important;left:10%!important;right:10%!important;background:radial-gradient(ellipse 30% 45% at 30% 50%,rgba(224,63,59,.7),transparent 70%),radial-gradient(ellipse 28% 45% at 72% 50%,rgba(81,186,212,.6),transparent 70%)!important;background-size:100% 100%!important;filter:blur(28px)!important;opacity:.35!important;animation:of3smoke2 22s ease-in-out infinite alternate!important}
+@keyframes of3smoke{0%{transform:translateX(-3%) scaleY(.85)}50%{transform:translateX(2%) scaleY(1.1)}100%{transform:translateX(4%) scaleY(.9)}}
+@keyframes of3smoke2{0%{transform:translateX(5%) scale(1)}100%{transform:translateX(-6%) scale(1.15)}}
+/* następny krok: zdjęcie na kolorowym dymie */
+.sw .cv-cta2{text-align:left}
+.cv-cta2-g{display:grid;grid-template-columns:1fr 360px;gap:72px;align-items:center}
+.sw .cv-cta2 h2{text-align:left!important;margin:18px 0 38px!important;max-width:15ch}
+.cv-cta2 .sw-k{justify-content:flex-start!important}
+.cv-cta2-ph{position:relative;margin:0;aspect-ratio:4/5;border:1px solid rgba(255,255,255,.16);overflow:hidden;isolation:isolate;background:#050505}
+.cv-cta2-ph::before{content:'';position:absolute;inset:-10%;z-index:-1;background:radial-gradient(ellipse 45% 35% at 25% 40%,rgba(233,104,95,.75),transparent 70%),radial-gradient(ellipse 40% 40% at 70% 30%,rgba(172,32,105,.7),transparent 70%),radial-gradient(ellipse 45% 40% at 60% 75%,rgba(62,99,239,.65),transparent 70%),radial-gradient(ellipse 35% 30% at 20% 85%,rgba(136,64,159,.6),transparent 70%);filter:blur(40px);opacity:.55;animation:of3smoke2 16s ease-in-out infinite alternate}
+.sw .cv-cta2-ph img{position:absolute!important;right:0;bottom:0;left:auto;top:auto;height:96%;width:auto;max-width:none}
+.cv-cta2-ph figcaption{position:absolute;left:0;right:0;bottom:0;padding:48px 20px 18px;background:linear-gradient(transparent,rgba(0,0,0,.85));display:flex;flex-direction:column;gap:2px;font-size:13px;color:rgba(255,255,255,.7)}
+.cv-cta2-ph figcaption b{font-size:17px;font-weight:500;color:#fff}
+@media (prefers-reduced-motion:reduce){.cv-cta2-ph::before{animation:none}}
+@container (max-width:900px){.cv-cta2-g{grid-template-columns:1fr;gap:40px}.cv-cta2-ph{max-width:320px}}
+.of3-line::before,.of3-line::after{-webkit-mask-image:none!important;mask-image:none!important;filter:none!important}
+.of3-line::before{top:-110px!important;height:220px!important;background:radial-gradient(ellipse 16% 22% at 16% 50%,rgba(233,104,95,.55),transparent),radial-gradient(ellipse 15% 20% at 38% 46%,rgba(172,32,105,.55),transparent),radial-gradient(ellipse 16% 24% at 60% 54%,rgba(136,64,159,.55),transparent),radial-gradient(ellipse 15% 21% at 82% 48%,rgba(62,99,239,.5),transparent)!important;opacity:.55!important}
+.of3-line::after{top:-90px!important;height:180px!important;background:radial-gradient(ellipse 20% 22% at 28% 50%,rgba(224,63,59,.4),transparent),radial-gradient(ellipse 18% 22% at 72% 50%,rgba(81,186,212,.35),transparent)!important;opacity:.5!important}
+.sw .cv-cta2-ph img{height:88%}

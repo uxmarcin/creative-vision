@@ -3,12 +3,15 @@ name: Wdrożenie na cyber_Folks (FTPS)
 # Każdy push na main wysyła katalog public/ do public_html/ domeny creative-vision.pl
 # (konto FTP domeny; private_html to skrót do public_html)
 # Sekrety repo: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD
+# Opcjonalnie: GOOGLE_PLACES_KEY i GOOGLE_PLACE_ID (ocena Google w hero, plik dane/google.json)
 
 on:
   push:
     branches: [main]
     paths-ignore: [".github/workflows/diag.yml"]
   workflow_dispatch:
+  schedule:
+    - cron: '17 4 * * *'  # codziennie: odświeża ocenę z Google
 
 concurrency:
   group: deploy
@@ -19,6 +22,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Ocena z Google (Places API)
+        env:
+          KEY: ${{ secrets.GOOGLE_PLACES_KEY }}
+          PID: ${{ secrets.GOOGLE_PLACE_ID }}
+        run: |
+          [ -z "$KEY" ] || [ -z "$PID" ] && { echo "Brak sekretów Google, pomijam"; exit 0; }
+          mkdir -p public/dane
+          curl -sS -f "https://places.googleapis.com/v1/places/$PID" -H "X-Goog-Api-Key: $KEY" -H "X-Goog-FieldMask: rating,userRatingCount,googleMapsUri" -o /tmp/g.json || { echo "Google nie odpowiedział"; exit 0; }
+          python3 -c "import json;d=json.load(open('/tmp/g.json'));r=d.get('rating');json.dump({'rating':r,'count':d.get('userRatingCount',0),'url':d.get('googleMapsUri','')},open('public/dane/google.json','w')) if r else None"
+          cat public/dane/google.json 2>/dev/null || true
       - name: Wyślij do public_html
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
