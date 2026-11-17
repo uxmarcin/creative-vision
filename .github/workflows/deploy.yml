@@ -41,3 +41,17 @@ jobs:
           protocol: ftps
           local-dir: ./public/
           server-dir: ./public_html/
+      - name: Zgłoś adresy do wyszukiwarek (IndexNow, Bing i partnerzy)
+        if: github.event_name != 'schedule'
+        run: |
+          python3 - <<'PY'
+          import re, json, urllib.request
+          urls = re.findall(r'<loc>([^<]+)</loc>', open('public/sitemap.xml').read())
+          body = json.dumps({"host": "creative-vision.pl", "key": "23d02d1a3bd73fd8760d3e217436036a", "keyLocation": "https://creative-vision.pl/23d02d1a3bd73fd8760d3e217436036a.txt", "urlList": urls}).encode()
+          req = urllib.request.Request("https://api.indexnow.org/indexnow", data=body, headers={"Content-Type": "application/json; charset=utf-8"})
+          try:
+              r = urllib.request.urlopen(req, timeout=30)
+              print("IndexNow:", r.status, len(urls), "adresów")
+          except Exception as e:
+              print("IndexNow nie odpowiedział:", e)
+          PY
