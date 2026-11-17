@@ -767,3 +767,11 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .cv-mh-sg .ln path{stroke:rgba(255,255,255,.34)!important;stroke-width:.15!important}
 .cv-mh-sg{animation:cvsgL 14s ease-in-out infinite!important;filter:none!important;will-change:opacity,transform}
 @keyframes cvsgL{0%,62%{opacity:1;transform:translateY(-50%) scale(1)}100%{opacity:0;transform:translateY(-50%) scale(1.05)}}
+/* następny krok: zdjęcie identyczne jak w boksie „Porozmawiaj z projektantem” */
+.cv-cta2-ph{aspect-ratio:auto!important;border:0!important;background:#0b0b0b!important;display:flex;align-items:flex-end;overflow:hidden}
+.sw .cv-cta2-ph img{position:static!important;width:100%!important;height:auto!important;margin-top:56px;display:block}
+.cv-cta2-ph figcaption{padding:64px 24px 20px!important;background:linear-gradient(transparent,rgba(0,0,0,.9))!important;gap:2px!important}
+.cv-cta2-ph figcaption b{font-size:19px!important;font-weight:500}
+.cv-cta2-ph figcaption span{font-size:13px!important;color:rgba(255,255,255,.7)!important}
+.cv-cta2-g{grid-template-columns:1fr 330px!important}
+@container (max-width:900px){.cv-cta2-g{grid-template-columns:1fr!important}.cv-cta2-ph{max-width:330px}}
