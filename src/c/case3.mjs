@@ -180,8 +180,8 @@ const OF = [
     ['Strony dla firm budowlanych', '/uslugi/strony-dla-firm-budowlanych', 'art-jak-stworzyc-strone-internetowa', 'Prowadzisz firmę budowlaną lub remontową?', 'Twoje realizacje na pierwszym planie, a przycisk „Zadzwoń” zawsze pod kciukiem.'],
     ['Strony internetowe Rzeszów', '/strony-internetowe-rzeszow', 'art-ile-kosztuje-strona-internetowa', 'Szukasz studia w Rzeszowie?', 'Umówmy się na spotkanie online. Pokażemy projekt na ekranie i odpowiemy na pytania, bez dojazdów.']]],
   ['UX/UI Design', [
-    ['Audyt UX', '/uslugi/audyt-ux', 'art-ux-karty-produktu', 'Klienci wchodzą, oglądają i wychodzą bez zakupu?', 'Sprawdzamy sklep oczami klienta i dajemy listę poprawek od tych, które dadzą najwięcej. Od 1 900 zł netto.'],
     ['Projektowanie UX/UI', '/wiedza/projektowanie-ux-ui', 'art-projektowanie-ux-ui', 'Chcesz zobaczyć projekt, zanim zapłacisz za kod?', 'Ekrany w Figmie i klikalny prototyp. Testujesz go jak gotowy produkt, zanim powstanie kod.'],
+    ['Audyt UX', '/uslugi/audyt-ux', 'art-ux-karty-produktu', 'Klienci wchodzą, oglądają i wychodzą bez zakupu?', 'Sprawdzamy sklep oczami klienta i dajemy listę poprawek od tych, które dadzą najwięcej. Od 1 900 zł netto.'],
     ['Aplikacje mobilne', '/uslugi/aplikacje-mobilne', 'art-ile-kosztuje-aplikacja-mobilna', 'Masz pomysł na aplikację?', 'Od warsztatu i prototypu po pierwszą wersję na iOS i Android.']]],
   ['Opieka i rozwój', [
     ['Opieka nad stroną i sklepem', '/uslugi/opieka', 'art-moduly-prestashop', 'Nie chcesz martwić się aktualizacjami?', 'Aktualizacje, kopie zapasowe i nowe funkcje, kiedy ich potrzebujesz. Od 490 zł netto miesięcznie.'],
@@ -189,7 +189,7 @@ const OF = [
     ['Agencja e-commerce', '/agencja-ecommerce', 'art-jak-wybrac-agencje-e-commerce', 'Potrzebujesz partnera na dłużej?', 'Co miesiąc planujemy, mierzymy i wdrażamy kolejne poprawki w Twoim sklepie.']]]
 ];
 const OFT = ['Projekt, wdrożenie i rozwój sklepu, który sprzedaje.', 'Strony, które zamieniają odwiedziny w telefony.', 'Badamy, projektujemy i testujemy, zanim powstanie kod.', 'Dbamy o stronę i sklep także po starcie.'];
-const OFI = [['sklepy2', 'biuro', 'telefon2', 'opieka4'], ['sofa', 'strony', 'zespol4'], ['rozmowa3', 'makiety', 'warsztat'], ['ads', 'narada', 'biuro']];
+const OFI = [['sklepy2', 'biuro', 'telefon2', 'opieka4'], ['sofa', 'strony', 'zespol4'], ['makiety', 'rozmowa3', 'warsztat'], ['ads', 'narada', 'biuro']];
 const OFA = { makiety: 'Projektantka pokazuje makietę aplikacji na telefonie nad szkicami ekranów', studio: 'Dwie projektantki pracują nad projektem przy laptopie', biuro: 'Projektanci omawiają projekt przy komputerze', ads: 'Zespół analizuje wyniki kampanii na laptopie', sofa: 'Dwie projektantki omawiają projekt na kanapie, w tle logo Creative Vision', telefon2: 'Zespół ogląda projekt na telefonie', sklepy2: 'Spotkanie z klientem w biurze z logo Creative Vision na ścianie', strony: 'Dwie projektantki omawiają projekt przy dwóch monitorach', narada: 'Dwie projektantki omawiają projekt przy biurku', opieka4: 'Projektant pokazuje klientce notatki przy laptopie, w tle logo Creative Vision', zespol4: 'Zespół Creative Vision przy biurku, w tle logo na ścianie', rozmowa3: 'Rozmowa z klientką o projekcie przy tablecie', warsztat: 'Warsztat projektowy przy wspólnym stole' };
 
 /* strony usług: sekcje w stylu case study */
