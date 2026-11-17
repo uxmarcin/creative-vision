@@ -520,3 +520,10 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.of3-im{animation:none}}
 /* oferta: trzy kolumny wyśrodkowane w jednej osi poziomej */
 @container (min-width:1001px){.of3-row{align-items:center!important}.of3-m{aspect-ratio:auto!important;display:block!important;align-self:center!important;padding-top:0!important}.of3-im{align-self:center}}
+/* oferta v5: większe zdjęcia, ramka gradientowa odsunięta od zdjęcia (box w tle jak u Webmetric) */
+@container (min-width:1001px){.of3-row{grid-template-columns:3.4fr 3.2fr 5fr!important;gap:56px!important}.of3-im{margin:0 0 32px 32px}}
+.of3-im::after{inset:32px 32px -32px -32px!important;z-index:-1!important;padding:0!important;-webkit-mask:none!important;mask:none!important;border:1.5px solid transparent;background:linear-gradient(135deg,#1c0f16,#0e0f1f) padding-box,conic-gradient(from var(--of3a),#E9685F,#E03F3B,#AC2069,#88409F,#3E63EF,#51BAD4,#E9685F) border-box!important;opacity:1!important}
+.of3-im::before{inset:14px 14px -50px -50px!important;opacity:.22!important}
+.of3-row:hover .of3-im::before{opacity:.4!important}
+/* home case study: lista projektów przyklejona przy przewijaniu */
+@container (min-width:1001px){.sw-ct-l{position:sticky;top:128px;align-self:start}}
