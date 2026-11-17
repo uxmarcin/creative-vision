@@ -440,3 +440,8 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 @container (max-width:1000px){.sw .cv-fm .ph{padding:32px 24px 0!important}.sw .cv-fm .ph img{width:200px!important}}
 .sw .cv-fm .ph img{position:static!important;top:auto!important;left:auto!important}
 .sw .cv-fm .ph{aspect-ratio:auto!important;overflow:hidden}
+.gg3-mq-t.st{animation:none!important;width:auto;overflow-x:auto;padding:0 88px;scrollbar-width:none}
+.gg3-mq-t.st::-webkit-scrollbar{display:none}
+@media (max-width:640px){.gg3-mq-t.st{padding:0 24px}}
+.gg3-mq img{aspect-ratio:390/664!important;object-fit:cover;object-position:50% 0}
+.gg3-mq figcaption{display:none}
