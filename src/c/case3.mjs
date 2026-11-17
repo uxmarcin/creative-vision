@@ -196,6 +196,21 @@ const OF = [
 ];
 const OFT = ['Projekt, wdrożenie i rozwój sklepu, który sprzedaje.', 'Strony, które zamieniają odwiedziny w telefony.', 'Badamy, projektujemy i testujemy, zanim powstanie kod.', 'Dbamy o stronę i sklep także po starcie.'];
 const OFI = [['sklepy2', 'Spotkanie z klientem w biurze z logo Creative Vision na ścianie'], ['strony', 'Dwie projektantki omawiają projekt przy dwóch monitorach'], ['ux', 'Zespół dobiera kolory do projektu interfejsu'], ['opieka3', 'Projektant pokazuje klientce notatki przy laptopie']];
+
+/* strony usług: sekcje w stylu case study */
+const UIC = [[/projekt|widok|makiet|prototyp|figm/i, 'pen'], [/wdroż|kod|program/i, 'wrench'], [/płatno|blik/i, 'card'], [/import|produkt|katalog/i, 'package'], [/seo|google|szybk|wyszuk/i, 'search'], [/gwaranc|opiek|bezpiecz|kopi|aktualiz/i, 'shield'], [/telefon|mobil|smartfon|aplikac/i, 'smartphone'], [/formularz|zapyta|kontakt|wiadomo/i, 'message'], [/realizac|galeri|zdję/i, 'image'], [/treś|tekst|blog|opis/i, 'filetext'], [/raport|lista|audyt|analiz|bada/i, 'filecheck'], [/panel|szkolen|obsług/i, 'dashboard'], [/język|wersj/i, 'languages'], [/map|lokal|rzesz/i, 'pin'], [/sklep|koszyk|zamówie/i, 'cart'], [/czas|termin|harmonogram|godzin/i, 'clock'], [/cen|wycen|koszt|budżet/i, 'receipt'], [/test/i, 'click']];
+const uic = (t, i) => (UIC.find(([r]) => r.test(t)) || [0, ['layers', 'target', 'grid', 'award', 'compare', 'route'][i % 6]])[1];
+const kk = t => kick(t);
+export function us3Gets(gets) {
+  return '<section class="gg3-sec us3-gets"><div class="sw-w"><div class="gg3-2c us3-hd"><div>' + kk('Zakres') + '<h2>Co <span class="sw-gr">otrzymasz</span></h2></div></div><ul class="gg3-find us3-find">' + gets.map(([a, b], i) => '<li>' + ic(uic(a, i)) + '<div><h3>' + esc(a) + '</h3><p>' + esc(b) + '</p></div></li>').join('') + '</ul></div></section>';
+}
+export function us3Proc(steps) {
+  const I = ['message', 'pen', 'wrench', 'rocket', 'buoy'];
+  return '<section class="gg3-sec gg3-be us3-proc"><div class="sw-w">' + kk('Proces') + '<h2>Jak <span class="sw-gr">pracujemy</span></h2><div class="gg3-proc"><div class="gg3-axis" aria-hidden="true"><i></i></div><ol style="--n:' + steps.length + '">' + steps.map(([a, b], i) => '<li>' + ic(I[i % I.length]) + '<h3>' + esc(a) + '</h3><p>' + esc(b) + '</p></li>').join('') + '</ol></div></div></section>';
+}
+export function us3Real(V, B, h) {
+  return '<section class="gg3-sec us3-real"><div class="sw-w"><div class="us3-rh"><div>' + kk('Realizacje') + '<h2>' + gr(h) + '</h2></div><a class="sw-ob" href="/realizacje">Wszystkie realizacje</a></div></div>' + rl3(V, B) + '</section>';
+}
 export const icH = (n, cls) => ic(n, cls);
 export function of3() {
   let h = '<div class="sw-w of3"><p class="sw-k">Oferta</p><h2 class="of3-h">Chcesz, żeby strona i sklep sprzedawały więcej? <span class="sw-gr">Pomożemy Ci w tym.</span></h2>';

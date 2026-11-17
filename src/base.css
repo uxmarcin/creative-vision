@@ -549,3 +549,25 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 /* oferta: linia rośnie płynnie razem z przewijaniem, bez hovera */
 .of3-line,.of3-row:hover .of3-line{transform:scaleX(var(--lp,.12))!important;transition:transform .25s linear!important}
 @media (prefers-reduced-motion:reduce){.of3-line,.of3-row:hover .of3-line{transform:scaleX(1)!important}}
+/* strony usług v3 */
+.cv-cta2.np .cv-cta2-g{grid-template-columns:1fr}
+.us3 .us3-find{margin-top:56px}
+.us3-rh{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:56px}
+.sw .us3-rh .sw-ob{margin:0!important;color:#0B0B0B;border-color:#0B0B0B}
+.sw .us3-rh .sw-ob:hover{background:#0B0B0B;color:#fff}
+.us3-real .rl3{padding:0!important}
+.us3-real{padding-bottom:40px!important}
+.fh-m.us3-ph img{width:100%;height:100%;object-fit:cover;object-position:60% 30%}
+@container (max-width:640px){.us3-rh{flex-direction:column;align-items:flex-start;margin-bottom:32px}}
+.sw .us3 h2{font-size:clamp(36px,4.2cqi,60px)!important;font-weight:500!important;letter-spacing:-.03em!important;line-height:1.06!important;margin:16px 0 0!important;max-width:none}
+.us3 .sw-k{margin:0}
+@container (min-width:1001px){.us3 .gg3-proc ol{grid-template-columns:repeat(var(--n,4),1fr)!important;gap:40px}}
+.us3 .gg3-proc li h3,.us3 .gg3-find li h3{font-size:21px}
+.sw .us3.rl3w .us3-rh .sw-ob{color:#fff;border-color:#fff}
+.sw .us3.rl3w .us3-rh .sw-ob:hover{background:#fff;color:#0B0B0B}
+.us3.rl3w .sw-k{color:rgba(255,255,255,.62)}
+.us3-real{padding-top:120px!important;background:#000}
+/* cennik: korzyści i CTA wyraźnie oddzielone od pakietów */
+.sw .cv-pr-f{margin-top:88px!important;padding-top:48px;border-top:1px solid rgba(255,255,255,.14)}
+.sw .cv-pr.pg .cv-pr-f{border-top-color:rgba(11,11,11,.12)}
+@container (max-width:640px){.sw .cv-pr-f{margin-top:56px!important;padding-top:36px}}
