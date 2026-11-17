@@ -354,3 +354,5 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 @container (max-width:640px){.of3-row{grid-template-columns:1fr;padding:56px 0}.of3-m{padding-top:0}.of3-tabs{flex-direction:row;flex-wrap:wrap;gap:8px}.of3-t{margin-left:0;font-size:15px;padding:10px 14px;border-color:rgba(255,255,255,.2)}.sw .of3-h{margin-bottom:56px}}
 @media (prefers-reduced-motion:reduce){.of3-p,.of3-im img,.of3-t .of3-a{transition:none}}
 .of3s [data-sr]{opacity:1!important;transform:none!important}
+.sw .sw-ct-m{touch-action:pan-y}
+.sw .sw-ct-l{scroll-behavior:smooth}
