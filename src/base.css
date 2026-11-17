@@ -356,3 +356,27 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .of3s [data-sr]{opacity:1!important;transform:none!important}
 .sw .sw-ct-m{touch-action:pan-y}
 .sw .sw-ct-l{scroll-behavior:smooth}
+/* telefon: większa typografia nagłówków w całym serwisie (17.11) */
+@container (max-width:640px){
+.sw h1,.sw .sw-ph-hero h1,.sw .sw-hero h1:not(.cv-mh-h){font-size:44px!important;line-height:1.04!important;letter-spacing:-.035em!important}
+.sw .sw-h2,.sw .gg3 h2,.sw .of3-h,.sw .sw-ct-h,.sw .sw-cta h2,.sw .sw-f3-cta h2{font-size:38px!important;line-height:1.08!important;letter-spacing:-.03em!important}
+.sw .of3-row h3{font-size:34px!important;margin-bottom:24px!important}
+.sw .of3-p h4{font-size:24px!important}
+.sw .gg3 article h3,.sw .rl3-m h2{font-size:30px!important}
+.sw .rl3-c.big .rl3-m h2{font-size:34px!important}
+.sw .sw-ct-m h3{font-size:36px!important}
+.of3-tabs{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;margin:0 -24px;padding:0 24px 4px;scroll-snap-type:x proximity}
+.of3-tabs::-webkit-scrollbar{display:none}
+.of3-t{flex:none;scroll-snap-align:start;white-space:nowrap}
+}
+@container (max-width:640px){
+.sw main h2:not(.rl3-m h2){font-size:36px!important;line-height:1.1!important}
+.sw .of3-h,.sw .sw-ct-h{font-size:38px!important}
+.of3-row{padding:40px 0!important;gap:20px!important}
+.of3-im{display:none!important}
+.sw .of3-row h3{margin:8px 0 20px!important}
+.of3-p h4{margin-bottom:10px!important}
+.of3-p p{margin-bottom:16px!important}
+}
+.of3-row>*{min-width:0}
+.cv-skip:not(:focus-visible){top:-90px!important}
