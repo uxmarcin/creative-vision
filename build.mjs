@@ -36,7 +36,7 @@ const SVC = lib.zs, ART = lib.za, CASES = lib.zb, IMG = lib.zw, HOME_FAQ = lib.z
 const faqPage = (items) => ({ '@type': 'FAQPage', mainEntity: items.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
 const ORG = {
   '@type': 'ProfessionalService', '@id': SITE + '/#org', name: 'Creative Vision', url: SITE + '/',
-  logo: SITE + '/img/5nu54lUTuTBKgAmsftppZDI0Y.png', image: SITE + '/img/og-creative-vision.png',
+  logo: SITE + '/img/5nu54lUTuTBKgAmsftppZDI0Y.png', image: SITE + '/img/og-creative-vision-2.png',
   description: 'Studio projektowe z Rzeszowa, które pracuje z firmami z całej Polski: strony internetowe, sklepy internetowe, aplikacje mobilne i audyty UX.',
   email: 'kontakt@creative-vision.pl', telephone: '+48534154230', taxID: '7952514299',
   address: { '@type': 'PostalAddress', streetAddress: 'ul. Pańska 13A', addressLocality: 'Rzeszów', addressRegion: 'podkarpackie', addressCountry: 'PL' },
@@ -127,7 +127,7 @@ for (const p of pages) {
   const m = meta[key] || {}, s = seo[key] || {};
   const title = s.title || m.title, desc = s.description || m.description;
   // stara grafika z Framera (8UVL…) pokazywała nieaktualny projekt strony, więc wszędzie nowa
-  const url = SITE + p.path, img = SITE + '/img/og-creative-vision.png';
+  const url = SITE + p.path, img = SITE + '/img/og-creative-vision-2.png';
   const html = imgAttrs(renderToString(jsx(App, p.props)));
   const doc = `<!doctype html>
 <html lang="pl">
