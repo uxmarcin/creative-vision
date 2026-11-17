@@ -13,7 +13,7 @@ Audyty UX sklepów prowadzimy w serwisie https://www.uxaudyt.pl
 - Sklepy wdrażamy na PrestaShop (status PrestaShop Expert w programie partnerskim PrestaShop). Przy wyborze platformy doradzamy też inne rozwiązania (np. Shopify, Shoper, WooCommerce), ale na nich nie wdrażamy sklepów.
 - Każdy projekt prowadzi jeden projektant UX; studio ma 13 lat doświadczenia w projektowaniu produktów cyfrowych (m.in. B2B: budownictwo, logistyka, medycyna).
 - Proces: rozmowa, projekt UX/UI w Figmie (osobno na komputer i telefon), wdrożenie, testy, szkolenie, opieka po starcie.
-- Godziny: poniedziałek–piątek 9:00–17:00.
+- Godziny: poniedziałek–piątek 9:00–18:00.
 
 ## Usługi
 - [Sklepy internetowe](https://creative-vision.pl/uslugi/sklepy-internetowe): Projektujemy ścieżkę zakupu od wejścia z Google, przez kategorię i kartę produktu, po płatność BLIK. Cały sklep zobaczysz w Figmie na komputerze i telefonie, a wycenę z harmonogramem otrzymasz tego samego dnia. Po ustaleniu zakresu cena jest stała. Cena: od 5 990 zł netto.
