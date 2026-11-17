@@ -430,3 +430,13 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 @media (max-width:640px){.gg3-proc ol{grid-template-columns:1fr!important}}
 @media (prefers-reduced-motion:reduce){.gg3-find li::before,.gg3-sticky article::before,.gg3-zig article::before{transition:none;transform:scaleX(1)}}
 @media (max-width:1000px){.gg3-proc li::before{background:linear-gradient(180deg,#E9685F,#AC2069 35%,#88409F 60%,#3E63EF 85%,#51BAD4)!important}}
+/* zdjęcie projektanta na czarnym tle, mniejsze (17.11) */
+.sw .cv-fm .ph{background:#0b0b0b!important;padding:0!important;display:flex!important;align-items:flex-end;justify-content:center;height:auto!important;min-height:420px}
+.sw .cv-fm .ph img{width:78%!important;height:auto!important;min-height:0!important;aspect-ratio:4/5;object-fit:contain!important;object-position:50% 100%!important;border:0!important;display:block}
+@container (max-width:1000px){.sw .cv-fm .ph{min-height:0;padding-top:32px!important}.sw .cv-fm .ph img{width:62%!important;max-width:240px!important}}
+.sw .sw-kt-adv.cv-fm{align-items:stretch!important}
+.sw .cv-fm .ph{min-height:0!important;padding:40px 24px 0!important;align-items:flex-end!important}
+.sw .cv-fm .ph img{width:260px!important;max-width:100%!important;aspect-ratio:auto!important;object-fit:cover!important}
+@container (max-width:1000px){.sw .cv-fm .ph{padding:32px 24px 0!important}.sw .cv-fm .ph img{width:200px!important}}
+.sw .cv-fm .ph img{position:static!important;top:auto!important;left:auto!important}
+.sw .cv-fm .ph{aspect-ratio:auto!important;overflow:hidden}
