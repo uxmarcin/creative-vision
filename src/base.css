@@ -775,3 +775,7 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .cv-cta2-ph figcaption span{font-size:13px!important;color:rgba(255,255,255,.7)!important}
 .cv-cta2-g{grid-template-columns:1fr 330px!important}
 @container (max-width:900px){.cv-cta2-g{grid-template-columns:1fr!important}.cv-cta2-ph{max-width:330px}}
+.on3-phs{background:linear-gradient(#000 50%,#fff 50%)!important;padding:0}
+.on3-phs .sw-w{padding-left:max(88px,12cqi);padding-right:max(88px,12cqi)}
+.on3-ph{aspect-ratio:16/9!important;object-position:50% 0!important}
+@container (max-width:900px){.on3-phs .sw-w{padding-left:24px;padding-right:24px}.on3-ph{aspect-ratio:4/3!important}}
