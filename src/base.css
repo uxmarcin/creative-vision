@@ -836,3 +836,8 @@ html.cv-lock .cvcb{display:none}
 @container (min-width:901px){.sw-hx-a:has(.cv-kt-ph){margin-right:calc(-88px - max(0px,(100vw - 1440px)/2))!important;width:calc(56% + max(0px,(100vw - 1440px)/2))!important}}
 .sw-hx-a:has(.cv-kt-ph)::after{background:linear-gradient(180deg,#E9685F,#E03F3B 20%,#AC2069 40%,#88409F 60%,#3E63EF 80%,#51BAD4)!important;clip-path:polygon(22% 0,22.28% 0,.28% 100%,0 100%)!important}
 .cvcb-x{display:grid;place-items:center}
+/* hero podstron: ta sama animacja mesh co w kontakcie (home bez zmian) */
+.cv-ih::before{display:none!important}
+.cv-ih .sw-ph-hero.cv-mh{position:relative}
+.cv-ih canvas.cv-mesh{opacity:.42;top:-120px!important;height:calc(100% + 240px)!important}
+.cv-ih .sw-ph-hero>*:not(canvas){position:relative;z-index:1}

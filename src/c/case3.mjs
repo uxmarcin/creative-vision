@@ -189,7 +189,7 @@ const OF = [
     ['Agencja e-commerce', '/agencja-ecommerce', 'art-jak-wybrac-agencje-e-commerce', 'Potrzebujesz partnera na dłużej?', 'Co miesiąc planujemy, mierzymy i wdrażamy kolejne poprawki w Twoim sklepie.']]]
 ];
 const OFT = ['Projekt, wdrożenie i rozwój sklepu, który sprzedaje.', 'Strony, które zamieniają odwiedziny w telefony.', 'Badamy, projektujemy i testujemy, zanim powstanie kod.', 'Dbamy o stronę i sklep także po starcie.'];
-const OFI = [['sklepy2', 'biuro', 'telefon2', 'opieka4'], ['sofa', 'strony', 'zespol4'], ['makiety', 'rozmowa3', 'warsztat'], ['ads', 'narada', 'biuro']];
+const OFI = [['sklepy2', 'biuro', 'telefon2', 'opieka4'], ['sofa', 'strony', 'zespol4'], ['rozmowa3', 'makiety', 'warsztat'], ['ads', 'narada', 'biuro']];
 const OFA = { makiety: 'Projektantka pokazuje makietę aplikacji na telefonie nad szkicami ekranów', studio: 'Dwie projektantki pracują nad projektem przy laptopie', biuro: 'Projektanci omawiają projekt przy komputerze', ads: 'Zespół analizuje wyniki kampanii na laptopie', sofa: 'Dwie projektantki omawiają projekt na kanapie, w tle logo Creative Vision', telefon2: 'Zespół ogląda projekt na telefonie', sklepy2: 'Spotkanie z klientem w biurze z logo Creative Vision na ścianie', strony: 'Dwie projektantki omawiają projekt przy dwóch monitorach', narada: 'Dwie projektantki omawiają projekt przy biurku', opieka4: 'Projektant pokazuje klientce notatki przy laptopie, w tle logo Creative Vision', zespol4: 'Zespół Creative Vision przy biurku, w tle logo na ścianie', rozmowa3: 'Rozmowa z klientką o projekcie przy tablecie', warsztat: 'Warsztat projektowy przy wspólnym stole' };
 
 /* strony usług: sekcje w stylu case study */
