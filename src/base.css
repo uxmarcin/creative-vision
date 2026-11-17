@@ -410,3 +410,23 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .sw .cv-fm .ph img{border:1px solid rgba(11,11,11,.14);box-sizing:border-box}
 .sw .cv-fm .ph{padding:12px!important;background:#fff;box-sizing:border-box}
 @container (max-width:1000px){.sw .cv-fm .ph{padding:10px!important}}
+/* case study: gradientowe smaczki jak na stronie głównej (17.11) */
+.gg3{--gg-gr:linear-gradient(90deg,#E9685F,#E03F3B 20%,#AC2069 40%,#88409F 60%,#3E63EF 80%,#51BAD4)}
+.gg3-find li,.gg3-sticky article,.gg3-zig article,.gg3-goals,.gg3-got,.gg3-facts dl{position:relative}
+.gg3-find li::before,.gg3-sticky article::before,.gg3-zig article::before,.gg3-goals::before,.gg3-got::before,.gg3-facts dl::before{content:'';position:absolute;left:0;top:-1px;height:2px;width:100%;background:var(--gg-gr);transform-origin:left;transform:scaleX(.12);transition:transform 1.4s cubic-bezier(.2,.7,.2,1)}
+.gg3-find li.in::before,.gg3-zig article.in::before,.gg3-sticky article.is-on::before,.gg3-find li:hover::before{transform:scaleX(1)}
+.gg3-goals::before,.gg3-got::before,.gg3-facts dl::before{transform:scaleX(1)}
+.gg3-sticky article:first-child::before,.gg3-zig article:first-child::before{display:none}
+.gg3-ic{transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.gg3 article:hover .gg3-ic,.gg3-proc li:hover .gg3-ic,.gg3-find li:hover .gg3-ic{transform:translateY(-3px) rotate(-6deg)}
+@media (max-width:1000px){
+.gg3-proc ol{position:relative;row-gap:32px!important}
+.gg3-proc li{position:relative;padding-left:56px}
+.gg3-proc li .gg3-ic{position:absolute;left:0;top:0;width:28px;height:28px;margin:0}
+.gg3-proc li::before{content:'';position:absolute;left:13px;top:40px;bottom:-28px;width:2px;background:var(--gg-gr);opacity:.8}
+.gg3-proc li:last-child::before{display:none}
+.gg3-proc li h3{padding-top:2px}
+}
+@media (max-width:640px){.gg3-proc ol{grid-template-columns:1fr!important}}
+@media (prefers-reduced-motion:reduce){.gg3-find li::before,.gg3-sticky article::before,.gg3-zig article::before{transition:none;transform:scaleX(1)}}
+@media (max-width:1000px){.gg3-proc li::before{background:linear-gradient(180deg,#E9685F,#AC2069 35%,#88409F 60%,#3E63EF 85%,#51BAD4)!important}}
