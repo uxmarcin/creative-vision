@@ -200,7 +200,7 @@ const price = (v) => (v.price || '').replace(/ netto$/, ' netto');
 fs.writeFileSync(path.join(OUT, 'llms.txt'), [
   '# Creative Vision',
   '',
-  '> Studio projektowe z Rzeszowa (ul. Pańska 13A). Projektujemy od UX i wdrażamy strony internetowe dla firm, sklepy internetowe i aplikacje mobilne, prowadzimy audyty UX sklepów i opiekę po starcie. Pracujemy zdalnie z firmami z całej Polski, w Rzeszowie także na miejscu. Bezpłatna wycena z harmonogramem w 2 dni robocze.',
+  '> Studio projektowe z Rzeszowa (ul. Pańska 13A). Projektujemy od UX i wdrażamy strony internetowe dla firm, sklepy internetowe i aplikacje mobilne, prowadzimy audyty UX sklepów i opiekę po starcie. Pracujemy zdalnie z firmami z całej Polski, w Rzeszowie także na miejscu. Bezpłatna wycena z harmonogramem tego samego dnia.',
   '',
   'Kontakt: kontakt@creative-vision.pl, +48 534 154 230. NIP 7952514299.',
   'Audyty UX sklepów prowadzimy w serwisie https://www.uxaudyt.pl',
@@ -208,7 +208,7 @@ fs.writeFileSync(path.join(OUT, 'llms.txt'), [
   '## Najważniejsze fakty',
   '- Obszar działania: cała Polska (praca zdalna). Spotkania online albo w biurze w Rzeszowie (ul. Pańska 13A), po wcześniejszym umówieniu.',
   '- Ceny: strona firmowa od 4 900 zł netto, sklep internetowy od 5 990 zł netto, opieka od 490 zł netto miesięcznie; aplikacje mobilne i audyty UX wyceniane indywidualnie. Szczegóły: ' + SITE + '/wiedza/cennik',
-  '- Wycena: bezpłatna, z harmonogramem, w 2 dni robocze. Odpowiedź na wiadomość: w ciągu 1 dnia roboczego.',
+  '- Wycena: bezpłatna, z harmonogramem, tego samego dnia. Odpowiedź na wiadomość: w ciągu 1 dnia roboczego.',
   '- Cena jest stała po ustaleniu zakresu. Na wdrożoną stronę lub sklep: 12 miesięcy gwarancji na naprawę błędów. Szkolenie z obsługi panelu jest w cenie strony i sklepu.',
   '- Sklepy wdrażamy na PrestaShop (status PrestaShop Expert w programie partnerskim PrestaShop). Przy wyborze platformy doradzamy też inne rozwiązania (np. Shopify, Shoper, WooCommerce), ale na nich nie wdrażamy sklepów.',
   '- Każdy projekt prowadzi jeden projektant UX; studio ma 13 lat doświadczenia w projektowaniu produktów cyfrowych (m.in. B2B: budownictwo, logistyka, medycyna).',
