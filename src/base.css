@@ -828,3 +828,10 @@ html.cv-lock .cvcb{display:none}
 .cvcb-p .cvcb-c input{width:18px;height:18px;flex:none;margin:1px 0 0;padding:0;accent-color:#fff}
 .cvcb-e2{font-size:14px;color:#FF8F86;margin:8px 0 0}
 .cvcb-c{margin:14px 0 0}.cvcb-go{margin-top:16px}
+/* kontakt hero: mesh z home (słabszy), cienka linia w pełnym gradiencie, zdjęcie do krawędzi ekranu */
+.cv-kh::before{display:none!important}
+.cv-kh .sw-ph-hero.cv-mh{position:relative}
+.cv-kh canvas.cv-mesh{opacity:.42;top:-120px!important;height:calc(100% + 240px)!important}
+.cv-kh .sw-ph-hero>*:not(canvas){position:relative;z-index:1}
+@container (min-width:901px){.sw-hx-a:has(.cv-kt-ph){margin-right:calc(-88px - max(0px,(100vw - 1440px)/2))!important;width:calc(56% + max(0px,(100vw - 1440px)/2))!important}}
+.sw-hx-a:has(.cv-kt-ph)::after{background:linear-gradient(180deg,#E9685F,#E03F3B 20%,#AC2069 40%,#88409F 60%,#3E63EF 80%,#51BAD4)!important;clip-path:polygon(22% 0,22.28% 0,.28% 100%,0 100%)!important}
