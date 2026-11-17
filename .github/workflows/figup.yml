@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          pip install pillow >/dev/null 2>&1
-          python3 tools/stock2.py
+          pip install pillow >/dev/null 2>&1; mkdir -p un
+          while read s id; do curl -sS -f -L -o /tmp/u.jpg "https://images.unsplash.com/photo-$id?w=1600&h=1000&fit=crop&q=82&fm=jpg" && python3 -c "from PIL import Image;Image.open('/tmp/u.jpg').convert('RGB').resize((1600,1000)).save('un/$s.webp',quality=85)" && echo "UN ok $s" || echo "UN fail $s"; done < tools/un.txt
           git config user.name "github-actions" && git config user.email "actions@github.com"
-          git add stock && git commit -m "stock candidates [skip ci]" && git push
+          git add un && git commit -m "unsplash picks [skip ci]" && git push
