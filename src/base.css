@@ -662,3 +662,41 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .cv-kt-ph{width:100%;height:100%;min-height:520px;aspect-ratio:auto;object-position:50% 20%;box-shadow:none;clip-path:polygon(22% 0,100% 0,100% 100%,0 100%)}
 .sw-hx-a:has(.cv-kt-ph)::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#E9685F,#AC2069,#88409F,#3E63EF,#51BAD4);clip-path:polygon(22% 0,22.6% 0,.6% 100%,0 100%);pointer-events:none}
 @container (max-width:900px){.sw-hx-a:has(.cv-kt-ph){width:calc(100% + 48px);margin:0 -24px -56px}.cv-kt-ph{min-height:0;aspect-ratio:4/3;clip-path:polygon(0 12%,100% 0,100% 100%,0 100%)}.sw-hx-a:has(.cv-kt-ph)::after{display:none}}
+/* ekrany telefonu: kadr dopasowany do zrzutów, nic nie wypada z boków */
+.gg3 .gg3-phs img,.rl3-sc .m,.sw .sw-ct-m .cv-st img.m,.gg3-md .m,.gg3-shots .m{aspect-ratio:390/664!important;object-fit:cover!important;object-position:50% 0!important}
+/* case study: ekran projektu w perspektywie zamiast ilustracji */
+.gg3-tilt{position:relative;margin:0;aspect-ratio:4/3;overflow:hidden;isolation:isolate;background:#0a0a0a;border:1px solid rgba(255,255,255,.1);perspective:1400px}
+.gg3-tilt::before{content:'';position:absolute;z-index:-1;inset:-20%;background:radial-gradient(ellipse 50% 45% at 62% 60%,var(--pc,#88409F),transparent 70%);opacity:.28;filter:blur(40px)}
+.gg3-tilt-in{position:absolute;left:14%;top:15%;width:118%;transform-origin:0 50%;transform:rotateY(var(--ry,-14deg)) rotateX(var(--rx,8deg));transition:transform .5s cubic-bezier(.2,.7,.2,1);will-change:transform}
+.gg3-tilt-in img{display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;object-position:top;border:1px solid rgba(255,255,255,.16);box-shadow:-40px 50px 90px rgba(0,0,0,.65)}
+/* porozmawiaj z projektantem: czyste czarne zdjęcie, logo u góry, podpis na dole */
+.sw .cv-fm .ph::before{display:none!important}
+.sw .cv-fm .ph{background:#0b0b0b!important;padding:0!important;min-height:0!important;align-items:flex-end!important;justify-content:center!important}
+.sw .cv-fm .ph img{height:auto!important;width:100%!important;max-width:none!important;margin-top:56px}
+.cv-fm-lg{position:absolute;left:24px;top:22px;display:flex;align-items:center;gap:9px;color:#fff;font-size:17px;font-weight:500;line-height:1}
+.cv-fm-lg svg{height:22px;width:auto;display:block}
+.cv-fm-cap{position:absolute;left:0;right:0;bottom:0;margin:0!important;padding:64px 24px 20px;background:linear-gradient(transparent,rgba(0,0,0,.9));display:flex;flex-direction:column;gap:2px;color:#fff}
+.cv-fm-cap b{font-size:19px;font-weight:500}
+.cv-fm-cap span{font-size:13px;color:rgba(255,255,255,.7)}
+.sw .sw-kt-adv.cv-fm{grid-template-columns:330px 1fr!important}
+/* hero home: sygnet w konturach */
+.cv-mh-sg{position:absolute;z-index:0;right:-4%;top:50%;height:112%;aspect-ratio:72/60;transform:translateY(-50%);color:rgba(255,255,255,.34);pointer-events:none;mix-blend-mode:overlay;-webkit-mask-image:linear-gradient(100deg,transparent 4%,#000 46%);mask-image:linear-gradient(100deg,transparent 4%,#000 46%)}
+.cv-mh-sg svg{width:100%;height:100%;display:block;overflow:visible}
+.cv-mh-sg path{stroke-dasharray:420;stroke-dashoffset:420;animation:cvsg 3.2s cubic-bezier(.3,.6,.2,1) .5s forwards,cvsgf 9s ease-in-out 3.7s infinite alternate}
+.cv-mh-sg path:nth-child(2){animation-delay:.9s,4.1s}.cv-mh-sg path:nth-child(3){animation-delay:1.2s,4.4s}
+@keyframes cvsg{to{stroke-dashoffset:0}}
+@keyframes cvsgf{from{stroke-opacity:1}to{stroke-opacity:.45}}
+@media (prefers-reduced-motion:reduce){.cv-mh-sg path{animation:none;stroke-dashoffset:0}}
+@container (max-width:900px){.cv-mh-sg{height:70%;right:-30%;top:34%;opacity:.7}}
+/* home: intro i logotypy rozdzielone, same loga */
+.sw .cv-intro{padding-top:120px!important;padding-bottom:0!important}
+.sw .cv-intro p{max-width:22em}
+.sw .sw-trust{margin-top:120px;padding:0 0 140px!important;border-top:1px solid rgba(255,255,255,.12)}
+.fx-track small{display:none!important}
+.fx-logos{padding:64px 0 0!important}
+.fx-track .it{align-items:center!important;justify-content:center;width:auto!important;padding:0 64px!important;opacity:.6;transition:opacity .3s}
+.fx-track .it:hover{opacity:1}
+.fx-track .lg{height:40px}
+.fx-logos:hover .fx-track{animation-play-state:running!important}
+@container (max-width:640px){.sw .cv-intro{padding-top:64px!important}.sw .sw-trust{margin-top:64px;padding-bottom:80px!important}.fx-logos{padding-top:40px!important}.fx-track .it{padding:0 36px!important}}
+.gg3-tilt-in img{opacity:1!important;filter:none!important}

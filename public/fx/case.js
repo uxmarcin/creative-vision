@@ -12,3 +12,4 @@ if(!R&&'IntersectionObserver'in window){var co=new IntersectionObserver(function
 var tk=0;function tick(){tk=0;onCh();onPr();onFd()}
 addEventListener('scroll',function(){if(!tk){tk=1;requestAnimationFrame(tick)}},{passive:true});addEventListener('resize',tick);tick();
 })();
+(function(){if(matchMedia('(hover:none)').matches||matchMedia('(prefers-reduced-motion: reduce)').matches)return;document.querySelectorAll('.gg3-tilt').forEach(function(f){var s=f.closest('section')||f;s.addEventListener('pointermove',function(e){var b=f.getBoundingClientRect(),x=(e.clientX-(b.left+b.width/2))/b.width,y=(e.clientY-(b.top+b.height/2))/b.height;f.style.setProperty('--ry',(-14+x*10).toFixed(2)+'deg');f.style.setProperty('--rx',(8-y*8).toFixed(2)+'deg')});s.addEventListener('pointerleave',function(){f.style.removeProperty('--ry');f.style.removeProperty('--rx')})})})();
