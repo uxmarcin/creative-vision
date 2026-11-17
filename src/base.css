@@ -757,3 +757,7 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 @keyframes cvsgGl{0%{stroke-dashoffset:1;stroke-opacity:0}5%{stroke-opacity:.9}30%{stroke-dashoffset:0;stroke-opacity:.9}40%{stroke-dashoffset:0;stroke-opacity:.5}50%,100%{stroke-dashoffset:0;stroke-opacity:0}}
 /* oferta na telefonie: jedno zdjęcie na kategorię (aktywna zakładka) */
 @container (max-width:640px){.of3 .of3-im{display:block!important;order:-1;grid-column:1/-1;aspect-ratio:16/10!important;margin:0 0 8px!important}.of3 .of3-im img:not(.on){display:none}.of3 .of3-im img{object-position:50% 25%}}
+.cv-mh-sg .ln path{stroke-width:.15!important}
+.cv-mh-sg .gl{filter:blur(1.6px)!important;opacity:.55!important}
+.cv-mh-sg .gl path{stroke-width:.7!important}
+.cv-mh-sg svg{filter:drop-shadow(0 0 6px rgba(255,255,255,.3))!important}
