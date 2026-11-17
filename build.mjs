@@ -206,7 +206,7 @@ fs.writeFileSync(path.join(OUT, 'llms.txt'), [
   'Audyty UX sklepów prowadzimy w serwisie https://www.uxaudyt.pl',
   '',
   '## Najważniejsze fakty',
-  '- Obszar działania: cała Polska (praca zdalna). Spotkania online albo w biurze w Rzeszowie (ul. Pańska 13A), po wcześniejszym umówieniu.',
+  '- Obszar działania: cała Polska (praca zdalna). Spotkania prowadzimy online.',
   '- Ceny: strona firmowa od 4 900 zł netto, sklep internetowy od 5 990 zł netto, opieka od 490 zł netto miesięcznie; aplikacje mobilne i audyty UX wyceniane indywidualnie. Szczegóły: ' + SITE + '/wiedza/cennik',
   '- Wycena: bezpłatna, z harmonogramem, tego samego dnia. Odpowiedź na wiadomość: w ciągu 1 dnia roboczego.',
   '- Cena jest stała po ustaleniu zakresu. Na wdrożoną stronę lub sklep: 12 miesięcy gwarancji na naprawę błędów. Szkolenie z obsługi panelu jest w cenie strony i sklepu.',
