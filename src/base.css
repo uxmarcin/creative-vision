@@ -856,3 +856,9 @@ body:has(.cv-mbar.on) .cvcb{bottom:calc(84px + env(safe-area-inset-bottom))}
 .cvcb.open .cvcb-p:not([hidden]){position:fixed;left:16px;right:16px;top:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:auto;max-width:none;display:flex;flex-direction:column;justify-content:center;overflow:auto;padding:32px 24px 28px}
 .cvcb.open::before{background:rgba(0,0,0,.72)}
 .cvcb.open .cvcb-x{right:6px;top:6px}}
+
+@media (max-width:640px){#wiedza .sw-w{display:flex;flex-direction:column}#wiedza .sw-head{display:contents}#wiedza .sw-head>div{order:1;margin-bottom:28px}
+#wiedza .sw-posts{order:2;display:flex!important;grid-template-columns:none!important;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 calc(24px*-1);padding:0 24px;scroll-padding-left:24px}
+#wiedza .sw-posts::-webkit-scrollbar{display:none}
+#wiedza .sw-post{flex:0 0 82%;scroll-snap-align:start;min-width:0}
+#wiedza .sw-head>a{order:3;align-self:flex-start;margin-top:32px}}
