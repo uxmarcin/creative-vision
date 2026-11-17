@@ -194,13 +194,14 @@ const OF = [
     ['SEO techniczne', '/uslugi/opieka', 'art-sklep-a-zakupy-przez-asystentow-ai', 'Chcesz, żeby Google i asystenci AI rozumieli Twoją ofertę?', 'Szybsze ładowanie, porządne adresy i dane strukturalne. Oferta czytelna dla Google i ChatGPT.'],
     ['Agencja e-commerce', '/agencja-ecommerce', 'art-jak-wybrac-agencje-e-commerce', 'Potrzebujesz partnera na dłużej?', 'Co miesiąc planujemy, mierzymy i wdrażamy kolejne poprawki w Twoim sklepie.']]]
 ];
+const OFI = [['sklepy', 'Spotkanie z klientem w biurze z logo Creative Vision na ścianie'], ['strony', 'Dwie projektantki omawiają projekt przy dwóch monitorach'], ['ux', 'Zespół dobiera kolory do projektu interfejsu'], ['opieka', 'Projektant pokazuje klientce notatki przy laptopie']];
 export function of3() {
   let h = '<div class="sw-w of3"><p class="sw-k">Oferta</p><h2 class="of3-h">Chcesz, żeby strona i sklep sprzedawały więcej? <span class="sw-gr">Pomożemy Ci w tym.</span></h2>';
   OF.forEach(([cat, items], ci) => {
     h += '<div class="of3-row" data-of><i class="of3-line" aria-hidden="true"></i><div class="of3-l"><span class="of3-n">' + ic(['store', 'devices', 'pen', 'buoy'][ci], 'of3-ci') + '0' + (ci + 1) + '</span><h3>' + esc(cat) + '</h3><div class="of3-tabs" role="tablist" aria-label="' + esc(cat) + '">' +
       items.map((it, i) => '<button type="button" role="tab" aria-selected="' + (i ? 'false' : 'true') + '" class="of3-t' + (i ? '' : ' on') + '" data-i="' + i + '"><span>' + esc(it[0]) + '</span>' + ic('arrow', 'of3-a') + '</button>').join('') + '</div></div>' +
       '<div class="of3-m">' + items.map((it, i) => '<div class="of3-p' + (i ? '' : ' on') + '" role="tabpanel" data-i="' + i + '"' + (i ? ' hidden' : '') + '><h4>' + esc(it[3]) + '</h4><p>' + esc(it[4]) + '</p><a class="sw-tl" href="' + it[1] + '">Zobacz więcej</a></div>').join('') + '</div>' +
-      '<div class="of3-im">' + items.map((it, i) => '<img class="' + (i ? '' : 'on') + '" data-i="' + i + '" src="/img/' + it[2] + '.webp" alt="" loading="lazy" decoding="async">').join('') + '</div></div>';
+      '<div class="of3-im"><img class="on" src="/img/cv-of-' + OFI[ci][0] + '.webp" width="1600" height="1200" alt="' + OFI[ci][1] + '" loading="lazy" decoding="async"></div></div>';
   });
   return h + '</div>';
 }
