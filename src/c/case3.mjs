@@ -194,7 +194,7 @@ const OF = [
     ['SEO techniczne', '/uslugi/opieka', 'art-sklep-a-zakupy-przez-asystentow-ai', 'Chcesz, żeby Google i asystenci AI rozumieli Twoją ofertę?', 'Szybsze ładowanie, porządne adresy i dane strukturalne. Oferta czytelna dla Google i ChatGPT.'],
     ['Agencja e-commerce', '/agencja-ecommerce', 'art-jak-wybrac-agencje-e-commerce', 'Potrzebujesz partnera na dłużej?', 'Co miesiąc planujemy, mierzymy i wdrażamy kolejne poprawki w Twoim sklepie.']]]
 ];
-const OFI = [['sklepy', 'Spotkanie z klientem w biurze z logo Creative Vision na ścianie'], ['strony', 'Dwie projektantki omawiają projekt przy dwóch monitorach'], ['ux', 'Zespół dobiera kolory do projektu interfejsu'], ['opieka', 'Projektant pokazuje klientce notatki przy laptopie']];
+const OFI = [['sklepy2', 'Spotkanie z klientem w biurze z logo Creative Vision na ścianie'], ['strony', 'Dwie projektantki omawiają projekt przy dwóch monitorach'], ['ux', 'Zespół dobiera kolory do projektu interfejsu'], ['opieka', 'Projektant pokazuje klientce notatki przy laptopie']];
 export function of3() {
   let h = '<div class="sw-w of3"><p class="sw-k">Oferta</p><h2 class="of3-h">Chcesz, żeby strona i sklep sprzedawały więcej? <span class="sw-gr">Pomożemy Ci w tym.</span></h2>';
   OF.forEach(([cat, items], ci) => {
