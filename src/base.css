@@ -779,3 +779,4 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .on3-phs .sw-w{padding-left:max(88px,12cqi);padding-right:max(88px,12cqi)}
 .on3-ph{aspect-ratio:16/9!important;object-position:50% 0!important}
 @container (max-width:900px){.on3-phs .sw-w{padding-left:24px;padding-right:24px}.on3-ph{aspect-ratio:4/3!important}}
+.cv-kt-ph{object-position:60% 60%!important}
