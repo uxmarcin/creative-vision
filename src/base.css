@@ -518,3 +518,5 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .of3-im::after{content:'';position:absolute;inset:-1px;z-index:2;padding:2px;background:conic-gradient(from var(--of3a),#E9685F,#E03F3B,#AC2069,#88409F,#3E63EF,#51BAD4,#E9685F);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);pointer-events:none;opacity:.85}
 .of3-im img,.of3-im img.on,.of3-row:hover .of3-im img.on{transform:none!important}
 @media (prefers-reduced-motion:reduce){.of3-im{animation:none}}
+/* oferta: trzy kolumny wyśrodkowane w jednej osi poziomej */
+@container (min-width:1001px){.of3-row{align-items:center!important}.of3-m{aspect-ratio:auto!important;display:block!important;align-self:center!important;padding-top:0!important}.of3-im{align-self:center}}
