@@ -571,3 +571,15 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .sw .cv-pr-f{margin-top:88px!important;padding-top:48px;border-top:1px solid rgba(255,255,255,.14)}
 .sw .cv-pr.pg .cv-pr-f{border-top-color:rgba(11,11,11,.12)}
 @container (max-width:640px){.sw .cv-pr-f{margin-top:56px!important;padding-top:36px}}
+/* treści z ikonami w jednym stylu: oś z gradientem rosnącym przy przewijaniu, ikona nad tytułem */
+.gg3 .gg3-find{position:relative;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:56px 40px!important;padding-top:48px!important;margin-top:56px!important}
+.gg3 .gg3-find::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:var(--gg-l,rgba(11,11,11,.12))}
+.gg3 .gg3-find::after{content:'';position:absolute;left:0;top:-1px;height:3px;width:var(--p,12%);background:linear-gradient(90deg,#E9685F,#E03F3B 20%,#AC2069 40%,#88409F 60%,#3E63EF 80%,#51BAD4);transition:width .2s linear}
+.gg3 .gg3-find li{border:0!important;padding:0!important;display:flex!important;flex-direction:column!important;gap:0!important}
+.gg3 .gg3-find li::before{display:none!important}
+.gg3 .gg3-find li .gg3-ic{width:32px;height:32px;margin:0 0 20px;flex:none}
+.gg3 .gg3-find li h3{font-size:21px!important;line-height:1.3}
+.gg3 .gg3-find li p{margin-top:8px;font-size:17px;line-height:1.55;max-width:34ch}
+@container (max-width:1000px){.gg3 .gg3-find{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@container (max-width:640px){.gg3 .gg3-find{grid-template-columns:1fr!important;gap:36px!important;padding-top:36px!important;margin-top:36px!important}}
+@media (prefers-reduced-motion:reduce){.gg3 .gg3-find::after{width:100%;transition:none}}

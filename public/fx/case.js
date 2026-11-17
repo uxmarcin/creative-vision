@@ -5,9 +5,10 @@ if(!R&&'IntersectionObserver'in window){d.documentElement.classList.add('gg3js')
 var arts=d.querySelectorAll('.gg3-sticky article');
 function onCh(){var mid=innerHeight*.45,cur=arts[0];arts.forEach(function(a){if(a.getBoundingClientRect().top<mid)cur=a});arts.forEach(function(a){a.classList.toggle('is-on',a===cur)})}
 var proc=d.querySelector('.gg3-proc'),bar=d.querySelector('.gg3-axis i');
+var fds=d.querySelectorAll('.gg3-find');function onFd(){fds.forEach(function(el){var r=el.getBoundingClientRect(),p=(innerHeight*.85-r.top)/(innerHeight*.6);p=Math.max(.12,Math.min(1,p));el.style.setProperty('--p',(R?100:p*100)+'%')})}
 function onPr(){if(!proc||!bar)return;var r=proc.getBoundingClientRect(),p=(innerHeight*.85-r.top)/(innerHeight*.6);p=Math.max(0,Math.min(1,p));bar.style.setProperty('--p',(R?100:p*100)+'%')}
 var cnt=d.querySelectorAll('[data-count]');
 if(!R&&'IntersectionObserver'in window){var co=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;co.unobserve(e.target);var el=e.target,n=+el.getAttribute('data-count'),t0=performance.now();(function f(t){var k=Math.min(1,(t-t0)/1200);k=1-Math.pow(1-k,3);el.textContent=Math.round(n*k);if(k<1)requestAnimationFrame(f)})(t0)})},{threshold:.6});cnt.forEach(function(el){co.observe(el)})}
-var tk=0;function tick(){tk=0;onCh();onPr()}
+var tk=0;function tick(){tk=0;onCh();onPr();onFd()}
 addEventListener('scroll',function(){if(!tk){tk=1;requestAnimationFrame(tick)}},{passive:true});addEventListener('resize',tick);tick();
 })();
