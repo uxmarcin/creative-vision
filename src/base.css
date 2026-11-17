@@ -786,3 +786,9 @@ html.of3js .of3-row.in{opacity:1;transform:none}
 .cv-mh-sg{animation:cvsgO 9s ease-in-out infinite alternate!important;will-change:opacity}
 @keyframes cvsgO{from{opacity:.45}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.cv-mh-sg{animation:none!important}}
+/* oferta: gradientowa część nagłówka zawsze w nowej linii */
+.of3-h .sw-gr{display:block;width:fit-content}
+/* case study: ekran prosty, perspektywa dopiero pod kursorem */
+.gg3-tilt-in{left:10%!important;top:14%!important;width:104%!important;transform-origin:40% 40%!important;transform:rotateY(var(--ry,0deg)) rotateX(var(--rx,0deg))!important}
+/* następny projekt: strzałka nie znika po najechaniu */
+.gg3-nx:hover span{-webkit-text-fill-color:#51BAD4!important;color:#51BAD4!important;background:none!important}
