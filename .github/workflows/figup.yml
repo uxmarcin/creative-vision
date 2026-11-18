@@ -17,20 +17,10 @@ jobs:
           Image.MAX_IMAGE_PIXELS=None
           n,k=sys.argv[1],sys.argv[2]
           im=Image.open('/tmp/f.png').convert('RGB')
-          import numpy as np
-          W,H=(2880,1800) if k=='d' else (1170,2532)
+          W=2880 if k=='d' else 1170
           im=im.resize((W,round(im.height*W/im.width)),Image.LANCZOS)
-          if im.height>H:
-              a=np.asarray(im.convert('L')).astype(int)
-              flat=(a.max(axis=1)-a.min(axis=1))<6
-              cut=H; run=0
-              for y in range(H-1,int(H*0.8),-1):
-                  run=run+1 if flat[y] else 0
-                  if run>=28: cut=y+run//2; break
-              im=im.crop((0,0,W,cut))
-          if im.height<H:
-              c=Image.new('RGB',(W,H),im.getpixel((W//2,im.height-1)));c.paste(im,(0,0));im=c
-          im.save('gg5/'+n+'.webp',quality=95,method=6)
+          im=im.crop((0,0,W,min(im.height,(2400 if k=='d' else 3600))))
+          im.save('gg5/full-'+n+'.png',optimize=True)
           print(n,im.size)
           PY
           done < tools/gg5.txt
