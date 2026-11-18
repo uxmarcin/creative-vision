@@ -862,3 +862,5 @@ body:has(.cv-mbar.on) .cvcb{bottom:calc(84px + env(safe-area-inset-bottom))}
 #wiedza .sw-posts::-webkit-scrollbar{display:none}
 #wiedza .sw-post{flex:0 0 82%;scroll-snap-align:start;min-width:0}
 #wiedza .sw-head>a{order:3;align-self:flex-start;margin-top:32px}}
+
+html.cv-lock .sw>*:not(.sw-top),html.cv-lock .cv-mbar{visibility:hidden!important;transition:visibility 0s .2s!important}
