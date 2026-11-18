@@ -879,3 +879,14 @@ html.cv-lock .sw>*:not(.sw-top),html.cv-lock .cv-mbar{visibility:hidden!importan
 .gg3-ml img{display:block;width:100%;height:auto}
 @media (max-width:640px){.gg3-ml{padding:24px 0 40px}.gg3-ml figure{margin:0 10px}.gg3-ml figure.d{width:270px}.gg3-ml figure.m{width:160px;margin-bottom:18px}.gg3-ml-t{animation-duration:70s}}
 @media (prefers-reduced-motion:reduce){.gg3-ml{overflow-x:auto}.gg3-ml-t{animation:none}.gg3-ml figure[aria-hidden]{display:none}}
+/* maile w całości, nieregularny rytm */
+.gg3-ml{padding:56px 0 96px}
+.gg3-ml-t{align-items:flex-start!important;animation-duration:110s!important}
+.gg3-ml figure{margin:0 22px!important}
+.gg3-ml figure.d{width:330px!important}.gg3-ml figure.m{width:196px!important;margin-bottom:0!important}
+.gg3-ml figure:nth-child(4n+1){margin-top:0!important}
+.gg3-ml figure:nth-child(4n+2){margin-top:96px!important}
+.gg3-ml figure:nth-child(4n+3){margin-top:36px!important}
+.gg3-ml figure:nth-child(4n){margin-top:140px!important}
+@media (max-width:640px){.gg3-ml{padding:28px 0 56px}.gg3-ml figure{margin:0 10px!important}.gg3-ml figure.d{width:200px!important}.gg3-ml figure.m{width:122px!important}
+.gg3-ml figure:nth-child(4n+2){margin-top:56px!important}.gg3-ml figure:nth-child(4n+3){margin-top:20px!important}.gg3-ml figure:nth-child(4n){margin-top:84px!important}.gg3-ml-t{animation-duration:80s!important}}
