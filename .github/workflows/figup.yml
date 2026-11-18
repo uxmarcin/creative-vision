@@ -17,7 +17,7 @@ jobs:
           Image.MAX_IMAGE_PIXELS=None
           n,k=sys.argv[1],sys.argv[2]
           im=Image.open('/tmp/f.png').convert('RGB')
-          W,H=(2880,1800) if k=='d' else (1170,2532)
+          W,H=(1400,1800) if k=='d' else (750,1560)
           im=im.resize((W,round(im.height*W/im.width)),Image.LANCZOS)
           if im.height<H:
               c=Image.new('RGB',(W,H),im.getpixel((W//2,im.height-1)));c.paste(im,(0,0));im=c
