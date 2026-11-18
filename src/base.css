@@ -890,3 +890,8 @@ html.cv-lock .sw>*:not(.sw-top),html.cv-lock .cv-mbar{visibility:hidden!importan
 .gg3-ml figure:nth-child(4n){margin-top:140px!important}
 @media (max-width:640px){.gg3-ml{padding:28px 0 56px}.gg3-ml figure{margin:0 10px!important}.gg3-ml figure.d{width:200px!important}.gg3-ml figure.m{width:122px!important}
 .gg3-ml figure:nth-child(4n+2){margin-top:56px!important}.gg3-ml figure:nth-child(4n+3){margin-top:20px!important}.gg3-ml figure:nth-child(4n){margin-top:84px!important}.gg3-ml-t{animation-duration:80s!important}}
+/* ostrość ekranów: bez wymuszonej warstwy 3D, gdy ekran stoi prosto */
+.gg3-tilt-in{will-change:auto!important;backface-visibility:visible!important}
+.gg3-tilt-in img{image-rendering:auto}
+/* telefony w karuzeli w pełnej wysokości kadru (bez przycinania tekstu) */
+.gg3-mq img[src*="/gg6-"],.gg3 .gg3-phs img[src*="/gg6-"],.rl3-sc .m[src*="/gg6-"],.sw .sw-ct-m .cv-st img.m[src*="/gg6-"],.gg3-md .m[src*="/gg6-"],.gg3-shots .m[src*="/gg6-"]{aspect-ratio:1170/2532!important}
