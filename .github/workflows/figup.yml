@@ -18,15 +18,19 @@ jobs:
           n,k=sys.argv[1],sys.argv[2]
           im=Image.open('/tmp/f.png').convert('RGB')
           import numpy as np
-          a=np.asarray(im).astype(int)
-          if k=='d': im=im.crop((96,154,1304,im.height))
-          else: im=im.crop((0,106,im.width,im.height))
-          a=np.asarray(im).astype(int); bg=a[-1,im.width//2]
-          rows=np.where((np.abs(a-bg).sum(axis=2)>12).any(axis=1))[0]
-          im=im.crop((0,0,im.width,int(rows[-1])+1+ (24 if k=='d' else 0)))
-          W=1208 if k=='d' else 750
+          W,H=(2880,1800) if k=='d' else (1170,2532)
           im=im.resize((W,round(im.height*W/im.width)),Image.LANCZOS)
-          im.save('gg5/'+n+'.webp',quality=86,method=6)
+          if im.height>H:
+              a=np.asarray(im.convert('L')).astype(int)
+              flat=(a.max(axis=1)-a.min(axis=1))<6
+              cut=H; run=0
+              for y in range(H-1,int(H*0.8),-1):
+                  run=run+1 if flat[y] else 0
+                  if run>=28: cut=y+run//2; break
+              im=im.crop((0,0,W,cut))
+          if im.height<H:
+              c=Image.new('RGB',(W,H),im.getpixel((W//2,im.height-1)));c.paste(im,(0,0));im=c
+          im.save('gg5/'+n+'.webp',quality=95,method=6)
           print(n,im.size)
           PY
           done < tools/gg5.txt
