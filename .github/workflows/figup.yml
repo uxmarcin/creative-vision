@@ -10,7 +10,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          pip install pillow >/dev/null 2>&1; mkdir -p un
-          while read s id; do curl -sS -f -L -o /tmp/u.jpg "https://images.unsplash.com/photo-$id?w=1600&h=1000&fit=crop&q=82&fm=jpg" && python3 -c "from PIL import Image;Image.open('/tmp/u.jpg').convert('RGB').resize((1600,1000)).save('un/$s.webp',quality=85)" && echo "UN ok $s" || echo "UN fail $s"; done < tools/un.txt
+          pip install pillow >/dev/null 2>&1; mkdir -p gg5
+          while read n k u; do curl -sS -f -L -o /tmp/f.png "$u" && python3 - "$n" "$k" <<'PY' && echo "ok $n" || echo "FAIL $n"
+          import sys
+          from PIL import Image
+          Image.MAX_IMAGE_PIXELS=None
+          n,k=sys.argv[1],sys.argv[2]
+          im=Image.open('/tmp/f.png').convert('RGB')
+          W,H=(2880,1800) if k=='d' else (1170,2532)
+          im=im.resize((W,round(im.height*W/im.width)),Image.LANCZOS)
+          if im.height<H:
+              c=Image.new('RGB',(W,H),im.getpixel((W//2,im.height-1)));c.paste(im,(0,0));im=c
+          im.crop((0,0,W,H)).save('gg5/'+n+'.webp',quality=86,method=6)
+          print(n,im.size)
+          PY
+          done < tools/gg5.txt
           git config user.name "github-actions" && git config user.email "actions@github.com"
-          git add un && git commit -m "unsplash picks [skip ci]" && git push
+          git add gg5 && git commit -m "gg5 figma exports [skip ci]" && git push
