@@ -10,18 +10,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          pip install pillow >/dev/null 2>&1; mkdir -p gg5
+          pip install pillow numpy >/dev/null 2>&1; mkdir -p gg5
           while read n k u; do curl -sS -f -L -o /tmp/f.png "$u" && python3 - "$n" "$k" <<'PY' && echo "ok $n" || echo "FAIL $n"
           import sys
           from PIL import Image
           Image.MAX_IMAGE_PIXELS=None
           n,k=sys.argv[1],sys.argv[2]
           im=Image.open('/tmp/f.png').convert('RGB')
-          W,H=(1400,1800) if k=='d' else (750,1560)
+          import numpy as np
+          a=np.asarray(im).astype(int)
+          if k=='d': im=im.crop((96,154,1304,im.height))
+          else: im=im.crop((0,106,im.width,im.height))
+          a=np.asarray(im).astype(int); bg=a[-1,im.width//2]
+          rows=np.where((np.abs(a-bg).sum(axis=2)>12).any(axis=1))[0]
+          im=im.crop((0,0,im.width,int(rows[-1])+1+ (24 if k=='d' else 0)))
+          W=1208 if k=='d' else 750
           im=im.resize((W,round(im.height*W/im.width)),Image.LANCZOS)
-          if im.height<H:
-              c=Image.new('RGB',(W,H),im.getpixel((W//2,im.height-1)));c.paste(im,(0,0));im=c
-          im.crop((0,0,W,H)).save('gg5/'+n+'.webp',quality=86,method=6)
+          im.save('gg5/'+n+'.webp',quality=86,method=6)
           print(n,im.size)
           PY
           done < tools/gg5.txt
