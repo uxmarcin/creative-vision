@@ -869,3 +869,14 @@ html.cv-lock .sw>*:not(.sw-top),html.cv-lock .cv-mbar{visibility:hidden!importan
 .sw-f3-lr{display:flex;flex-wrap:wrap;gap:8px 20px}
 .sw-f3-lr{align-items:center!important;row-gap:12px!important}.sw .sw-f3-lr a,.sw .sw-f3-lr button{margin:0!important;padding:0!important;line-height:1.5!important;vertical-align:baseline}
 .sw .sw-f3-lr>a,.sw .sw-f3-lr>button{display:inline-flex!important;align-items:center!important;min-height:44px}@media (max-width:809px){.sw-f3-lr{column-gap:24px!important;row-gap:0!important}}
+
+/* GoldenGun: karuzela maili */
+.gg3-mails{background:#F4F1EC;color:#111}
+.gg3-ml{overflow:hidden;padding:40px 0 64px}
+.gg3-ml-t{display:flex;align-items:flex-end;width:max-content;animation:gg3mq 90s linear infinite}
+.gg3-ml:hover .gg3-ml-t{animation-play-state:paused}
+.gg3-ml figure{flex:none;margin:0 20px;background:#fff;box-shadow:0 1px 2px rgba(17,17,17,.05),0 18px 40px -18px rgba(17,17,17,.22)}
+.gg3-ml figure.d{width:420px}.gg3-ml figure.m{width:250px;margin-bottom:28px}
+.gg3-ml img{display:block;width:100%;height:auto}
+@media (max-width:640px){.gg3-ml{padding:24px 0 40px}.gg3-ml figure{margin:0 10px}.gg3-ml figure.d{width:270px}.gg3-ml figure.m{width:160px;margin-bottom:18px}.gg3-ml-t{animation-duration:70s}}
+@media (prefers-reduced-motion:reduce){.gg3-ml{overflow-x:auto}.gg3-ml-t{animation:none}.gg3-ml figure[aria-hidden]{display:none}}
