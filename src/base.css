@@ -864,3 +864,8 @@ body:has(.cv-mbar.on) .cvcb{bottom:calc(84px + env(safe-area-inset-bottom))}
 #wiedza .sw-head>a{order:3;align-self:flex-start;margin-top:32px}}
 
 html.cv-lock .sw>*:not(.sw-top),html.cv-lock .cv-mbar{visibility:hidden!important;transition:visibility 0s .2s!important}
+
+.sw-f3-cp{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}.sw-f3-cp em{font-style:normal;text-transform:none!important;letter-spacing:.01em!important;opacity:.8}
+.sw-f3-lr{display:flex;flex-wrap:wrap;gap:8px 20px}
+.sw-f3-lr{align-items:center!important;row-gap:12px!important}.sw .sw-f3-lr a,.sw .sw-f3-lr button{margin:0!important;padding:0!important;line-height:1.5!important;vertical-align:baseline}
+.sw .sw-f3-lr>a,.sw .sw-f3-lr>button{display:inline-flex!important;align-items:center!important;min-height:44px}@media (max-width:809px){.sw-f3-lr{column-gap:24px!important;row-gap:0!important}}

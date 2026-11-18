@@ -3,7 +3,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { RELATED_HTML } from './src/related.mjs';
 import { GTAG_HTML } from './src/gtag.mjs';
 const require = createRequire(import.meta.url);
 const esbuild = require(process.env.ESBUILD || 'esbuild');
@@ -122,10 +121,12 @@ function jsonld(p, title, desc, url) {
   }
   return JSON.stringify({ '@context': 'https://schema.org', '@graph': g }).replace(/</g, '\\u003c');
 }
+const MAPA = [];
 for (const p of pages) {
   const key = p.path === '/' ? 'index' : p.path.slice(1).replace(/\//g, '__');
   const m = meta[key] || {}, s = seo[key] || {};
   const title = s.title || m.title, desc = s.description || m.description;
+  MAPA.push([p.path, p.props.view, p.props.item, title]);
   // stara grafika z Framera (8UVL…) pokazywała nieaktualny projekt strony, więc wszędzie nowa
   const url = SITE + p.path, img = SITE + '/img/og-creative-vision-2.png';
   const html = imgAttrs(renderToString(jsx(App, p.props)));
@@ -163,7 +164,6 @@ ${p.path === '/' ? '<script>if(!matchMedia("(prefers-reduced-motion: reduce)").m
 </head>
 <body>
 <div id="app">${html}</div>
-${RELATED_HTML}
 <script type="application/json" id="cv-props">${JSON.stringify(p.props).replace(/</g, '\\u003c')}</script>
 <script type="module" src="${js}"></script>
 <script src="/fx/fluid.js?v=2611171220" defer></script>
@@ -184,10 +184,42 @@ ${p.path === '/kontakt' ? '' : MBAR}
 }
 fs.copyFileSync(path.join(ROOT, 'src/404.html'), path.join(OUT, '404.html'));
 fs.copyFileSync(path.join(ROOT, 'src/polityka-cookies.html'), path.join(OUT, 'polityka-cookies.html'));
+// Mapa strony: wszystkie podstrony w jednym miejscu (zamiast długiej listy linków pod stopką)
+{
+  const NM = { '/': 'Strona główna', '/uslugi/sklepy-internetowe': 'Sklepy internetowe', '/uslugi/sklepy-prestashop': 'Sklepy PrestaShop', '/uslugi/strony-firmowe': 'Strony firmowe', '/uslugi/strony-dla-firm-budowlanych': 'Strony dla firm budowlanych', '/uslugi/audyt-ux': 'Audyt UX', '/uslugi/aplikacje-mobilne': 'Aplikacje mobilne', '/uslugi/opieka': 'Opieka nad stroną i sklepem', '/strony-internetowe-rzeszow': 'Strony internetowe Rzeszów', '/sklepy-internetowe-rzeszow': 'Sklepy internetowe Rzeszów', '/agencja-ecommerce': 'Agencja e-commerce', '/wiedza/cennik': 'Cennik', '/realizacje': 'Wszystkie realizacje', '/wiedza': 'Wszystkie poradniki', '/o-nas': 'O nas', '/kontakt': 'Kontakt i bezpłatna wycena' };
+  const ORD = ['/', '/uslugi/sklepy-internetowe', '/uslugi/sklepy-prestashop', '/sklepy-internetowe-rzeszow', '/agencja-ecommerce', '/uslugi/strony-firmowe', '/strony-internetowe-rzeszow', '/uslugi/strony-dla-firm-budowlanych', '/uslugi/audyt-ux', '/uslugi/aplikacje-mobilne', '/uslugi/opieka', '/wiedza/cennik', '/realizacje', '/wiedza'];
+  MAPA.sort((a, b) => { const x = ORD.indexOf(a[0]), y = ORD.indexOf(b[0]); return (x < 0 ? 99 : x) - (y < 0 ? 99 : y); });
+  const label = ([pt, view, item, t]) => NM[pt] ? NM[pt]
+    : view === 'artykul' ? (ART.find((x) => x.s === item) || {}).t || t
+    : view === 'realizacja' && CASES[item] ? CASES[item].n
+    : String(t || pt).split(' | ')[0];
+  const grp = [
+    ['Oferta', (x) => x[0] === '/' || x[1] === 'usluga' || /^\/(strony-internetowe-rzeszow|sklepy-internetowe-rzeszow|agencja-ecommerce|wiedza\/cennik)$/.test(x[0])],
+    ['Realizacje', (x) => x[0].startsWith('/realizacje')],
+    ['Poradniki', (x) => x[0].startsWith('/wiedza')],
+    ['Firma', () => true],
+  ];
+  const used = new Set();
+  const cols = grp.map(([h, f]) => {
+    const it = MAPA.filter((x) => !used.has(x[0]) && f(x));
+    it.forEach((x) => used.add(x[0]));
+    if (h === 'Firma') it.push(['/polityka-cookies', '', '', 'Polityka cookies']);
+    return `<section><h2>${h}</h2><ul>${it.map((x) => `<li><a href="${x[0]}">${esc(label(x))}</a></li>`).join('')}</ul></section>`;
+  }).join('');
+  let t = fs.readFileSync(path.join(ROOT, 'src/polityka-cookies.html'), 'utf8');
+  t = t.replace(/<title>[^<]*<\/title>/, '<title>Mapa strony | Creative Vision</title>')
+    .replace(/<meta name="description" content="[^"]*">/, '<meta name="description" content="Wszystkie podstrony creative-vision.pl w jednym miejscu: oferta, realizacje, poradniki i informacje o firmie.">')
+    .replace('https://creative-vision.pl/polityka-cookies', 'https://creative-vision.pl/mapa-strony')
+    .replace('</style>', '.mp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:40px 56px;margin-top:40px}.mp h2{margin-top:0}.mp ul{list-style:none;padding:0;margin:0}.mp li{margin:0 0 10px}@media (max-width:700px){.mp{grid-template-columns:1fr}}</style>')
+    .replace(/<main>[\s\S]*<\/main>/, `<main><p class="k">Creative Vision</p><h1>Mapa strony</h1><p>Wszystkie podstrony w jednym miejscu: oferta, realizacje, poradniki i informacje o firmie.</p><div class="mp">${cols}</div><div class="b"><a class="p" href="/kontakt">Bezpłatna wycena</a><a class="s" href="/">Strona główna</a></div></main>`)
+    .replace(/<script>document\.getElementById\('ck'\)[\s\S]*?<\/script>\n?/, '');
+  fs.writeFileSync(path.join(OUT, 'mapa-strony.html'), t);
+}
 const today = new Date().toISOString().slice(0, 10);
 fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${pages.map((p) => `  <url><loc>${SITE}${p.path}</loc><lastmod>${today}</lastmod></url>`).join('\n')}
+  <url><loc>${SITE}/mapa-strony</loc><lastmod>${today}</lastmod></url>
 </urlset>
 `);
 // robots.txt: wprost wpuszczamy wyszukiwarki i asystentów AI
