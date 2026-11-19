@@ -1,4 +1,4 @@
-name: Sprawdzenie panelu faktur (css)
+name: Sprawdzenie poczty (DNS)
 on:
   workflow_dispatch:
   push:
@@ -9,14 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Kody odpowiedzi
+      - name: Serwer poczty
         run: |
-          for u in panel panel/ panel/data/ panel/data/index.html panel/data/panel.sqlite panel/lib/boot.php panel/lib/setup-hash.php panel/vendor/dompdf/VERSION panel/fonts/Jost-400.ttf panel/assets/panel.css panel/cron.php f/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa probe-5e112c68767bc552.php; do
-            echo "$(curl -s -o /dev/null -w '%{http_code}' https://creative-vision.pl/$u) $u"
+          echo "MX:"; dig +short MX creative-vision.pl
+          for h in mail.creative-vision.pl creative-vision.pl; do echo "$h A: $(dig +short A $h | tr '\n' ' ')"; done
+          for mx in $(dig +short MX creative-vision.pl | awk '{print $2}'); do echo "$mx A: $(dig +short A $mx | tr '\n' ' ')"; done
+          for h in $(dig +short MX creative-vision.pl | awk '{print $2}' | sed 's/\.$//') mail.creative-vision.pl; do
+            for p in 993 465; do
+              echo "== $h:$p"; timeout 8 openssl s_client -connect $h:$p -servername $h </dev/null 2>/dev/null | openssl x509 -noout -subject -ext subjectAltName 2>/dev/null | head -4 || echo "brak"
+            done
           done
-          curl -s https://creative-vision.pl/panel | grep -o '<h1>[^<]*\|panel.css[^"]*' || true
-          curl -sI "https://creative-vision.pl/panel/assets/panel.css" | head -12
-          curl -s "https://creative-vision.pl/panel/assets/panel.css" | head -c 300; echo
-          curl -s "https://creative-vision.pl/panel/assets/panel.css" | wc -c
-          curl -s https://creative-vision.pl/panel/cron.php; echo
-          curl -sI https://creative-vision.pl/panel | grep -i -E 'content-security|x-robots|set-cookie' || true
+          echo "SPF:"; dig +short TXT creative-vision.pl
