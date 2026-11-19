@@ -10,7 +10,7 @@ jobs:
     steps:
       - run: |
           curl -s -m 30 -G "https://ezamowienia.gov.pl/mo-board/api/v1/notice" --data-urlencode "NoticeNumber=2026/BZP 00536306/01" --data-urlencode "PageSize=2" > a.json; python3 -c "
-          import json,re;d=json.load(open('a.json'));print('n',len(d));
+          import json,re;d=json.load(open('a.json'));print('n',len(d), list(d.keys()) if isinstance(d,dict) else '', str(d)[:600]);
           import html as H
           if d:
             t=re.sub(r'<style.*?</style>','',d[0]['htmlBody'],flags=re.S);t=H.unescape(re.sub(r'<[^>]+>',' ',t));t=re.sub(r'\s+',' ',t);print(len(t));print(t[:3500])"
