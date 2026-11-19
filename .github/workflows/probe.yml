@@ -9,6 +9,9 @@ jobs:
     timeout-minutes: 4
     steps:
       - run: |
-          echo "== BZP"; curl -s -m 30 "https://ezamowienia.gov.pl/mo-board/api/v1/notice?NoticeType=ContractNotice&PublicationDateFrom=2026-11-12T00:00:00&PublicationDateTo=2026-11-19T23:59:59&CpvCode=72000000-5&PageSize=3&PageNumber=1" | head -c 3000; echo
-          echo "== BZP2"; curl -s -m 30 -o /dev/null -w "%{http_code}\n" "https://ezamowienia.gov.pl/mo-board/api/v1/notice?NoticeType=ContractNotice&PublicationDateFrom=2026-11-12&PublicationDateTo=2026-11-19&PageSize=3"
-          echo "== TED"; curl -s -m 30 -X POST https://api.ted.europa.eu/v3/notices/search -H 'Content-Type: application/json' -d '{"query":"classification-cpv IN (72000000 72413000 72212000 79342000) AND buyer-country=POL AND publication-date>=20261101","fields":["publication-number","notice-title","buyer-name","deadline-receipt-tender-date-lot","classification-cpv","links","place-of-performance","estimated-value-proc"],"limit":2,"scope":"ACTIVE","paginationMode":"ITERATION"}' | head -c 4000; echo
+          u="https://ezamowienia.gov.pl/mo-board/api/v1/notice?NoticeType=ContractNotice&PublicationDateFrom=2026-10-20T00:00:00&PublicationDateTo=2026-11-19T23:59:59&CpvCode=72413000-8&PageSize=50&PageNumber=1"
+          curl -s -m 30 "$u" > a.json; python3 -c "
+          import json;d=json.load(open('a.json'));print(len(d));print([k for k in d[0].keys()] if d else '');
+          [print(x['noticeNumber'],x.get('objectId'),x['organizationProvince'],x['organizationCity'],x['orderObject'][:90],x['cpvCode'][:60],x['submittingOffersDate']) for x in d[:15]]"
+          curl -s -m 30 "https://ezamowienia.gov.pl/mo-board/api/v1/notice?NoticeType=ContractNotice&PublicationDateFrom=2026-10-20T00:00:00&PublicationDateTo=2026-11-19T23:59:59&CpvCode=72413000-8&OrganizationProvince=PL18&PageSize=50" > b.json; python3 -c "import json;d=json.load(open('b.json'));print('prov',len(d),set(x['organizationProvince'] for x in d))"
+          curl -s -m 30 "https://ezamowienia.gov.pl/mo-board/api/v1/notice?NoticeType=ContractNotice&PublicationDateFrom=2026-11-18T00:00:00&PublicationDateTo=2026-11-19T23:59:59&PageSize=10" > c.json; python3 -c "import json;d=json.load(open('c.json'));print('all',len(d))"
