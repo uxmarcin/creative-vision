@@ -220,6 +220,15 @@
     if (aib.hasAttribute('data-auto')) setTimeout(runAi, 400);
   }
 
+  var aim = $('#aimsg');
+  if (aim) aim.addEventListener('click', function () {
+    var st = $('#aist'); aim.disabled = true; aim.classList.add('busy'); st.textContent = 'Piszę wiadomość…';
+    var f = new FormData(); f.append('csrf', document.body.getAttribute('data-csrf')); f.append('id', aim.getAttribute('data-id')); f.append('brief', $('#ai_brief').value);
+    fetch('/panel?a=quote_ai_msg', { method: 'POST', body: f, credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok) throw new Error(j.error); $('#qmsg').value = j.message; st.textContent = 'Gotowe. Popraw, jeśli chcesz, i wyślij.';
+    }).catch(function (e) { st.textContent = e.message; }).then(function () { aim.disabled = false; aim.classList.remove('busy'); });
+  });
+
   // potwierdzenie przed wysyłką maila do klienta
   var cdlg = document.createElement('dialog'); cdlg.className = 'mdlg plus';
   cdlg.innerHTML = '<div class="sheet"><div class="hrow"><h2 id="cfq">Wysłać?</h2><button type="button" class="x" data-cno aria-label="Zamknij">×</button></div><p class="mut" style="margin:0;font-size:14px" id="cfs">Klient dostanie maila z PDF w załączniku.</p><button type="button" class="btn" data-cyes>Tak, wyślij</button><button type="button" class="btn ghost" data-cno>Nie, wróć</button></div>';

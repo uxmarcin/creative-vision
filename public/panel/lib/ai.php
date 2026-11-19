@@ -70,3 +70,24 @@ function ai_parse(array $j, string $model): ?array {
     }
     return null;
 }
+
+/** Sama wiadomość mailowa do wyceny. */
+function ai_quote_message(array $q, string $brief = ''): string {
+    if (!ai_enabled()) throw new RuntimeException('Wpisz klucz API Anthropic w ustawieniach.');
+    $model = isset(AI_MODELS[setting('ai_model')]) ? setting('ai_model') : 'claude-sonnet-5-5';
+    $items = implode("\n", array_map(fn($i) => '- ' . $i['name'] . ($i['desc'] !== '' ? ': ' . $i['desc'] : '') . ' (' . money((int)$i['net'], $q['currency'] ?? 'PLN') . ' netto)', $q['calc']['items']));
+    $ctx = 'Klient: ' . ($q['buyer']['name'] ?? '') . "\nWycena " . $q['number'] . ', razem ' . money((int)$q['net'], $q['currency'] ?? 'PLN') . ' netto, ważna do ' . pl_date($q['due_date']) . "\nPozycje:\n" . $items
+        . (trim((string)$q['notes']) !== '' ? "\nUwagi z wyceny: " . $q['notes'] : '') . (!empty($q['src']['subject']) ? "\nTemat zapytania klienta: " . $q['src']['subject'] : '') . ($brief !== '' ? "\nWskazówki od Marcina: " . $brief : '');
+    $body = ['model' => $model, 'max_tokens' => 1200, 'system' => 'Piszesz w imieniu Marcina z Creative Vision (agencja UX/UI z Rzeszowa) maila do klienta, do którego dołączamy wycenę w PDF. Po polsku, ciepło, naturalnie i konkretnie, jak człowiek, nie jak automat. Bez myślników — i –, bez wypunktowań z gwiazdkami, bez formułki „Dziękujemy za współpracę”, bez podpisu (dodajemy go sami). Zacznij od „Dzień dobry,”. 2 do 4 krótkie akapity: nawiąż do potrzeby klienta, w skrócie co proponujemy i co klient dostaje, ważność wyceny, zaproszenie do krótkiej rozmowy online lub odpowiedzi na maila. Zwróć wyłącznie treść wiadomości.',
+        'messages' => [['role' => 'user', 'content' => $ctx]]];
+    $ch = curl_init(getenv('CV_AI_URL') ?: 'https://api.anthropic.com/v1/messages');
+    curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode($body, JSON_UNESCAPED_UNICODE), CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 90,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'x-api-key: ' . setting('ai_key'), 'anthropic-version: 2023-06-01']]);
+    $res = curl_exec($ch); $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE); curl_close($ch);
+    $j = json_decode((string)$res, true);
+    if ($code >= 400 || !is_array($j)) throw new RuntimeException('API Anthropic: ' . ($j['error']['message'] ?? ('błąd ' . $code)));
+    $t = ''; foreach ((array)($j['content'] ?? []) as $c) if (($c['type'] ?? '') === 'text') $t .= $c['text'];
+    $t = trim(str_replace(['—', '–'], ',', $t));
+    if ($t === '') throw new RuntimeException('AI nie zwróciło wiadomości.');
+    return $t;
+}

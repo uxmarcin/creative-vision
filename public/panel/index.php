@@ -112,7 +112,7 @@ if ($post) {
     check_csrf();
     $id = (int)($_POST['id'] ?? 0);
     switch ($a) {
-        case 'quote_save': case 'quote_send': case 'quote_status': case 'quote_invoice': case 'quote_delete': quote_post($a);
+        case 'quote_save': case 'quote_send': case 'quote_ai_msg': case 'quote_status': case 'quote_invoice': case 'quote_delete': quote_post($a);
         case 'lead_save': case 'lead_stage': case 'lead_next': case 'lead_delete': case 'lead_from_mail': case 'tender_lead': case 'tender_hide': case 'lead_move': case 'tenders_fetch': case 'tender_settings': case 'scan': case 'lead_rescan': leads_post($a);
         case 'ai_quote':
             header('Content-Type: application/json; charset=utf-8'); @set_time_limit(150);
@@ -391,6 +391,7 @@ switch ($a) {
         header('Content-Type: application/zip'); header('Content-Disposition: attachment; filename="' . books_zip_name($ym) . '"'); header('Content-Length: ' . filesize($zf));
         readfile($zf); @unlink($zf); exit;
     case 'quote_new': view_quote_form(null);
+    case 'quote_mail': $q = quote_by_id((int)($_GET['id'] ?? 0)); if (!$q) redirect(P . '?a=quotes'); view_quote_mail($q);
     case 'quote_edit': case 'quote':
         $q = quote_by_id((int)($_GET['id'] ?? 0)); if (!$q) { flash('!Nie ma takiej wyceny.'); redirect(P . '?a=quotes'); }
         $a === 'quote' ? view_quote($q) : view_quote_form($q);
