@@ -1,4 +1,4 @@
-name: Sprawdzenie poczty (DNS)
+name: Sprawdzenie panelu
 on:
   workflow_dispatch:
   push:
@@ -9,14 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Serwer poczty
+      - name: Panel
         run: |
-          echo "MX:"; dig +short MX creative-vision.pl
-          for h in mail.creative-vision.pl creative-vision.pl; do echo "$h A: $(dig +short A $h | tr '\n' ' ')"; done
-          for mx in $(dig +short MX creative-vision.pl | awk '{print $2}'); do echo "$mx A: $(dig +short A $mx | tr '\n' ' ')"; done
-          for h in $(dig +short MX creative-vision.pl | awk '{print $2}' | sed 's/\.$//') mail.creative-vision.pl; do
-            for p in 993 465; do
-              echo "== $h:$p"; timeout 8 openssl s_client -connect $h:$p -servername $h </dev/null 2>/dev/null | openssl x509 -noout -subject -ext subjectAltName 2>/dev/null | head -4 || echo "brak"
-            done
-          done
-          echo "SPF:"; dig +short TXT creative-vision.pl
+          for u in panel "panel?a=inbox" panel/cron.php panel/lib/imap.php panel/vendor/qrcode/QRCode.php; do echo "$(curl -s -o /dev/null -w '%{http_code}' "https://creative-vision.pl/$u") $u"; done
+          curl -s https://creative-vision.pl/panel | grep -o '<h1>[^<]*' || true
