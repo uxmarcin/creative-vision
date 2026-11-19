@@ -170,6 +170,9 @@ if ($post) {
             if ($c['name'] === '') { flash('!Podaj nazwę klienta.'); redirect(P . '?a=clients'); }
             if ($id) db()->prepare('UPDATE clients SET nip=?, name=?, addr1=?, addr2=?, country=?, email=?, cc=?, updated=? WHERE id=?')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['country'], $c['email'], $c['cc'], now(), $id]);
             else db()->prepare('INSERT INTO clients (nip, name, addr1, addr2, country, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?,?)')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['country'], $c['email'], $c['cc'], now(), now()]);
+            $cid = $id ?: (int)db()->lastInsertId();
+            db()->prepare('UPDATE clients SET no_remind = ?, auto_paid = ? WHERE id = ?')->execute([!empty($_POST['no_remind']) ? 1 : 0, !empty($_POST['auto_paid']) ? 1 : 0, $cid]);
+            if (!empty($_POST['no_remind'])) db()->prepare("UPDATE invoices SET reminders = 0 WHERE client_id = ? AND status = 'issued'")->execute([$cid]);
             flash('Klient zapisany.');
             redirect(P . '?a=clients');
         case 'client_delete':
@@ -230,6 +233,12 @@ if ($post) {
             $ok = send_mail($to, $subj, $html, $txt . ($quote !== '' ? "\n\n" . preg_replace('/^/m', '> ', $quote) : ''), $att, false, ['In-Reply-To' => (string)($_POST['irt'] ?? ''), 'References' => trim((string)($_POST['refs'] ?? '') . ' ' . (string)($_POST['irt'] ?? ''))]);
             flash($ok ? 'Wiadomość wysłana do ' . implode(', ', $to) . '.' : '!Nie udało się wysłać: ' . mail_last_error());
             redirect(P . '?a=inbox');
+        case 'mail_delete':
+            $box = ($_POST['box'] ?? '') === 'sent' ? 'sent' : 'INBOX';
+            $uids = array_values(array_filter(array_map('intval', (array)($_POST['uids'] ?? [$_POST['uid'] ?? 0]))));
+            try { $im = imap_open_box(); $im->select(real_box($im, $box)); $im->trash($uids, trash_box($im)); if ($box === 'INBOX') set_setting('imap_unseen', (string)count($im->uids('UNSEEN'))); flash(count($uids) === 1 ? 'Wiadomość przeniesiona do kosza.' : 'Przeniesiono do kosza: ' . count($uids) . '.'); }
+            catch (Throwable $e) { flash('!' . $e->getMessage()); }
+            redirect(P . '?a=inbox&box=' . $box);
         case 'mail_unseen':
             try { $im = imap_open_box(); $im->select(real_box($im, (string)($_POST['box'] ?? 'INBOX'))); $im->flag((int)($_POST['uid'] ?? 0), '\\Seen', false); } catch (Throwable $e) { flash('!' . $e->getMessage()); }
             redirect(P . '?a=inbox');
@@ -289,7 +298,7 @@ switch ($a) {
             header('X-Content-Type-Options: nosniff');
             echo $at[2]; exit;
         } catch (Throwable $e) { flash('!' . $e->getMessage()); redirect(P . '?a=inbox'); }
-    default: run_reminders(); run_recurring(); ksef_poll_pending(); view_list();
+    default: run_auto_paid(); run_reminders(); run_recurring(); ksef_poll_pending(); view_list();
 }
 
 // =====================================================================
@@ -438,6 +447,8 @@ function import_invoices(array $list): array {
         log_event($id, 'create', 'Zaimportowano fakturę ' . $num . ' (' . $f['source'] . ')' . ($paid ? ', opłacona' : ''));
         $ok++;
     }
+    $pdo->exec("UPDATE clients SET no_remind = 1, auto_paid = 1 WHERE id IN (SELECT client_id FROM invoices WHERE currency != 'PLN' AND recurring = 1 AND client_id IS NOT NULL)");
+    $pdo->exec("UPDATE invoices SET reminders = 0 WHERE client_id IN (SELECT id FROM clients WHERE no_remind = 1)");
     return [$ok, $skip];
 }
 
@@ -850,6 +861,8 @@ function view_clients(): never {
         . '<label class="f">Kod pocztowy i miasto<input class="in" name="addr2" id="addr2" value="' . $v('addr2') . '"></label>'
         . '<label class="f">E-mail do faktur<input class="in" type="email" name="email" value="' . $v('email') . '"></label>'
         . '<label class="f">Kopia do<input class="in" name="cc" value="' . $v('cc') . '"></label>'
+        . '<label class="check"><input type="checkbox" name="no_remind" value="1"' . (!empty($ec['no_remind']) ? ' checked' : '') . '> Nie wysyłaj temu klientowi przypomnień ani wezwań</label>'
+        . '<label class="check"><input type="checkbox" name="auto_paid" value="1"' . (!empty($ec['auto_paid']) ? ' checked' : '') . '> Płaci sam ostatniego dnia miesiąca: oznaczaj faktury jako opłacone automatycznie</label>'
         . '<button class="btn">Zapisz klienta</button></form>'
         . ($ec['id'] ? '<form method="post" action="' . P . '?a=client_delete">' . csrf_field() . '<input type="hidden" name="id" value="' . (int)$ec['id'] . '"><button class="link" style="color:var(--red)">Usuń klienta</button></form><a class="link" href="' . P . '?a=clients">Anuluj</a>' : '') . '</section>';
     $list = '<section class="card wide">' . ($tr ? '<div class="tw"><table class="list"><thead><tr><th>Klient</th><th>Faktury</th><th class="r">Do zapłaty</th><th class="r">Opłacone</th><th><span class="sr">Akcje</span></th></tr></thead><tbody>' . $tr . '</tbody></table></div>' : '<div class="empty">Klienci zapiszą się sami przy pierwszej fakturze. Możesz też dodać ich tutaj.</div>') . '</section>';
@@ -966,14 +979,15 @@ function view_inbox(): never {
         $when = $ts ? (date('Y-m-d', $ts) === today() ? date('H:i', $ts) : date('d.m.Y', $ts)) : '';
         $multi = stripos((string)($h['content-type'] ?? ''), 'multipart/mixed') !== false;
         $url = P . '?a=mail&box=' . urlencode($box) . '&uid=' . $uid;
-        $tr .= '<tr class="row' . ($unseen ? ' unseen' : '') . '" data-href="' . $url . '"><td class="c-cli"><span' . ($unseen ? ' style="font-weight:500"' : '') . '>' . e($nm) . '</span><span class="sub">' . e($ad) . '</span></td>'
+        $tr .= '<tr class="row' . ($unseen ? ' unseen' : '') . '" data-href="' . $url . '"><td class="c-chk"><input type="checkbox" name="uids[]" value="' . $uid . '" form="mdel" aria-label="Zaznacz"></td><td class="c-cli"><span' . ($unseen ? ' style="font-weight:500"' : '') . '>' . e($nm) . '</span><span class="sub">' . e($ad) . '</span></td>'
             . '<td class="c-num"><a class="mlink" href="' . $url . '"' . ($unseen ? ' style="font-weight:500"' : '') . '>' . e($subj) . '</a> ' . ($multi ? '<span class="mut" title="Załącznik">' . icon('clip') . '</span>' : '') . ' ' . inv_links($subj) . '</td>'
             . '<td class="c-amt r nw mut">' . e($when) . '</td></tr>';
     }
     $tabs = '';
     foreach (mail_boxes() as $k => $l) $tabs .= '<a href="' . P . '?a=inbox&box=' . urlencode($k) . '"' . ($k === $box ? ' class="on"' : '') . '>' . $l . ($k === 'INBOX' && (int)setting('imap_unseen') ? ' <span>' . (int)setting('imap_unseen') . '</span>' : '') . '</a>';
     $pages = $total > $per ? '<div class="hrow pad" style="justify-content:flex-end;gap:16px">' . ($pg > 1 ? '<a class="link" href="' . P . '?a=inbox&box=' . urlencode($box) . '&p=' . ($pg - 1) . '">Nowsze</a>' : '') . '<span class="mut" style="font-size:13px">' . (($pg - 1) * $per + 1) . '–' . min($total, $pg * $per) . ' z ' . $total . '</span>' . ($pg * $per < $total ? '<a class="link" href="' . P . '?a=inbox&box=' . urlencode($box) . '&p=' . ($pg + 1) . '">Starsze</a>' : '') . '</div>' : '';
-    $body = '<section class="card"><nav class="tabs">' . $tabs . '</nav>' . ($tr ? '<div class="tw"><table class="list mails"><tbody>' . $tr . '</tbody></table></div>' : '<div class="empty">Brak wiadomości.</div>') . $pages . '</section>';
+    $body = '<form id="mdel" method="post" action="' . P . '?a=mail_delete">' . csrf_field() . '<input type="hidden" name="box" value="' . e($box) . '"></form>'
+        . '<section class="card"><nav class="tabs">' . $tabs . '<button class="link mdelbtn" form="mdel" hidden>Usuń zaznaczone</button></nav>' . ($tr ? '<div class="tw"><table class="list mails"><tbody>' . $tr . '</tbody></table></div>' : '<div class="empty">Brak wiadomości.</div>') . $pages . '</section>';
     page('Poczta', 'inbox', $body, setting('imap_user'), '<a class="btn ghost" href="' . P . '?a=inbox&box=' . urlencode($box) . '" data-refresh>' . icon('refresh') . ' Odbierz</a><a class="btn" href="' . P . '?a=compose">Napisz ' . icon('plus') . '</a>');
 }
 function view_mail(): never {
@@ -1006,6 +1020,7 @@ function view_mail(): never {
         . '<label class="f">Temat<input class="in" name="subject" value="' . e($re) . '"></label>'
         . '<label class="f">Treść<textarea class="in" name="body" rows="8" required>Dzień dobry,' . "\n\n\n" . 'Pozdrawiam' . "\n" . 'Marcin Bednarz</textarea></label>'
         . inv_attach_select() . '<button class="btn">Wyślij ' . icon('arrow') . '</button></form></section>'
+        . '<form method="post" action="' . P . '?a=mail_delete">' . csrf_field() . '<input type="hidden" name="uid" value="' . $uid . '"><input type="hidden" name="box" value="' . e($box) . '"><button class="link" style="color:var(--red)">Usuń wiadomość</button></form>'
         . ($box === 'INBOX' ? '<form method="post" action="' . P . '?a=mail_unseen">' . csrf_field() . '<input type="hidden" name="uid" value="' . $uid . '"><input type="hidden" name="box" value="' . e($box) . '"><button class="link">Oznacz jako nieprzeczytaną</button></form>' : '')
         . '</aside></div>';
     page($subj, 'inbox', $body, $box === 'INBOX' ? 'Odebrane' : 'Wysłane', '<a class="btn ghost" href="' . P . '?a=inbox&box=' . urlencode($box) . '">Wszystkie wiadomości</a>');

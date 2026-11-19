@@ -41,7 +41,15 @@ function migrate(PDO $pdo): void {
     $cols = array_column($pdo->query('PRAGMA table_info(invoices)')->fetchAll(PDO::FETCH_ASSOC), 'name');
     foreach (['currency' => "TEXT NOT NULL DEFAULT 'PLN'", 'lang' => "TEXT NOT NULL DEFAULT 'pl'", 'recurring' => 'INTEGER NOT NULL DEFAULT 0', 'source' => 'TEXT', 'ksef_state' => 'TEXT', 'ksef_session' => 'TEXT', 'ksef_ref' => 'TEXT', 'ksef_hash' => 'TEXT', 'ksef_error' => 'TEXT', 'ksef_at' => 'TEXT', 'ksef_env' => 'TEXT', 'opened_at' => 'TEXT'] as $c => $def)
         if (!in_array($c, $cols, true)) $pdo->exec("ALTER TABLE invoices ADD COLUMN $c $def");
-    if (!in_array('country', array_column($pdo->query('PRAGMA table_info(clients)')->fetchAll(PDO::FETCH_ASSOC), 'name'), true)) $pdo->exec('ALTER TABLE clients ADD COLUMN country TEXT');
+    $ccols = array_column($pdo->query('PRAGMA table_info(clients)')->fetchAll(PDO::FETCH_ASSOC), 'name');
+    if (!in_array('country', $ccols, true)) $pdo->exec('ALTER TABLE clients ADD COLUMN country TEXT');
+    if (!in_array('no_remind', $ccols, true)) {
+        $pdo->exec('ALTER TABLE clients ADD COLUMN no_remind INTEGER NOT NULL DEFAULT 0');
+        $pdo->exec('ALTER TABLE clients ADD COLUMN auto_paid INTEGER NOT NULL DEFAULT 0');
+        // Klient z cykliczną fakturą w walucie obcej płaci sam ostatniego dnia miesiąca: bez przypomnień, wpłata oznaczana automatycznie.
+        $pdo->exec("UPDATE clients SET no_remind = 1, auto_paid = 1 WHERE id IN (SELECT client_id FROM invoices WHERE currency != 'PLN' AND client_id IS NOT NULL)");
+        $pdo->exec("UPDATE invoices SET reminders = 0 WHERE client_id IN (SELECT id FROM clients WHERE no_remind = 1)");
+    }
     if (!in_array('book_ym', $cols, true)) {
         $pdo->exec('ALTER TABLE invoices ADD COLUMN book_ym TEXT');
         $pdo->exec('UPDATE invoices SET book_ym = substr(COALESCE(issue_date, created), 1, 7)');

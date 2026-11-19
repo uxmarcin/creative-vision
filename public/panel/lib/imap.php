@@ -59,6 +59,15 @@ final class Imap {
         foreach ($this->cmd('LIST "" "*"') as $l) if (preg_match('/^\* LIST \(([^)]*)\) (?:"[^"]*"|NIL) (?:"((?:[^"\\]|\\.)*)"|(\S+))\s*$/i', trim($l), $m)) $o[] = [$m[1], stripslashes(($m[2] ?? '') !== '' ? $m[2] : ($m[3] ?? ''))];
         return $o;
     }
+    /** Przenosi wiadomości do kosza (MOVE, a gdy serwer go nie zna: COPY + usunięcie). */
+    public function trash(array $uids, string $trash): void {
+        if (!$uids) return;
+        $set = implode(',', array_map('intval', $uids));
+        try { $this->cmd('UID MOVE ' . $set . ' ' . $this->q($trash)); return; } catch (Throwable $e) { /* starszy serwer */ }
+        $this->cmd('UID COPY ' . $set . ' ' . $this->q($trash));
+        $this->cmd('UID STORE ' . $set . ' +FLAGS.SILENT (\\Deleted)');
+        try { $this->cmd('UID EXPUNGE ' . $set); } catch (Throwable $e) { $this->cmd('EXPUNGE'); }
+    }
     public function create(string $box): void { $this->cmd('CREATE ' . $this->q($box)); try { $this->cmd('SUBSCRIBE ' . $this->q($box)); } catch (Throwable $e) {} }
     public function special(string $flag): ?string {
         foreach ($this->cmd('LIST "" "*"') as $l) if (stripos($l, $flag) !== false && preg_match('/"([^"]+)"\s*$|\s(\S+)\s*$/', trim($l), $m)) return $m[1] !== '' ? $m[1] : $m[2];
@@ -189,6 +198,22 @@ function sent_box(Imap $im): string {
         try { $im->create($pick); } catch (Throwable $e) { $pick = $pref ? 'Sent' : 'INBOX.Sent'; try { $im->create($pick); } catch (Throwable $e2) {} }
     }
     set_setting('imap_sent', $pick);
+    return $pick;
+}
+/** Folder kosza: oznaczony flagą \\Trash, o typowej nazwie, a gdy go nie ma, zakładamy go. */
+function trash_box(Imap $im): string {
+    $fs = $im->folders(); $names = array_column($fs, 1);
+    $saved = setting('imap_trash');
+    if ($saved !== '' && in_array($saved, $names, true)) return $saved;
+    $pick = null;
+    foreach ($fs as [$fl, $n]) if (stripos($fl, '\\Trash') !== false) { $pick = $n; break; }
+    if (!$pick) foreach ($names as $n) if (preg_match('/^(INBOX[.\/])?(Trash|Deleted Items|Deleted Messages|Kosz)$/i', $n)) { $pick = $n; break; }
+    if (!$pick) {
+        $pref = false; foreach ($names as $n) if (stripos($n, 'INBOX.') === 0) $pref = true;
+        $pick = $pref ? 'INBOX.Trash' : 'Trash';
+        try { $im->create($pick); } catch (Throwable $e) { $pick = $pref ? 'Trash' : 'INBOX.Trash'; try { $im->create($pick); } catch (Throwable $e2) {} }
+    }
+    set_setting('imap_trash', $pick);
     return $pick;
 }
 function imap_open_box(): Imap { return new Imap(setting('imap_host'), (int)setting('imap_port'), setting('imap_user'), setting('imap_pass')); }

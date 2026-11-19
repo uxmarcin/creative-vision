@@ -10,6 +10,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('X-Robots-Tag: noindex');
 header('Cache-Control: no-store');
 $r = run_reminders();
+$paid = run_auto_paid();
 $rec = run_recurring();
 ksef_poll_pending();
-echo json_encode(['ok' => true, 'run' => $r['run'], 'sent' => count($r['sent'] ?? []), 'recurring' => count($rec)]);
+echo json_encode(['ok' => true, 'run' => $r['run'], 'sent' => count($r['sent'] ?? []), 'recurring' => count($rec), 'auto_paid' => $paid]);

@@ -31,7 +31,7 @@
   $$('[data-autosubmit]').forEach(function (el) { el.addEventListener('change', function () { el.form.submit(); }); });
 
   $$('tr[data-href]').forEach(function (tr) {
-    tr.addEventListener('click', function (e) { if (e.target.closest('a,button,input,form')) return; if (e.metaKey || e.ctrlKey) window.open(tr.getAttribute('data-href')); else location.href = tr.getAttribute('data-href'); });
+    tr.addEventListener('click', function (e) { if (e.target.closest('a,button,input,form,label,.c-chk')) return; if (e.metaKey || e.ctrlKey) window.open(tr.getAttribute('data-href')); else location.href = tr.getAttribute('data-href'); });
   });
 
   var bdg = document.getElementById('mailbdg');
@@ -52,6 +52,12 @@
   }
 
   $$('[data-refresh]').forEach(function (a) { a.addEventListener('click', function () { a.classList.add('busy'); a.lastChild.textContent = ' Odbieram…'; }); });
+
+  var mdb = $('.mdelbtn');
+  if (mdb) document.addEventListener('change', function (e) {
+    if (!e.target.matches('input[form=mdel]')) return;
+    var n = $$('input[form=mdel]:checked').length; mdb.hidden = !n; mdb.textContent = 'Usuń zaznaczone (' + n + ')';
+  });
 
   var dlg = $('#maildlg');
   if (dlg) {

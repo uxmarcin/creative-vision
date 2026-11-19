@@ -246,3 +246,4 @@ details.more[open] summary{margin-bottom:14px}
 .btn.sm svg{width:14px;height:14px}
 @media (max-width:900px){.list.mails tr.row{grid-template-columns:1fr auto}.list.mails td.c-num{grid-column:1/-1}.mframe{min-height:420px}}
 [data-refresh].busy svg{animation:cvspin .8s linear infinite}@keyframes cvspin{to{transform:rotate(360deg)}}
+.list.mails td.c-chk{width:36px;padding-right:0}.list.mails td.c-chk input{width:16px;height:16px;accent-color:#0B0B0B;margin-top:3px}.tabs .mdelbtn{margin-left:auto;color:var(--red);align-self:center}@media (max-width:900px){.list.mails td.c-chk{grid-row:1/3;grid-column:auto}}

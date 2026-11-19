@@ -15,6 +15,7 @@ function mark_reminder(int $id, string $kind, string $at): void {
 /** Co dziś powinno pójść do tej faktury (albo null). Starsze, przegapione rodzaje oznacza jako pominięte. */
 function reminder_due_today(array $inv): ?string {
     if ($inv['status'] !== 'issued' || (int)$inv['reminders'] !== 1 || empty($inv['sent_at']) || !empty($inv['declared_at'])) return null;
+    if (!empty($inv['client_id'])) { $q = db()->prepare('SELECT no_remind FROM clients WHERE id = ?'); $q->execute([$inv['client_id']]); if ((int)$q->fetchColumn() === 1) return null; }
     if (trim((string)($inv['buyer']['email'] ?? '')) === '') return null;
     $t = today(); $due = (string)$inv['due_date'];
     $sent = reminders_sent((int)$inv['id']);
@@ -105,4 +106,18 @@ function run_recurring(): array {
         $made[] = $id;
     }
     return $made;
+}
+
+/** Klienci, którzy płacą sami ostatniego dnia miesiąca: oznacza ich faktury jako opłacone w ostatni dzień miesiąca wystawienia. */
+function run_auto_paid(): int {
+    $n = 0;
+    $rows = db()->query("SELECT i.* FROM invoices i JOIN clients c ON c.id = i.client_id WHERE c.auto_paid = 1 AND i.status = 'issued'")->fetchAll();
+    foreach ($rows as $r) {
+        $end = date('Y-m-t', strtotime((string)$r['issue_date']));
+        if (today() < $end) continue;
+        db()->prepare("UPDATE invoices SET status = 'paid', paid_at = ?, paid_amount = gross, paid_method = 'przelew (automatycznie)', updated = ? WHERE id = ?")->execute([$end . ' 12:00:00', now(), $r['id']]);
+        log_event((int)$r['id'], 'paid', 'Oznaczona jako opłacona automatycznie, ' . pl_date($end) . ' (klient płaci ostatniego dnia miesiąca)');
+        $n++;
+    }
+    return $n;
 }
