@@ -52,6 +52,44 @@ if (!user_id()) {
         }
         note_attempt(); flash('Nieprawidłowy e-mail lub hasło.'); redirect(P);
     }
+    if ($post && $a === 'forgot') {
+        check_csrf();
+        if (too_many_attempts()) { flash('Za dużo prób. Spróbuj za 15 minut.'); redirect(P); }
+        note_attempt();
+        $sent = [];
+        foreach (db()->query('SELECT id, email FROM users')->fetchAll() as $u) {
+            $t = bin2hex(random_bytes(16));
+            set_setting('reset_' . $u['id'], hash('sha256', $t) . '|' . (time() + 3600));
+            $link = CV_SITE . '/panel?a=reset&u=' . $u['id'] . '&t=' . $t;
+            [$sj, $h, $tx] = admin_mail('Logowanie do panelu faktur', 'Panel faktur · logowanie', 'Twój login:', 'Logujesz się adresem <b style="font-weight:500">' . e($u['email']) . '</b>. Jeśli nie pamiętasz też hasła, ustaw nowe przyciskiem poniżej. Link działa przez godzinę. Jeśli to nie Ty prosiłeś o tę wiadomość, po prostu ją zignoruj.', $link, $u['email']);
+            $h = str_replace('Otwórz w panelu', 'Ustaw nowe hasło', $h); $tx = str_replace('Otwórz w panelu', 'Ustaw nowe hasło', $tx);
+            if (send_mail([$u['email']], $sj, $h, $tx, [], false)) { [$l, $d] = explode('@', $u['email'], 2); $sent[] = mb_substr($l, 0, 2) . str_repeat('•', max(2, mb_strlen($l) - 2)) . '@' . $d; }
+        }
+        flash($sent ? 'Wysłaliśmy maila z loginem na adres konta: ' . implode(', ', $sent) . '. Sprawdź też spam.' : 'Nie udało się wysłać maila. Napisz do mnie, sprawdzę login na serwerze.');
+        redirect(P);
+    }
+    if ($a === 'reset') {
+        $uid = (int)($_GET['u'] ?? $_POST['u'] ?? 0); $t = (string)($_GET['t'] ?? $_POST['t'] ?? '');
+        [$hh, $exp] = array_pad(explode('|', setting('reset_' . $uid)), 2, '0');
+        $ok = $uid && $t !== '' && hash_equals($hh, hash('sha256', $t)) && (int)$exp > time();
+        if (!$ok) { flash('Link do zmiany hasła wygasł albo jest nieprawidłowy. Poproś o nowy.'); redirect(P); }
+        if ($post) {
+            check_csrf();
+            $p1 = (string)($_POST['pass'] ?? '');
+            if (mb_strlen($p1) < 10 || $p1 !== (string)($_POST['pass2'] ?? '')) { flash('Hasło musi mieć co najmniej 10 znaków i oba pola muszą się zgadzać.'); redirect(P . '?a=reset&u=' . $uid . '&t=' . $t); }
+            db()->prepare('UPDATE users SET pass = ? WHERE id = ?')->execute([password_hash($p1, PASSWORD_DEFAULT), $uid]);
+            set_setting('reset_' . $uid, '');
+            session_regenerate_id(true); $_SESSION['uid'] = $uid; remember_session();
+            flash('Nowe hasło zapisane. Jesteś zalogowany.'); redirect(P);
+        }
+        echo head('Nowe hasło') . '<body><div class="auth"><form class="box" method="post" action="' . P . '?a=reset">'
+            . '<img src="' . P . '/assets/logo-black.svg" alt="creative vision" style="height:26px;width:auto;align-self:flex-start"><h1>Nowe hasło</h1><p>Ustaw nowe hasło do panelu faktur.</p>' . flash_html() . csrf_field()
+            . '<input type="hidden" name="u" value="' . $uid . '"><input type="hidden" name="t" value="' . e($t) . '">'
+            . '<label class="f">Nowe hasło (min. 10 znaków)<input class="in" type="password" name="pass" minlength="10" autocomplete="new-password" required></label>'
+            . '<label class="f">Powtórz hasło<input class="in" type="password" name="pass2" minlength="10" autocomplete="new-password" required></label>'
+            . '<button class="btn">Zapisz i zaloguj ' . icon('arrow') . '</button></form></div></body></html>';
+        exit;
+    }
     auth_page('Faktury', 'Zaloguj się do panelu Creative Vision.', 'login', false);
 }
 
@@ -607,7 +645,8 @@ function auth_page(string $title, string $lead, string $action, bool $setup): ne
         . '<label class="f">E-mail<input class="in" type="email" name="email" autocomplete="username" required></label>'
         . '<label class="f">Hasło' . ($setup ? ' (min. 10 znaków)' : '') . '<input class="in" type="password" name="pass" autocomplete="' . ($setup ? 'new-password' : 'current-password') . '" minlength="' . ($setup ? 10 : 1) . '" required></label>'
         . ($setup ? '<label class="f">Kod konfiguracji<input class="in" name="code" autocomplete="off" required></label>' : '<label class="check"><input type="checkbox" name="remember" value="1" checked> Zapamiętaj mnie na tym urządzeniu (30 dni)</label>')
-        . '<button class="btn">' . ($setup ? 'Załóż konto' : 'Zaloguj się') . icon('arrow') . '</button></form></div></body></html>';
+        . '<button class="btn">' . ($setup ? 'Załóż konto' : 'Zaloguj się') . icon('arrow') . '</button>'
+        . ($setup ? '' : '<button class="link forgot" formaction="' . P . '?a=forgot" formnovalidate>Nie pamiętasz loginu lub hasła?</button>') . '</form></div></body></html>';
     exit;
 }
 
