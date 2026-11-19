@@ -464,6 +464,9 @@ switch ($a) {
     case 'fx': header('Content-Type: application/json'); header('Cache-Control: no-store'); $o = [];
         foreach (array_slice(array_unique(array_filter(explode(',', strtoupper((string)($_GET['c'] ?? ''))), fn($c) => preg_match('/^[A-Z]{3}$/', $c))), 0, 5) as $c) if ($r = nbp_rate($c)) $o[$c] = ['rate' => $r['rate'], 'date' => $r['date']];
         echo json_encode($o); exit;
+    case 'fx_hist': header('Content-Type: application/json'); header('Cache-Control: no-store');
+        $c = strtoupper((string)($_GET['c'] ?? 'USD')); $d = in_array((int)($_GET['d'] ?? 30), [7, 30, 180, 365], true) ? (int)$_GET['d'] : 30;
+        echo json_encode(preg_match('/^[A-Z]{3}$/', $c) ? nbp_hist($c, $d) : []); exit;
     case 'ver': header('Content-Type: application/json'); echo json_encode(['v' => app_ver()]); exit;
     case 'unseen':
         header('Content-Type: application/json; charset=utf-8');
@@ -852,7 +855,7 @@ function view_list(): never {
     $avg = $days ? (int)round(array_sum($days) / count($days)) : null;
     $fx = function (array $a): string { $o = ''; foreach ($a as $k => $v) { $p = to_pln($v, $k); $o .= '<span class="fx">+ ' . money($v, $k) . ($p !== null ? ' (≈ ' . money($p) . ')' : '') . '</span>'; } return $o; };
     $kpi = '<section class="kpis" aria-label="Podsumowanie">'
-        . '<div class="kpi dark">' . (function () use ($open, $fxOpen) {
+        . '<div class="kpi dark dz' . ($fxOpen ? ' dz-fx' : '') . '"><div class="dz-l">' . (function () use ($open, $fxOpen) {
             if (!$fxOpen) return '<span class="t">Do zapłaty</span><span class="v">' . money($open) . '</span>';
             $tot = $open; $ok = true; $rt = [];
             foreach ($fxOpen as $k => $v) { $r = nbp_rate($k); if (!$r) { $ok = false; continue; } $tot += (int)round($v * $r['rate']); $rt[] = number_format($r['rate'], 4, ',', '') . ' z ' . date('d.m', strtotime($r['date'])); }
@@ -861,8 +864,11 @@ function view_list(): never {
             return '<span class="t">Do zapłaty <span class="live" title="Kwota przelicza się sama, gdy NBP opublikuje nowy kurs"><i></i>na żywo</span></span>'
                 . '<span class="v livetot" data-pln="' . $open . '" data-fx="' . e(json_encode($fxOpen)) . '" data-tot="' . $tot . '">' . money_split($tot) . '</span>'
                 . '<span class="fxb">' . implode(' + ', $parts) . ' <span class="fxr">(' . e(implode(' + ', array_map(fn($k, $v) => money($v, $k), array_keys($fxOpen), $fxOpen))) . ') · kurs NBP <span class="fxrt">' . e(implode(', ', $rt)) . '</span></span></span>';
-        })() . '<span class="s">' . ($openN ? $openN . ' ' . plural($openN, 'faktura czeka', 'faktury czekają', 'faktur czeka') . ' na wpłatę' : 'Wszystko opłacone') . '</span></div><div class="kpis-r">'
-        . '<div class="kpi"><span class="t">Po terminie</span><span class="v' . ($late ? ' red' : '') . '">' . money($late) . '</span>' . $fx($fxLate) . '<span class="s">' . ($lateN ? $lateN . ' ' . plural($lateN, 'faktura', 'faktury', 'faktur') . ', wezwania idą same' : 'Nikt nie zalega') . '</span></div>'
+        })() . '<span class="s">' . ($openN ? $openN . ' ' . plural($openN, 'faktura czeka', 'faktury czekają', 'faktur czeka') . ' na wpłatę' : 'Wszystko opłacone') . ($lateN ? '<span class="dz-late">' . $lateN . ' ' . plural($lateN, 'faktura', 'faktury', 'faktur') . ' po terminie, wezwania idą same</span>' : '') . '</span></div>'
+        . ($fxOpen ? '<div class="dz-c fxc" data-cur="' . e((string)array_key_first($fxOpen)) . '"><div class="fxc-h"><div><span class="fxc-k">1 ' . e((string)array_key_first($fxOpen)) . ' =</span><b class="fxc-v">–</b><span class="fxc-d"></span></div>'
+            . '<div class="fxc-t" role="tablist">' . implode('', array_map(fn($d, $l) => '<button type="button" data-d="' . $d . '"' . ($d === 30 ? ' class="on"' : '') . '>' . $l . '</button>', [7, 30, 180, 365], ['1T', '1M', '6M', '1R'])) . '</div></div>'
+            . '<div class="fxc-g"><svg viewBox="0 0 600 170" preserveAspectRatio="none" aria-hidden="true"></svg><span class="fxc-tip"></span></div><span class="fxc-n">Średni kurs NBP, tabela A</span></div>' : '')
+        . '</div><div class="kpis-r">'
         . '<div class="kpi"><span class="t">Sprzedaż: ' . e($periodTxt) . '</span>' . ($fxSale && $saleFxOk
             ? '<span class="v">' . money_split($sale + $saleFxPln) . '</span><span class="fxb">' . ($sale ? money($sale) . ' + ' : '') . money($saleFxPln) . ' <span class="fxr">(' . e(implode(' + ', array_map(fn($k, $v) => money($v, $k), array_keys($fxSale), $fxSale))) . ') · kurs NBP ' . e(implode(', ', $saleRates)) . '</span></span>'
             : '<span class="v">' . money($sale) . '</span>' . $fx($fxSale)) . '<span class="s">netto ' . money($saleNet + ($saleFxOk ? $saleFxNet : 0)) . ' · ' . $saleN . ' ' . plural($saleN, 'faktura', 'faktury', 'faktur') . '</span></div>'

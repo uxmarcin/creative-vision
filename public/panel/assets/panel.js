@@ -452,3 +452,43 @@ document.addEventListener('click', function (e) { var t = e.target.closest('[dat
   };
   setInterval(poll, 60000); document.addEventListener('visibilitychange', poll);
 })();
+
+/* Wykres kursu waluty w boksie Do zapłaty */
+(() => {
+  const box = document.querySelector('.fxc'); if (!box) return;
+  const svg = box.querySelector('svg'), tip = box.querySelector('.fxc-tip'), g = box.querySelector('.fxc-g'), cur = box.dataset.cur;
+  const W = 600, H = 170, pad = 8, nf = r => r.toFixed(4).replace('.', ',');
+  const mon = ['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'], dl = d => +d.slice(8, 10) + ' ' + mon[+d.slice(5, 7) - 1];
+  let pts = [], seq = 0;
+  const draw = (p, d) => {
+    pts = p; if (p.length < 2) { svg.innerHTML = ''; return; }
+    const rs = p.map(x => x[1]), mn = Math.min(...rs), mx = Math.max(...rs), sp = (mx - mn) || 1;
+    const X = i => i / (p.length - 1) * W, Y = r => pad + (1 - (r - mn) / sp) * (H - pad * 2);
+    const up = rs[rs.length - 1] >= rs[0], col = up ? '#5BC48E' : '#F07A73';
+    const line = p.map((x, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(x[1]).toFixed(1)).join('');
+    svg.innerHTML = '<defs><linearGradient id="fxa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + col + '" stop-opacity=".28"/><stop offset="1" stop-color="' + col + '" stop-opacity="0"/></linearGradient></defs>'
+      + '<line x1="0" x2="' + W + '" y1="' + Y(rs[0]).toFixed(1) + '" y2="' + Y(rs[0]).toFixed(1) + '" stroke="#555" stroke-dasharray="3 4" stroke-width="1" vector-effect="non-scaling-stroke"/>'
+      + '<path d="' + line + 'L' + W + ' ' + H + 'L0 ' + H + 'Z" fill="url(#fxa)"/>'
+      + '<path class="ln" d="' + line + '" fill="none" stroke="' + col + '" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>'
+      + '<line class="cx" y1="0" y2="' + H + '" stroke="#8C8C8C" stroke-width="1" vector-effect="non-scaling-stroke" opacity="0"/>';
+    const ln = svg.querySelector('.ln'), L = ln.getTotalLength(); ln.style.strokeDasharray = L; ln.style.strokeDashoffset = L;
+    ln.getBoundingClientRect(); ln.style.transition = 'stroke-dashoffset .8s ease'; ln.style.strokeDashoffset = 0;
+    const last = rs[rs.length - 1], ch = last - rs[0], pc = ch / rs[0] * 100;
+    box.querySelector('.fxc-v').textContent = nf(last) + ' PLN';
+    const dd = box.querySelector('.fxc-d'); dd.className = 'fxc-d ' + (ch >= 0 ? 'up' : 'dn');
+    dd.textContent = (ch >= 0 ? '+' : '−') + nf(Math.abs(ch)) + ' (' + Math.abs(pc).toFixed(2).replace('.', ',') + '%) ' + (ch >= 0 ? '↑' : '↓') + ' od ' + dl(p[0][0]) + ' · ' + dl(p[p.length - 1][0]);
+  };
+  const load = async d => {
+    const my = ++seq;
+    try { const r = await fetch(location.pathname + '?a=fx_hist&c=' + cur + '&d=' + d, {credentials: 'same-origin'}); const j = await r.json(); if (my === seq) draw(j, d); } catch (e) {}
+  };
+  box.querySelectorAll('.fxc-t button').forEach(b => b.addEventListener('click', () => { box.querySelectorAll('.fxc-t button').forEach(x => x.classList.toggle('on', x === b)); load(+b.dataset.d); }));
+  const hover = e => {
+    if (pts.length < 2) return; const rc = g.getBoundingClientRect(), k = Math.max(0, Math.min(1, (e.clientX - rc.left) / rc.width)), i = Math.round(k * (pts.length - 1));
+    const x = i / (pts.length - 1); svg.querySelector('.cx').setAttribute('x1', x * W); svg.querySelector('.cx').setAttribute('x2', x * W); svg.querySelector('.cx').setAttribute('opacity', 1);
+    tip.textContent = nf(pts[i][1]) + ' · ' + dl(pts[i][0]); tip.style.left = Math.max(40, Math.min(rc.width - 40, x * rc.width)) + 'px'; tip.style.opacity = 1;
+  };
+  g.addEventListener('pointermove', hover); g.addEventListener('pointerdown', hover);
+  g.addEventListener('pointerleave', () => { tip.style.opacity = 0; const c = svg.querySelector('.cx'); if (c) c.setAttribute('opacity', 0); });
+  load(30);
+})();

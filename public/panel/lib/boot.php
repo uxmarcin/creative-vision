@@ -463,6 +463,17 @@ function pln_hint(int $cents, ?string $cur, bool $short = false): string {
     $cur = $cur ?: 'PLN'; if ($cur === 'PLN') return ''; $r = nbp_rate($cur); if (!$r) return '';
     return '<span class="sub fxp" title="Średni kurs NBP (tabela A) z ' . pl_date($r['date']) . ', tylko do podglądu w panelu">≈ ' . money((int)round($cents * $r['rate'])) . ($short ? '' : ' · NBP ' . number_format($r['rate'], 4, ',', '') . ' z ' . date('d.m', strtotime($r['date']))) . '</span>';
 }
+/** Historia średniego kursu NBP z ostatnich $days dni: [[data, kurs], ...]. Cache 1 h. */
+function nbp_hist(string $cur, int $days): array {
+    $k = 'nbpr_' . $cur . '_' . $days; $c = json_decode(setting($k), true) ?: [];
+    if (!empty($c['p']) && time() - (int)($c['at'] ?? 0) < 3600) return $c['p'];
+    $ch = curl_init('https://api.nbp.pl/api/exchangerates/rates/a/' . strtolower($cur) . '/' . date('Y-m-d', strtotime('-' . $days . ' days')) . '/' . date('Y-m-d') . '/?format=json');
+    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 5, CURLOPT_CONNECTTIMEOUT => 3, CURLOPT_HTTPHEADER => ['Accept: application/json']]);
+    $j = json_decode((string)curl_exec($ch), true); curl_close($ch);
+    $p = array_map(fn($r) => [(string)$r['effectiveDate'], (float)$r['mid']], is_array($j['rates'] ?? null) ? $j['rates'] : []);
+    if ($p) set_setting($k, json_encode(['p' => $p, 'at' => time()])); elseif (!empty($c['p'])) return $c['p'];
+    return $p;
+}
 /** Kurs NBP z ostatniego dnia roboczego miesiąca (weekend lub święto: dzień roboczy wcześniej). Dla trwającego miesiąca kurs bieżący, 'live' => true. */
 function nbp_rate_month_end(string $cur, string $ym): ?array {
     $next = date('Y-m-d', strtotime($ym . '-01 +1 month'));
