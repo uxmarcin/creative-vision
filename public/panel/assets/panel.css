@@ -480,3 +480,7 @@ a.bookcard{text-decoration:none;color:var(--ink)}a.bookcard svg{width:18px;heigh
 @keyframes cvup{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
 .months a.fut{opacity:.45}
 @media (max-width:900px){.upd{left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));max-width:none}body.pg-form .upd{bottom:calc(140px + env(safe-area-inset-bottom))}}
+/* miesiące jako chipy z nazwą */
+.months a{min-width:0;height:34px;padding:0 12px;font-size:14px;border-radius:0}
+.months a.has::after{bottom:3px}
+@media (max-width:900px){.months a{height:38px;padding:0 13px;min-width:0}}
