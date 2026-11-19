@@ -257,6 +257,14 @@ switch ($a) {
     case 'view': view_invoice(must_invoice((int)($_GET['id'] ?? 0)));
     case 'clients': view_clients();
     case 'settings': view_settings();
+    case 'unseen':
+        header('Content-Type: application/json; charset=utf-8');
+        $n = (int)setting('imap_unseen');
+        if (inbox_enabled() && time() - (int)setting('imap_unseen_at') > 50) {
+            set_setting('imap_unseen_at', (string)time());
+            try { $im = imap_open_box(); $im->select('INBOX'); $n = count($im->uids('UNSEEN')); set_setting('imap_unseen', (string)$n); } catch (Throwable $e) { /* zostaje ostatnia wartość */ }
+        }
+        echo json_encode(['unseen' => $n]); exit;
     case 'inbox': view_inbox();
     case 'mail': view_mail();
     case 'compose': view_compose();
@@ -489,7 +497,7 @@ function flash_html(): string {
 }
 
 function page(string $title, string $active, string $body, string $kicker = '', string $acts = ''): never {
-    $nav = [['list', 'Faktury', 'list', P], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['inbox', 'Poczta' . ((int)setting('imap_unseen') > 0 ? ' <b class="bdg">' . (int)setting('imap_unseen') . '</b>' : ''), 'mail', P . '?a=inbox'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
+    $nav = [['list', 'Faktury', 'list', P], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['inbox', 'Poczta <b class="bdg" id="mailbdg"' . (inbox_enabled() ? ' data-poll' : '') . ((int)setting('imap_unseen') > 0 ? '>' . (int)setting('imap_unseen') : ' hidden>') . '</b>', 'mail', P . '?a=inbox'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
     $links = '';
     foreach ($nav as [$k, $l, $i, $h]) $links .= '<a href="' . $h . '"' . ($active === $k ? ' class="on" aria-current="page"' : '') . ' title="' . strip_tags($l) . '">' . icon($i) . '<span class="tx">' . $l . '</span></a>';
     $v = substr((string)@md5_file(__DIR__ . '/assets/panel.js'), 0, 10);

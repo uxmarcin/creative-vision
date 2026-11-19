@@ -34,6 +34,23 @@
     tr.addEventListener('click', function (e) { if (e.target.closest('a,button,input,form')) return; if (e.metaKey || e.ctrlKey) window.open(tr.getAttribute('data-href')); else location.href = tr.getAttribute('data-href'); });
   });
 
+  var bdg = document.getElementById('mailbdg');
+  if (bdg && bdg.hasAttribute('data-poll')) {
+    var last = parseInt(bdg.textContent || '0', 10) || 0, base = document.title;
+    var show = function (n) {
+      bdg.textContent = n; bdg.hidden = !n;
+      document.title = (n ? '(' + n + ') ' : '') + base.replace(/^\(\d+\) /, '');
+    };
+    var poll = function () {
+      fetch('/panel?a=unseen', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+        var n = j.unseen || 0;
+        if (n > last) { bdg.classList.remove('pop'); void bdg.offsetWidth; bdg.classList.add('pop'); }
+        last = n; show(n);
+      }).catch(function () {});
+    };
+    show(last); setTimeout(poll, 3000); setInterval(poll, 60000);
+  }
+
   $$('[data-refresh]').forEach(function (a) { a.addEventListener('click', function () { a.classList.add('busy'); a.lastChild.textContent = ' Odbieram…'; }); });
 
   var dlg = $('#maildlg');
