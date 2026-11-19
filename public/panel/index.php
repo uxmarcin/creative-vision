@@ -539,7 +539,7 @@ function page(string $title, string $active, string $body, string $kicker = '', 
     $links = '';
     foreach ($nav as [$k, $l, $i, $h]) $links .= '<a href="' . $h . '"' . ($active === $k ? ' class="on" aria-current="page"' : '') . ' title="' . strip_tags($l) . '">' . icon($i) . '<span class="tx">' . $l . '</span></a>';
     $v = substr((string)@md5_file(__DIR__ . '/assets/panel.js'), 0, 10);
-    echo head($title) . '<body><div class="app"><nav class="nav" aria-label="Menu panelu">'
+    echo head($title) . '<body class="pg-' . e($active) . (!empty($GLOBALS['pgcls']) ? ' ' . $GLOBALS['pgcls'] : '') . '"><div class="app"><nav class="nav" aria-label="Menu panelu">'
         . '<a class="brand" href="' . P . '"><img src="' . P . '/assets/logo-white.svg" alt="creative vision"></a>'
         . '<div class="grp"><p class="lbl">Finanse</p>' . $links . '</div>'
         . '<div class="bot"><span>Przypomnienia wysyłamy sami, w dni robocze rano.</span>'
@@ -625,10 +625,10 @@ function view_list(): never {
     $avg = $days ? (int)round(array_sum($days) / count($days)) : null;
     $fx = function (array $a): string { $o = ''; foreach ($a as $k => $v) $o .= '<span class="fx">+ ' . money($v, $k) . '</span>'; return $o; };
     $kpi = '<section class="kpis" aria-label="Podsumowanie">'
-        . '<div class="kpi dark"><span class="t">Do zapłaty</span><span class="v">' . money($open) . '</span>' . $fx($fxOpen) . '<span class="s">' . ($openN ? $openN . ' ' . plural($openN, 'faktura czeka', 'faktury czekają', 'faktur czeka') . ' na wpłatę' : 'Wszystko opłacone') . '</span></div>'
+        . '<div class="kpi dark"><span class="t">Do zapłaty</span><span class="v">' . money($open) . '</span>' . $fx($fxOpen) . '<span class="s">' . ($openN ? $openN . ' ' . plural($openN, 'faktura czeka', 'faktury czekają', 'faktur czeka') . ' na wpłatę' : 'Wszystko opłacone') . '</span></div><div class="kpis-r">'
         . '<div class="kpi"><span class="t">Po terminie</span><span class="v' . ($late ? ' red' : '') . '">' . money($late) . '</span>' . $fx($fxLate) . '<span class="s">' . ($lateN ? $lateN . ' ' . plural($lateN, 'faktura', 'faktury', 'faktur') . ', wezwania idą same' : 'Nikt nie zalega') . '</span></div>'
         . '<div class="kpi"><span class="t">Sprzedaż: ' . e($periodTxt) . '</span><span class="v">' . money($sale) . '</span>' . $fx($fxSale) . '<span class="s">netto ' . money($saleNet) . ' · ' . $saleN . ' ' . plural($saleN, 'faktura', 'faktury', 'faktur') . '</span></div>'
-        . '<div class="kpi"><span class="t">Średni czas zapłaty</span><span class="v">' . ($avg === null ? '–' : $avg . ' ' . plural($avg, 'dzień', 'dni', 'dni')) . '</span><span class="s">od wystawienia do wpłaty</span></div></section>';
+        . '<div class="kpi"><span class="t">Średni czas zapłaty</span><span class="v">' . ($avg === null ? '–' : $avg . ' ' . plural($avg, 'dzień', 'dni', 'dni')) . '</span><span class="s">od wystawienia do wpłaty</span></div></div></section>';
     $qs = fn(array $o) => P . '?' . http_build_query(array_merge(['y' => $y, 'm' => $m, 't' => $tab], $o));
     $mp = '';
     for ($i = 1; $i <= 12; $i++) $mp .= '<a href="' . $qs(['m' => $i, 'q' => null]) . '" class="' . trim(($m === $i ? 'on' : '') . (!empty($months[$i]) ? ' has' : '')) . '" title="' . pl_month($i) . ' ' . $y . (!empty($months[$i]) ? ': ' . $months[$i] . ' ' . plural($months[$i], 'faktura', 'faktury', 'faktur') : '') . '"' . ($m === $i ? ' aria-current="true"' : '') . '>' . $i . '</a>';
@@ -694,6 +694,7 @@ function view_form(?array $inv): never {
     foreach ([7, 14, 21, 30] as $d) $pills .= '<button type="button" data-term="' . $d . '"' . ($term === $d ? ' class="on"' : '') . '>' . $d . ' dni</button>';
     $v = fn($k) => e((string)($b[$k] ?? ''));
     $num = $inv['number'] ?? null;
+    $GLOBALS['pgcls'] = 'pg-form';
     $body = '<form class="sec" method="post" action="' . P . '?a=save" id="invform" autocomplete="off">' . csrf_field() . '<input type="hidden" name="id" value="' . ($inv['id'] ?? '') . '">'
         . '<script type="application/json" id="clients">' . json_encode($clients, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) . '</script>'
         . '<div class="cols"><div class="wide sec">'
@@ -801,10 +802,12 @@ function view_invoice(array $inv): never {
     }
     if (can_edit($inv) && $inv['status'] !== 'draft') $acts .= '<a class="btn ghost" href="' . P . '?a=edit&id=' . $id . '">Edytuj</a>';
     if ($inv['status'] === 'paid') $acts .= $f('unpaid', 'Cofnij oznaczenie wpłaty');
-    $kv = '<div class="kv">'
-        . '<div><span>Status</span>' . state_chip($inv) . '</div>'
-        . '<div><span>Do zapłaty</span><b style="font-weight:500">' . money((int)$inv['gross'], $inv['currency'] ?? 'PLN') . '</b></div>'
+    [$wt, $wc] = when_text($inv);
+    $kv = '<div class="ihero"><span class="ik">' . e($inv['buyer']['name'] ?? 'Bez nabywcy') . '</span><span class="iv">' . money((int)$inv['gross'], $inv['currency'] ?? 'PLN') . '</span>'
+        . '<span class="is">' . state_chip($inv) . ($wt !== '' && $st !== 'today' ? '<span class="' . $wc . '">' . e($wt) . '</span>' : '') . '</span></div>'
+        . '<div class="kv">'
         . '<div><span>Termin</span><span>' . e(pl_date($inv['due_date'])) . '</span></div>'
+        . '<div><span>Wystawiona</span><span>' . e(pl_date($inv['issue_date'])) . '</span></div>'
         . ($inv['sent_at'] ? '<div><span>Wysłana</span><span>' . e(date('d.m.Y H:i', strtotime($inv['sent_at']))) . '</span></div>' : '')
         . (!empty($inv['opened_at']) ? '<div><span>Mail otwarty</span><span>' . e(date('d.m.Y H:i', strtotime($inv['opened_at']))) . '</span></div>' : '')
         . ($inv['viewed_at'] ? '<div><span>Faktura online</span><span>' . e(date('d.m.Y H:i', strtotime($inv['viewed_at']))) . '</span></div>' : '')
@@ -846,6 +849,7 @@ function view_invoice(array $inv): never {
     if ($inv['status'] === 'draft') $danger = $f('delete', 'Usuń szkic', 'link', '');
     elseif (can_delete($inv)) $danger = '<details class="more"><summary>Usuń fakturę</summary><span class="mut" style="font-size:13px;display:block;margin-bottom:10px">To ostatni numer w miesiącu, więc możesz go usunąć bez dziury w numeracji, np. po fakturze testowej. Jeśli klient już ją dostał, lepiej wystaw korektę.</span>' . $f('delete', 'Usuń fakturę ' . $inv['number'], 'btn danger') . '</details>';
     if ($inv['status'] === 'issued') $danger .= '<details class="more"><summary>Anuluj fakturę</summary><span class="mut" style="font-size:13px;display:block;margin-bottom:10px">Faktura zostaje w historii z numerem, ale przestaje być do zapłaty. Wysłanej fakturę lepiej skorygować.</span>' . $f('cancel', 'Anuluj fakturę', 'btn danger') . '</details>';
+    $GLOBALS['pgcls'] = 'pg-inv';
     $body = '<div class="cols"><div class="wide"><div class="doc-wrap">' . invoice_doc($inv, P . '/assets/') . '</div></div>'
         . '<aside class="side">' . $decl . '<div class="card pad sec">' . $kv . '<div class="acts-col">' . $acts . '</div>' . $danger . '</div>' . $auto . $ksef
         . '<div class="card pad sec"><h2>Historia</h2><div class="hist">' . ($hist ?: '<span class="mut">Brak zdarzeń.</span>') . '</div></div></aside></div>';
@@ -885,7 +889,7 @@ function view_clients(): never {
         . '<label class="check"><input type="checkbox" name="auto_paid" value="1"' . (!empty($ec['auto_paid']) ? ' checked' : '') . '> Płaci sam ostatniego dnia miesiąca: oznaczaj faktury jako opłacone automatycznie</label>'
         . '<button class="btn">Zapisz klienta</button></form>'
         . ($ec['id'] ? '<form method="post" action="' . P . '?a=client_delete">' . csrf_field() . '<input type="hidden" name="id" value="' . (int)$ec['id'] . '"><button class="link" style="color:var(--red)">Usuń klienta</button></form><a class="link" href="' . P . '?a=clients">Anuluj</a>' : '') . '</section>';
-    $list = '<section class="card wide">' . ($tr ? '<div class="tw"><table class="list"><thead><tr><th>Klient</th><th>Faktury</th><th class="r">Do zapłaty</th><th class="r">Opłacone</th><th><span class="sr">Akcje</span></th></tr></thead><tbody>' . $tr . '</tbody></table></div>' : '<div class="empty">Klienci zapiszą się sami przy pierwszej fakturze. Możesz też dodać ich tutaj.</div>') . '</section>';
+    $list = '<section class="card wide">' . ($tr ? '<div class="tw"><table class="list cl"><thead><tr><th>Klient</th><th>Faktury</th><th class="r">Do zapłaty</th><th class="r">Opłacone</th><th><span class="sr">Akcje</span></th></tr></thead><tbody>' . $tr . '</tbody></table></div>' : '<div class="empty">Klienci zapiszą się sami przy pierwszej fakturze. Możesz też dodać ich tutaj.</div>') . '</section>';
     page('Klienci', 'clients', '<div class="cols">' . $list . $form . '</div>', count($rows) . ' ' . plural(count($rows), 'klient', 'klientów', 'klientów'), '<a class="btn" href="' . P . '?a=new">Nowa faktura ' . icon('plus') . '</a>');
 }
 
