@@ -871,3 +871,7 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 .kcard select,.kcard .in{background-color:#F4F4F5;border-color:#E4E4E7}
 
 .kc-list:has(.kc-add){overflow:visible;padding-bottom:8px}
+.kpi .v.ok-v{color:var(--green)}
+.kpi:not(.dark) .fxb{color:var(--mut)}
+.kpi.dark .acc-s{display:inline-flex;align-items:center;gap:6px;margin-top:auto;padding-top:12px;color:#fff}
+.kpi.dark .acc-s svg.ic{width:16px;height:16px}

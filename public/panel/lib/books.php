@@ -9,6 +9,15 @@ function books_migrate(): void {
     static $done = false; if ($done) return; $done = true;
     db()->exec('CREATE TABLE IF NOT EXISTS costs (id INTEGER PRIMARY KEY, ym TEXT NOT NULL, src TEXT NOT NULL, fname TEXT, mime TEXT, path TEXT, size INTEGER,
         ksef TEXT UNIQUE, seller TEXT, nip TEXT, number TEXT, issue_date TEXT, gross INTEGER, currency TEXT, created TEXT NOT NULL)');
+    $cols = array_column(db()->query('PRAGMA table_info(costs)')->fetchAll(PDO::FETCH_ASSOC), 'name');
+    if (!in_array('vat', $cols, true)) { db()->exec('ALTER TABLE costs ADD COLUMN net INTEGER'); db()->exec('ALTER TABLE costs ADD COLUMN vat INTEGER'); }
+    if (setting('costs_vat_1') === '') {
+        foreach (db()->query("SELECT id, path FROM costs WHERE vat IS NULL AND path LIKE '%.xml'")->fetchAll() as $c) {
+            $f = COST_DIR . '/' . $c['path']; if (!is_file($f)) continue; $p = fa_parse((string)file_get_contents($f));
+            if (isset($p['vat'])) db()->prepare('UPDATE costs SET net = ?, vat = ? WHERE id = ?')->execute([$p['net'], $p['vat'], $c['id']]);
+        }
+        set_setting('costs_vat_1', '1');
+    }
 }
 function cost_by_id(int $id): ?array { books_migrate(); $s = db()->prepare('SELECT * FROM costs WHERE id = ?'); $s->execute([$id]); return $s->fetch() ?: null; }
 function costs_of(string $ym): array { books_migrate(); $s = db()->prepare('SELECT * FROM costs WHERE ym = ? ORDER BY COALESCE(issue_date, created), id'); $s->execute([$ym]); return $s->fetchAll(); }
@@ -28,6 +37,10 @@ function fa_parse(string $xml): array {
     $o = ['seller' => $s($x->Podmiot1->DaneIdentyfikacyjne->Nazwa ?? ''), 'nip' => $s($x->Podmiot1->DaneIdentyfikacyjne->NIP ?? ''),
         'buyer' => $s($x->Podmiot2->DaneIdentyfikacyjne->Nazwa ?? ''), 'number' => $s($x->Fa->P_2 ?? ''), 'issue_date' => $s($x->Fa->P_1 ?? ''),
         'gross' => (int)round(((float)$s($x->Fa->P_15 ?? '0')) * 100), 'currency' => $s($x->Fa->KodWaluty ?? '') ?: 'PLN', 'items' => []];
+    $sum = fn(array $k) => array_sum(array_map(fn($n) => (int)round(((float)$s($x->Fa->{$n} ?? '0')) * 100), $k));
+    $o['net'] = $sum(['P_13_1', 'P_13_2', 'P_13_3', 'P_13_4', 'P_13_5', 'P_13_6_1', 'P_13_6_2', 'P_13_6_3', 'P_13_7', 'P_13_8', 'P_13_9', 'P_13_10', 'P_13_11']);
+    $o['vat'] = $sum(['P_14_1', 'P_14_2', 'P_14_3', 'P_14_4', 'P_14_5']);
+    if (!$o['net'] && $o['gross']) $o['net'] = $o['gross'] - $o['vat'];
     foreach (($x->Fa->FaWiersz ?? []) as $w) $o['items'][] = ['name' => $s($w->P_7), 'qty' => $s($w->P_8B), 'unit' => $s($w->P_8A), 'price' => $s($w->P_9A), 'net' => $s($w->P_11), 'vat' => $s($w->P_12)];
     return $o;
 }
@@ -38,12 +51,12 @@ function cost_store(string $ym, string $name, string $data, string $src = 'uploa
     $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
     if (!isset(COST_TYPES[$ext])) return 'Plik ' . $name . ': obsługujemy PDF, zdjęcia (JPG, PNG, HEIC) i XML.';
     if (strlen($data) > 25 * 1048576) return 'Plik ' . $name . ' ma ponad 25 MB.';
-    if ($ext === 'xml' && !$meta) { $meta = fa_parse($data); unset($meta['items'], $meta['buyer']); }
+    if ($ext === 'xml') { $p = fa_parse($data); unset($p['items'], $p['buyer']); $meta = $meta ? $meta + array_intersect_key($p, ['net' => 1, 'vat' => 1]) : $p; }
     $dir = COST_DIR . '/' . $ym; if (!is_dir($dir)) mkdir($dir, 0700, true);
     $path = $ym . '/' . bin2hex(random_bytes(10)) . '.' . $ext;
     file_put_contents(COST_DIR . '/' . $path, $data);
-    db()->prepare('INSERT INTO costs (ym, src, fname, mime, path, size, ksef, seller, nip, number, issue_date, gross, currency, created) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
-        ->execute([$ym, $src, safe_name($name), COST_TYPES[$ext], $path, strlen($data), $meta['ksef'] ?? null, $meta['seller'] ?? null, $meta['nip'] ?? null, $meta['number'] ?? null, ($meta['issue_date'] ?? '') ?: null, isset($meta['gross']) ? (int)$meta['gross'] : null, $meta['currency'] ?? null, now()]);
+    db()->prepare('INSERT INTO costs (ym, src, fname, mime, path, size, ksef, seller, nip, number, issue_date, gross, currency, created, net, vat) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
+        ->execute([$ym, $src, safe_name($name), COST_TYPES[$ext], $path, strlen($data), $meta['ksef'] ?? null, $meta['seller'] ?? null, $meta['nip'] ?? null, $meta['number'] ?? null, ($meta['issue_date'] ?? '') ?: null, isset($meta['gross']) ? (int)$meta['gross'] : null, $meta['currency'] ?? null, now(), isset($meta['net']) ? (int)$meta['net'] : null, isset($meta['vat']) ? (int)$meta['vat'] : null]);
     return null;
 }
 
@@ -313,6 +326,11 @@ function view_books(): never {
         ? '<span class="v">' . money_split($plnS + $fxS) . '</span><span class="fxb">' . ($plnS ? money($plnS) . ' + ' : '') . money($fxS) . ' <span class="fxr">(kurs ' . e(implode(', ', $rts)) . ')</span></span>'
         : '<span class="v">' . money_split($plnS) . '</span>' . implode('', array_map(fn($k, $v) => '<span class="fxb">+ ' . money($v, $k) . '</span>', array_keys($fxAmt), $fxAmt));
     $saleKpi .= '<span class="s">netto ' . money($netS) . ' · ' . count($sales) . ' ' . plural(count($sales), 'faktura', 'faktury', 'faktur') . '</span>';
+    $cG = 0; $cN = 0; $cV = 0; $cUnk = 0;
+    foreach ($costs as $c) { if (($c['currency'] ?: 'PLN') !== 'PLN') continue; $cG += (int)$c['gross']; if ($c['vat'] === null) { $cUnk++; $cN += (int)$c['gross']; } else { $cV += (int)$c['vat']; $cN += (int)($c['net'] ?? ((int)$c['gross'] - (int)$c['vat'])); } }
+    $vatOut = array_sum(array_map(fn($i) => ($i['currency'] ?? 'PLN') === 'PLN' ? (int)$i['vat'] : 0, $sales)); $vatDue = $vatOut - $cV;
+    $costKpi = '<div class="kpi"><span class="t">Koszty: ' . e(ym_label($ym)) . '</span><span class="v">' . money_split($cG) . '</span><span class="fxb">netto ' . money($cN) . ' + VAT ' . money($cV) . '</span><span class="s">' . count($costs) . ' ' . plural(count($costs), 'faktura zakupowa', 'faktury zakupowe', 'faktur zakupowych') . ($cUnk ? ', ' . $cUnk . ' bez danych VAT (PDF lub zdjęcie)' : '') . '</span></div>'
+        . '<div class="kpi"><span class="t">VAT za ' . e(ym_label($ym)) . '</span><span class="v' . ($vatDue < 0 ? ' ok-v' : '') . '">' . money_split(abs($vatDue)) . '</span><span class="fxb">należny ' . money($vatOut) . ' − do odliczenia ' . money($cV) . '</span><span class="s">' . ($vatDue >= 0 ? 'do zapłaty do 25.' . date('m', strtotime($ym . '-01 +1 month')) : 'nadwyżka do przeniesienia lub zwrotu') . '. Szacunek, odliczenie przy autach często tylko 50%.</span></div>';
     $sumHtml = $sum ? implode('', array_map(fn($k, $v) => '<span class="cur">' . cur_flag($k) . str_replace('zł', 'PLN', money($v, $k)) . '</span>', array_keys($sum), $sum)) : '<span class="cur">' . cur_flag('PLN') . str_replace('zł', 'PLN', money(0)) . '</span>';
     $ctr = '';
     foreach ($costs as $c) {
@@ -327,11 +345,11 @@ function view_books(): never {
         . '<input type="file" name="files[]" id="dropin" multiple accept="application/pdf,image/*,.pdf,.jpg,.jpeg,.png,.heic,.xml">'
         . '<label for="dropin">' . icon('clip') . '<b>Przeciągnij tu faktury zakupowe</b><span>albo kliknij, żeby wybrać pliki lub zrobić zdjęcie. PDF, JPG, PNG, XML.</span></label></form>';
     $body = $nav
-        . '<section class="kpis"><div class="kpi dark"><span class="t">Paczka za ' . e(ym_label($ym)) . '</span><span class="v">' . count($sales) . ' + ' . count($costs) . '</span><span class="s">' . count($sales) . ' ' . plural(count($sales), 'faktura sprzedażowa', 'faktury sprzedażowe', 'faktur sprzedażowych') . ', ' . count($costs) . ' ' . plural(count($costs), 'zakupowa', 'zakupowe', 'zakupowych') . '</span></div><div class="kpis-r">'
-        . '<div class="kpi"><span class="t">Sprzedaż: ' . e(ym_label($ym)) . '</span>' . $saleKpi . '</div>'
-        . '<div class="kpi"><span class="t">Księgowa</span><span class="v" style="font-size:20px">' . ($sent ? 'Wysłana ' . e(date('d.m', strtotime($sent))) : 'Jeszcze nie wysłana') . '</span><span class="s">' . (setting('acc_auto') === '1' && setting('acc_email') !== '' ? 'sama wyjdzie ' . (int)setting('acc_day') . '. dnia miesiąca' : 'wysyłka ręczna') . '</span></div></div></section>'
+        . '<section class="kpis"><div class="kpi dark"><span class="t">Paczka za ' . e(ym_label($ym)) . '</span><span class="v">' . count($sales) . ' + ' . count($costs) . '</span><span class="s">' . count($sales) . ' ' . plural(count($sales), 'faktura sprzedażowa', 'faktury sprzedażowe', 'faktur sprzedażowych') . ', ' . count($costs) . ' ' . plural(count($costs), 'zakupowa', 'zakupowe', 'zakupowych') . '</span><span class="s acc-s">' . icon($sent ? 'check' : 'send') . ' ' . ($sent ? 'Wysłana do księgowej ' . e(date('d.m', strtotime($sent))) : 'Jeszcze nie wysłana' . (setting('acc_auto') === '1' && setting('acc_email') !== '' ? ', sama wyjdzie ' . (int)setting('acc_day') . '. dnia miesiąca' : '')) . '</span></div><div class="kpis-r">'
+        . '<div class="kpi"><span class="t">Sprzedaż: ' . e(ym_label($ym)) . '</span>' . $saleKpi . '</div>' . $costKpi . '</div></section>'
         . '<div class="cols"><div class="wide sec">'
         . '<section class="card"><div class="hrow pad" style="padding-bottom:12px"><h2>Zakupy</h2>' . (ksef_enabled() ? '<form method="post" action="' . P . '?a=books_ksef">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '"><button class="btn ghost sm" data-busy>' . icon('refresh') . ' Pobierz z KSeF</button></form>' : '') . '</div>'
+
         . '<div class="pad" style="padding-top:0">' . $drop . ($kAt ? '<span class="mut" style="font-size:13px;display:block;margin-top:8px">Ostatnio sprawdzone w KSeF: ' . e(date('d.m.Y H:i', strtotime($kAt))) . '</span>' : (ksef_enabled() ? '' : '<span class="mut" style="font-size:13px;display:block;margin-top:8px">Żeby pobierać faktury zakupowe z KSeF, wpisz token w <a href="' . P . '?a=settings#ksef">ustawieniach</a>.</span>')) . '</div>'
         . ($ctr ? '<div class="tw"><table class="list"><tbody>' . $ctr . '</tbody></table></div>' : '<div class="empty" style="padding-top:8px">Brak faktur zakupowych za ten miesiąc.</div>') . '</section>'
         . '<section class="card"><div class="hrow pad" style="padding-bottom:12px"><h2>Sprzedaż</h2><span class="mut" style="font-size:14px">' . e($sumTxt) . '</span></div>'
