@@ -9,6 +9,7 @@ require_once __DIR__ . '/lib/ksef.php';
 require_once __DIR__ . '/lib/imap.php';
 require_once __DIR__ . '/lib/smtp.php';
 require_once __DIR__ . '/lib/sms.php';
+require_once __DIR__ . '/lib/quotes.php';
 
 if (($_GET['a'] ?? '') === 'sw') { header('Content-Type: application/javascript; charset=utf-8'); header('Cache-Control: no-cache'); readfile(__DIR__ . '/sw.js'); exit; }
 security_headers();
@@ -53,11 +54,23 @@ if (!user_id()) {
     auth_page('Faktury', 'Zaloguj się do panelu Creative Vision.', 'login', false);
 }
 
+// ---------- skrzynka: faktury@ albo kontakt@ ----------
+if (in_array($a, ['inbox', 'mail', 'compose', 'mail_att', 'mail_send', 'mail_delete', 'mail_unseen', 'mail_settings', 'mail_check', 'quote_new'], true)) mail_acc((string)($_GET['acc'] ?? $_POST['acc'] ?? 'f'));
+function aq(): string { return mail_acc() === 'k' ? '&acc=k' : ''; }
+function acc_field(): string { return '<input type="hidden" name="acc" value="' . mail_acc() . '">'; }
+function mail_accounts(): array {
+    $o = []; $cur = mail_acc();
+    foreach (['f' => 'Faktury', 'k' => 'Kontakt'] as $k => $l) { mail_acc($k); $o[$k] = ['label' => $l, 'user' => setting('imap_user'), 'on' => inbox_enabled(), 'unseen' => (int)setting('imap_unseen')]; }
+    mail_acc($cur); return $o;
+}
+function unseen_total(): int { $n = 0; foreach (mail_accounts() as $x) if ($x['on']) $n += $x['unseen']; return $n; }
+
 // ---------- akcje POST ----------
 if ($post) {
     check_csrf();
     $id = (int)($_POST['id'] ?? 0);
     switch ($a) {
+        case 'quote_save': case 'quote_send': case 'quote_status': case 'quote_invoice': case 'quote_delete': quote_post($a);
         case 'save':
             $act = (string)($_POST['act'] ?? 'draft');
             [$id, $err] = save_invoice($id ?: null, $_POST, $act);
@@ -221,14 +234,15 @@ if ($post) {
             flash(($ok ? '' : '!') . $msg);
             redirect(P . '?a=settings#sms');
         case 'mail_settings':
-            foreach (['imap_user', 'imap_host', 'imap_port', 'smtp_host', 'smtp_port'] as $k) if (isset($_POST[$k])) set_setting($k, trim(mb_substr((string)$_POST[$k], 0, 200)));
+            $isK = mail_acc() === 'k';
+            foreach (($isK ? ['imap_user'] : ['imap_user', 'imap_host', 'imap_port', 'smtp_host', 'smtp_port']) as $k) if (isset($_POST[$k])) set_setting($k, trim(mb_substr((string)$_POST[$k], 0, 200)));
             $pw = (string)($_POST['imap_pass'] ?? '');
             if ($pw !== '') set_setting('imap_pass', $pw);
             if (!empty($_POST['imap_pass_clear'])) set_setting('imap_pass', '');
-            set_setting('smtp_on', !empty($_POST['smtp_on']) ? '1' : '0');
-            set_setting('imap_sent', '');
-            flash('Ustawienia poczty zapisane.');
-            redirect(P . '?a=settings#poczta');
+            if (!$isK) set_setting('smtp_on', !empty($_POST['smtp_on']) ? '1' : '0');
+            set_setting('imap_sent', ''); set_setting('imap_trash', '');
+            flash('Ustawienia poczty ' . setting('imap_user') . ' zapisane.');
+            redirect(P . '?a=settings#' . ($isK ? 'kontakt' : 'poczta'));
         case 'mail_check':
             try {
                 $im = imap_open_box(); $n = $im->select('INBOX'); sent_box($im); unset($im);
@@ -236,7 +250,7 @@ if ($post) {
                 try { smtp_check(); $msg .= ' Wysyłka przez SMTP też działa.'; } catch (Throwable $e) { $msg .= ' Ale wysyłka SMTP: ' . $e->getMessage(); }
                 flash($msg);
             } catch (Throwable $e) { flash('!' . $e->getMessage()); }
-            redirect(P . '?a=settings#poczta');
+            redirect(P . '?a=settings#' . (mail_acc() === 'k' ? 'kontakt' : 'poczta'));
         case 'mail_send':
             $to = array_filter(preg_split('/[\s,;]+/', (string)($_POST['to'] ?? '')) ?: []);
             $subj = trim((string)($_POST['subject'] ?? '')); $txt = trim((string)($_POST['body'] ?? ''));
@@ -247,16 +261,16 @@ if ($post) {
             if (!empty($_POST['inv']) && ($ai = invoice_by_id((int)$_POST['inv'])) && $ai['status'] !== 'draft') $att[invoice_pdf_name($ai)] = invoice_pdf($ai);
             $ok = send_mail($to, $subj, $html, $txt . ($quote !== '' ? "\n\n" . preg_replace('/^/m', '> ', $quote) : ''), $att, false, ['In-Reply-To' => (string)($_POST['irt'] ?? ''), 'References' => trim((string)($_POST['refs'] ?? '') . ' ' . (string)($_POST['irt'] ?? ''))]);
             flash($ok ? 'Wiadomość wysłana do ' . implode(', ', $to) . '.' : '!Nie udało się wysłać: ' . mail_last_error());
-            redirect(P . '?a=inbox');
+            redirect(P . '?a=inbox' . aq());
         case 'mail_delete':
             $box = ($_POST['box'] ?? '') === 'sent' ? 'sent' : 'INBOX';
             $uids = array_values(array_filter(array_map('intval', (array)($_POST['uids'] ?? [$_POST['uid'] ?? 0]))));
             try { $im = imap_open_box(); $im->select(real_box($im, $box)); $im->trash($uids, trash_box($im)); if ($box === 'INBOX') set_setting('imap_unseen', (string)count($im->uids('UNSEEN'))); flash(count($uids) === 1 ? 'Wiadomość przeniesiona do kosza.' : 'Przeniesiono do kosza: ' . count($uids) . '.'); }
             catch (Throwable $e) { flash('!' . $e->getMessage()); }
-            redirect(P . '?a=inbox&box=' . $box);
+            redirect(P . '?a=inbox&box=' . $box . aq());
         case 'mail_unseen':
             try { $im = imap_open_box(); $im->select(real_box($im, (string)($_POST['box'] ?? 'INBOX'))); $im->flag((int)($_POST['uid'] ?? 0), '\\Seen', false); } catch (Throwable $e) { flash('!' . $e->getMessage()); }
-            redirect(P . '?a=inbox');
+            redirect(P . '?a=inbox' . aq());
         case 'testmail':
             [$sj, $h, $t] = admin_mail('Test maila z panelu faktur', 'Test wysyłki · panel faktur', 'Maile z panelu', 'Jeśli to czytasz, wysyłka z panelu faktur działa poprawnie. Sprawdź też, czy wiadomość nie wpadła do spamu.', null, 'działają');
             $to = setting('mail_reply');
@@ -289,14 +303,29 @@ switch ($a) {
     case 'new': case 'edit': view_form($a === 'edit' ? must_invoice((int)($_GET['id'] ?? 0)) : null);
     case 'view': view_invoice(must_invoice((int)($_GET['id'] ?? 0)));
     case 'clients': view_clients();
+    case 'quotes': view_quotes();
+    case 'quote_new': view_quote_form(null);
+    case 'quote_edit': case 'quote':
+        $q = quote_by_id((int)($_GET['id'] ?? 0)); if (!$q) { flash('!Nie ma takiej wyceny.'); redirect(P . '?a=quotes'); }
+        $a === 'quote' ? view_quote($q) : view_quote_form($q);
+    case 'quote_pdf':
+        $q = quote_by_id((int)($_GET['id'] ?? 0)); if (!$q) { http_response_code(404); exit; }
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: ' . (isset($_GET['dl']) ? 'attachment' : 'inline') . '; filename="' . quote_pdf_name($q) . '"');
+        echo quote_pdf($q); exit;
     case 'settings': view_settings();
     case 'unseen':
         header('Content-Type: application/json; charset=utf-8');
-        $n = (int)setting('imap_unseen');
-        if (inbox_enabled() && time() - (int)setting('imap_unseen_at') > 50) {
-            set_setting('imap_unseen_at', (string)time());
-            try { $im = imap_open_box(); $im->select('INBOX'); $n = count($im->uids('UNSEEN')); set_setting('imap_unseen', (string)$n); } catch (Throwable $e) { /* zostaje ostatnia wartość */ }
+        $n = 0;
+        foreach (['f', 'k'] as $ac) {
+            mail_acc($ac); if (!inbox_enabled()) continue;
+            if (time() - (int)setting('imap_unseen_at') > 50) {
+                set_setting('imap_unseen_at', (string)time());
+                try { $im = imap_open_box(); $im->select('INBOX'); set_setting('imap_unseen', (string)count($im->uids('UNSEEN'))); unset($im); } catch (Throwable $e) { /* zostaje ostatnia wartość */ }
+            }
+            $n += (int)setting('imap_unseen');
         }
+        mail_acc('f');
         echo json_encode(['unseen' => $n]); exit;
     case 'inbox': view_inbox();
     case 'mail': view_mail();
@@ -514,6 +543,7 @@ function icon(string $n): string {
         'refresh' => '<path d="M20 11a8 8 0 0 0-14.9-3.9M4 5v4h4M4 13a8 8 0 0 0 14.9 3.9M20 19v-4h-4"/>',
         'mail' => '<path d="M3 5h18v14H3z"/><path d="m3 6 9 7 9-7"/>',
         'back' => '<path d="M15 5l-7 7 7 7"/>',
+        'quote' => '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h5"/>',
         'clip' => '<path d="M21 11.5 12.5 20a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/>',
     ][$n] ?? '';
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square" aria-hidden="true">' . $p . '</svg>';
@@ -536,18 +566,21 @@ function flash_html(): string {
 }
 
 function page(string $title, string $active, string $body, string $kicker = '', string $acts = ''): never {
-    $nav = [['inbox', 'Poczta <b class="bdg" id="mailbdg"' . (inbox_enabled() ? ' data-poll' : '') . ((int)setting('imap_unseen') > 0 ? '>' . (int)setting('imap_unseen') : ' hidden>') . '</b>', 'mail', P . '?a=inbox'], ['list', 'Faktury', 'list', P], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
+    $accs = mail_accounts(); $un = unseen_total(); $poll = $accs['f']['on'] || $accs['k']['on'];
+    $nav = [['inbox', 'Poczta <b class="bdg" id="mailbdg"' . ($poll ? ' data-poll' : '') . ($un > 0 ? '>' . $un : ' hidden>') . '</b>', 'mail', P . '?a=inbox'], ['list', 'Faktury', 'list', P], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['quotes', 'Wyceny', 'quote', P . '?a=quotes'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
     $links = '';
-    foreach ($nav as [$k, $l, $i, $h]) $links .= '<a href="' . $h . '"' . ($active === $k ? ' class="on" aria-current="page"' : '') . ' title="' . strip_tags($l) . '">' . icon($i) . '<span class="tx">' . $l . '</span></a>';
+    foreach ($nav as [$k, $l, $i, $h]) $links .= '<a href="' . $h . '" class="n-' . $k . ($active === $k ? ' on" aria-current="page' : '') . '" title="' . strip_tags($l) . '"' . ($k === 'new' ? ' data-plus' : '') . '>' . icon($i) . '<span class="tx">' . $l . '</span></a>';
+    $sheet = '<dialog class="mdlg plus" id="plusdlg"><div class="sheet"><div class="hrow"><h2>Co tworzymy?</h2><button type="button" class="x" data-close aria-label="Zamknij">×</button></div>'
+        . '<a class="btn" href="' . P . '?a=new">' . icon('list') . ' Nowa faktura</a><a class="btn ghost" href="' . P . '?a=quote_new">' . icon('quote') . ' Nowa wycena</a></div></dialog>';
     $v = substr((string)@md5_file(__DIR__ . '/assets/panel.js'), 0, 10);
     echo head($title) . '<body class="pg-' . e($active) . (!empty($GLOBALS['pgcls']) ? ' ' . $GLOBALS['pgcls'] : '') . '"><div class="app"><nav class="nav" aria-label="Menu panelu">'
         . '<a class="brand" href="' . P . '"><img src="' . P . '/assets/logo-white.svg" alt="creative vision"></a>'
         . '<div class="grp"><p class="lbl">Finanse</p>' . $links . '</div>'
-        . '<div class="bot"><span>Przypomnienia wysyłamy sami, w dni robocze rano.</span>'
+        . '<div class="bot"><span>Przypomnienia wysyłamy sami, w dni robocze rano.</span><a class="set' . ($active === 'settings' ? ' on' : '') . '" href="' . P . '?a=settings" aria-label="Ustawienia">' . icon('cog') . '</a>'
         . '<form method="post" action="' . P . '?a=logout">' . csrf_field() . '<button class="link" style="color:#C9C9C9">Wyloguj</button></form></div></nav>'
         . '<main class="main" id="main">'
         . '<header class="top"><div>' . (!empty($GLOBALS['back']) ? '<a class="back" href="' . e($GLOBALS['back'][0]) . '">' . icon('back') . '<span>' . e($GLOBALS['back'][1]) . '</span></a>' : '') . ($kicker ? '<p class="k">' . e($kicker) . '</p>' : '') . '<h1>' . e($title) . '</h1></div>' . ($acts ? '<div class="acts">' . $acts . '</div>' : '') . '</header>'
-        . flash_html() . $body . '</main></div><script src="' . P . '/assets/panel.js?v=' . $v . '"></script></body></html>';
+        . flash_html() . $body . '</main></div>' . $sheet . '<script src="' . P . '/assets/panel.js?v=' . $v . '"></script></body></html>';
     exit;
 }
 
@@ -935,6 +968,15 @@ function view_settings(): never {
         . '<label class="check"><input type="checkbox" name="smtp_on" value="1"' . (setting('smtp_on') === '1' ? ' checked' : '') . '> Wysyłaj faktury i przypomnienia z tej skrzynki (kopie trafią do folderu Wysłane)</label>'
         . '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn ghost">Zapisz pocztę</button>' . (setting('imap_pass') !== '' ? '<label class="check" style="font-size:13px"><input type="checkbox" name="imap_pass_clear" value="1"> Usuń zapisane hasło</label>' : '') . '</div></form>'
         . (setting('imap_pass') !== '' ? '<form method="post" action="' . P . '?a=mail_check">' . csrf_field() . '<button class="link">Sprawdź połączenie ze skrzynką</button></form>' : '') . '</section>'
+        . (function () { mail_acc('k'); $has = setting('imap_pass') !== '';
+            $h = '<section class="card pad sec" id="kontakt"><h2>Poczta kontakt@</h2>'
+            . '<span class="mut" style="font-size:14px">Skrzynka na zapytania od klientów i z formularza na stronie. W zakładce Poczta przełączysz się między skrzynkami, a z każdego zapytania zrobisz wycenę. Wyceny wysyłamy z tego adresu. Serwer jest ten sam co dla faktury@.</span>'
+            . '<form class="sec" method="post" action="' . P . '?a=mail_settings">' . csrf_field() . '<input type="hidden" name="acc" value="k">'
+            . '<div class="grid2"><label class="f">Adres skrzynki<input class="in" type="email" name="imap_user" value="' . e(setting('imap_user')) . '"></label>'
+            . '<label class="f">Hasło' . ($has ? ' (zapisane, wpisz nowe, aby zmienić)' : '') . '<input class="in" type="password" name="imap_pass" autocomplete="new-password" placeholder="' . ($has ? '••••••••••••' : 'hasło do skrzynki') . '"></label></div>'
+            . '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn ghost">Zapisz pocztę kontakt@</button>' . ($has ? '<label class="check" style="font-size:13px"><input type="checkbox" name="imap_pass_clear" value="1"> Usuń zapisane hasło</label>' : '') . '</div></form>'
+            . ($has ? '<form method="post" action="' . P . '?a=mail_check">' . csrf_field() . '<input type="hidden" name="acc" value="k"><button class="link">Sprawdź połączenie ze skrzynką</button></form>' : '') . '</section>';
+            mail_acc('f'); return $h; })()
         . '<section class="card pad sec" id="sms"><h2>Przypomnienia SMS</h2>'
         . '<span class="mut" style="font-size:14px">SMS-y wysyłamy przez SMSAPI.pl. Załóż tam konto, w sekcji tokenów OAuth wygeneruj token z uprawnieniem do wysyłki SMS i wklej go tutaj. SMS idzie tylko do klientów z wpisanym telefonem.</span>'
         . '<form class="sec" method="post" action="' . P . '?a=sms_settings">' . csrf_field()
@@ -991,8 +1033,15 @@ function inv_links(string $txt): string {
     foreach (array_unique($m[1]) as $n) { $st->execute([$n]); if ($r = $st->fetch()) $o .= '<a class="chip due" style="text-decoration:none" href="' . P . '?a=view&id=' . $r['id'] . '">Faktura ' . e($r['number']) . '</a> '; }
     return $o;
 }
+function acc_switch(string $box = 'INBOX'): string {
+    $accs = mail_accounts(); if (!$accs['k']['on'] && mail_acc() === 'f') return '';
+    $o = '';
+    foreach ($accs as $k => $x) $o .= '<a href="' . P . '?a=inbox' . ($k === 'k' ? '&acc=k' : '') . '"' . (mail_acc() === $k ? ' class="on" aria-current="true"' : '') . '>' . e($x['user']) . ($x['on'] && $x['unseen'] ? ' <b class="cnt">' . $x['unseen'] . '</b>' : '') . '</a>';
+    return '<nav class="seg" aria-label="Skrzynka">' . $o . '</nav>';
+}
 function inbox_off(): never {
-    page('Poczta', 'inbox', '<section class="card pad sec"><h2>Podłącz skrzynkę faktury@creative-vision.pl</h2><p class="mut" style="margin:0">Wpisz hasło do skrzynki w ustawieniach. Zobaczysz tu odpowiedzi klientów, a maile z fakturami będą wychodzić z tego adresu.</p><a class="btn" style="align-self:flex-start" href="' . P . '?a=settings#poczta">Przejdź do ustawień</a></section>', 'faktury@creative-vision.pl');
+    $k = mail_acc() === 'k'; $u = setting('imap_user');
+    page('Poczta', 'inbox', acc_switch() . '<section class="card pad sec"><h2>Podłącz skrzynkę ' . e($u) . '</h2><p class="mut" style="margin:0">' . ($k ? 'Wpisz hasło do skrzynki w ustawieniach. Zobaczysz tu zapytania z formularza i od klientów, a z każdego zrobisz wycenę jednym kliknięciem.' : 'Wpisz hasło do skrzynki w ustawieniach. Zobaczysz tu odpowiedzi klientów, a maile z fakturami będą wychodzić z tego adresu.') . '</p><a class="btn" style="align-self:flex-start" href="' . P . '?a=settings#' . ($k ? 'kontakt' : 'poczta') . '">Przejdź do ustawień</a></section>', $u);
 }
 function view_inbox(): never {
     if (!inbox_enabled()) inbox_off();
@@ -1006,7 +1055,7 @@ function view_inbox(): never {
         if ($box === 'INBOX') set_setting('imap_unseen', (string)count($im->uids('UNSEEN')));
         unset($im);
     } catch (Throwable $e) {
-        page('Poczta', 'inbox', '<div class="flash err">' . e($e->getMessage()) . '</div><a class="btn ghost" style="align-self:flex-start" href="' . P . '?a=settings#poczta">Ustawienia poczty</a>', 'faktury@creative-vision.pl');
+        page('Poczta', 'inbox', acc_switch() . '<div class="flash err">' . e($e->getMessage()) . '</div><a class="btn ghost" style="align-self:flex-start" href="' . P . '?a=settings#' . (mail_acc() === 'k' ? 'kontakt' : 'poczta') . '">Ustawienia poczty</a>', setting('imap_user'));
     }
     krsort($hs);
     $tr = '';
@@ -1017,17 +1066,17 @@ function view_inbox(): never {
         $ts = strtotime((string)($h['date'] ?? '')) ?: 0;
         $when = $ts ? (date('Y-m-d', $ts) === today() ? date('H:i', $ts) : date('d.m.Y', $ts)) : '';
         $multi = stripos((string)($h['content-type'] ?? ''), 'multipart/mixed') !== false;
-        $url = P . '?a=mail&box=' . urlencode($box) . '&uid=' . $uid;
+        $url = P . '?a=mail&box=' . urlencode($box) . '&uid=' . $uid . aq();
         $tr .= '<tr class="row' . ($unseen ? ' unseen' : '') . '" data-href="' . $url . '"><td class="c-chk"><input type="checkbox" name="uids[]" value="' . $uid . '" form="mdel" aria-label="Zaznacz"></td><td class="c-cli"><span' . ($unseen ? ' style="font-weight:500"' : '') . '>' . e($nm) . '</span><span class="sub">' . e($ad) . '</span></td>'
             . '<td class="c-num"><a class="mlink" href="' . $url . '"' . ($unseen ? ' style="font-weight:500"' : '') . '>' . e($subj) . '</a> ' . ($multi ? '<span class="mut" title="Załącznik">' . icon('clip') . '</span>' : '') . ' ' . inv_links($subj) . '</td>'
             . '<td class="c-amt r nw mut">' . e($when) . '</td></tr>';
     }
     $tabs = '';
-    foreach (mail_boxes() as $k => $l) $tabs .= '<a href="' . P . '?a=inbox&box=' . urlencode($k) . '"' . ($k === $box ? ' class="on"' : '') . '>' . $l . ($k === 'INBOX' && (int)setting('imap_unseen') ? ' <span>' . (int)setting('imap_unseen') . '</span>' : '') . '</a>';
-    $pages = $total > $per ? '<div class="hrow pad" style="justify-content:flex-end;gap:16px">' . ($pg > 1 ? '<a class="link" href="' . P . '?a=inbox&box=' . urlencode($box) . '&p=' . ($pg - 1) . '">Nowsze</a>' : '') . '<span class="mut" style="font-size:13px">' . (($pg - 1) * $per + 1) . '–' . min($total, $pg * $per) . ' z ' . $total . '</span>' . ($pg * $per < $total ? '<a class="link" href="' . P . '?a=inbox&box=' . urlencode($box) . '&p=' . ($pg + 1) . '">Starsze</a>' : '') . '</div>' : '';
-    $body = '<form id="mdel" method="post" action="' . P . '?a=mail_delete">' . csrf_field() . '<input type="hidden" name="box" value="' . e($box) . '"></form>'
+    foreach (mail_boxes() as $k => $l) $tabs .= '<a href="' . P . '?a=inbox&box=' . urlencode($k) . aq() . '"' . ($k === $box ? ' class="on"' : '') . '>' . $l . ($k === 'INBOX' && (int)setting('imap_unseen') ? ' <span>' . (int)setting('imap_unseen') . '</span>' : '') . '</a>';
+    $pages = $total > $per ? '<div class="hrow pad" style="justify-content:flex-end;gap:16px">' . ($pg > 1 ? '<a class="link" href="' . P . '?a=inbox&box=' . urlencode($box) . aq() . '&p=' . ($pg - 1) . '">Nowsze</a>' : '') . '<span class="mut" style="font-size:13px">' . (($pg - 1) * $per + 1) . '–' . min($total, $pg * $per) . ' z ' . $total . '</span>' . ($pg * $per < $total ? '<a class="link" href="' . P . '?a=inbox&box=' . urlencode($box) . aq() . '&p=' . ($pg + 1) . '">Starsze</a>' : '') . '</div>' : '';
+    $body = acc_switch() . '<form id="mdel" method="post" action="' . P . '?a=mail_delete">' . csrf_field() . acc_field() . '<input type="hidden" name="box" value="' . e($box) . '"></form>'
         . '<section class="card"><nav class="tabs">' . $tabs . '<button class="link mdelbtn" form="mdel" hidden>Usuń zaznaczone</button></nav>' . ($tr ? '<div class="tw"><table class="list mails"><tbody>' . $tr . '</tbody></table></div>' : '<div class="empty">Brak wiadomości.</div>') . $pages . '</section>';
-    page('Poczta', 'inbox', $body, setting('imap_user'), '<a class="btn ghost" href="' . P . '?a=inbox&box=' . urlencode($box) . '" data-refresh>' . icon('refresh') . ' Odbierz</a><a class="btn" href="' . P . '?a=compose">Napisz ' . icon('plus') . '</a>');
+    page('Poczta', 'inbox', $body, setting('imap_user'), '<a class="btn ghost" href="' . P . '?a=inbox&box=' . urlencode($box) . aq() . '" data-refresh>' . icon('refresh') . ' Odbierz</a><a class="btn" href="' . P . '?a=compose' . aq() . '">Napisz ' . icon('plus') . '</a>');
 }
 function view_mail(): never {
     if (!inbox_enabled()) inbox_off();
@@ -1037,12 +1086,12 @@ function view_mail(): never {
         $raw = $im->raw($uid);
         if ($box === 'INBOX') { $im->flag($uid, '\\Seen'); set_setting('imap_unseen', (string)count($im->uids('UNSEEN'))); }
         unset($im);
-    } catch (Throwable $e) { flash('!' . $e->getMessage()); redirect(P . '?a=inbox'); }
+    } catch (Throwable $e) { flash('!' . $e->getMessage()); redirect(P . '?a=inbox' . aq()); }
     $m = mime_parse($raw); $h = $m['h'];
     [$fn, $fa] = mail_addr((string)($h['from'] ?? '')); $subj = mime_hdr_decode((string)($h['subject'] ?? '(bez tematu)'));
     $ts = strtotime((string)($h['date'] ?? '')) ?: 0;
     $att = '';
-    foreach ($m['att'] as $i => $a) if (empty($a[3]) || stripos($m['html'], 'cid:' . $a[3]) === false) $att .= '<a class="btn ghost sm" href="' . P . '?a=mail_att&box=' . urlencode($box) . '&uid=' . $uid . '&i=' . $i . '">' . icon('clip') . ' ' . e((string)$a[0]) . ' <span class="mut">' . e(size_fmt(strlen((string)$a[2]))) . '</span></a>';
+    foreach ($m['att'] as $i => $a) if (empty($a[3]) || stripos($m['html'], 'cid:' . $a[3]) === false) $att .= '<a class="btn ghost sm" href="' . P . '?a=mail_att&box=' . urlencode($box) . '&uid=' . $uid . '&i=' . $i . aq() . '">' . icon('clip') . ' ' . e((string)$a[0]) . ' <span class="mut">' . e(size_fmt(strlen((string)$a[2]))) . '</span></a>';
     if ($m['html'] !== '') {
         $html = $m['html'];
         foreach ($m['att'] as $a) if (!empty($a[3]) && str_starts_with((string)$a[1], 'image/')) $html = str_ireplace('cid:' . $a[3], 'data:' . $a[1] . ';base64,' . base64_encode((string)$a[2]), $html);
@@ -1053,18 +1102,18 @@ function view_mail(): never {
     $re = preg_match('/^re:/i', $subj) ? $subj : 'Re: ' . $subj;
     $body = '<div class="cols"><section class="card pad sec wide"><div class="mhead"><div><b style="font-weight:500">' . e($fn) . '</b> <span class="mut">&lt;' . e($fa) . '&gt;</span><div class="mut" style="font-size:13px">' . ($ts ? e(date('d.m.Y H:i', $ts)) : '') . (!empty($h['to']) ? ' · do ' . e(mime_hdr_decode((string)$h['to'])) : '') . '</div></div><div>' . inv_links($subj . ' ' . $m['text']) . '</div></div>'
         . ($att !== '' ? '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap;gap:8px">' . $att . '</div>' : '') . $content . '</section>'
-        . '<aside class="side"><section class="card pad sec" id="odp"><h2>Odpowiedz</h2><form class="inl" method="post" action="' . P . '?a=mail_send">' . csrf_field()
+        . '<aside class="side">' . ($box === 'INBOX' ? quote_from_mail_box($uid) : '') . '<section class="card pad sec" id="odp"><h2>Odpowiedz</h2><form class="inl" method="post" action="' . P . '?a=mail_send">' . csrf_field() . acc_field()
         . '<input type="hidden" name="irt" value="' . e((string)($h['message-id'] ?? '')) . '"><input type="hidden" name="refs" value="' . e((string)($h['references'] ?? '')) . '"><input type="hidden" name="quote" value="' . e($quote) . '">'
         . '<label class="f">Do<input class="in" name="to" value="' . e((string)($h['reply-to'] ?? '') !== '' ? mail_addr((string)$h['reply-to'])[1] : $fa) . '"></label>'
         . '<label class="f">Temat<input class="in" name="subject" value="' . e($re) . '"></label>'
         . '<label class="f">Treść<textarea class="in" name="body" rows="8" required>Dzień dobry,' . "\n\n\n" . 'Pozdrawiam' . "\n" . 'Marcin Bednarz</textarea></label>'
         . inv_attach_select() . '<button class="btn">Wyślij ' . icon('arrow') . '</button></form></section>'
-        . '<form method="post" action="' . P . '?a=mail_delete">' . csrf_field() . '<input type="hidden" name="uid" value="' . $uid . '"><input type="hidden" name="box" value="' . e($box) . '"><button class="link" style="color:var(--red)">Usuń wiadomość</button></form>'
-        . ($box === 'INBOX' ? '<form method="post" action="' . P . '?a=mail_unseen">' . csrf_field() . '<input type="hidden" name="uid" value="' . $uid . '"><input type="hidden" name="box" value="' . e($box) . '"><button class="link">Oznacz jako nieprzeczytaną</button></form>' : '')
+        . '<form method="post" action="' . P . '?a=mail_delete">' . csrf_field() . acc_field() . '<input type="hidden" name="uid" value="' . $uid . '"><input type="hidden" name="box" value="' . e($box) . '"><button class="link" style="color:var(--red)">Usuń wiadomość</button></form>'
+        . ($box === 'INBOX' ? '<form method="post" action="' . P . '?a=mail_unseen">' . csrf_field() . acc_field() . '<input type="hidden" name="uid" value="' . $uid . '"><input type="hidden" name="box" value="' . e($box) . '"><button class="link">Oznacz jako nieprzeczytaną</button></form>' : '')
         . '</aside></div>';
-    $GLOBALS['back'] = [P . '?a=inbox&box=' . urlencode($box), $box === 'INBOX' ? 'Odebrane' : 'Wysłane'];
+    $GLOBALS['back'] = [P . '?a=inbox&box=' . urlencode($box) . aq(), $box === 'INBOX' ? 'Odebrane' : 'Wysłane'];
     $GLOBALS['pgcls'] = 'pg-sub';
-    page($subj, 'inbox', $body, $box === 'INBOX' ? 'Odebrane' : 'Wysłane', '<a class="btn ghost" href="' . P . '?a=inbox&box=' . urlencode($box) . '">Wszystkie wiadomości</a>');
+    page($subj, 'inbox', $body, $box === 'INBOX' ? 'Odebrane' : 'Wysłane', '<a class="btn ghost" href="' . P . '?a=inbox&box=' . urlencode($box) . aq() . '">Wszystkie wiadomości</a>');
 }
 function inv_attach_select(int $sel = 0): string {
     $o = '<option value="">Bez załącznika</option>';
@@ -1077,11 +1126,11 @@ function view_compose(): never {
     if (!inbox_enabled()) inbox_off();
     $inv = isset($_GET['inv']) ? invoice_by_id((int)$_GET['inv']) : null;
     $to = $inv ? (string)($inv['buyer']['email'] ?? '') : '';
-    $body = '<section class="card pad sec" style="max-width:760px"><form class="inl" method="post" action="' . P . '?a=mail_send">' . csrf_field()
+    $body = '<section class="card pad sec" style="max-width:760px"><form class="inl" method="post" action="' . P . '?a=mail_send">' . csrf_field() . acc_field()
         . '<label class="f">Do<input class="in" name="to" value="' . e($to) . '" required placeholder="adres@firma.pl"></label>'
         . '<label class="f">Temat<input class="in" name="subject" value="' . e($inv ? 'Faktura ' . $inv['number'] : '') . '" required></label>'
         . '<label class="f">Treść<textarea class="in" name="body" rows="10" required>Dzień dobry,' . "\n\n\n" . 'Pozdrawiam' . "\n" . 'Marcin Bednarz</textarea></label>'
         . inv_attach_select($inv ? (int)$inv['id'] : 0) . '<button class="btn" style="align-self:flex-start">Wyślij ' . icon('arrow') . '</button></form></section>';
-    $GLOBALS['back'] = [P . '?a=inbox', 'Poczta'];
+    $GLOBALS['back'] = [P . '?a=inbox' . aq(), 'Poczta'];
     page('Nowa wiadomość', 'inbox', $body, 'z ' . setting('imap_user'));
 }

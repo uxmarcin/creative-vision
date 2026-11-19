@@ -62,6 +62,12 @@ function migrate(PDO $pdo): void {
         $pdo->exec("INSERT OR REPLACE INTO settings (k, v) VALUES ('mig_w1_14', '1')");
     }
     $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS inv_number ON invoices(number) WHERE number IS NOT NULL');
+    $pdo->exec('CREATE TABLE IF NOT EXISTS quotes (
+        id INTEGER PRIMARY KEY, number TEXT UNIQUE, seq INTEGER, ym TEXT, client_id INTEGER, buyer TEXT NOT NULL,
+        issue_date TEXT, due_date TEXT, term_days INTEGER, place TEXT, items TEXT NOT NULL,
+        net INTEGER NOT NULL DEFAULT 0, vat INTEGER NOT NULL DEFAULT 0, gross INTEGER NOT NULL DEFAULT 0,
+        currency TEXT NOT NULL DEFAULT \'PLN\', lang TEXT NOT NULL DEFAULT \'pl\', notes TEXT,
+        status TEXT NOT NULL DEFAULT \'draft\', invoice_id INTEGER, src TEXT, sent_at TEXT, created TEXT NOT NULL, updated TEXT NOT NULL)');
     $pdo->exec('CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY, invoice_id INTEGER NOT NULL, kind TEXT NOT NULL, msg TEXT, at TEXT NOT NULL)');
     $pdo->exec('CREATE TABLE IF NOT EXISTS reminders (invoice_id INTEGER NOT NULL, kind TEXT NOT NULL, sent_at TEXT NOT NULL, PRIMARY KEY (invoice_id, kind))');
 }
@@ -104,18 +110,30 @@ const DEFAULTS = [
     'r_w2_on' => '1', 'r_w2_days' => '21',
     'interest_rate' => '13,75',
     'footer_note' => 'Dziękujemy za współpracę.',
+    'k_imap_user' => 'kontakt@creative-vision.pl',
+    'quote_days' => '14',
 ];
 
-function setting(string $k): string {
+/** Skrzynki pocztowe: f = faktury@, k = kontakt@. Ustawienia skrzynki k mają przedrostek k_. */
+const ACC_KEYS = ['imap_user', 'imap_pass', 'imap_sent', 'imap_trash', 'imap_unseen', 'imap_unseen_at'];
+function mail_acc(?string $a = null): string { static $cur = 'f'; if ($a !== null) $cur = $a === 'k' ? 'k' : 'f'; return $cur; }
+function acc_key(string $k): string { return mail_acc() === 'k' && in_array($k, ACC_KEYS, true) ? 'k_' . $k : $k; }
+function &settings_cache(): array {
     static $cache = null;
     if ($cache === null) {
         $cache = [];
         foreach (db()->query('SELECT k, v FROM settings') as $r) $cache[$r['k']] = (string)$r['v'];
     }
-    return $cache[$k] ?? (DEFAULTS[$k] ?? '');
+    return $cache;
+}
+function setting(string $k): string {
+    $k = acc_key($k); $c = &settings_cache();
+    return $c[$k] ?? (DEFAULTS[$k] ?? '');
 }
 function set_setting(string $k, string $v): void {
+    $k = acc_key($k);
     db()->prepare('INSERT INTO settings (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v')->execute([$k, $v]);
+    $c = &settings_cache(); $c[$k] = $v;
 }
 
 // ---------- sesja i logowanie ----------
@@ -303,6 +321,16 @@ function hydrate(array $r): array {
     $r['items'] = json_decode($r['items'] ?: '[]', true) ?: [];
     $r['calc'] = calc_items(array_map(fn($i) => ['name' => $i['name'], 'desc' => $i['desc'] ?? '', 'qty' => $i['qty'], 'unit' => $i['unit'], 'price' => money((int)$i['price'], false), 'vat' => $i['vat']], $r['items']));
     return $r;
+}
+function quote_by_id(int $id): ?array {
+    $s = db()->prepare('SELECT * FROM quotes WHERE id = ?'); $s->execute([$id]);
+    $r = $s->fetch(); if (!$r) return null;
+    $r = hydrate($r); $r['doc'] = 'quote'; $r['src'] = json_decode((string)($r['src'] ?? ''), true) ?: [];
+    return $r;
+}
+function quote_state(array $q): string {
+    if (in_array($q['status'], ['draft', 'sent'], true) && !empty($q['due_date']) && $q['due_date'] < today()) return 'expired';
+    return $q['status'];
 }
 function log_event(int $id, string $kind, string $msg): void {
     db()->prepare('INSERT INTO events (invoice_id, kind, msg, at) VALUES (?, ?, ?, ?)')->execute([$id, $kind, $msg, now()]);

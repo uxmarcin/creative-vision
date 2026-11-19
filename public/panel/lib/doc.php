@@ -12,6 +12,7 @@ function invoice_doc(array $inv, string $asset, bool $pdf = false, bool $online 
     $cur = (string)($inv['currency'] ?? 'PLN') ?: 'PLN';
     $bi = ($inv['lang'] ?? 'pl') === 'pl-en';
     $L = fn(string $pl, string $en) => $bi ? $pl . '<span class="en"> / ' . $en . '</span>' : $pl;
+    $Q = ($inv['doc'] ?? '') === 'quote';
     $num = $inv['number'] ?: 'Szkic';
     $term = (int)($inv['term_days'] ?? 0);
     $foreign = trim((string)($b['country'] ?? '')) !== '';
@@ -33,7 +34,12 @@ function invoice_doc(array $inv, string $asset, bool $pdf = false, bool $online 
     $acc = nrb_fmt($s['bank_account']);
     if ($acc !== '' && ($foreign || $cur !== 'PLN')) $acc = 'PL' . $acc;
     $swift = trim(setting('bank_swift'));
-    $payBox = '<td class="pb-l"><div class="lbl">' . $L('Do zapłaty', 'Amount due') . '</div><div class="big">' . money((int)$inv['gross'], $cur) . '</div>'
+    if ($Q) $payBox = '<td class="pb-l"><div class="lbl">' . $L('Wartość wyceny', 'Quoted total') . '</div><div class="big">' . money((int)$inv['gross'], $cur) . '</div>'
+        . '<div class="sm">' . $L('Netto', 'Net') . ' ' . money((int)$inv['net'], $cur) . ' · ' . $L('Słownie', 'In words') . ': ' . e(slownie((int)$inv['gross'], $cur)) . '</div></td>'
+        . '<td class="pb-r"><div class="lbl">' . $L('Wycena ważna do', 'Valid until') . '</div><div class="v b">' . e(pl_date($inv['due_date'])) . '</div>'
+        . '<div class="lbl">' . $L('Płatność', 'Payment') . '</div><div class="v">' . ($bi ? 'Bank transfer based on VAT invoice' : 'Przelew na podstawie faktury VAT') . ($term ? ', ' . ($bi ? $term . ' days' : 'termin ' . $term . ' dni') : '') . '</div>'
+        . '<div class="lbl">' . $L('Kontakt', 'Contact') . '</div><div class="v">' . e(setting('seller_email')) . (setting('seller_phone') !== '' ? ' · ' . e(setting('seller_phone')) : '') . '</div></td>';
+    else $payBox = '<td class="pb-l"><div class="lbl">' . $L('Do zapłaty', 'Amount due') . '</div><div class="big">' . money((int)$inv['gross'], $cur) . '</div>'
         . '<div class="sm">' . $L('Słownie', 'In words') . ': ' . e(slownie((int)$inv['gross'], $cur)) . ($bi ? '<br>' . e(words_en((int)$inv['gross'], $cur)) : '') . '</div></td>'
         . '<td class="pb-r"><div class="lbl">' . $L('Sposób płatności', 'Payment method') . '</div><div class="v">' . ($bi ? 'Przelew / Bank transfer' : 'Przelew') . ($term ? ', ' . ($bi ? $term . ' dni / days' : 'termin ' . $term . ' dni') : '') . '</div>'
         . '<div class="lbl">' . $L('Numer konta', 'Bank account') . ($s['bank_name'] !== '' ? ' · ' . e($s['bank_name']) : '') . '</div><div class="v b">' . ($acc !== '' ? e($acc) : '[uzupełnij w ustawieniach]') . '</div>'
@@ -46,29 +52,31 @@ function invoice_doc(array $inv, string $asset, bool $pdf = false, bool $online 
     $h = '<div class="fv">'
         . '<div class="grad top"></div>'
         . '<table class="hd"><tr><td><img class="logo" src="' . $asset . 'logo-black.svg" alt="creative vision"></td>'
-        . '<td class="r"><div class="sm g">' . $L('Faktura VAT', 'VAT Invoice') . '</div><div class="no">' . e($num) . '</div><div class="xs g">' . $L('Oryginał', 'Original') . '</div></td></tr></table>'
+        . '<td class="r"><div class="sm g">' . ($Q ? $L('Wycena', 'Quotation') : $L('Faktura VAT', 'VAT Invoice')) . '</div><div class="no">' . e($num) . '</div>' . ($Q ? '' : '<div class="xs g">' . $L('Oryginał', 'Original') . '</div>') . '</td></tr></table>'
         . '<table class="meta"><tr>'
         . '<td><div class="g">' . $L('Data wystawienia', 'Issue date') . '</div>' . e(pl_date($inv['issue_date'])) . '</td>'
-        . '<td><div class="g">' . $L('Data sprzedaży', 'Date of sale') . '</div>' . e(pl_date($inv['sale_date'])) . '</td>'
-        . '<td><div class="g">' . $L('Termin płatności', 'Due date') . '</div>' . e(pl_date($inv['due_date'])) . ($term && !$bi ? ' (' . $term . ' dni)' : '') . '</td>'
+        . ($Q ? '<td><div class="g">' . $L('Ważna do', 'Valid until') . '</div>' . e(pl_date($inv['due_date'])) . '</td>'
+            . '<td><div class="g">' . $L('Waluta', 'Currency') . '</div>' . e($cur) . '</td>'
+          : '<td><div class="g">' . $L('Data sprzedaży', 'Date of sale') . '</div>' . e(pl_date($inv['sale_date'])) . '</td>'
+            . '<td><div class="g">' . $L('Termin płatności', 'Due date') . '</div>' . e(pl_date($inv['due_date'])) . ($term && !$bi ? ' (' . $term . ' dni)' : '') . '</td>')
         . '<td><div class="g">' . $L('Miejsce wystawienia', 'Place of issue') . '</div>' . e((string)$inv['place']) . '</td></tr></table>'
         . '<table class="par"><tr>'
-        . '<td><div class="g">' . $L('Sprzedawca', 'Seller') . '</div><div class="pn">' . e($s['seller_name']) . '</div>' . e($s['seller_addr1']) . '<br>' . e($s['seller_addr2']) . ($foreign ? '<br>Polska / Poland' : '') . '<br><span class="gap"></span>' . ($foreign ? 'VAT no. PL' . e(nip_digits($s['seller_nip'])) : 'NIP ' . e($s['seller_nip'])) . '<br>' . e($s['seller_email']) . '</td>'
-        . '<td><div class="g">' . $L('Nabywca', 'Buyer') . '</div><div class="pn">' . e($b['name'] ?? '') . '</div>' . e($b['addr1'] ?? '') . '<br>' . e($b['addr2'] ?? '') . ($foreign ? '<br>' . e((string)$b['country']) : '') . '<br><span class="gap"></span>' . (!empty($b['nip']) ? $taxLbl . ' ' . e($b['nip']) : '') . '</td>'
+        . '<td><div class="g">' . ($Q ? $L('Wykonawca', 'Contractor') : $L('Sprzedawca', 'Seller')) . '</div><div class="pn">' . e($s['seller_name']) . '</div>' . e($s['seller_addr1']) . '<br>' . e($s['seller_addr2']) . ($foreign ? '<br>Polska / Poland' : '') . '<br><span class="gap"></span>' . ($foreign ? 'VAT no. PL' . e(nip_digits($s['seller_nip'])) : 'NIP ' . e($s['seller_nip'])) . '<br>' . e($s['seller_email']) . '</td>'
+        . '<td><div class="g">' . ($Q ? $L('Klient', 'Client') : $L('Nabywca', 'Buyer')) . '</div><div class="pn">' . e($b['name'] ?? '') . '</div>' . e($b['addr1'] ?? '') . '<br>' . e($b['addr2'] ?? '') . ($foreign ? '<br>' . e((string)$b['country']) : '') . '<br><span class="gap"></span>' . (!empty($b['nip']) ? $taxLbl . ' ' . e($b['nip']) : '') . '</td>'
         . '</tr></table>'
         . '<table class="its"><thead><tr><th class="lp">' . $L('Lp.', 'No.') . '</th><th>' . $L('Nazwa usługi', 'Service') . '</th><th class="r">' . $L('Ilość', 'Qty') . '</th><th class="r">' . $L('Cena netto', 'Unit price') . '</th><th class="r">VAT</th><th class="r">' . $L('Netto', 'Net') . '</th><th class="r">' . $L('Brutto', 'Gross') . '</th></tr></thead><tbody>' . $rows . '</tbody></table>'
         . '<table class="sum"><tr><td>' . $L('Razem netto', 'Total net') . '</td><td class="r">' . money((int)$inv['net'], $cur) . '</td></tr>' . $vatRows
         . '<tr class="tot"><td>' . $L('Razem brutto', 'Total') . '</td><td class="r">' . money((int)$inv['gross'], $cur) . '</td></tr></table>'
         . '<table class="pay"><tr>' . $payBox . '</tr></table><div class="grad"></div>'
-        . ($online && $inv['status'] !== 'draft' && !empty($inv['token']) ? '<table class="online"><tr><td class="ol">' . $L('Fakturę, PDF i dane do przelewu masz też online.', 'View the invoice online.') . '</td><td class="r"><a class="obtn" href="' . e(pay_url($inv)) . '">' . ($bi ? 'View invoice online' : 'Zobacz fakturę online') . '</a></td></tr></table>' : '')
+        . (!$Q && $online && $inv['status'] !== 'draft' && !empty($inv['token']) ? '<table class="online"><tr><td class="ol">' . $L('Fakturę, PDF i dane do przelewu masz też online.', 'View the invoice online.') . '</td><td class="r"><a class="obtn" href="' . e(pay_url($inv)) . '">' . ($bi ? 'View invoice online' : 'Zobacz fakturę online') . '</a></td></tr></table>' : '')
         . ($np ? '<div class="nt"><div class="g">' . $L('Odwrotne obciążenie', 'Reverse charge') . '</div>Do rozliczenia podatku VAT zobowiązany jest nabywca usługi (odwrotne obciążenie).' . ($bi ? '<br><span class="en2">VAT to be accounted for by the recipient of the service (reverse charge).</span>' : '') . '</div>' : '')
         . (trim((string)$inv['notes']) !== '' ? '<div class="nt"><div class="g">' . $L('Uwagi', 'Notes') . '</div>' . nl2br(e((string)$inv['notes'])) . '</div>' : '')
-        . (($qrUrl = ksef_qr_url($inv)) ? '<table class="qr"><tr><td class="qi"><img src="' . qr_png_datauri($qrUrl, 4) . '" alt="Kod QR KSeF"><div class="ql">' . e($ksef !== '' ? $ksef : 'OFFLINE') . '</div></td><td class="qt"><div class="g">' . $L('Weryfikacja w KSeF', 'KSeF verification') . '</div>' . ($ksef !== '' ? $L('Numer KSeF', 'KSeF number') . ': <strong>' . e($ksef) . '</strong><br>' : '') . '<span class="g">' . $L('Zeskanuj kod, aby sprawdzić fakturę w Krajowym Systemie e-Faktur.', 'Scan the code to verify the invoice in the National e-Invoicing System.') . '</span></td></tr></table>'
+        . (!$Q && ($qrUrl = ksef_qr_url($inv)) ? '<table class="qr"><tr><td class="qi"><img src="' . qr_png_datauri($qrUrl, 4) . '" alt="Kod QR KSeF"><div class="ql">' . e($ksef !== '' ? $ksef : 'OFFLINE') . '</div></td><td class="qt"><div class="g">' . $L('Weryfikacja w KSeF', 'KSeF verification') . '</div>' . ($ksef !== '' ? $L('Numer KSeF', 'KSeF number') . ': <strong>' . e($ksef) . '</strong><br>' : '') . '<span class="g">' . $L('Zeskanuj kod, aby sprawdzić fakturę w Krajowym Systemie e-Faktur.', 'Scan the code to verify the invoice in the National e-Invoicing System.') . '</span></td></tr></table>'
             : ($ksef !== '' ? '<div class="nt"><div class="g">Numer KSeF</div>' . e($ksef) . '</div>' : ''))
         . ($pdf ? '' : $foot)
         . '</div>';
     if (!$pdf) return '<style>' . $css . '</style>' . $h;
-    return '<!doctype html><html lang="pl"><head><meta charset="utf-8"><title>Faktura ' . e($num) . '</title><style>'
+    return '<!doctype html><html lang="pl"><head><meta charset="utf-8"><title>' . ($Q ? 'Wycena ' : 'Faktura ') . e($num) . '</title><style>'
         . '@page{margin:0}'
         . '@font-face{font-family:"Jost";font-weight:400;src:url("' . CV_ROOT . '/fonts/Jost-400.ttf") format("truetype")}'
         . '@font-face{font-family:"Jost";font-weight:500;src:url("' . CV_ROOT . '/fonts/Jost-500.ttf") format("truetype")}'

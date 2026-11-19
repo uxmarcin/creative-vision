@@ -61,6 +61,13 @@
     var n = $$('input[form=mdel]:checked').length; mdb.hidden = !n; mdb.textContent = 'Usuń zaznaczone (' + n + ')';
   });
 
+  var pd = $('#plusdlg'), pb = $('[data-plus]');
+  if (pd && pb) {
+    pb.addEventListener('click', function (e) { if (!window.matchMedia('(max-width:900px)').matches) return; e.preventDefault(); pd.showModal(); });
+    $$('[data-close]', pd).forEach(function (b) { b.addEventListener('click', function () { pd.close(); }); });
+    pd.addEventListener('click', function (e) { if (e.target === pd) pd.close(); });
+  }
+
   var dlg = $('#maildlg');
   if (dlg) {
     $$('[data-mail]').forEach(function (b) { b.addEventListener('click', function () { $('input[name=next]', dlg).value = b.getAttribute('data-mail'); dlg.showModal(); $('input[type=email]', dlg).focus(); }); });
