@@ -75,7 +75,19 @@ function view_home(): never {
     foreach (['new', 'contact', 'offer', 'nego'] as $k) $pipeCols .= '<a class="hp-c" href="' . P . '?a=leads"><span class="hp-n">' . (int)($stc[$k] ?? 0) . '</span><span class="hp-l">' . e(LEAD_STAGES[$k]) . '</span></a>';
     $pipeHtml = '<section class="card hp"><div class="hf-h"><h2>Oferty</h2><a class="link" href="' . P . '?a=leads">Tablica ' . icon('arrow') . '</a></div><div class="hp-r">' . $pipeCols . '</div></section>';
     $quick = '<div class="hq"><a class="btn" href="' . P . '?a=new">' . icon('plus') . ' Faktura</a><a class="btn ghost" href="' . P . '?a=quote_new">' . icon('quote') . ' Wycena</a><a class="btn ghost" href="' . P . '?a=lead_new">' . icon('target') . ' Lead</a></div>';
-    $body = '<div class="home"><div class="home-m">' . $focusHtml . $sales . '</div><div class="home-s">' . $kpis . $pipeHtml . '</div></div>';
+    $fxw = '';
+    $fq = db()->query("SELECT i.currency, i.gross, i.buyer, i.client_id FROM invoices i WHERE i.currency IS NOT NULL AND i.currency != 'PLN' AND i.status IN ('issued', 'paid') ORDER BY i.issue_date DESC, i.id DESC")->fetchAll();
+    $est = []; foreach ($fq as $r) { $key = ($r['client_id'] ?: $r['buyer']) . $r['currency']; if (isset($est[$key])) continue; $b = json_decode((string)$r['buyer'], true) ?: []; $est[$key] = ['cur' => $r['currency'], 'amt' => (int)$r['gross'], 'name' => (string)($b['name'] ?? 'Klient')]; }
+    $fxCur = $est ? reset($est)['cur'] : 'USD';
+    if ($r = nbp_rate($fxCur)) {
+        $rows = ''; foreach (array_slice(array_filter($est, fn($x) => $x['cur'] === $fxCur), 0, 3) as $x) $rows .= '<li><span>Faktura ' . e(preg_replace('/,?\s*Inc\.?$/i', '', $x['name'])) . '<small>' . money($x['amt'], $fxCur) . '</small></span><b class="fxe" data-amt="' . $x['amt'] . '">≈ ' . money((int)round($x['amt'] * $r['rate'])) . '</b></li>';
+        $fxw = '<section class="card hx"><div class="hf-h"><h2>Kurs ' . ($fxCur === 'USD' ? 'dolara' : e($fxCur)) . '</h2><span class="mut">NBP</span></div>'
+            . '<div class="fxc" data-cur="' . e($fxCur) . '"><div class="fxc-h"><div><span class="fxc-k">1 ' . e($fxCur) . ' =</span><b class="fxc-v">' . number_format($r['rate'], 4, ',', '') . ' PLN</b><span class="fxc-d"></span></div>'
+            . '<div class="fxc-t">' . implode('', array_map(fn($d, $l) => '<button type="button" data-d="' . $d . '"' . ($d === 30 ? ' class="on"' : '') . '>' . $l . '</button>', [7, 30, 180, 365], ['1T', '1M', '6M', '1R'])) . '</div></div>'
+            . '<div class="fxc-g"><svg viewBox="0 0 600 170" preserveAspectRatio="none" aria-hidden="true"></svg><span class="fxc-tip"></span></div>'
+            . ($rows ? '<ul class="fxc-e">' . $rows . '</ul><span class="fxc-n">Szacunek po dzisiejszym kursie. Na fakturze liczy się kurs z dnia roboczego przed wystawieniem.</span>' : '') . '</div></section>';
+    }
+    $body = '<div class="home"><div class="home-m">' . $focusHtml . $sales . '</div><div class="home-s">' . $kpis . $fxw . $pipeHtml . '</div></div>';
     $GLOBALS['pgcls'] = 'pg-home';
     page($hi . ', Marcin', 'home', $body, pl_date($today) . ' · ' . ['niedziela', 'poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota'][(int)date('w')], $quick);
 }

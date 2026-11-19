@@ -843,7 +843,7 @@ function view_list(): never {
         if ($st === 'late') $cnt['late']++;
         if ($st === 'paid') $cnt['paid']++;
         if ($st === 'draft') $cnt['draft']++;
-        if ($inPeriod($i) && !in_array($st, ['draft', 'cancelled'], true)) { if ($pln) { $sale += (int)$i['gross']; $saleNet += (int)$i['net']; } else { $fxSale[$cu] = ($fxSale[$cu] ?? 0) + (int)$i['gross']; if ($r = nbp_rate_month_end($cu, substr($b, 0, 7))) { $saleFxPln += (int)round((int)$i['gross'] * $r['rate']); $saleFxNet += (int)round((int)$i['net'] * $r['rate']); $saleRates[$cu . $r['date']] = number_format($r['rate'], 4, ',', '') . ' z ' . date('d.m', strtotime($r['date'])) . (!empty($r['live']) ? ' (ostateczny z końca miesiąca)' : ''); } else $saleFxOk = false; } $saleN++; }
+        if ($inPeriod($i) && !in_array($st, ['draft', 'cancelled'], true)) { if ($pln) { $sale += (int)$i['gross']; $saleNet += (int)$i['net']; } else { $fxSale[$cu] = ($fxSale[$cu] ?? 0) + (int)$i['gross']; if ($r = nbp_rate_month_end($cu, substr($b, 0, 7))) { $saleFxPln += (int)round((int)$i['gross'] * $r['rate']); $saleFxNet += (int)round((int)$i['net'] * $r['rate']); $saleRates[$cu . $r['date']] = number_format($r['rate'], 4, ',', '') . (!empty($r['live']) ? ', dziś' : ' z ' . date('d.m', strtotime($r['date']))); } else $saleFxOk = false; } $saleN++; }
     }
     $rows = array_filter($all, function ($i) use ($tab, $q, $inPeriod) {
         if ($q === '' && !$inPeriod($i)) return false;
@@ -870,7 +870,7 @@ function view_list(): never {
             . '<div class="fxc-g"><svg viewBox="0 0 600 170" preserveAspectRatio="none" aria-hidden="true"></svg><span class="fxc-tip"></span></div><span class="fxc-n">Średni kurs NBP, tabela A</span></div>' : '')
         . '</div><div class="kpis-r">'
         . '<div class="kpi"><span class="t">Sprzedaż: ' . e($periodTxt) . '</span>' . ($fxSale && $saleFxOk
-            ? '<span class="v">' . money_split($sale + $saleFxPln) . '</span><span class="fxb">' . ($sale ? money($sale) . ' + ' : '') . money($saleFxPln) . ' <span class="fxr">(' . e(implode(' + ', array_map(fn($k, $v) => money($v, $k), array_keys($fxSale), $fxSale))) . ') · kurs NBP ' . e(implode(', ', $saleRates)) . '</span></span>'
+            ? '<span class="v">' . money_split($sale + $saleFxPln) . '</span><span class="fxb">' . ($sale ? money($sale) . ' + ' : '') . money($saleFxPln) . ' <span class="fxr">(kurs ' . e(implode(', ', $saleRates)) . ')</span></span>'
             : '<span class="v">' . money($sale) . '</span>' . $fx($fxSale)) . '<span class="s">netto ' . money($saleNet + ($saleFxOk ? $saleFxNet : 0)) . ' · ' . $saleN . ' ' . plural($saleN, 'faktura', 'faktury', 'faktur') . '</span></div>'
         . '<div class="kpi"><span class="t">Średni czas zapłaty</span><span class="v">' . ($avg === null ? '–' : $avg . ' ' . plural($avg, 'dzień', 'dni', 'dni')) . '</span><span class="s">od wystawienia do wpłaty</span></div></div></section>';
     $qs = fn(array $o) => P . '?' . http_build_query(array_merge(['y' => $y, 'm' => $m, 't' => $tab], $o));

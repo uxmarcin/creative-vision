@@ -837,3 +837,18 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 .fxr .lv.up i{background:#5BC48E}.fxr .lv.dn i{background:#F07A73}
 .fxr .lv.up{color:#5BC48E}.fxr .lv.dn{color:#F07A73}
 @media(prefers-reduced-motion:reduce){.fxr .lv i{animation:none}}
+
+/* widget kursu na pulpicie (jasny) */
+.hx{padding:20px 22px}
+.hx .fxc{margin-top:12px}
+.hx .fxc-k{color:var(--mut)}.hx .fxc-v{color:var(--ink)}.hx .fxc-d{color:var(--mut)}
+.hx .fxc-d.up{color:var(--green)}.hx .fxc-d.dn{color:var(--red)}
+.hx .fxc-t button{color:var(--mut)}.hx .fxc-t button:hover,.hx .fxc-t button.on{color:var(--ink)}
+.hx .fxc-tip{background:var(--ink);color:#fff}
+.hx .fxc-g{min-height:130px}
+.fxc-e{list-style:none;margin:6px 0 0;padding:12px 0 0;border-top:1px solid var(--line2);display:flex;flex-direction:column;gap:10px}
+.fxc-e li{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font-size:15px}
+.fxc-e li span{display:flex;flex-direction:column;gap:2px}.fxc-e small{color:var(--mut);font-size:13px}
+.fxc-e b{font-weight:500;white-space:nowrap}
+.hx .fxc-n{color:var(--mut)}
+.fxc-h{flex-wrap:wrap}
