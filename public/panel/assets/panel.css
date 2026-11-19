@@ -594,3 +594,10 @@ ul.pts{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;fon
 
 .bar .bdl{padding-left:14px;padding-right:14px}.bar .bdl svg{width:18px;height:18px}@media (max-width:900px){.bar .bdl span{display:none}}
 @media (max-width:900px){body.pg-form .bar:has(.bdl){grid-template-columns:1fr 1fr 52px}body.pg-form .bar .bdl{order:2;padding:0}body.pg-form .bar .btn:last-child{order:3}}
+@media (max-width:900px){
+  .nav .grp{background:#0B0B0B;-webkit-backdrop-filter:none;backdrop-filter:none;border-top:1px solid rgba(255,255,255,.06)}
+  .nav .grp a[href$="?a=new"]{color:#fff}
+  .nav .grp a[href$="?a=new"]::before{width:48px;height:48px;margin:-24px 0 0 -24px;border:0;padding:1.5px;background:var(--grad);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);box-sizing:border-box;transition:transform .2s}
+  .nav .grp a[href$="?a=new"]:active::before{transform:scale(.94)}
+  .nav .grp a[href$="?a=new"] svg{width:22px;height:22px;stroke-width:1.75;position:relative}
+}
