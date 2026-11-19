@@ -1279,8 +1279,8 @@ function inv_links(string $txt): string {
 function acc_switch(string $box = 'INBOX'): string {
     $accs = mail_accounts(); if (!$accs['k']['on'] && mail_acc() === 'f') return '';
     $o = '';
-    foreach (['k', 'f'] as $k) { $x = $accs[$k]; $o .= '<option value="' . P . '?a=inbox&acc=' . $k . '"' . (mail_acc() === $k ? ' selected' : '') . '>' . e($x['user']) . ($x['on'] && $x['unseen'] ? ' (' . $x['unseen'] . ' nowe)' : '') . '</option>'; }
-    return '<label class="accsel">' . icon('mail') . '<select aria-label="Skrzynka" onchange="location.href=this.value">' . $o . '</select></label>';
+    foreach (['k' => 'Oferty', 'f' => 'Faktury'] as $k => $lab) { $x = $accs[$k]; $o .= '<a href="' . P . '?a=inbox&acc=' . $k . '"' . (mail_acc() === $k ? ' class="on" aria-current="true"' : '') . '><span class="sw-l">' . $lab . ($x['on'] && $x['unseen'] ? ' <b class="cnt">' . $x['unseen'] . '</b>' : '') . '</span><span class="sw-e">' . e($x['user']) . '</span></a>'; }
+    return '<nav class="seg accseg" aria-label="Skrzynka">' . $o . '</nav>';
 }
 function inbox_off(): never {
     $k = mail_acc() === 'k'; $u = setting('imap_user');
