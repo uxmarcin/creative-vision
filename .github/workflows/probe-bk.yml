@@ -5,5 +5,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          B=https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl/api/announcements/search
-          for q in "page=1&limit=3&sort=default" "page=1&limit=3&sort=publicationDate" "page=1&limit=3&sort=submissionDeadline" "page=1&limit=3&sort=publicationDate&query=strona%20internetowa" "page=1&limit=3&sort=0" "page=1&limit=3"; do echo "== $q"; curl -sS "$B?$q" | head -c 2500; echo; done
+          curl -sSL https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl/assets/index-D3ELI812.js -o a.js
+          python3 -c "
+          import re
+          s=open('a.js').read()
+          for k in ['fetchApi=','fetchApi(ci','function fetchApi(','X-Requested','Accept-Language','credentials:']:
+              for m in list(re.finditer(re.escape(k),s))[:2]: print('##',k); print(s[max(0,m.start()-200):m.start()+900].replace(chr(10),' '))
+          "
