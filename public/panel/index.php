@@ -328,6 +328,7 @@ switch ($a) {
         header('Content-Disposition: ' . (isset($_GET['dl']) ? 'attachment' : 'inline') . '; filename="' . quote_pdf_name($q) . '"');
         echo quote_pdf($q); exit;
     case 'settings': view_settings();
+    case 'ver': header('Content-Type: application/json'); echo json_encode(['v' => app_ver()]); exit;
     case 'unseen':
         header('Content-Type: application/json; charset=utf-8');
         $n = 0;
@@ -588,14 +589,14 @@ function page(string $title, string $active, string $body, string $kicker = '', 
     $sheet = '<dialog class="mdlg plus" id="plusdlg"><div class="sheet"><div class="hrow"><h2>Co tworzymy?</h2><button type="button" class="x" data-close aria-label="Zamknij">×</button></div>'
         . '<a class="btn" href="' . P . '?a=new">' . icon('list') . ' Nowa faktura</a><a class="btn ghost" href="' . P . '?a=quote_new">' . icon('quote') . ' Nowa wycena</a></div></dialog>';
     $v = substr((string)@md5_file(__DIR__ . '/assets/panel.js'), 0, 10);
-    echo head($title) . '<body class="pg-' . e($active) . (!empty($GLOBALS['pgcls']) ? ' ' . $GLOBALS['pgcls'] : '') . '"><div class="app"><nav class="nav" aria-label="Menu panelu">'
+    echo head($title) . '<body data-ver="' . app_ver() . '" class="pg-' . e($active) . (!empty($GLOBALS['pgcls']) ? ' ' . $GLOBALS['pgcls'] : '') . '"><div class="app"><nav class="nav" aria-label="Menu panelu">'
         . '<a class="brand" href="' . P . '"><img src="' . P . '/assets/logo-white.svg" alt="creative vision"></a>'
         . '<div class="grp"><p class="lbl">Finanse</p>' . $links . '</div>'
         . '<div class="bot"><span>Przypomnienia wysyłamy sami, w dni robocze rano.</span><a class="set' . ($active === 'settings' ? ' on' : '') . '" href="' . P . '?a=settings" aria-label="Ustawienia">' . icon('cog') . '</a>'
         . '<form method="post" action="' . P . '?a=logout">' . csrf_field() . '<button class="link" style="color:#C9C9C9">Wyloguj</button></form></div></nav>'
         . '<main class="main" id="main">'
         . '<header class="top"><div>' . (!empty($GLOBALS['back']) ? '<a class="back" href="' . e($GLOBALS['back'][0]) . '">' . icon('back') . '<span>' . e($GLOBALS['back'][1]) . '</span></a>' : '') . ($kicker ? '<p class="k">' . e($kicker) . '</p>' : '') . '<h1>' . e($title) . '</h1></div>' . ($acts ? '<div class="acts">' . $acts . '</div>' : '') . '</header>'
-        . flash_html() . $body . '</main></div>' . $sheet . '<script src="' . P . '/assets/panel.js?v=' . $v . '"></script></body></html>';
+        . flash_html() . $body . '</main></div>' . $sheet . '<div class="upd" id="upd" hidden role="status"><span><b>Nowa wersja panelu</b>Mamy poprawki i nowe funkcje.</span><button type="button" class="btn" id="updbtn">Aktualizuj</button></div><script src="' . P . '/assets/panel.js?v=' . $v . '"></script></body></html>';
     exit;
 }
 

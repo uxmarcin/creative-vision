@@ -323,6 +323,12 @@ function hydrate(array $r): array {
     $r['calc'] = calc_items(array_map(fn($i) => ['name' => $i['name'], 'desc' => $i['desc'] ?? '', 'qty' => $i['qty'], 'unit' => $i['unit'], 'price' => money((int)$i['price'], false), 'vat' => $i['vat']], $r['items']));
     return $r;
 }
+/** Wersja panelu: zmienia się przy każdym wdrożeniu. */
+function app_ver(): string {
+    $h = '';
+    foreach (array_merge([__DIR__ . '/../index.php', __DIR__ . '/../assets/panel.css', __DIR__ . '/../assets/panel.js'], glob(__DIR__ . '/*.php') ?: []) as $f) $h .= $f . @filesize($f) . @md5_file($f);
+    return substr(md5($h), 0, 12);
+}
 function quote_by_id(int $id): ?array {
     $s = db()->prepare('SELECT * FROM quotes WHERE id = ?'); $s->execute([$id]);
     $r = $s->fetch(); if (!$r) return null;

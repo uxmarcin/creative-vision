@@ -68,6 +68,20 @@
     pd.addEventListener('click', function (e) { if (e.target === pd) pd.close(); });
   }
 
+  var ver = document.body.getAttribute('data-ver'), upd = $('#upd');
+  if (ver && upd) {
+    var chk = function () {
+      fetch('/panel?a=ver', { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) { if (j.v && j.v !== ver) upd.hidden = false; }).catch(function () {});
+    };
+    setInterval(chk, 60000); setTimeout(chk, 5000);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') chk(); });
+    $('#updbtn').addEventListener('click', function () {
+      this.textContent = 'Aktualizuję…';
+      var done = function () { location.reload(); };
+      if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistration('/panel').then(function (r) { return r ? r.update() : null; }).then(done, done); else done();
+    });
+  }
+
   var dz = $('#drop');
   if (dz) {
     var di = $('#dropin', dz), go = function () { if (di.files.length) { dz.classList.add('busy'); $('label b', dz).textContent = 'Wgrywam ' + di.files.length + '…'; dz.submit(); } };

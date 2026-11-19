@@ -186,8 +186,19 @@ function view_books(): never {
     books_migrate();
     $ym = preg_match('/^\d{4}-\d{2}$/', (string)($_GET['ym'] ?? '')) ? (string)$_GET['ym'] : prev_ym();
     $sales = sales_of($ym); $costs = costs_of($ym);
-    $nav = '<div class="mnav"><a class="btn ghost sm" href="' . P . '?a=books&ym=' . prev_ym($ym) . '" aria-label="Poprzedni miesiąc">' . icon('back') . '</a><b>' . e(ucfirst(ym_label($ym))) . '</b>'
-        . ($ym < date('Y-m') ? '<a class="btn ghost sm" href="' . P . '?a=books&ym=' . date('Y-m', strtotime($ym . '-01 +1 month')) . '" aria-label="Następny miesiąc"><span style="display:inline-flex;transform:scaleX(-1)">' . icon('back') . '</span></a>' : '<span></span>') . '</div>';
+    [$yy, $mm] = array_map('intval', explode('-', $ym));
+    $has = [];
+    $q = db()->prepare("SELECT COALESCE(book_ym, substr(issue_date, 1, 7)) AS m, COUNT(*) FROM invoices WHERE status IN ('issued', 'paid') AND COALESCE(book_ym, substr(issue_date, 1, 7)) LIKE ? GROUP BY m"); $q->execute([$yy . '-%']);
+    foreach ($q->fetchAll(PDO::FETCH_NUM) as [$m, $n]) $has[(int)substr($m, 5, 2)] = ($has[(int)substr($m, 5, 2)] ?? 0) + (int)$n;
+    $q = db()->prepare('SELECT ym, COUNT(*) FROM costs WHERE ym LIKE ? GROUP BY ym'); $q->execute([$yy . '-%']);
+    foreach ($q->fetchAll(PDO::FETCH_NUM) as [$m, $n]) $has[(int)substr($m, 5, 2)] = ($has[(int)substr($m, 5, 2)] ?? 0) + (int)$n;
+    $mp = '';
+    for ($i = 1; $i <= 12; $i++) { $k = sprintf('%04d-%02d', $yy, $i); $fut = $k > date('Y-m');
+        $mp .= '<a href="' . P . '?a=books&ym=' . $k . '" class="' . trim(($i === $mm ? 'on' : '') . (!empty($has[$i]) ? ' has' : '') . ($fut ? ' fut' : '')) . '" title="' . pl_month($i) . ' ' . $yy . '"' . ($i === $mm ? ' aria-current="true"' : '') . '>' . $i . '</a>'; }
+    $yo = ''; for ($y = (int)date('Y'); $y >= 2025; $y--) $yo .= '<option value="' . $y . '-' . sprintf('%02d', min($mm, $y === (int)date('Y') ? (int)date('n') : 12)) . '"' . ($y === $yy ? ' selected' : '') . '>' . $y . '</option>';
+    $nav = '<section class="card"><div class="period"><div class="pl"><span class="k">Miesiąc księgowy</span><b>' . e(ucfirst(ym_label($ym))) . '</b></div>'
+        . '<nav class="months" aria-label="Miesiąc księgowy">' . $mp . '</nav>'
+        . '<form method="get" action="' . P . '" class="yearf"><input type="hidden" name="a" value="books"><label class="sr" for="yy">Rok</label><select class="in" id="yy" name="ym" data-autosubmit>' . $yo . '</select></form></div></section>';
     $sum = []; $str = '';
     foreach ($sales as $i) {
         $cu = $i['currency'] ?? 'PLN'; $sum[$cu] = ($sum[$cu] ?? 0) + (int)$i['gross'];
