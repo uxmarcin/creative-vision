@@ -6,10 +6,22 @@ jobs:
     steps:
       - run: |
           UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 Chrome/130 Safari/537.36"
-          for u in "https://useme.com/pl/jobs/" "https://useme.com/pl/jobs/rss/" "https://useme.com/pl/jobs/category/programowanie-i-it,35/" "https://www.oferia.pl/zlecenia/strony-internetowe" "https://www.oferia.pl/zlecenia" "https://freelancehunt.com/pl/projects" "https://www.freelancer.com/api/projects/0.1/projects/active/?query=website&limit=5&full_description=true" "https://www.useme.com/pl/feed/jobs/" "https://zlecenia.przez.net/" "https://www.fixly.pl/kategoria/strony-internetowe" "https://justjoin.it/api/offers"; do
-            echo "=================== $u"
-            curl -sSL -A "$UA" -o /tmp/o -w "%{http_code} %{size_download} %{url_effective}\n" "$u" || true
-            head -c 600 /tmp/o | tr -s '\n' ' '; echo
-            grep -oE 'href="[^"]*(jobs|zlecenie|zlecenia|project)[^"]*"' /tmp/o | sort -u | head -25
-            grep -oiE '<link[^>]+rss[^>]*>' /tmp/o | head
-          done
+          curl -sSL -A "$UA" https://useme.com/pl/jobs/category/serwisy-internetowe,34/ -o a.html
+          grep -oE 'href="/pl/jobs/category/serwisy-internetowe,34/[^"]*"' a.html | sort -u
+          grep -oE 'href="/pl/jobs/category/(programowanie-i-it|coding-and-it),35/[^"]*"' a.html | sort -u
+          python3 - <<'P'
+          import re
+          h=open('a.html').read()
+          i=h.find('/pl/jobs/'+re.search(r'/pl/jobs/([a-z0-9-]+,\d+)/',h[h.find('job'):]).group(1))
+          m=[x.start() for x in re.finditer(r'href="/pl/jobs/[a-z0-9-]+,\d+/"',h)]
+          print(len(m)); s=m[0]
+          print(h[s-2500:s+3500])
+          P
+          u=$(grep -oE '/pl/jobs/[a-z0-9-]+,[0-9]+/' a.html | head -1)
+          curl -sSL -A "$UA" "https://useme.com$u" -o j.html
+          python3 -c "
+          import re;h=open('j.html').read();print(len(h))
+          for k in ['Budżet','budget','Termin','Zleceniodawca','Opis','ld+json','og:description','Dodano','Ofert']:
+            i=h.find(k);print('##',k,i);print(re.sub(r'\s+',' ',h[max(0,i-200):i+700]) if i>0 else '')
+          "
+          curl -sS "https://www.freelancer.com/api/projects/0.1/projects/active/?query=strona%20internetowa&limit=3&languages[]=pl&full_description=true" | head -c 1500
