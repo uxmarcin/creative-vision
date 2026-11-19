@@ -641,7 +641,7 @@ function view_list(): never {
         . ($q !== '' ? '<div class="qnote">Wyniki wyszukiwania „' . e($q) . '” ze wszystkich miesięcy. <a class="link" href="' . $qs(['q' => null]) . '">Wyczyść</a></div>' : '');
     $tabs = '';
     foreach (['all' => 'Wszystkie', 'open' => 'Do zapłaty', 'late' => 'Po terminie', 'paid' => 'Opłacone', 'draft' => 'Szkice'] as $k => $l)
-        $tabs .= '<a href="' . $qs(['t' => $k, 'q' => $q !== '' ? $q : null]) . '"' . ($tab === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ' <span>' . $cnt[$k] . '</span></a>';
+        if ($k !== 'draft' || $cnt['draft'] || $tab === 'draft') $tabs .= '<a href="' . $qs(['t' => $k, 'q' => $q !== '' ? $q : null]) . '"' . ($tab === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ' <span>' . $cnt[$k] . '</span></a>';
     $tr = '';
     foreach ($rows as $i) {
         [$w, $wc] = when_text($i);
@@ -735,8 +735,8 @@ function view_form(?array $inv): never {
         . '<section class="card pad sec"><h2>Numer</h2><span>' . ($num ? e($num) : 'Nadamy przy wystawieniu, kolejny: <b style="font-weight:500">' . e(next_number(substr($issue, 0, 7))[1]) . '</b>') . '</span></section>'
         . '</aside></div>'
         . '<div class="bar"><span class="note">Wyślemy z ' . e(setting('mail_from')) . ', z PDF w załączniku i linkiem do faktury online.</span>'
-        . '<button class="btn ghost" name="act" value="draft">Zapisz szkic</button>'
-        . '<button class="btn ghost" name="act" value="issue">' . ($num ? 'Zapisz' : 'Wystaw bez wysyłki') . '</button>'
+        . '<a class="btn ghost" href="' . ($inv ? P . '?a=view&id=' . $inv['id'] : P) . '">Anuluj</a>'
+        . '<button class="btn ghost" name="act" value="issue">' . ($num ? 'Zapisz' : 'Wystaw i zapisz') . '</button>'
         . '<button class="btn" name="act" value="send">' . ($num ? 'Zapisz i wyślij' : 'Wystaw i wyślij') . ' ' . icon('arrow') . '</button></div>'
         . '</form>';
     $GLOBALS['back'] = $inv ? [P . '?a=view&id=' . $inv['id'], $num ? 'Faktura ' . $num : 'Szkic'] : [P, 'Faktury'];
