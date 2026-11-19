@@ -97,7 +97,7 @@ function ksef_download_xml(string $ksef, string $tok): string {
 }
 
 /** Paczka ZIP za miesiąc: sprzedaż (PDF, XML z KSeF), zakupy, zestawienie CSV. Zwraca ścieżkę do pliku tymczasowego. */
-function books_zip(string $ym): string {
+function books_zip(string $ym, ?array $sales = null, ?array $costs = null): string {
     require_once __DIR__ . '/doc.php';
     $tmp = tempnam(sys_get_temp_dir(), 'cvz'); $z = new ZipArchive();
     if ($z->open($tmp, ZipArchive::OVERWRITE) !== true) throw new RuntimeException('Nie mogę przygotować paczki ZIP.');
@@ -105,12 +105,12 @@ function books_zip(string $ym): string {
     $num = fn(int $c) => number_format($c / 100, 2, ',', '');
     $used = [];
     $uniq = function (string $n) use (&$used): string { $b = $n; $i = 2; while (isset($used[$n])) { $n = preg_replace('/(\.\w+)$/', ' (' . $i++ . ')$1', $b); } $used[$n] = 1; return $n; };
-    foreach (sales_of($ym) as $inv) {
+    foreach ($sales ?? sales_of($ym) as $inv) {
         $f = $uniq('Sprzedaz/' . invoice_pdf_name($inv)); $z->addFromString($f, invoice_pdf($inv));
         if (!empty($inv['ksef'])) $z->addFromString($uniq('Sprzedaz/' . str_replace('.pdf', '.xml', invoice_pdf_name($inv))), ksef_xml($inv));
         $csv[] = implode(';', ['sprzedaż', $inv['number'], $inv['issue_date'], str_replace(';', ',', (string)($inv['buyer']['name'] ?? '')), (string)($inv['buyer']['nip'] ?? ''), $num((int)$inv['net']), $num((int)$inv['vat']), $num((int)$inv['gross']), $inv['currency'] ?? 'PLN', ...(($inv['currency'] ?? 'PLN') !== 'PLN' && ($r = nbp_rate_before((string)$inv['currency'], (string)$inv['issue_date'])) ? [number_format($r['rate'], 4, ',', ''), $r['date'], $num((int)round((int)$inv['gross'] * $r['rate']))] : ['', '', ($inv['currency'] ?? 'PLN') === 'PLN' ? $num((int)$inv['gross']) : '']), (string)$inv['ksef'], $f]);
     }
-    foreach (costs_of($ym) as $c) {
+    foreach ($costs ?? costs_of($ym) as $c) {
         $ext = pathinfo((string)$c['path'], PATHINFO_EXTENSION);
         $nm = $c['seller'] || $c['number'] ? safe_name(trim($c['seller'] . ' ' . $c['number'])) . '.' . $ext : (string)$c['fname'];
         if (!str_ends_with(strtolower($nm), '.' . $ext)) $nm .= '.' . $ext;
@@ -124,7 +124,21 @@ function books_zip(string $ym): string {
 }
 function books_zip_name(string $ym): string { return 'Creative_Vision_dokumenty_' . $ym . '.zip'; }
 
-/** Wysyła paczkę do księgowej. Zwraca [ok, komunikat]. */
+/** Dokumenty, które poszły już do księgowej: ['s' => [id faktur], 'c' => [id kosztów]]. */
+function books_sent_ids(string $ym): array {
+    $j = json_decode(setting('acc_ids_' . $ym), true);
+    if (is_array($j)) return ['s' => array_map('intval', $j['s'] ?? []), 'c' => array_map('intval', $j['c'] ?? [])];
+    $at = setting('acc_sent_' . $ym); if ($at === '') return ['s' => [], 'c' => []];
+    // paczki wysłane, zanim zaczęliśmy zapisywać listę: wszystko, co powstało do chwili wysyłki
+    return ['s' => array_values(array_map(fn($i) => (int)$i['id'], array_filter(sales_of($ym), fn($i) => (string)$i['created'] <= $at && (string)($i['issue_date'] ?? '') <= substr($at, 0, 10)))), 'c' => array_values(array_map(fn($c) => (int)$c['id'], array_filter(costs_of($ym), fn($c) => (string)$c['created'] <= $at)))];
+}
+/** Faktury sprzedażowe i zakupowe dodane po wysłaniu paczki. */
+function books_new(string $ym): array {
+    if (setting('acc_sent_' . $ym) === '') return [[], []];
+    $ids = books_sent_ids($ym);
+    return [array_values(array_filter(sales_of($ym), fn($i) => !in_array((int)$i['id'], $ids['s'], true))), array_values(array_filter(costs_of($ym), fn($c) => !in_array((int)$c['id'], $ids['c'], true)))];
+}
+/** Wysyła paczkę do księgowej, a po wysyłce tylko dosyła nowe dokumenty. Zwraca [ok, komunikat]. */
 function books_send(string $ym): array {
     $to = trim(setting('acc_email'));
     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) return [false, 'Wpisz e-mail księgowej.'];
@@ -132,8 +146,10 @@ function books_send(string $ym): array {
         try { [, , $left] = ksef_fetch_costs($ym); } catch (Throwable $e) { $left = 0; /* wyślemy to, co mamy */ }
         if ($left) return [false, 'KSeF jeszcze nie oddał ' . $left . ' ' . plural($left, 'faktury', 'faktur', 'faktur') . ' (limit pobrań). Spróbuj za minutę, żeby paczka była kompletna.', 'busy'];
     }
-    $sales = sales_of($ym); $costs = costs_of($ym);
-    $zip = books_zip($ym); $data = (string)file_get_contents($zip); @unlink($zip);
+    $sup = setting('acc_sent_' . $ym) !== '';
+    if ($sup) { $prevIds = books_sent_ids($ym); [$sales, $costs] = books_new($ym); if (!$sales && !$costs) return [false, 'Księgowa ma już wszystkie dokumenty za ' . ym_label($ym) . '.']; }
+    else { $sales = sales_of($ym); $costs = costs_of($ym); }
+    $zip = books_zip($ym, $sales, $costs); $data = (string)file_get_contents($zip); @unlink($zip);
     if (strlen($data) > 20 * 1048576) return [false, 'Paczka ma ponad 20 MB, za dużo na maila. Pobierz ją i wyślij przez dysk.'];
     $label = ym_label($ym);
     $sum = 0; $byCur = []; $plnAll = 0; $plnOk = true;
@@ -145,14 +161,20 @@ function books_send(string $ym): array {
     $saleRows = [];
     foreach ($byCur ?: ['PLN' => 0] as $cu => $v) $saleRows[] = ['Sprzedaż brutto' . (count($byCur) > 1 ? ' (' . $cu . ')' : ''), money($v, $cu), count($byCur) <= 1];
     if (array_diff(array_keys($byCur), ['PLN'])) { foreach ($saleRows as &$sr) $sr[2] = false; unset($sr); $saleRows[] = ['Razem w złotych (kurs NBP z dnia roboczego przed wystawieniem)', ($plnOk ? '' : 'ok. ') . money($plnAll), true]; }
-    $subj = 'Dokumenty Creative Vision za ' . $label;
-    $rows = m_kicker('Dokumenty za ' . $label) . m_h1('Paczka dla księgowej', ucfirst($label))
-        . m_text('Dzień dobry,<br><br>w załączniku przesyłam dokumenty za ' . e($label) . ': faktury sprzedażowe w PDF (i XML z KSeF, jeśli mają numer KSeF), faktury zakupowe oraz zestawienie w pliku CSV.' . (trim(setting('acc_note')) !== '' ? '<br><br>' . nl2br(e(setting('acc_note'))) : ''))
+    $subj = ($sup ? 'Uzupełnienie dokumentów Creative Vision za ' : 'Dokumenty Creative Vision za ') . $label;
+    $rows = m_kicker('Dokumenty za ' . $label) . m_h1($sup ? 'Uzupełnienie paczki' : 'Paczka dla księgowej', ucfirst($label))
+        . m_text('Dzień dobry,<br><br>' . ($sup ? 'dosyłam dokumenty za ' . e($label) . ', które doszły już po wysłaniu paczki. W załączniku są tylko te nowe faktury i ich zestawienie w pliku CSV.' : 'w załączniku przesyłam dokumenty za ' . e($label) . ': faktury sprzedażowe w PDF (i XML z KSeF, jeśli mają numer KSeF), faktury zakupowe oraz zestawienie w pliku CSV.') . (trim(setting('acc_note')) !== '' ? '<br><br>' . nl2br(e(setting('acc_note'))) : ''))
         . m_rows('W paczce', [['Faktury sprzedażowe', (string)count($sales)], ['Faktury zakupowe', (string)count($costs)], ...$saleRows])
         . m_sign();
-    $ok = send_mail([$to], $subj, mail_layout($subj, 'Dokumenty za ' . $label . ': ' . count($sales) . ' sprzedaży, ' . count($costs) . ' zakupów.', $rows), html_to_text($rows), [books_zip_name($ym) => $data], true);
-    if ($ok) set_setting('acc_sent_' . $ym, now());
-    return [$ok, $ok ? 'Paczka za ' . $label . ' wysłana do ' . $to . '.' : 'Nie udało się wysłać: ' . mail_last_error()];
+    $ok = send_mail([$to], $subj, mail_layout($subj, 'Dokumenty za ' . $label . ': ' . count($sales) . ' sprzedaży, ' . count($costs) . ' zakupów.', $rows), html_to_text($rows), [($sup ? str_replace('.zip', '_uzupelnienie.zip', books_zip_name($ym)) : books_zip_name($ym)) => $data], true);
+    if ($ok) {
+        $ids = $sup ? $prevIds : ['s' => [], 'c' => []];
+        foreach ($sales as $i) $ids['s'][] = (int)$i['id']; foreach ($costs as $c) $ids['c'][] = (int)$c['id'];
+        set_setting('acc_ids_' . $ym, json_encode(['s' => array_values(array_unique($ids['s'])), 'c' => array_values(array_unique($ids['c']))]));
+        if ($sup) set_setting('acc_sup_' . $ym, now()); else set_setting('acc_sent_' . $ym, now());
+    }
+    $n = count($sales) + count($costs);
+    return [$ok, $ok ? ($sup ? 'Dosłane do ' . $to . ': ' . $n . ' ' . plural($n, 'nowy dokument', 'nowe dokumenty', 'nowych dokumentów') . ' za ' . $label . '.' : 'Paczka za ' . $label . ' wysłana do ' . $to . '.') : 'Nie udało się wysłać: ' . mail_last_error()];
 }
 
 /** Raz w miesiącu, od wybranego dnia, sama wysyła paczkę za poprzedni miesiąc. */
@@ -256,8 +278,13 @@ function view_books(): never {
         . '</div><aside class="side">'
         . '<section class="card pad sec"><h2>Dla księgowej</h2><span class="mut" style="font-size:14px">Jeden ZIP: sprzedaż w PDF i XML z KSeF, zakupy i zestawienie CSV.</span>'
         . '<a class="btn ghost" href="' . P . '?a=books_zip&ym=' . $ym . '">Pobierz paczkę ZIP</a>'
-        . '<form method="post" action="' . P . '?a=books_send">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '"><button class="btn" style="width:100%"' . (setting('acc_email') === '' ? ' disabled' : '') . '>' . ($sent ? 'Wyślij ponownie' : 'Wyślij do księgowej') . ' ' . icon('arrow') . '</button></form>'
-        . ($sent ? '<span class="ok-t" style="font-size:14px">Wysłana ' . e(date('d.m.Y H:i', strtotime($sent))) . ' do ' . e(setting('acc_email')) . '</span>' : '') . '</section>'
+        . (function () use ($ym, $sent) {
+            if (!$sent) return '<form method="post" action="' . P . '?a=books_send">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '"><button class="btn" style="width:100%"' . (setting('acc_email') === '' ? ' disabled' : '') . '>Wyślij do księgowej ' . icon('arrow') . '</button></form>';
+            [$ns, $nc] = books_new($ym); $n = count($ns) + count($nc); $sup = setting('acc_sup_' . $ym);
+            return ($n ? '<form method="post" action="' . P . '?a=books_send">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '"><button class="btn" style="width:100%">Doślij ' . $n . ' ' . plural($n, 'nowy dokument', 'nowe dokumenty', 'nowych dokumentów') . ' ' . icon('arrow') . '</button></form><span class="mut" style="font-size:13px">Doszły po wysłaniu paczki: ' . e(implode(', ', array_merge(array_map(fn($i) => (string)$i['number'], $ns), array_map(fn($c) => trim((string)($c['number'] ?: $c['fname'])), $nc)))) . '</span>' : '')
+                . '<span class="ok-t" style="font-size:14px">' . icon('check') . ' Wysłana ' . e(date('d.m.Y H:i', strtotime($sent))) . ' do ' . e(setting('acc_email')) . ($sup ? ', uzupełnienie ' . e(date('d.m H:i', strtotime($sup))) : '') . '</span>'
+                . ($n ? '' : '<span class="mut" style="font-size:13px">Jeśli dojdzie jeszcze jakaś faktura za ten miesiąc, pojawi się tu przycisk, żeby ją dosłać.</span>');
+        })() . '</section>'
         . '<section class="card pad sec" id="acc"><h2>Wysyłka co miesiąc</h2><form class="inl" method="post" action="' . P . '?a=books_settings">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '">'
         . '<label class="f">E-mail księgowej<input class="in" type="email" name="acc_email" value="' . e(setting('acc_email')) . '" placeholder="biuro@ksiegowa.pl"></label>'
         . '<label class="check"><input type="checkbox" name="acc_auto" value="1"' . (setting('acc_auto') === '1' ? ' checked' : '') . '> Wysyłaj paczkę za poprzedni miesiąc automatycznie</label>'
