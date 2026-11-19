@@ -55,6 +55,12 @@ function migrate(PDO $pdo): void {
         $pdo->exec('ALTER TABLE invoices ADD COLUMN book_ym TEXT');
         $pdo->exec('UPDATE invoices SET book_ym = substr(COALESCE(issue_date, created), 1, 7)');
     }
+    // Wezwanie do zapłaty 14 dni po terminie, ostateczne po kolejnych 7 dniach na wpłatę.
+    if ($pdo->query("SELECT v FROM settings WHERE k = 'mig_w1_14'")->fetchColumn() !== '1') {
+        $pdo->exec("UPDATE settings SET v = '14' WHERE k = 'r_w1_days' AND CAST(v AS INTEGER) < 14");
+        $pdo->exec("UPDATE settings SET v = '21' WHERE k = 'r_w2_days' AND CAST(v AS INTEGER) < 21");
+        $pdo->exec("INSERT OR REPLACE INTO settings (k, v) VALUES ('mig_w1_14', '1')");
+    }
     $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS inv_number ON invoices(number) WHERE number IS NOT NULL');
     $pdo->exec('CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY, invoice_id INTEGER NOT NULL, kind TEXT NOT NULL, msg TEXT, at TEXT NOT NULL)');
     $pdo->exec('CREATE TABLE IF NOT EXISTS reminders (invoice_id INTEGER NOT NULL, kind TEXT NOT NULL, sent_at TEXT NOT NULL, PRIMARY KEY (invoice_id, kind))');
@@ -94,8 +100,8 @@ const DEFAULTS = [
     'mail_copy' => '1',
     'r_before_on' => '1', 'r_before_days' => '3',
     'r_due_on' => '1',
-    'r_w1_on' => '1', 'r_w1_days' => '3',
-    'r_w2_on' => '1', 'r_w2_days' => '10',
+    'r_w1_on' => '1', 'r_w1_days' => '14',
+    'r_w2_on' => '1', 'r_w2_days' => '21',
     'interest_rate' => '13,75',
     'footer_note' => 'Dziękujemy za współpracę.',
 ];
