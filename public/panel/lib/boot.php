@@ -39,7 +39,7 @@ function migrate(PDO $pdo): void {
         sent_at TEXT, viewed_at TEXT, declared_at TEXT, paid_at TEXT, paid_amount INTEGER, paid_method TEXT,
         ksef TEXT, reminders INTEGER NOT NULL DEFAULT 1, created TEXT NOT NULL, updated TEXT NOT NULL)');
     $cols = array_column($pdo->query('PRAGMA table_info(invoices)')->fetchAll(PDO::FETCH_ASSOC), 'name');
-    foreach (['currency' => "TEXT NOT NULL DEFAULT 'PLN'", 'lang' => "TEXT NOT NULL DEFAULT 'pl'", 'recurring' => 'INTEGER NOT NULL DEFAULT 0', 'source' => 'TEXT'] as $c => $def)
+    foreach (['currency' => "TEXT NOT NULL DEFAULT 'PLN'", 'lang' => "TEXT NOT NULL DEFAULT 'pl'", 'recurring' => 'INTEGER NOT NULL DEFAULT 0', 'source' => 'TEXT', 'ksef_state' => 'TEXT', 'ksef_session' => 'TEXT', 'ksef_ref' => 'TEXT', 'ksef_hash' => 'TEXT', 'ksef_error' => 'TEXT', 'ksef_at' => 'TEXT', 'ksef_env' => 'TEXT'] as $c => $def)
         if (!in_array($c, $cols, true)) $pdo->exec("ALTER TABLE invoices ADD COLUMN $c $def");
     if (!in_array('country', array_column($pdo->query('PRAGMA table_info(clients)')->fetchAll(PDO::FETCH_ASSOC), 'name'), true)) $pdo->exec('ALTER TABLE clients ADD COLUMN country TEXT');
     if (!in_array('book_ym', $cols, true)) {
@@ -61,6 +61,10 @@ const DEFAULTS = [
     'seller_phone' => '534 154 230',
     'bank_name' => '',
     'bank_swift' => '',
+    'ksef_env' => 'prod',
+    'ksef_token' => '',
+    'ksef_auto' => '1',
+    'zw_basis' => '',
     'bank_account' => '',
     'place' => 'Rzeszów',
     'term_days' => '7',

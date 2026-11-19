@@ -5,6 +5,7 @@ declare(strict_types=1);
 require __DIR__ . '/lib/boot.php';
 require __DIR__ . '/lib/doc.php';
 require __DIR__ . '/lib/reminders.php';
+require_once __DIR__ . '/lib/ksef.php';
 
 security_headers();
 header('Cache-Control: no-store');
@@ -62,6 +63,7 @@ if ($post) {
             $inv = must_invoice($id);
             if ($inv['status'] !== 'issued' && $inv['status'] !== 'paid') { flash('!Najpierw wystaw fakturę.'); redirect(P . '?a=view&id=' . $id); }
             if (trim((string)($inv['buyer']['email'] ?? '')) === '') { flash('!Dodaj e-mail klienta, żeby wysłać fakturę.'); redirect(P . '?a=edit&id=' . $id); }
+            if (ksef_required($inv)) { $kr = ksef_try($inv); if ($kr['state'] !== 'accepted') { flash('!' . $kr['msg'] . ' Mail do klienta wyślemy, gdy KSeF nada numer.'); redirect(P . '?a=view&id=' . $id); } $inv = invoice_by_id($id); }
             if (send_invoice_mail($inv, 'new')) {
                 db()->prepare('UPDATE invoices SET sent_at = COALESCE(sent_at, ?), updated = ? WHERE id = ?')->execute([now(), now(), $id]);
                 flash('Faktura wysłana do ' . $inv['buyer']['email'] . '.');
@@ -106,6 +108,26 @@ if ($post) {
                 flash($inv['status'] === 'draft' ? 'Szkic usunięty.' : 'Faktura ' . $inv['number'] . ' usunięta. Ten numer wróci do użycia.');
             }
             redirect(P);
+        case 'ksef_send':
+            $inv = must_invoice($id);
+            if (!in_array($inv['status'], ['issued', 'paid'], true) || ($inv['ksef_state'] ?? '') === 'accepted' || !empty($inv['ksef'])) redirect(P . '?a=view&id=' . $id);
+            $kr = ksef_try($inv);
+            flash(($kr['state'] === 'accepted' ? '' : ($kr['state'] === 'pending' ? '' : '!')) . $kr['msg']);
+            redirect(P . '?a=view&id=' . $id);
+        case 'ksef_poll':
+            $inv = must_invoice($id);
+            try { $kr = ksef_poll($id, 3); flash(($kr['state'] === 'rejected' ? '!' : '') . $kr['msg']); } catch (Throwable $e) { flash('!' . $e->getMessage()); }
+            redirect(P . '?a=view&id=' . $id);
+        case 'ksef_check':
+            try { flash(ksef_check()); } catch (Throwable $e) { flash('!' . $e->getMessage()); }
+            redirect(P . '?a=settings#ksef');
+        case 'ksef_xml':
+            $inv = must_invoice($id);
+            try { $xml = ksef_xml($inv); } catch (Throwable $e) { flash('!' . $e->getMessage()); redirect(P . '?a=view&id=' . $id); }
+            $f = CV_DATA . '/ksef-' . $id . '.xml';
+            header('Content-Type: application/xml; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . str_replace('.pdf', '.xml', invoice_pdf_name($inv)) . '"');
+            echo is_file($f) && ($inv['ksef_state'] ?? '') !== '' ? file_get_contents($f) : $xml; exit;
         case 'ksef':
             must_invoice($id);
             $k = trim(mb_substr((string)($_POST['ksef'] ?? ''), 0, 80));
@@ -135,7 +157,13 @@ if ($post) {
         case 'settings_save':
             $keys = ['seller_name', 'seller_addr1', 'seller_addr2', 'seller_nip', 'seller_email', 'seller_phone', 'bank_name', 'bank_account', 'bank_swift', 'place', 'term_days', 'mail_from', 'mail_reply', 'r_before_days', 'r_w1_days', 'r_w2_days', 'interest_rate', 'footer_note'];
             foreach ($keys as $k) if (isset($_POST[$k])) set_setting($k, trim(mb_substr((string)$_POST[$k], 0, 300)));
-            foreach (['mail_copy', 'r_before_on', 'r_due_on', 'r_w1_on', 'r_w2_on'] as $k) set_setting($k, !empty($_POST[$k]) ? '1' : '0');
+            if (!empty($_POST['_main'])) foreach (['mail_copy', 'r_before_on', 'r_due_on', 'r_w1_on', 'r_w2_on'] as $k) set_setting($k, !empty($_POST[$k]) ? '1' : '0');
+            if (!empty($_POST['_ksef'])) set_setting('ksef_auto', !empty($_POST['ksef_auto']) ? '1' : '0');
+            if (isset(KSEF_ENV[(string)($_POST['ksef_env'] ?? '')]) && $_POST['ksef_env'] !== setting('ksef_env')) { set_setting('ksef_env', (string)$_POST['ksef_env']); set_setting('ksef_session', ''); }
+            if (isset($_POST['zw_basis'])) set_setting('zw_basis', trim(mb_substr((string)$_POST['zw_basis'], 0, 200)));
+            $tok = trim((string)($_POST['ksef_token'] ?? ''));
+            if ($tok !== '') { set_setting('ksef_token', $tok); set_setting('ksef_session', ''); }
+            if (!empty($_POST['ksef_token_clear'])) { set_setting('ksef_token', ''); set_setting('ksef_session', ''); }
             $acc = nrb_digits((string)($_POST['bank_account'] ?? ''));
             if ($acc !== '' && strlen($acc) !== 26) { flash('!Numer konta powinien mieć 26 cyfr. Sprawdź go jeszcze raz.'); redirect(P . '?a=settings'); }
             $ns = (int)($_POST['next_seq'] ?? 0);
@@ -183,7 +211,7 @@ switch ($a) {
     case 'view': view_invoice(must_invoice((int)($_GET['id'] ?? 0)));
     case 'clients': view_clients();
     case 'settings': view_settings();
-    default: run_reminders(); run_recurring(); view_list();
+    default: run_reminders(); run_recurring(); ksef_poll_pending(); view_list();
 }
 
 // =====================================================================
@@ -266,13 +294,25 @@ function save_invoice(?int $id, array $p, string $act): array {
         log_event($id, 'issue', 'Wystawiono fakturę ' . $num);
     }
     $pdo->commit();
+    $kmsg = '';
+    if ($act !== 'draft') {
+        $inv = invoice_by_id($id);
+        if (ksef_required($inv) && setting('ksef_auto') === '1') {
+            $kr = ksef_try($inv);
+            $kmsg = ' ' . $kr['msg'];
+            if ($kr['state'] !== 'accepted') {
+                flash('!Faktura ' . $inv['number'] . ' zapisana.' . $kmsg . ($act === 'send' ? ' Mail do klienta wyślemy, gdy KSeF nada numer.' : ''));
+                return [$id, null];
+            }
+        }
+    }
     if ($act === 'send') {
         $inv = invoice_by_id($id);
         if (send_invoice_mail($inv, 'new')) {
             db()->prepare('UPDATE invoices SET sent_at = COALESCE(sent_at, ?) WHERE id = ?')->execute([now(), $id]);
-            flash('Faktura ' . $inv['number'] . ' wystawiona i wysłana do ' . $buyer['email'] . '.');
+            flash('Faktura ' . $inv['number'] . ' wystawiona i wysłana do ' . $buyer['email'] . '.' . $kmsg);
         } else flash('!Faktura wystawiona, ale maila nie udało się wysłać. Spróbuj przyciskiem „Wyślij”.');
-    } elseif ($act === 'issue') flash('Faktura wystawiona.');
+    } elseif ($act === 'issue') flash('Faktura wystawiona.' . $kmsg);
     else flash('Szkic zapisany.');
     return [$id, null];
 }
@@ -280,7 +320,7 @@ function save_invoice(?int $id, array $p, string $act): array {
 /** Wystawioną fakturę można usunąć tylko, gdy ma ostatni numer w miesiącu (bez dziury w numeracji) i nie jest opłacona. */
 function can_delete(array $inv): bool {
     if ($inv['status'] === 'draft') return true;
-    if ($inv['status'] === 'paid' || empty($inv['ym'])) return false;
+    if ($inv['status'] === 'paid' || empty($inv['ym']) || in_array((string)($inv['ksef_state'] ?? ''), ['accepted', 'pending'], true) || !empty($inv['ksef'])) return false;
     $s = db()->prepare('SELECT MAX(seq) FROM invoices WHERE ym = ?'); $s->execute([$inv['ym']]);
     return (int)$s->fetchColumn() === (int)$inv['seq'];
 }
@@ -323,7 +363,21 @@ function import_invoices(array $list): array {
     return [$ok, $skip];
 }
 
-function can_edit(array $inv): bool { return $inv['status'] === 'draft' || ($inv['status'] === 'issued' && empty($inv['sent_at'])); }
+function can_edit(array $inv): bool { return $inv['status'] === 'draft' || ($inv['status'] === 'issued' && empty($inv['sent_at']) && !in_array((string)($inv['ksef_state'] ?? ''), ['accepted', 'pending'], true)); }
+
+/** Czy faktura powinna trafić do KSeF: jest token, faktura wystawiona w panelu i nie ma jeszcze numeru KSeF. */
+function ksef_required(array $inv): bool {
+    return ksef_enabled() && in_array($inv['status'], ['issued', 'paid'], true) && empty($inv['ksef']) && ($inv['ksef_state'] ?? '') !== 'accepted' && empty($inv['source']);
+}
+/** Wysyłka do KSeF z obsługą błędów. */
+function ksef_try(array $inv): array {
+    try { return ksef_send($inv); }
+    catch (Throwable $e) {
+        db()->prepare("UPDATE invoices SET ksef_state = CASE WHEN ksef_state = 'pending' THEN 'pending' ELSE 'error' END, ksef_error = ?, updated = ? WHERE id = ?")->execute([$e->getMessage(), now(), $inv['id']]);
+        log_event((int)$inv['id'], 'error', 'KSeF: ' . $e->getMessage());
+        return ['state' => 'error', 'ksef' => null, 'msg' => 'Nie udało się wysłać do KSeF: ' . $e->getMessage()];
+    }
+}
 
 function nip_lookup(string $nip): void {
     header('Content-Type: application/json; charset=utf-8');
@@ -645,8 +699,22 @@ function view_invoice(array $inv): never {
             . $f('auto', $inv['reminders'] ? 'Wyłącz dla tej faktury' : 'Włącz dla tej faktury', 'link', $inv['reminders'] ? '' : '<input type="hidden" name="on" value="1">')
             . (empty($inv['sent_at']) ? '<span class="mut" style="font-size:13px">Ruszą po wysłaniu faktury do klienta.</span>' : '') . '</div>';
     }
-    $ksef = $inv['status'] !== 'draft' ? '<div class="card pad sec"><h2>KSeF</h2><form class="inl" method="post" action="' . P . '?a=ksef">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '">'
-        . '<label class="f">Numer KSeF faktury<input class="in" name="ksef" value="' . e((string)$inv['ksef']) . '" placeholder="po wysłaniu do KSeF"></label><button class="btn ghost sm">Zapisz</button></form></div>' : '';
+    $ksef = '';
+    if ($inv['status'] !== 'draft') {
+        $ks = (string)($inv['ksef_state'] ?? '');
+        $kbody = '';
+        if (!empty($inv['ksef'])) $kbody .= '<div class="kv"><div><span>Status</span><span class="chip paid">Przyjęta</span></div><div><span>Numer KSeF</span></div><div><b style="font-weight:500;word-break:break-all">' . e((string)$inv['ksef']) . '</b></div></div>';
+        elseif ($ks === 'pending') $kbody .= '<div class="kv"><div><span>Status</span><span class="chip today">Przetwarzanie</span></div></div>' . $f('ksef_poll', 'Sprawdź numer KSeF', 'btn ghost sm');
+        elseif ($ks === 'rejected' || $ks === 'error') $kbody .= '<div class="kv"><div><span>Status</span><span class="chip late">' . ($ks === 'rejected' ? 'Odrzucona' : 'Błąd wysyłki') . '</span></div></div><span class="late-t" style="font-size:13px">' . e((string)$inv['ksef_error']) . '</span>';
+        if (empty($inv['ksef']) && $ks !== 'pending' && in_array($inv['status'], ['issued', 'paid'], true)) {
+            if (ksef_enabled()) $kbody .= $f('ksef_send', $ks === '' ? 'Wyślij do KSeF' : 'Wyślij do KSeF ponownie', 'btn' . ($ks === '' && empty($inv['source']) ? '' : ' ghost') . ' sm')
+                . (!empty($inv['source']) ? '<span class="mut" style="font-size:13px">Faktura zaimportowana. Wyślij ją tylko wtedy, gdy nie trafiła do KSeF z innego programu.</span>' : '');
+            else $kbody .= '<span class="mut" style="font-size:13px">Wpisz token KSeF w <a href="' . P . '?a=settings#ksef">ustawieniach</a>, a faktury będą trafiać do KSeF przy wystawieniu.</span>';
+            $kbody .= '<details class="more"><summary>Mam już numer KSeF</summary><form class="inl" method="post" action="' . P . '?a=ksef">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '"><label class="f">Numer KSeF faktury<input class="in" name="ksef" value="' . e((string)$inv['ksef']) . '"></label><button class="btn ghost sm">Zapisz</button></form></details>';
+        }
+        $kbody .= '<a class="link" href="' . P . '?a=ksef_xml&id=' . $id . '" style="font-size:11px">Pobierz XML (FA3)</a>';
+        $ksef = '<div class="card pad sec" id="ksef"><h2>KSeF</h2>' . $kbody . '</div>';
+    }
     $danger = '';
     if ($inv['status'] === 'draft') $danger = $f('delete', 'Usuń szkic', 'link', '');
     elseif (can_delete($inv)) $danger = '<details class="more"><summary>Usuń fakturę</summary><span class="mut" style="font-size:13px;display:block;margin-bottom:10px">To ostatni numer w miesiącu, więc możesz go usunąć bez dziury w numeracji, np. po fakturze testowej. Jeśli klient już ją dostał, lepiej wystaw korektę.</span>' . $f('delete', 'Usuń fakturę ' . $inv['number'], 'btn danger') . '</details>';
@@ -698,7 +766,7 @@ function view_settings(): never {
     $in = fn($k, $l, $t = 'text', $x = '') => '<label class="f">' . $l . '<input class="in" type="' . $t . '" name="' . $k . '" value="' . $v($k) . '"' . $x . '></label>';
     [, $nextNum] = next_number(date('Y-m'));
     $last = (int)setting('last_cron');
-    $body = '<form class="sec" method="post" action="' . P . '?a=settings_save">' . csrf_field()
+    $body = '<form class="sec" method="post" action="' . P . '?a=settings_save">' . csrf_field() . '<input type="hidden" name="_main" value="1">'
         . '<div class="cols"><div class="wide sec">'
         . '<section class="card pad sec"><h2>Sprzedawca</h2><div class="grid2">' . $in('seller_name', 'Nazwa') . $in('seller_nip', 'NIP') . $in('seller_addr1', 'Ulica i numer') . $in('seller_addr2', 'Kod pocztowy i miasto') . $in('seller_email', 'E-mail na fakturze', 'email') . $in('seller_phone', 'Telefon') . '</div></section>'
         . '<section class="card pad sec"><h2>Konto bankowe</h2><div class="grid2">' . $in('bank_account', 'Numer konta (26 cyfr)', 'text', ' inputmode="numeric" placeholder="00 0000 0000 0000 0000 0000 0000"') . $in('bank_name', 'Nazwa banku') . $in('bank_swift', 'SWIFT / BIC (dla klientów zagranicznych)') . '</div>'
@@ -719,6 +787,16 @@ function view_settings(): never {
         . '<section class="card pad sec"><h2>Wysyłka maili</h2>' . $in('mail_from', 'Nadawca', 'email') . $in('mail_reply', 'Odpowiedzi i kopie na', 'email')
         . '<label class="check"><input type="checkbox" name="mail_copy" value="1"' . $ch('mail_copy') . '> Wysyłaj mi ukrytą kopię każdego maila</label></section>'
         . '<button class="btn">Zapisz ustawienia</button></aside></div></form>'
+        . '<section class="card pad sec" id="ksef"><h2>KSeF</h2>'
+        . '<span class="mut" style="font-size:14px">Panel łączy się z KSeF tokenem z Aplikacji Podatnika (uprawnienia: wystawianie i przeglądanie faktur). Token zapisujemy tylko w bazie panelu na serwerze.</span>'
+        . '<form class="sec" method="post" action="' . P . '?a=settings_save">' . csrf_field()
+        . '<div class="grid2"><label class="f">Środowisko<select class="in" name="ksef_env">' . implode('', array_map(fn($k) => '<option value="' . $k . '"' . (setting('ksef_env') === $k ? ' selected' : '') . '>' . ucfirst(KSEF_ENV[$k]['name']) . '</option>', array_keys(KSEF_ENV))) . '</select></label>'
+        . '<label class="f">Token KSeF' . (setting('ksef_token') !== '' ? ' (zapisany, wpisz nowy, aby zmienić)' : '') . '<input class="in" type="password" name="ksef_token" autocomplete="off" placeholder="' . (setting('ksef_token') !== '' ? '••••••••••••' : 'wklej token') . '"></label></div>'
+        . '<label class="check"><input type="checkbox" name="ksef_auto" value="1"' . (setting('ksef_auto') === '1' ? ' checked' : '') . '> Wysyłaj do KSeF automatycznie przy wystawieniu faktury</label>'
+        . '<label class="f">Podstawa zwolnienia dla stawki „zw.” (jeśli używasz)<input class="in" name="zw_basis" value="' . e(setting('zw_basis')) . '" placeholder="np. art. 113 ust. 1 ustawy o VAT"></label>'
+        . '<input type="hidden" name="_ksef" value="1">'
+        . '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn ghost">Zapisz KSeF</button>' . (setting('ksef_token') !== '' ? '<label class="check" style="font-size:13px"><input type="checkbox" name="ksef_token_clear" value="1"> Usuń zapisany token</label>' : '') . '</div></form>'
+        . (setting('ksef_token') !== '' ? '<form method="post" action="' . P . '?a=ksef_check">' . csrf_field() . '<button class="link">Sprawdź połączenie z KSeF</button></form>' : '') . '</section>'
         . '<section class="card pad sec" id="import"><h2>Import faktur</h2><span class="mut" style="font-size:14px">Wgraj plik z fakturami wystawionymi wcześniej (przygotowuję go z PDF-ów). Numery zostają bez zmian, a faktury, które już są w panelu, zostaną pominięte.</span>'
         . '<form class="hrow" method="post" action="' . P . '?a=import" enctype="multipart/form-data" style="justify-content:flex-start;flex-wrap:wrap">' . csrf_field() . '<input class="in" type="file" name="file" accept=".json,application/json" required style="max-width:360px;padding-top:10px"><button class="btn ghost">Importuj</button></form></section>'
         . '<div class="cols"><section class="card pad sec wide"><h2>Hasło</h2><form class="grid3" method="post" action="' . P . '?a=password" style="align-items:end">' . csrf_field()

@@ -2,6 +2,8 @@
 // Dokument faktury w stylu wzoru Creative Vision. Jeden szablon: podgląd w panelu, PDF (dompdf) i strona klienta.
 declare(strict_types=1);
 
+require_once __DIR__ . '/ksef.php';
+
 /**
  * @param string $asset  prefiks ścieżek do grafik: '/panel/assets/' w przeglądarce, ścieżka plikowa w PDF
  */
@@ -61,7 +63,8 @@ function invoice_doc(array $inv, string $asset, bool $pdf = false, bool $online 
         . ($online && $inv['status'] !== 'draft' && !empty($inv['token']) ? '<table class="online"><tr><td class="ol">' . $L('Fakturę, PDF i dane do przelewu masz też online.', 'View the invoice online.') . '</td><td class="r"><a class="obtn" href="' . e(pay_url($inv)) . '">' . ($bi ? 'View invoice online' : 'Zobacz fakturę online') . '</a></td></tr></table>' : '')
         . ($np ? '<div class="nt"><div class="g">' . $L('Odwrotne obciążenie', 'Reverse charge') . '</div>Do rozliczenia podatku VAT zobowiązany jest nabywca usługi (odwrotne obciążenie).' . ($bi ? '<br><span class="en2">VAT to be accounted for by the recipient of the service (reverse charge).</span>' : '') . '</div>' : '')
         . (trim((string)$inv['notes']) !== '' ? '<div class="nt"><div class="g">' . $L('Uwagi', 'Notes') . '</div>' . nl2br(e((string)$inv['notes'])) . '</div>' : '')
-        . ($ksef !== '' ? '<div class="nt"><div class="g">Numer KSeF</div>' . e($ksef) . '</div>' : '')
+        . (($qrUrl = ksef_qr_url($inv)) ? '<table class="qr"><tr><td class="qi"><img src="' . qr_png_datauri($qrUrl, 4) . '" alt="Kod QR KSeF"><div class="ql">' . e($ksef !== '' ? $ksef : 'OFFLINE') . '</div></td><td class="qt"><div class="g">' . $L('Weryfikacja w KSeF', 'KSeF verification') . '</div>' . ($ksef !== '' ? $L('Numer KSeF', 'KSeF number') . ': <strong>' . e($ksef) . '</strong><br>' : '') . '<span class="g">' . $L('Zeskanuj kod, aby sprawdzić fakturę w Krajowym Systemie e-Faktur.', 'Scan the code to verify the invoice in the National e-Invoicing System.') . '</span></td></tr></table>'
+            : ($ksef !== '' ? '<div class="nt"><div class="g">Numer KSeF</div>' . e($ksef) . '</div>' : ''))
         . ($pdf ? '' : $foot)
         . '</div>';
     if (!$pdf) return '<style>' . $css . '</style>' . $h;
@@ -88,7 +91,7 @@ function invoice_css(string $asset): string {
         . '.fv .pay{background:#0B0B0B;color:#fff}.fv .pay td{padding:20px 22px}.fv .pay .pb-l{width:48%}.fv .lbl{color:#BDBDBD;font-size:9pt;margin-top:6px}.fv .lbl:first-child{margin-top:0}.fv .big{font-size:24pt;font-weight:500;line-height:1.15;margin:2px 0 6px}.fv .pay .sm{color:#BDBDBD;font-size:9pt}.fv .v{font-size:10.5pt}.fv .v.b{font-weight:500;letter-spacing:.02em}'
         . '.fv .online{margin-top:14px}.fv .online td{vertical-align:middle}.fv .online .ol{font-size:9.5pt;color:#5F5F5F}.fv .obtn{display:inline-block;padding:9px 16px;border:1px solid #0B0B0B;color:#0B0B0B;text-decoration:none;font-size:8.5pt;font-weight:500;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}.fv .obtn:hover{background:#0B0B0B;color:#fff}'
         . '.fv .nt{margin-top:14px;padding-top:10px;border-top:1px solid #E6E4DF;font-size:10pt}.fv .nt .g{font-size:9pt;margin-bottom:3px}'
-        . '.fv .en{color:#8A8A8A;font-weight:400}.fv .en2{color:#6B6B6B}.fv .ft{margin-top:22px;border-top:1px solid #E6E4DF}.fv .ft td{padding-top:12px;font-size:9pt}.fv .ft .ty{font-size:11pt;font-weight:500;color:#0B0B0B;vertical-align:bottom}';
+        . '.fv .qr{margin-top:14px;border-top:1px solid #E6E4DF}.fv .qr td{padding-top:12px;vertical-align:top}.fv .qr .qi{width:120px;padding-right:16px}.fv .qr img{width:110px;height:110px;display:block}.fv .qr .ql{font-size:6.5pt;color:#5F5F5F;margin-top:2px;word-break:break-all;width:110px;text-align:center}.fv .qr .qt{font-size:9.5pt}.fv .qr strong{font-weight:500}.fv .en{color:#8A8A8A;font-weight:400}.fv .en2{color:#6B6B6B}.fv .ft{margin-top:22px;border-top:1px solid #E6E4DF}.fv .ft td{padding-top:12px;font-size:9pt}.fv .ft .ty{font-size:11pt;font-weight:500;color:#0B0B0B;vertical-align:bottom}';
 }
 
 /** PDF jako string. */
