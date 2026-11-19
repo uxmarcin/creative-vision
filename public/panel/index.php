@@ -112,7 +112,7 @@ if ($post) {
     $id = (int)($_POST['id'] ?? 0);
     switch ($a) {
         case 'quote_save': case 'quote_send': case 'quote_status': case 'quote_invoice': case 'quote_delete': quote_post($a);
-        case 'lead_save': case 'lead_stage': case 'lead_next': case 'lead_delete': case 'lead_from_mail': case 'tender_lead': case 'tender_hide': case 'tenders_fetch': case 'tender_settings': case 'scan': case 'lead_rescan': leads_post($a);
+        case 'lead_save': case 'lead_stage': case 'lead_next': case 'lead_delete': case 'lead_from_mail': case 'tender_lead': case 'tender_hide': case 'lead_move': case 'tenders_fetch': case 'tender_settings': case 'scan': case 'lead_rescan': leads_post($a);
         case 'push_sub':
             push_migrate(); header('Content-Type: application/json');
             $ep = (string)($_POST['endpoint'] ?? '');
