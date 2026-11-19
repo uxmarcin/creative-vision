@@ -504,6 +504,20 @@ function nbp_hist(string $cur, int $days): array {
     if ($p) set_setting($k, json_encode(['p' => $p, 'at' => time()])); elseif (!empty($c['p'])) return $c['p'];
     return $p;
 }
+/** Kafelek kursu jak w aplikacjach giełdowych: kurs, zmiana w miesiąc i mały wykres. */
+function fx_ticker(string $cur): string {
+    $h = nbp_hist($cur, 30); if (count($h) < 2) return '';
+    $rs = array_column($h, 1); $last = end($rs); $first = $rs[0]; $ch = ($last - $first) / $first * 100; $up = $last >= $first;
+    $mn = min($rs); $mx = max($rs); $sp = ($mx - $mn) ?: 1; $n = count($rs) - 1; $pts = [];
+    foreach ($rs as $k => $r) $pts[] = round($k / $n * 120, 1) . ',' . round(2 + (1 - ($r - $mn) / $sp) * 32, 1);
+    $line = 'M' . implode(' L', $pts);
+    $flag = ['USD' => '🇺🇸', 'EUR' => '🇪🇺', 'GBP' => '🇬🇧'][$cur] ?? '';
+    [$a, $b] = explode(',', number_format($last, 4, ',', ''));
+    return '<div class="kpi fxt ' . ($up ? 'up' : 'dn') . '" title="Średni kurs NBP z ' . e(pl_date($h[count($h) - 1][0])) . '"><span class="t">' . e($cur) . '/PLN <span class="fxt-s">NBP</span></span>'
+        . '<span class="v">' . $a . '<span class="gr">,' . $b . '</span></span>'
+        . '<span class="fxt-r"><span class="fxt-p">' . ($up ? '↑' : '↓') . ' ' . number_format(abs($ch), 2, ',', '') . '%</span><span class="fxt-m">1 mies.</span></span>'
+        . '<svg class="fxt-g" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true"><path d="' . $line . ' L120,36 L0,36 Z" class="a"/><path d="' . $line . '" class="l"/></svg></div>';
+}
 /** Kurs NBP z ostatniego dnia roboczego miesiąca (weekend lub święto: dzień roboczy wcześniej). Dla trwającego miesiąca kurs bieżący, 'live' => true. */
 function nbp_rate_month_end(string $cur, string $ym): ?array {
     $next = date('Y-m-d', strtotime($ym . '-01 +1 month'));
