@@ -10,6 +10,7 @@ require_once __DIR__ . '/lib/imap.php';
 require_once __DIR__ . '/lib/smtp.php';
 require_once __DIR__ . '/lib/sms.php';
 
+if (($_GET['a'] ?? '') === 'sw') { header('Content-Type: application/javascript; charset=utf-8'); header('Cache-Control: no-cache'); readfile(__DIR__ . '/sw.js'); exit; }
 security_headers();
 header('Cache-Control: no-store');
 start_session();
@@ -43,6 +44,7 @@ if (!user_id()) {
         $u = $s->fetch();
         if ($u && password_verify((string)($_POST['pass'] ?? ''), $u['pass'])) {
             session_regenerate_id(true); $_SESSION['uid'] = (int)$u['id'];
+            if (!empty($_POST['remember'])) remember_session();
             if (password_needs_rehash($u['pass'], PASSWORD_DEFAULT)) db()->prepare('UPDATE users SET pass = ? WHERE id = ?')->execute([password_hash((string)$_POST['pass'], PASSWORD_DEFAULT), $u['id']]);
             redirect(P);
         }
@@ -520,7 +522,10 @@ function head(string $title): string {
     $v = substr((string)@md5_file(__DIR__ . '/assets/panel.css'), 0, 10);
     return '<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
         . '<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0B0B0B"><title>' . e($title) . ' · Faktury Creative Vision</title>'
-        . '<link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="' . P . '/assets/panel.css?v=' . $v . '"></head>';
+        . '<link rel="icon" href="/favicon.ico"><link rel="manifest" href="' . P . '/manifest.webmanifest"><link rel="apple-touch-icon" href="' . P . '/assets/apple-touch-icon.png">'
+        . '<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="apple-mobile-web-app-title" content="Faktury CV">'
+        . '<link rel="stylesheet" href="' . P . '/assets/panel.css?v=' . $v . '">'
+        . '<script>if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("/panel?a=sw",{scope:"/panel"}).catch(function(){})});</script></head>';
 }
 
 function flash_html(): string {
@@ -551,7 +556,7 @@ function auth_page(string $title, string $lead, string $action, bool $setup): ne
         . '<h1>' . e($title) . '</h1><p>' . e($lead) . '</p>' . flash_html() . csrf_field()
         . '<label class="f">E-mail<input class="in" type="email" name="email" autocomplete="username" required></label>'
         . '<label class="f">Hasło' . ($setup ? ' (min. 10 znaków)' : '') . '<input class="in" type="password" name="pass" autocomplete="' . ($setup ? 'new-password' : 'current-password') . '" minlength="' . ($setup ? 10 : 1) . '" required></label>'
-        . ($setup ? '<label class="f">Kod konfiguracji<input class="in" name="code" autocomplete="off" required></label>' : '')
+        . ($setup ? '<label class="f">Kod konfiguracji<input class="in" name="code" autocomplete="off" required></label>' : '<label class="check"><input type="checkbox" name="remember" value="1" checked> Zapamiętaj mnie na tym urządzeniu (30 dni)</label>')
         . '<button class="btn">' . ($setup ? 'Załóż konto' : 'Zaloguj się') . icon('arrow') . '</button></form></div></body></html>';
     exit;
 }

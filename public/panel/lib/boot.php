@@ -118,10 +118,17 @@ function start_session(): void {
     session_name('cvpanel');
     session_set_cookie_params(['lifetime' => 0, 'path' => '/panel', 'secure' => !empty($_SERVER['HTTPS']) || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'), 'httponly' => true, 'samesite' => 'Lax']);
     ini_set('session.save_path', CV_DATA);
-    ini_set('session.gc_maxlifetime', '43200');
+    ini_set('session.gc_maxlifetime', '2592000');
     session_start();
-    if (isset($_SESSION['uid'], $_SESSION['seen']) && time() - $_SESSION['seen'] > 43200) { $_SESSION = []; session_regenerate_id(true); }
+    $limit = !empty($_SESSION['remember']) ? 2592000 : 43200;
+    if (isset($_SESSION['uid'], $_SESSION['seen']) && time() - $_SESSION['seen'] > $limit) { $_SESSION = []; session_regenerate_id(true); }
     $_SESSION['seen'] = time();
+    if (!empty($_SESSION['remember'])) remember_cookie();
+}
+/** Sesja na 30 dni od ostatniego użycia (aplikacja na telefonie nie wylogowuje po zamknięciu). */
+function remember_session(): void { $_SESSION['remember'] = 1; remember_cookie(); }
+function remember_cookie(): void {
+    setcookie(session_name(), session_id(), ['expires' => time() + 2592000, 'path' => '/panel', 'secure' => !empty($_SERVER['HTTPS']) || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'), 'httponly' => true, 'samesite' => 'Lax']);
 }
 function user_id(): ?int { return isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : null; }
 function has_users(): bool { return (int)db()->query('SELECT COUNT(*) FROM users')->fetchColumn() > 0; }
