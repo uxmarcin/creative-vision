@@ -62,6 +62,7 @@ function migrate(PDO $pdo): void {
         $pdo->exec("UPDATE clients SET website = 'ingenious.build' WHERE name LIKE '%ngenious%'");
         $pdo->exec("UPDATE clients SET website = '4clubbers.com.pl' WHERE name LIKE '%4Clubbers%'");
     }
+    if (in_array('website', $ccols, true)) $pdo->exec("UPDATE clients SET website = '4clubbers.app', logo = NULL, logo_at = NULL WHERE website = '4clubbers.com.pl'");
     if (!in_array('no_ksef', $ccols, true)) {
         $pdo->exec('ALTER TABLE clients ADD COLUMN no_ksef INTEGER NOT NULL DEFAULT 0');
         $pdo->exec('ALTER TABLE clients ADD COLUMN tpl TEXT');
