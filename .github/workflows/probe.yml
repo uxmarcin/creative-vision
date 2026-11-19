@@ -1,0 +1,14 @@
+name: Probe zrodel leadow
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/probe.yml"]
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - run: |
+          echo "== BZP"; curl -s -m 30 "https://ezamowienia.gov.pl/mo-board/api/v1/notice?NoticeType=ContractNotice&PublicationDateFrom=2026-11-12T00:00:00&PublicationDateTo=2026-11-19T23:59:59&CpvCode=72000000-5&PageSize=3&PageNumber=1" | head -c 3000; echo
+          echo "== BZP2"; curl -s -m 30 -o /dev/null -w "%{http_code}\n" "https://ezamowienia.gov.pl/mo-board/api/v1/notice?NoticeType=ContractNotice&PublicationDateFrom=2026-11-12&PublicationDateTo=2026-11-19&PageSize=3"
+          echo "== TED"; curl -s -m 30 -X POST https://api.ted.europa.eu/v3/notices/search -H 'Content-Type: application/json' -d '{"query":"classification-cpv IN (72000000 72413000 72212000 79342000) AND buyer-country=POL AND publication-date>=20261101","fields":["publication-number","notice-title","buyer-name","deadline-receipt-tender-date-lot","classification-cpv","links","place-of-performance","estimated-value-proc"],"limit":2,"scope":"ACTIVE","paginationMode":"ITERATION"}' | head -c 4000; echo
