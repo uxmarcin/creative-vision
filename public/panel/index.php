@@ -882,7 +882,7 @@ function view_list(): never {
         . fx_ticker((string)(array_key_first($fxOpen) ?: 'USD'))
         . '<div class="kpi"><span class="t">Sprzedaż: ' . e($periodTxt) . '</span>' . ($fxSale && $saleFxOk
             ? '<span class="v">' . money_split($sale + $saleFxPln) . '</span><span class="fxb">' . ($sale ? money($sale) . ' + ' : '') . money($saleFxPln) . ' <span class="fxr">(kurs ' . e(implode(', ', $saleRates)) . ')</span></span>'
-            : '<span class="v">' . money($sale) . '</span>' . $fx($fxSale)) . '<span class="s">' . ($salePf ? 'w tym proforma ' . money($salePf) . ' · ' : '') . 'netto ' . money($saleNet + ($saleFxOk ? $saleFxNet : 0)) . ' · ' . $saleN . ' ' . plural($saleN, 'faktura', 'faktury', 'faktur') . '</span></div>'
+            : '<span class="v">' . money($sale) . '</span>' . $fx($fxSale)) . '<span class="s">' . 'netto ' . money($saleNet + ($saleFxOk ? $saleFxNet : 0)) . ' · ' . $saleN . ' ' . plural($saleN, 'faktura', 'faktury', 'faktur') . '</span></div>'
         . '<div class="kpi"><span class="t">Średni czas zapłaty</span><span class="v">' . ($avg === null ? '–' : $avg . ' ' . plural($avg, 'dzień', 'dni', 'dni')) . '</span><span class="s">od wystawienia do wpłaty</span></div></div></section>';
     $qs = fn(array $o) => P . '?' . http_build_query(array_merge(['a' => 'list', 'y' => $y, 'm' => $m, 't' => $tab], $o));
     $mp = '';
