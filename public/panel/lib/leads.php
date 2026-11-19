@@ -6,10 +6,12 @@ const LEAD_STAGES = ['new' => 'Nowe', 'contact' => 'W kontakcie', 'offer' => 'Wy
 const LEAD_SOURCES = ['reczne' => 'Dodana ręcznie', 'mail' => 'Zapytanie mailowe', 'przetarg' => 'Przetarg', 'skaner' => 'Skaner stron', 'polecenie' => 'Polecenie'];
 const TENDER_CATS = ['www' => 'Strony i portale', 'shop' => 'Sklepy', 'app' => 'Aplikacje i systemy', 'design' => 'Grafika i marketing', 'other' => 'Inne'];
 /** Rodzaj przetargu po tytule i kodach CPV. */
+function tender_title(string $t): string { return preg_match('/^Polska\s*[–-]\s*[^–]{3,120}\s*[–-]\s*(.+)$/u', $t, $m) ? trim($m[1]) : $t; }
 function tender_cat(string $title, string $cpv): string {
-    $t = mb_strtolower($title);
+    $t = mb_strtolower(tender_title($title));
     if (preg_match('/sklep|e-commerce|ecommerce|sprzedaż internetow|platform[a-z]* sprzeda/u', $t)) return 'shop';
     if (preg_match('/stron[a-ząęy]* (www|internetow)|serwis[a-ząęuó]* internetow|portal|\bbip\b|biuletyn informacji|www|witryn|strony internetowej|stron internetowych/u', $t) || str_contains($cpv, '72413')) return 'www';
+    if (preg_match('/doposażeni|sprzęt|dysk(ów|i) |macierz|serwer|komputer|drukark|mebl|wyposażeni/u', $t) && !preg_match('/aplikacj|oprogramowan|stron/u', $t)) return 'other';
     if (preg_match('/aplikacj|oprogramowan|system[a-z]* (informatycz|teleinformatycz|zarządzan|do )|platform|e-usług|wdrożeni[ea] system|licencj|ezd|crm|erp|moduł/u', $t) || preg_match('/48000|72212|7226|7221|7223/', $cpv)) return 'app';
     if (preg_match('/graficzn|identyfikacj|logo|kampani|promocj|reklam|marketing|film|wideo|video|social media|fotograf|album|druk|broszur|ulotk/u', $t) || preg_match('/79822|79342|79341|92111|79961|22100/', $cpv)) return 'design';
     return 'other';
@@ -305,7 +307,7 @@ function view_leads(): never {
             $dl = $t['deadline'] ? ($left === 0 ? 'Oferty dziś do ' . date('H:i', strtotime($t['deadline'])) : 'Oferty do ' . date('d.m H:i', strtotime($t['deadline'])) . ' · za ' . $left . ' ' . plural((int)$left, 'dzień', 'dni', 'dni')) : 'Bez terminu';
             $f = fn($a, $l, $c = 'btn ghost sm') => '<form method="post" action="' . P . '?a=' . $a . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="' . $c . '">' . $l . '</button></form>';
             $tiles .= '<article class="kcard tile"><div class="kc-h"><span class="sc' . ($t['score'] >= 50 ? ' hi' : '') . '">' . (int)$t['score'] . '</span><span class="kc-cat c-' . $t['cat'] . '">' . TENDER_CATS[$t['cat']] . '</span><span class="kc-src" style="margin-left:auto">' . strtoupper($t['src']) . ($t['province'] ? ' · ' . e($t['province']) : '') . '</span></div>'
-                . '<b class="kc-t">' . e($t['title']) . '</b><span class="kc-b">' . e(trim($t['buyer'] . ($t['city'] ? ', ' . $t['city'] : ''))) . '</span>'
+                . '<b class="kc-t">' . e(tender_title((string)$t['title'])) . '</b><span class="kc-b">' . e(trim($t['buyer'] . ($t['city'] ? ', ' . $t['city'] : ''))) . '</span>'
                 . '<span class="kc-d' . ($left !== null && $left <= 3 ? ' late-t' : '') . '">' . e($dl) . '</span>'
                 . '<div class="kc-f">' . $f('tender_lead', icon('target') . ' Do lejka', 'btn sm') . '<a class="btn ghost sm" href="' . e($t['url']) . '" target="_blank" rel="noopener">Ogłoszenie</a>' . $f('tender_hide', 'Pomiń', 'link') . '</div></article>';
         }
