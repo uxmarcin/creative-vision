@@ -5,15 +5,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          B=https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl
-          curl -sSL $B/assets/index-D3ELI812.js -o a.js
-          python3 -c "
-          import re
-          s=open('a.js').read()
-          for k in ['function fetchApi','getFetchData(){return{','currentPage','sortBy:','sort_by','perPage','pageSize','csrf','X-CSRF']:
-            ms=list(re.finditer(re.escape(k),s))
-            print('##',k,len(ms))
-            for m in ms[:2]: print(s[max(0,m.start()-300):m.start()+600].replace(chr(10),' '))
-          "
-          curl -sS -c cj -b cj $B/api/authentication/identity -o /dev/null -w "%{http_code}\n"; cat cj | tail -3
-          for d in '{"page":1}' '{"pagination":{"page":1,"perPage":3}}' '{}' '{"query":"strona internetowa","page":1,"sort":"publicationDate"}'; do curl -sS -b cj -X POST -H 'Content-Type: application/json' -d "$d" "$B/api/announcements/search" | head -c 400; echo; done
+          B=https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl/api/announcements/search
+          for q in "page=1&limit=3&sort=default" "page=1&limit=3&sort=publicationDate" "page=1&limit=3&sort=submissionDeadline" "page=1&limit=3&sort=publicationDate&query=strona%20internetowa" "page=1&limit=3&sort=0" "page=1&limit=3"; do echo "== $q"; curl -sS "$B?$q" | head -c 2500; echo; done
