@@ -4,6 +4,16 @@ declare(strict_types=1);
 
 const LEAD_STAGES = ['new' => 'Nowe', 'contact' => 'W kontakcie', 'offer' => 'Wycena wysłana', 'nego' => 'Negocjacje', 'won' => 'Wygrane', 'lost' => 'Przegrane'];
 const LEAD_SOURCES = ['reczne' => 'Dodana ręcznie', 'mail' => 'Zapytanie mailowe', 'przetarg' => 'Przetarg', 'skaner' => 'Skaner stron', 'polecenie' => 'Polecenie'];
+const TENDER_CATS = ['www' => 'Strony i portale', 'shop' => 'Sklepy', 'app' => 'Aplikacje i systemy', 'design' => 'Grafika i marketing', 'other' => 'Inne'];
+/** Rodzaj przetargu po tytule i kodach CPV. */
+function tender_cat(string $title, string $cpv): string {
+    $t = mb_strtolower($title);
+    if (preg_match('/sklep|e-commerce|ecommerce|sprzedaż internetow|platform[a-z]* sprzeda/u', $t)) return 'shop';
+    if (preg_match('/stron[a-ząęy]* (www|internetow)|serwis[a-ząęuó]* internetow|portal|\bbip\b|biuletyn informacji|www|witryn|strony internetowej|stron internetowych/u', $t) || str_contains($cpv, '72413')) return 'www';
+    if (preg_match('/aplikacj|oprogramowan|system[a-z]* (informatycz|teleinformatycz|zarządzan|do )|platform|e-usług|wdrożeni[ea] system|licencj|ezd|crm|erp|moduł/u', $t) || preg_match('/48000|72212|7226|7221|7223/', $cpv)) return 'app';
+    if (preg_match('/graficzn|identyfikacj|logo|kampani|promocj|reklam|marketing|film|wideo|video|social media|fotograf|album|druk|broszur|ulotk/u', $t) || preg_match('/79822|79342|79341|92111|79961|22100/', $cpv)) return 'design';
+    return 'other';
+}
 const TENDER_KW_DEFAULT = "stron internetow\nstrony internetowej\nserwis internetow\nserwisu internetowego\nportal\nsklep internetow\ne-commerce\naplikacj mobiln\naplikacji internetowej\nplatform\nBIP\nidentyfikacj wizualn\nprojekt graficzn\nUX\nUI\nwww";
 
 function leads_migrate(): void {
@@ -281,21 +291,28 @@ function view_leads(): never {
         $body .= '<section class="card"><nav class="tabs">' . $tabs . '</nav><div class="pad" style="padding-top:14px;padding-bottom:14px"><span class="mut" style="font-size:14px">Przeciągnij kartę do innej kolumny (na telefonie przytrzymaj kartę albo wybierz etap z listy na karcie).</span></div></section>'
             . ($all ? '<div class="kboard" id="kboard" data-move-url="lead_move">' . $board . '</div>' : '<section class="card"><div class="empty">Pusto. Dodaj szansę, zapisz przetarg albo przeskanuj strony firm.</div></section>');
     } elseif ($tab === 'tenders') {
-        $rows = db()->query("SELECT * FROM tenders WHERE status = 'new' AND (deadline IS NULL OR deadline = '' OR deadline >= date('now')) ORDER BY score DESC, deadline LIMIT 150")->fetchAll();
+        $all = db()->query("SELECT * FROM tenders WHERE status = 'new' AND (deadline IS NULL OR deadline = '' OR deadline >= date('now')) ORDER BY score DESC, deadline LIMIT 300")->fetchAll();
+        $cat = (string)($_GET['c'] ?? 'all'); if ($cat !== 'all' && !isset(TENDER_CATS[$cat])) $cat = 'all';
+        $cc = array_fill_keys(array_keys(TENDER_CATS), 0);
+        foreach ($all as &$t) { $t['cat'] = tender_cat((string)$t['title'], (string)$t['cpv']); $cc[$t['cat']]++; } unset($t);
+        $rows = $cat === 'all' ? $all : array_values(array_filter($all, fn($t) => $t['cat'] === $cat));
+        $ctabs = '<a href="' . P . '?a=leads&t=tenders"' . ($cat === 'all' ? ' class="on" aria-current="true"' : '') . '>Wszystkie <span>' . count($all) . '</span></a>';
+        foreach (TENDER_CATS as $k => $l) if ($cc[$k] || $cat === $k) $ctabs .= '<a href="' . P . '?a=leads&t=tenders&c=' . $k . '"' . ($cat === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ' <span>' . $cc[$k] . '</span></a>';
         $inLead = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE lead_id IS NOT NULL")->fetchColumn();
         $tiles = '';
         foreach ($rows as $t) {
             $left = $t['deadline'] ? days_between(today(), substr($t['deadline'], 0, 10)) : null;
             $dl = $t['deadline'] ? ($left === 0 ? 'Oferty dziś do ' . date('H:i', strtotime($t['deadline'])) : 'Oferty do ' . date('d.m H:i', strtotime($t['deadline'])) . ' · za ' . $left . ' ' . plural((int)$left, 'dzień', 'dni', 'dni')) : 'Bez terminu';
             $f = fn($a, $l, $c = 'btn ghost sm') => '<form method="post" action="' . P . '?a=' . $a . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="' . $c . '">' . $l . '</button></form>';
-            $tiles .= '<article class="kcard tile"><div class="kc-h"><span class="sc' . ($t['score'] >= 50 ? ' hi' : '') . '">' . (int)$t['score'] . '</span><span class="kc-src">' . strtoupper($t['src']) . ($t['province'] ? ' · ' . e($t['province']) : '') . '</span></div>'
+            $tiles .= '<article class="kcard tile"><div class="kc-h"><span class="sc' . ($t['score'] >= 50 ? ' hi' : '') . '">' . (int)$t['score'] . '</span><span class="kc-cat c-' . $t['cat'] . '">' . TENDER_CATS[$t['cat']] . '</span><span class="kc-src" style="margin-left:auto">' . strtoupper($t['src']) . ($t['province'] ? ' · ' . e($t['province']) : '') . '</span></div>'
                 . '<b class="kc-t">' . e($t['title']) . '</b><span class="kc-b">' . e(trim($t['buyer'] . ($t['city'] ? ', ' . $t['city'] : ''))) . '</span>'
                 . '<span class="kc-d' . ($left !== null && $left <= 3 ? ' late-t' : '') . '">' . e($dl) . '</span>'
                 . '<div class="kc-f">' . $f('tender_lead', icon('target') . ' Do lejka', 'btn sm') . '<a class="btn ghost sm" href="' . e($t['url']) . '" target="_blank" rel="noopener">Ogłoszenie</a>' . $f('tender_hide', 'Pomiń', 'link') . '</div></article>';
         }
         $at = setting('tender_at');
         $body .= '<section class="card"><nav class="tabs">' . $tabs . '</nav><div class="hrow pad" style="flex-wrap:wrap"><span class="mut" style="font-size:14px">Przetargi z BZP i TED na strony, portale, sklepy, aplikacje i grafikę, od najlepiej dopasowanych. Te, które bierzemy, dodaj do lejka' . ($inLead ? ' (już w lejku: ' . $inLead . ')' : '') . '. Sprawdzamy codziennie rano' . ($at ? ', ostatnio ' . e(date('d.m H:i', strtotime($at))) : '') . '.</span>'
-            . '<form method="post" action="' . P . '?a=tenders_fetch">' . csrf_field() . '<input type="hidden" name="days" value="7"><button class="btn ghost sm" data-busy>' . icon('refresh') . ' Sprawdź teraz</button></form></div></section>'
+            . '<form method="post" action="' . P . '?a=tenders_fetch">' . csrf_field() . '<input type="hidden" name="days" value="7"><button class="btn ghost sm" data-busy>' . icon('refresh') . ' Sprawdź teraz</button></form></div>'
+            . ($all ? '<nav class="tabs sub" aria-label="Rodzaj przetargu">' . $ctabs . '</nav>' : '') . '</section>'
             . ($tiles ? '<div class="ktiles">' . $tiles . '</div>' : '<section class="card"><div class="empty">Brak nowych przetargów. Kliknij „Sprawdź teraz” albo poszerz słowa kluczowe.</div></section>')
             . '<section class="card pad sec"><details class="more"><summary>Ustawienia przetargów</summary><form class="inl" method="post" action="' . P . '?a=tender_settings">' . csrf_field()
             . '<label class="f">Słowa kluczowe (jedno w linii, wystarczy początek słowa)<textarea class="in" name="tender_kw" rows="8">' . e(setting('tender_kw') ?: TENDER_KW_DEFAULT) . '</textarea></label>'
