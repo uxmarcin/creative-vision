@@ -129,9 +129,33 @@ function &settings_cache(): array {
     static $cache = null;
     if ($cache === null) {
         $cache = [];
-        foreach (db()->query('SELECT k, v FROM settings') as $r) $cache[$r['k']] = (string)$r['v'];
+        $plain = [];
+        foreach (db()->query('SELECT k, v FROM settings') as $r) { $v = (string)$r['v']; if (str_starts_with($v, 'enc1:')) $v = sec_dec($v); elseif ($v !== '' && is_secret_key((string)$r['k'])) $plain[] = $r['k']; $cache[$r['k']] = $v; }
+        // sekrety zapisane wcześniej jawnym tekstem: szyfrujemy przy pierwszym odczycie
+        foreach ($plain as $k) { $e = sec_enc($cache[$k]); if ($e !== '') db()->prepare('UPDATE settings SET v = ? WHERE k = ?')->execute([$e, $k]); }
     }
     return $cache;
+}
+// ---------- szyfrowanie sekretów w bazie (hasła poczty, tokeny KSeF, SMS, klucze API, 2FA) ----------
+function is_secret_key(string $k): bool { return (bool)preg_match('/^(k_)?(imap_pass|ksef_token|ksef_session|ai_key|sms_token|psi_key|vapid_priv|totp_\d+|totp_backup_\d+)$/', $k); }
+/** Klucz szyfrowania trzymany poza katalogiem strony (poza public_html), a gdy się nie da, w chronionym katalogu data. */
+function sec_key(): string {
+    static $k = null; if ($k !== null) return $k;
+    $root = realpath(CV_ROOT) ?: CV_ROOT; $paths = [dirname($root, 2) . '/.cvpanel-key', $root . '/data/.cvpanel-key'];
+    foreach ($paths as $p) { $v = @file_get_contents($p); if (is_string($v) && strlen($v) >= 64) return $k = hex2bin(trim($v)) ?: ''; }
+    $new = bin2hex(random_bytes(32));
+    foreach ($paths as $p) { if (@file_put_contents($p, $new, LOCK_EX) === strlen($new)) { @chmod($p, 0600); return $k = hex2bin($new); } }
+    return $k = '';
+}
+function sec_enc(string $v): string {
+    $key = sec_key(); if ($key === '' || $v === '') return $v === '' ? '' : '';
+    $n = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+    return 'enc1:' . base64_encode($n . sodium_crypto_secretbox($v, $n, $key));
+}
+function sec_dec(string $v): string {
+    $key = sec_key(); $raw = base64_decode(substr($v, 5), true); if ($key === '' || $raw === false || strlen($raw) < 40) return '';
+    $p = sodium_crypto_secretbox_open(substr($raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), substr($raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), $key);
+    return $p === false ? '' : $p;
 }
 function setting(string $k): string {
     $k = acc_key($k); $c = &settings_cache();
@@ -139,7 +163,9 @@ function setting(string $k): string {
 }
 function set_setting(string $k, string $v): void {
     $k = acc_key($k);
-    db()->prepare('INSERT INTO settings (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v')->execute([$k, $v]);
+    $store = $v !== '' && is_secret_key($k) ? sec_enc($v) : $v;
+    if ($v !== '' && $store === '') throw new RuntimeException('Nie mogę bezpiecznie zapisać sekretu (brak klucza szyfrowania).');
+    db()->prepare('INSERT INTO settings (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v')->execute([$k, $store]);
     $c = &settings_cache(); $c[$k] = $v;
 }
 
@@ -186,6 +212,9 @@ function security_headers(): void {
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: same-origin');
     header('X-Robots-Tag: noindex, nofollow');
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+    header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()');
+    header('Cross-Origin-Opener-Policy: same-origin');
     header("Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
 }
 

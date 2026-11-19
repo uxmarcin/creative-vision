@@ -14,14 +14,17 @@ if (isset($_GET['mail'])) {
     require_once __DIR__ . '/lib/imap.php'; require_once __DIR__ . '/lib/mail.php';
     $n = 0; try { $n = push_mail_check(); } catch (Throwable $e) {}
     $jb = 0; try { $jb = run_jobs(); } catch (Throwable $e) { $jb = $e->getMessage(); }
-    echo json_encode(['ok' => true, 'push' => $n, 'jobs' => $jb]); exit;
+    echo '{"ok":true}'; exit;
 }
 header('X-Robots-Tag: noindex');
 header('Cache-Control: no-store');
+// pełne uruchomienie najwyżej raz na 10 minut, nawet jeśli ktoś obcy wywoła ten adres
+if (time() - (int)setting('cron_full_at') < 600) { echo '{"ok":true}'; exit; }
+set_setting('cron_full_at', (string)time());
 $r = run_reminders();
 $paid = run_auto_paid();
 $rec = run_recurring();
 ksef_poll_pending();
 try { $tn = run_tenders(); run_lead_reminders(); } catch (Throwable $e) { $tn = $e->getMessage(); }
 try { $books = run_books_auto(); } catch (Throwable $e) { $books = $e->getMessage(); }
-echo json_encode(['ok' => true, 'run' => $r['run'], 'sent' => count($r['sent'] ?? []), 'recurring' => count($rec), 'auto_paid' => $paid, 'books' => $books, 'tenders' => $tn]);
+echo '{"ok":true}';

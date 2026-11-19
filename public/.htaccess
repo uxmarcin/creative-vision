@@ -17,6 +17,9 @@ ErrorDocument 404 /404.html
   RewriteCond %{HTTP_HOST} ^(?:www\.)?(creative-vision\.pl)$ [NC]
   RewriteRule ^ https://creative-vision.pl%{REQUEST_URI} [L,R=301]
 
+  # Pliki ukryte (np. .env, .git, klucze) nigdy nie są dostępne z internetu
+  RewriteRule (^|/)\.(?!well-known/) - [F,L]
+
   # Panel faktur: dane i kod tylko dla PHP, czyste adresy panelu i strony klienta
   RewriteRule ^panel/(data|lib|vendor|fonts)(/|$) - [F,L]
   RewriteRule ^panel/?$ /panel/index.php [L]

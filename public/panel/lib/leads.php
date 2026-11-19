@@ -232,6 +232,9 @@ function normalize_domain(string $s): string {
 /** Szybki audyt strony: co widać z zewnątrz i co możemy poprawić. */
 function site_audit(string $domain): array {
     $a = ['domain' => $domain, 'at' => now(), 'points' => [], 'emails' => [], 'phones' => []];
+    // ochrona przed odpytywaniem adresów wewnętrznych serwera (SSRF): tylko publiczne adresy IP
+    $ips = @gethostbynamel($domain) ?: [];
+    foreach ($ips as $ip) if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) { $a['code'] = 0; $a['points'][] = 'Ten adres prowadzi do sieci wewnętrznej, nie sprawdzamy go.'; $a['score'] = 0; return $a; }
     $r = http_get('https://' . $domain, 20);
     if ($r['code'] === 0 || $r['code'] >= 400) { $r2 = http_get('http://' . $domain, 15); if ($r2['code'] && $r2['code'] < 400) $r = $r2; }
     $a['code'] = $r['code']; $a['url'] = $r['url']; $a['ms'] = $r['ms'];

@@ -50,6 +50,8 @@ jobs:
             panel/data/pdf-fonts/**
             panel/data/outbox/**
             panel/data/costs/**
+            panel/data/.cvpanel-key
+            **/.cvpanel-key
       - name: Zgłoś adresy do wyszukiwarek (IndexNow, Bing i partnerzy)
         if: github.event_name != 'schedule'
         run: |

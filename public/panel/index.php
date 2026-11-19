@@ -14,6 +14,7 @@ require_once __DIR__ . '/lib/books.php';
 require_once __DIR__ . '/lib/push.php';
 require_once __DIR__ . '/lib/leads.php';
 require_once __DIR__ . '/lib/ai.php';
+require_once __DIR__ . '/lib/tfa.php';
 
 if (($_GET['a'] ?? '') === 'sw') { header('Content-Type: application/javascript; charset=utf-8'); header('Cache-Control: no-cache'); readfile(__DIR__ . '/sw.js'); exit; }
 security_headers();
@@ -41,6 +42,21 @@ if (!has_users()) {
     auth_page('Pierwsze uruchomienie', 'Załóż konto do panelu faktur. Kod konfiguracji dostałeś ode mnie w wiadomości.', 'setup', true);
 }
 if ($a === 'logout' && $post) { check_csrf(); $_SESSION = []; session_regenerate_id(true); redirect(P); }
+// wylogowanie wszędzie: sesje starsze niż ostatnia zmiana hasła albo „wyloguj inne urządzenia” przestają działać
+if (user_id() && (int)($_SESSION['gen'] ?? 0) < (int)setting('sess_gen_' . user_id())) { $_SESSION = []; session_regenerate_id(true); flash('Sesja wygasła, zaloguj się ponownie.'); redirect(P); }
+function finish_login(int $uid, bool $remember): never {
+    session_regenerate_id(true);
+    unset($_SESSION['tfa_uid'], $_SESSION['tfa_rem'], $_SESSION['tfa_at']);
+    $_SESSION['uid'] = $uid; $_SESSION['gen'] = (int)setting('sess_gen_' . $uid); $_SESSION['seen'] = time();
+    if ($remember) remember_session();
+    login_alert($uid);
+    redirect(P);
+}
+function start_tfa(int $uid, bool $remember): never {
+    session_regenerate_id(true);
+    $_SESSION['tfa_uid'] = $uid; $_SESSION['tfa_rem'] = $remember ? 1 : 0; $_SESSION['tfa_at'] = time();
+    redirect(P . '?a=tfa');
+}
 if (!user_id()) {
     if ($post && $a === 'login') {
         check_csrf();
@@ -48,10 +64,9 @@ if (!user_id()) {
         $s = db()->prepare('SELECT * FROM users WHERE email = ?'); $s->execute([trim((string)($_POST['email'] ?? ''))]);
         $u = $s->fetch();
         if ($u && password_verify((string)($_POST['pass'] ?? ''), $u['pass'])) {
-            session_regenerate_id(true); $_SESSION['uid'] = (int)$u['id'];
-            if (!empty($_POST['remember'])) remember_session();
             if (password_needs_rehash($u['pass'], PASSWORD_DEFAULT)) db()->prepare('UPDATE users SET pass = ? WHERE id = ?')->execute([password_hash((string)$_POST['pass'], PASSWORD_DEFAULT), $u['id']]);
-            redirect(P);
+            if (tfa_on((int)$u['id'])) start_tfa((int)$u['id'], !empty($_POST['remember']));
+            finish_login((int)$u['id'], !empty($_POST['remember']));
         }
         note_attempt(); flash('Nieprawidłowy e-mail lub hasło.'); redirect(P);
     }
@@ -81,9 +96,10 @@ if (!user_id()) {
             $p1 = (string)($_POST['pass'] ?? '');
             if (mb_strlen($p1) < 10 || $p1 !== (string)($_POST['pass2'] ?? '')) { flash('Hasło musi mieć co najmniej 10 znaków i oba pola muszą się zgadzać.'); redirect(P . '?a=reset&u=' . $uid . '&t=' . $t); }
             db()->prepare('UPDATE users SET pass = ? WHERE id = ?')->execute([password_hash($p1, PASSWORD_DEFAULT), $uid]);
-            set_setting('reset_' . $uid, '');
-            session_regenerate_id(true); $_SESSION['uid'] = $uid; remember_session();
-            flash('Nowe hasło zapisane. Jesteś zalogowany.'); redirect(P);
+            set_setting('reset_' . $uid, ''); set_setting('sess_gen_' . $uid, (string)time());
+            flash('Nowe hasło zapisane.');
+            if (tfa_on($uid)) start_tfa($uid, true);
+            finish_login($uid, true);
         }
         echo head('Nowe hasło') . '<body><div class="auth"><form class="box" method="post" action="' . P . '?a=reset">'
             . '<img src="' . P . '/assets/logo-black.svg" alt="creative vision" style="height:26px;width:auto;align-self:flex-start"><h1>Nowe hasło</h1><p>Ustaw nowe hasło do panelu faktur.</p>' . flash_html() . csrf_field()
@@ -91,6 +107,21 @@ if (!user_id()) {
             . '<label class="f">Nowe hasło (min. 10 znaków)<input class="in" type="password" name="pass" minlength="10" autocomplete="new-password" required></label>'
             . '<label class="f">Powtórz hasło<input class="in" type="password" name="pass2" minlength="10" autocomplete="new-password" required></label>'
             . '<button class="btn">Zapisz i zaloguj ' . icon('arrow') . '</button></form></div></body></html>';
+        exit;
+    }
+    if ($a === 'tfa') {
+        $uid = (int)($_SESSION['tfa_uid'] ?? 0);
+        if (!$uid || time() - (int)($_SESSION['tfa_at'] ?? 0) > 300) { unset($_SESSION['tfa_uid']); flash('Zaloguj się jeszcze raz.'); redirect(P); }
+        if ($post) {
+            check_csrf();
+            if (too_many_attempts()) { unset($_SESSION['tfa_uid']); flash('Za dużo prób. Spróbuj za 15 minut.'); redirect(P); }
+            if (tfa_verify($uid, (string)($_POST['code'] ?? ''))) finish_login($uid, !empty($_SESSION['tfa_rem']));
+            note_attempt(); flash('Kod się nie zgadza. Sprawdź aplikację i spróbuj jeszcze raz.'); redirect(P . '?a=tfa');
+        }
+        echo head('Kod logowania') . '<body><div class="auth"><form class="box" method="post" action="' . P . '?a=tfa">'
+            . '<img src="' . P . '/assets/logo-black.svg" alt="creative vision" style="height:26px;width:auto;align-self:flex-start"><h1>Kod logowania</h1><p>Wpisz 6 cyfr z aplikacji do kodów (np. Google Authenticator, 1Password, Hasła na iPhonie). Możesz też użyć kodu zapasowego.</p>' . flash_html() . csrf_field()
+            . '<label class="f">Kod<input class="in" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="11" autofocus required style="font-size:22px;letter-spacing:.2em"></label>'
+            . '<button class="btn">Zaloguj się ' . icon('arrow') . '</button><a class="link forgot" href="' . P . '">Wróć do logowania</a></form></div></body></html>';
         exit;
     }
     auth_page('Faktury', 'Zaloguj się do panelu Creative Vision.', 'login', false);
@@ -290,8 +321,27 @@ if ($post) {
             if (!password_verify((string)($_POST['old'] ?? ''), (string)$s->fetchColumn())) { flash('!Obecne hasło się nie zgadza.'); redirect(P . '?a=settings'); }
             if (mb_strlen($new) < 10) { flash('!Nowe hasło musi mieć co najmniej 10 znaków.'); redirect(P . '?a=settings'); }
             db()->prepare('UPDATE users SET pass = ? WHERE id = ?')->execute([password_hash($new, PASSWORD_DEFAULT), user_id()]);
-            flash('Hasło zmienione.');
+            set_setting('sess_gen_' . user_id(), (string)time()); $_SESSION['gen'] = time(); session_regenerate_id(true);
+            flash('Hasło zmienione. Inne urządzenia zostały wylogowane.');
             redirect(P . '?a=settings');
+        case 'logout_all':
+            set_setting('sess_gen_' . user_id(), (string)time()); $_SESSION['gen'] = time(); session_regenerate_id(true); remember_cookie();
+            flash('Wylogowane ze wszystkich innych urządzeń.'); redirect(P . '?a=settings#bezp');
+        case 'tfa_start':
+            $_SESSION['tfa_new'] = b32_enc(random_bytes(20)); redirect(P . '?a=settings#bezp');
+        case 'tfa_enable':
+            $sec = (string)($_SESSION['tfa_new'] ?? '');
+            if ($sec === '' || !totp_check(user_id(), $sec, (string)($_POST['code'] ?? ''))) { flash('!Kod się nie zgadza. Zeskanuj kod QR jeszcze raz i wpisz aktualne 6 cyfr.'); redirect(P . '?a=settings#bezp'); }
+            set_setting('totp_' . user_id(), $sec); unset($_SESSION['tfa_new']);
+            $_SESSION['tfa_codes'] = tfa_new_backup(user_id());
+            flash('Logowanie dwuetapowe włączone. Zapisz kody zapasowe poniżej.'); redirect(P . '?a=settings#bezp');
+        case 'tfa_disable':
+            $s = db()->prepare('SELECT pass FROM users WHERE id = ?'); $s->execute([user_id()]);
+            if (!password_verify((string)($_POST['pass'] ?? ''), (string)$s->fetchColumn()) || !tfa_verify(user_id(), (string)($_POST['code'] ?? ''))) { flash('!Hasło albo kod się nie zgadza.'); redirect(P . '?a=settings#bezp'); }
+            set_setting('totp_' . user_id(), ''); set_setting('totp_backup_' . user_id(), '');
+            flash('Logowanie dwuetapowe wyłączone.'); redirect(P . '?a=settings#bezp');
+        case 'tfa_codes':
+            $_SESSION['tfa_codes'] = tfa_new_backup(user_id()); flash('Nowe kody zapasowe gotowe, stare przestały działać.'); redirect(P . '?a=settings#bezp');
         case 'sms_settings':
             foreach (['sms_from', 'sms_api'] as $k) if (isset($_POST[$k])) set_setting($k, trim(mb_substr((string)$_POST[$k], 0, 60)));
             if (trim((string)($_POST['sms_token'] ?? '')) !== '') set_setting('sms_token', trim((string)$_POST['sms_token']));
@@ -1074,6 +1124,30 @@ function view_clients(): never {
 }
 
 // ---------- ustawienia ----------
+function security_section(): string {
+    $uid = (int)user_id(); $on = tfa_on($uid);
+    $o = '<section class="card pad sec" id="bezp"><h2>Bezpieczeństwo</h2>';
+    if (!$on && !empty($_SESSION['tfa_new'])) {
+        $sec = (string)$_SESSION['tfa_new']; $s = db()->prepare('SELECT email FROM users WHERE id = ?'); $s->execute([$uid]); $em = (string)$s->fetchColumn();
+        $o .= '<span class="mut" style="font-size:14px">1. Zeskanuj kod QR w aplikacji do kodów (Hasła na iPhonie, Google Authenticator, 1Password). 2. Wpisz 6 cyfr, które pokaże.</span>'
+            . '<div class="hrow" style="justify-content:flex-start;align-items:center;flex-wrap:wrap;gap:20px"><img src="' . qr_png_datauri(tfa_uri($em, $sec), 5) . '" alt="Kod QR do aplikacji" width="180" height="180" style="image-rendering:pixelated;border:1px solid var(--line)">'
+            . '<div style="display:flex;flex-direction:column;gap:6px;min-width:0"><a class="btn ghost sm" href="' . e(tfa_uri($em, $sec)) . '" style="align-self:flex-start">Dodaj na tym telefonie</a><span class="mut" style="font-size:13px">Albo wpisz klucz ręcznie:</span><code style="font-size:14px;word-break:break-all;letter-spacing:.06em">' . e(trim(chunk_split($sec, 4, ' '))) . '</code></div></div>'
+            . '<form class="hrow" method="post" action="' . P . '?a=tfa_enable" style="justify-content:flex-start;flex-wrap:wrap">' . csrf_field() . '<input class="in" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" required style="max-width:160px;letter-spacing:.2em"><button class="btn">Włącz</button></form>';
+    } elseif (!$on) {
+        $o .= '<span class="mut" style="font-size:14px">Logowanie dwuetapowe jest wyłączone. Po włączeniu do hasła dochodzi kod z telefonu, więc samo wykradzione hasło nie wystarczy, żeby wejść do panelu.</span>'
+            . '<form method="post" action="' . P . '?a=tfa_start">' . csrf_field() . '<button class="btn">' . icon('check') . ' Włącz logowanie dwuetapowe</button></form>';
+    } else {
+        $left = count(array_filter(explode(',', setting('totp_backup_' . $uid))));
+        $o .= '<span class="chip paid" style="align-self:flex-start">Logowanie dwuetapowe włączone</span><span class="mut" style="font-size:14px">Przy logowaniu panel pyta o kod z aplikacji. Kody zapasowe: zostało ' . $left . ' z 8.</span>';
+        if (!empty($_SESSION['tfa_codes'])) { $o .= '<div class="att" style="flex-direction:column;align-items:flex-start"><b>Kody zapasowe, każdy działa raz. Zapisz je teraz w menedżerze haseł, drugi raz ich nie pokażę.</b><code style="font-size:15px;line-height:1.8;letter-spacing:.06em">' . implode('<br>', array_map('e', $_SESSION['tfa_codes'])) . '</code></div>'; unset($_SESSION['tfa_codes']); }
+        $o .= '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap"><form method="post" action="' . P . '?a=tfa_codes">' . csrf_field() . '<button class="btn ghost sm">Nowe kody zapasowe</button></form></div>'
+            . '<details class="more"><summary>Wyłącz logowanie dwuetapowe</summary><form class="grid3" method="post" action="' . P . '?a=tfa_disable" style="align-items:end">' . csrf_field()
+            . '<label class="f">Hasło<input class="in" type="password" name="pass" autocomplete="current-password" required></label><label class="f">Kod z aplikacji<input class="in" name="code" inputmode="numeric" autocomplete="one-time-code" required></label><button class="btn ghost" data-confirm="Wyłączyć logowanie dwuetapowe?" data-csub="Do panelu znowu wystarczy samo hasło." data-cyes-l="Tak, wyłącz">Wyłącz</button></form></details>';
+    }
+    $o .= '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px"><span class="mut" style="font-size:14px;flex:1;min-width:220px">Hasła do poczty, token KSeF, klucze API i SMS są w bazie zaszyfrowane. Gdy zalogujesz się z nowego urządzenia, dostaniesz maila.</span>'
+        . '<form method="post" action="' . P . '?a=logout_all">' . csrf_field() . '<button class="btn ghost sm" data-confirm="Wylogować wszystkie inne urządzenia?" data-csub="Na tym urządzeniu zostaniesz zalogowany." data-cyes-l="Tak, wyloguj">Wyloguj inne urządzenia</button></form></div>';
+    return $o . '</section>';
+}
 function view_settings(): never {
     $v = fn($k) => e(setting($k));
     $ch = fn($k) => setting($k) === '1' ? ' checked' : '';
@@ -1156,6 +1230,7 @@ function view_settings(): never {
         . (setting('ksef_token') !== '' ? '<form method="post" action="' . P . '?a=ksef_check">' . csrf_field() . '<button class="link">Sprawdź połączenie z KSeF</button></form>' : '') . '</section>'
         . '<section class="card pad sec" id="import"><h2>Import faktur</h2><span class="mut" style="font-size:14px">Wgraj plik z fakturami wystawionymi wcześniej (przygotowuję go z PDF-ów). Numery zostają bez zmian, a faktury, które już są w panelu, zostaną pominięte.</span>'
         . '<form class="hrow" method="post" action="' . P . '?a=import" enctype="multipart/form-data" style="justify-content:flex-start;flex-wrap:wrap">' . csrf_field() . '<input class="in" type="file" name="file" accept=".json,application/json" required style="max-width:360px;padding-top:10px"><button class="btn ghost">Importuj</button></form></section>'
+        . security_section()
         . '<div class="cols"><section class="card pad sec wide"><h2>Hasło</h2><form class="grid3" method="post" action="' . P . '?a=password" style="align-items:end">' . csrf_field()
         . '<label class="f">Obecne hasło<input class="in" type="password" name="old" autocomplete="current-password" required></label><label class="f">Nowe hasło<input class="in" type="password" name="new" minlength="10" autocomplete="new-password" required></label><button class="btn ghost">Zmień hasło</button></form></section>'
         . '<section class="card pad sec side"><h2>Test wysyłki</h2><span class="mut" style="font-size:14px">Wyśle krótką wiadomość na adres z pola „Odpowiedzi i kopie na”.</span><form method="post" action="' . P . '?a=testmail">' . csrf_field() . '<button class="btn ghost">Wyślij test</button></form>'

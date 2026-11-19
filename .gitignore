@@ -3,3 +3,5 @@ node_modules/
 public/panel/data/*
 !public/panel/data/.htaccess
 !public/panel/data/index.html
+.cvpanel-key
+**/.cvpanel-key
