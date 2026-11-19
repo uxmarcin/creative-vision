@@ -301,6 +301,7 @@ function leads_post(string $a): never {
         case 'lead_next':
             $d = (string)($_POST['next_at'] ?? ''); $d = preg_match('/^\+(\d+)$/', $d, $m) ? date('Y-m-d', strtotime('+' . $m[1] . ' days')) : (preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) ? $d : null);
             db()->prepare('UPDATE leads SET next_at = ?, next_note = ?, updated = ? WHERE id = ?')->execute([$d, trim((string)($_POST['next_note'] ?? '')), now(), $id]);
+            if (($_POST['back'] ?? '') === 'due') { flash($d ? 'Przesunięte na ' . date('d.m', strtotime($d)) . '.' : 'Zrobione.'); redirect(P . '?a=leads&f=due#due'); }
             redirect(P . '?a=lead&id=' . $id);
         case 'lead_delete':
             db()->prepare('DELETE FROM leads WHERE id = ?')->execute([$id]); db()->prepare("UPDATE tenders SET lead_id = NULL, status = CASE WHEN src IN ('useme','freelancer') THEN 'hidden' ELSE 'new' END WHERE lead_id = ?")->execute([$id]);
@@ -394,8 +395,18 @@ function view_leads(): never {
         $due = array_filter($open, fn($l) => $l['next_at'] && $l['next_at'] <= today());
         $wonM = array_filter($all, fn($l) => $l['stage'] === 'won' && substr((string)$l['updated'], 0, 7) === date('Y-m'));
         $body .= '<section class="kpis"><div class="kpi dark"><span class="t">Otwarte szanse</span><span class="v">' . money($val) . '</span><span class="s">' . count($open) . ' ' . plural(count($open), 'szansa', 'szanse', 'szans') . ' w ofertach, wartość netto</span></div><div class="kpis-r">'
-            . '<div class="kpi"><span class="t">Na dziś</span><span class="v' . ($due ? ' red' : '') . '">' . count($due) . '</span><span class="s">' . plural(count($due), 'follow-up', 'follow-upy', 'follow-upów') . ' do zrobienia</span></div>'
+            . '<div class="kpi"><span class="t">Na dziś</span><span class="v' . ($due ? ' red' : '') . '">' . count($due) . '</span><span class="s">' . plural(count($due), 'follow-up', 'follow-upy', 'follow-upów') . ' do zrobienia</span>' . ($due ? '<a class="kpi-a" href="' . P . '?a=leads' . (($_GET['f'] ?? '') === 'due' ? '' : '&f=due#due') . '">' . (($_GET['f'] ?? '') === 'due' ? 'Ukryj' : 'Zobacz') . ' ' . icon('arrow') . '</a>' : '') . '</div>'
             . '<div class="kpi"><span class="t">Wygrane w tym miesiącu</span><span class="v">' . count($wonM) . '</span><span class="s">' . money(array_sum(array_map(fn($l) => (int)$l['value'], $wonM))) . '</span></div></div></section>';
+        if (($_GET['f'] ?? '') === 'due') {
+            $rows = '';
+            foreach ($due as $l) {
+                $late = days_between((string)$l['next_at'], today());
+                $mv = fn($v, $lab, $cls = 'btn ghost sm') => '<form method="post" action="' . P . '?a=lead_next">' . csrf_field() . '<input type="hidden" name="id" value="' . $l['id'] . '"><input type="hidden" name="back" value="due"><input type="hidden" name="next_at" value="' . $v . '"><input type="hidden" name="next_note" value="' . e((string)$l['next_note']) . '"><button class="' . $cls . '">' . $lab . '</button></form>';
+                $rows .= '<li class="due-r"><a class="due-t" href="' . P . '?a=lead&id=' . $l['id'] . '"><b>' . e($l['company'] ?: $l['name']) . '</b><span>' . e((string)($l['next_note'] ?: 'Zaplanowany kontakt')) . '</span><span class="' . ($late > 0 ? 'late-t' : 'mut') . '">' . ($late > 0 ? 'Spóźnione ' . $late . ' ' . plural($late, 'dzień', 'dni', 'dni') : 'Na dziś') . ' · ' . e(LEAD_STAGES[$l['stage']] ?? '') . '</span></a>'
+                    . '<div class="due-a"><a class="btn sm" href="' . P . '?a=lead&id=' . $l['id'] . '">Otwórz</a>' . $mv('+1', 'Jutro') . $mv('+7', 'Za tydzień') . $mv('', icon('check') . ' Zrobione') . '</div></li>';
+            }
+            $body .= '<section class="card pad sec" id="due"><div class="hrow"><h2>Follow-upy na dziś</h2><a class="link" href="' . P . '?a=leads">Ukryj</a></div>' . ($rows ? '<ul class="due-l">' . $rows . '</ul>' : '<span class="mut">Wszystko zrobione na dziś.</span>') . '</section>';
+        }
         $by = array_fill_keys(array_keys(LEAD_STAGES), ''); $cnt = array_fill_keys(array_keys(LEAD_STAGES), 0); $sum = array_fill_keys(array_keys(LEAD_STAGES), 0);
         $opts = fn($cur) => implode('', array_map(fn($k, $x) => '<option value="' . $k . '"' . ($k === $cur ? ' selected' : '') . '>' . $x . '</option>', array_keys(LEAD_STAGES), LEAD_STAGES));
         foreach ($all as $l) {
