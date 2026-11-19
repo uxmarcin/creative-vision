@@ -259,7 +259,7 @@ if ($post) {
                 db()->prepare('DELETE FROM invoices WHERE id = ?')->execute([$id]);
                 flash($inv['status'] === 'draft' ? 'Szkic usunięty.' : 'Faktura ' . $inv['number'] . ' usunięta. Ten numer wróci do użycia.');
             }
-            redirect(P);
+            redirect(P . '?a=list');
         case 'ksef_send':
             $inv = must_invoice($id);
             if (!in_array($inv['status'], ['issued', 'paid'], true) || ($inv['ksef_state'] ?? '') === 'accepted' || !empty($inv['ksef'])) redirect(P . '?a=view&id=' . $id);
@@ -886,14 +886,14 @@ function view_list(): never {
             ? '<span class="v">' . money_split($sale + $saleFxPln) . '</span><span class="fxb">' . ($sale ? money($sale) . ' + ' : '') . money($saleFxPln) . ' <span class="fxr">(kurs ' . e(implode(', ', $saleRates)) . ')</span></span>'
             : '<span class="v">' . money($sale) . '</span>' . $fx($fxSale)) . '<span class="s">' . ($salePf ? 'w tym proforma ' . money($salePf) . ' · ' : '') . 'netto ' . money($saleNet + ($saleFxOk ? $saleFxNet : 0)) . ' · ' . $saleN . ' ' . plural($saleN, 'faktura', 'faktury', 'faktur') . '</span></div>'
         . '<div class="kpi"><span class="t">Średni czas zapłaty</span><span class="v">' . ($avg === null ? '–' : $avg . ' ' . plural($avg, 'dzień', 'dni', 'dni')) . '</span><span class="s">od wystawienia do wpłaty</span></div></div></section>';
-    $qs = fn(array $o) => P . '?' . http_build_query(array_merge(['y' => $y, 'm' => $m, 't' => $tab], $o));
+    $qs = fn(array $o) => P . '?' . http_build_query(array_merge(['a' => 'list', 'y' => $y, 'm' => $m, 't' => $tab], $o));
     $mp = '';
-    for ($i = 1; $i <= 12; $i++) $mp .= '<a href="' . $qs(['m' => $i, 'q' => null]) . '" class="' . trim(($m === $i ? 'on' : '') . (!empty($months[$i]) ? ' has' : '')) . '" title="' . pl_month($i) . ' ' . $y . (!empty($months[$i]) ? ': ' . $months[$i] . ' ' . plural($months[$i], 'faktura', 'faktury', 'faktur') : '') . '"' . ($m === $i ? ' aria-current="true"' : '') . '>' . pl_mshort($i) . '</a>';
+    for ($i = 1; $i <= 12; $i++) $mp .= '<a href="' . $qs(['m' => $i, 'q' => null]) . '" class="' . trim(($m === $i ? 'on' : '') . (!empty($months[$i]) ? ' has' : '') . (sprintf('%04d-%02d', $y, $i) === date('Y-m') ? ' now' : '') . (sprintf('%04d-%02d', $y, $i) > date('Y-m') ? ' fut' : '')) . '" title="' . pl_month($i) . ' ' . $y . (!empty($months[$i]) ? ': ' . $months[$i] . ' ' . plural($months[$i], 'faktura', 'faktury', 'faktur') : '') . '"' . ($m === $i ? ' aria-current="true"' : '') . '>' . pl_mshort($i) . '</a>';
     krsort($years); $yo = '';
     foreach (array_keys($years) as $yy) $yo .= '<option value="' . $yy . '"' . ($yy === $y ? ' selected' : '') . '>' . $yy . '</option>';
     $per = '<div class="period"><div class="pl"><span class="k">Miesiąc księgowy</span><b>' . e(ucfirst($periodTxt)) . '</b></div>'
         . '<nav class="months" aria-label="Miesiąc księgowy">' . $mp . '<a href="' . $qs(['m' => 0, 'q' => null]) . '" class="yr' . ($m === 0 ? ' on' : '') . '">Cały rok</a></nav>'
-        . '<form method="get" action="' . P . '" class="yearf"><input type="hidden" name="m" value="' . $m . '"><input type="hidden" name="t" value="' . e($tab) . '"><label class="sr" for="yy">Rok</label><select class="in" id="yy" name="y" data-autosubmit>' . $yo . '</select></form></div>'
+        . '<form method="get" action="' . P . '" class="yearf"><input type="hidden" name="a" value="list"><input type="hidden" name="m" value="' . $m . '"><input type="hidden" name="t" value="' . e($tab) . '"><label class="sr" for="yy">Rok</label><select class="in" id="yy" name="y" data-autosubmit>' . $yo . '</select></form></div>'
         . ($q !== '' ? '<div class="qnote">Wyniki wyszukiwania „' . e($q) . '” ze wszystkich miesięcy. <a class="link" href="' . $qs(['q' => null]) . '">Wyczyść</a></div>' : '');
     $tabs = '';
     foreach (['all' => 'Wszystkie', 'open' => 'Do zapłaty', 'late' => 'Po terminie', 'paid' => 'Opłacone', 'proforma' => 'Proformy', 'draft' => 'Szkice'] as $k => $l)
@@ -933,7 +933,7 @@ function view_list(): never {
         . '<div class="sched">' . ($up ?: '<span class="mut">Nic nie czeka w kolejce. Przypomnienia pojawią się tu, gdy wyślesz fakturę.</span>') . '</div></div>'
         . ($lastPaid ? '<div class="dark-card"><span class="k">Ostatnia wpłata</span><span class="v">' . e(json_decode($lastPaid['buyer'], true)['name'] ?? '') . ' · ' . money((int)($lastPaid['paid_amount'] ?: $lastPaid['gross']), $lastPaid['currency'] ?? 'PLN') . '</span><span class="s">Faktura ' . e($lastPaid['number']) . ', ' . e(pl_date($lastPaid['paid_at'])) . '</span></div>' : '')
         . '</aside>';
-    $acts = '<form class="search" role="search" method="get" action="' . P . '"><input type="hidden" name="t" value="' . e($tab) . '"><input type="hidden" name="y" value="' . $y . '"><input type="hidden" name="m" value="' . $m . '">' . icon('search') . '<label class="sr" for="q">Szukaj faktury</label><input id="q" type="search" name="q" value="' . e($q) . '" placeholder="Szukaj klienta lub numeru"></form>'
+    $acts = '<form class="search" role="search" method="get" action="' . P . '"><input type="hidden" name="a" value="list"><input type="hidden" name="t" value="' . e($tab) . '"><input type="hidden" name="y" value="' . $y . '"><input type="hidden" name="m" value="' . $m . '">' . icon('search') . '<label class="sr" for="q">Szukaj faktury</label><input id="q" type="search" name="q" value="' . e($q) . '" placeholder="Szukaj klienta lub numeru"></form>'
         . '<a class="btn" href="' . P . '?a=new">Nowa faktura ' . icon('plus') . '</a>';
     page('Faktury', 'list', $kpi . '<div class="cols">' . $table . $side . '</div>', ucfirst($periodTxt), $acts);
 }
@@ -1000,12 +1000,12 @@ function view_form(?array $inv): never {
         . '<section class="card pad sec"><h2>Numer</h2><span>' . ($num ? e($num) : 'Nadamy przy wystawieniu, kolejny: <b style="font-weight:500">' . e(next_number(substr($issue, 0, 7))[1]) . '</b>') . '</span></section>'
         . '</aside></div>'
         . '<div class="bar"><span class="note">Wyślemy z ' . e(setting('mail_from')) . ', z PDF w załączniku i linkiem do faktury online.</span>'
-        . '<a class="btn ghost" href="' . ($inv ? P . '?a=view&id=' . $inv['id'] : P) . '">Anuluj</a>'
+        . '<a class="btn ghost" href="' . ($inv ? P . '?a=view&id=' . $inv['id'] : P . '?a=list') . '">Anuluj</a>'
         . (!$num ? '<button class="btn ghost" name="act" value="proforma" formnovalidate>' . (!empty($inv['proforma']) ? 'Zapisz proformę' : 'Zapisz jako proformę') . '</button>' : '')
         . '<button class="btn ghost" name="act" value="issue">' . ($num ? 'Zapisz' : 'Wystaw i zapisz') . '</button>'
         . '<button class="btn" name="act" value="send" data-confirm="Wysłać fakturę do {email}?">' . ($num ? 'Zapisz i wyślij' : 'Wystaw i wyślij') . ' ' . icon('arrow') . '</button></div>'
         . '</form>';
-    $GLOBALS['back'] = $inv ? [P . '?a=view&id=' . $inv['id'], $num ? 'Faktura ' . $num : 'Szkic'] : [P, 'Faktury'];
+    $GLOBALS['back'] = $inv ? [P . '?a=view&id=' . $inv['id'], $num ? 'Faktura ' . $num : 'Szkic'] : [P . '?a=list', 'Faktury'];
     page($inv ? ($num ? 'Faktura ' . $num : (!empty($inv['proforma']) ? 'Proforma' : 'Szkic faktury')) : 'Nowa faktura', $inv ? 'list' : 'new', $body, $inv ? 'Edycja' : 'Wystaw w minutę');
 }
 
@@ -1131,8 +1131,8 @@ function view_invoice(array $inv): never {
     $body = '<div class="cols"><div class="wide"><div class="doc-wrap">' . invoice_doc($inv, P . '/assets/') . '</div></div>'
         . '<aside class="side">' . $decl . '<div class="card pad sec">' . $kv . $tools . '<div class="acts-col">' . $acts . '</div>' . $danger . '</div>' . $auto . $ksef
         . '<div class="card pad sec"><h2>Historia</h2><div class="hist">' . ($hist ?: '<span class="mut">Brak zdarzeń.</span>') . '</div></div></aside></div>';
-    $GLOBALS['back'] = [P, 'Faktury'];
-    page($inv['number'] ? 'Faktura ' . $inv['number'] : (!empty($inv['proforma']) ? 'Proforma' : 'Szkic faktury'), 'list', $body, $inv['buyer']['name'] ?? '', '<a class="btn ghost" href="' . P . '">Wszystkie faktury</a>');
+    $GLOBALS['back'] = [P . '?a=list', 'Faktury'];
+    page($inv['number'] ? 'Faktura ' . $inv['number'] : (!empty($inv['proforma']) ? 'Proforma' : 'Szkic faktury'), 'list', $body, $inv['buyer']['name'] ?? '', '<a class="btn ghost" href="' . P . '?a=list">Wszystkie faktury</a>');
 }
 
 // ---------- klienci ----------

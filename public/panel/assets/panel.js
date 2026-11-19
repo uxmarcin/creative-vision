@@ -464,7 +464,7 @@ document.addEventListener('click', function (e) { var t = e.target.closest('[dat
     pts = p; if (p.length < 2) { svg.innerHTML = ''; return; }
     const rs = p.map(x => x[1]), mn = Math.min(...rs), mx = Math.max(...rs), sp = (mx - mn) || 1;
     const X = i => i / (p.length - 1) * W, Y = r => pad + (1 - (r - mn) / sp) * (H - pad * 2);
-    const up = rs[rs.length - 1] >= rs[0], lt = !!box.closest('.hx'), col = up ? (lt ? '#1F7A4D' : '#5BC48E') : (lt ? '#B42318' : '#F07A73'), gid = 'fxa' + Math.random().toString(36).slice(2, 7);
+    const up = rs[rs.length - 1] >= rs[0], lt = !!box.closest('.hx'), col = up ? (lt ? '#1DB954' : '#1DB954') : (lt ? '#B42318' : '#F07A73'), gid = 'fxa' + Math.random().toString(36).slice(2, 7);
     const line = p.map((x, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(x[1]).toFixed(1)).join('');
     svg.innerHTML = '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + col + '" stop-opacity=".28"/><stop offset="1" stop-color="' + col + '" stop-opacity="0"/></linearGradient></defs>'
       + '<line x1="0" x2="' + W + '" y1="' + Y(rs[0]).toFixed(1) + '" y2="' + Y(rs[0]).toFixed(1) + '" stroke="' + (lt ? '#CFCCC5' : '#555') + '" stroke-dasharray="3 4" stroke-width="1" vector-effect="non-scaling-stroke"/>'

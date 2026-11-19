@@ -1,6 +1,6 @@
 @font-face{font-family:Jost;font-style:normal;font-weight:100 900;font-display:swap;src:url(/fonts/jost-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 @font-face{font-family:Jost;font-style:normal;font-weight:100 900;font-display:swap;src:url(/fonts/jost-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-:root{--ink:#0B0B0B;--mut:#6B6B6B;--line:#E6E4DF;--line2:#EFEDE8;--bg:#F5F4F1;--red:#B42318;--green:#1F7A4D;--grad:linear-gradient(90deg,#E9685F,#E03F3B 20%,#AC2069 40%,#88409F 60%,#3E63EF 80%,#51BAD4)}
+:root{--ink:#0B0B0B;--mut:#6B6B6B;--line:#E6E4DF;--line2:#EFEDE8;--bg:#F5F4F1;--red:#B42318;--green:#1DB954;--grad:linear-gradient(90deg,#E9685F,#E03F3B 20%,#AC2069 40%,#88409F 60%,#3E63EF 80%,#51BAD4)}
 *{box-sizing:border-box;border-radius:0}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;font-family:Jost,"Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.5}
@@ -822,7 +822,7 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 .fxc-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .fxc-h>div:first-child{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px}
 .fxc-k{color:#BDBDBD;font-size:14px}.fxc-v{font-size:20px;font-weight:500;color:#fff}
-.fxc-d{flex-basis:100%;font-size:13px;color:#8C8C8C}.fxc-d.up{color:#5BC48E}.fxc-d.dn{color:#F07A73}
+.fxc-d{flex-basis:100%;font-size:13px;color:#8C8C8C}.fxc-d.up{color:#1DB954}.fxc-d.dn{color:#F07A73}
 .fxc-t{display:flex;gap:2px;flex:none}
 .fxc-t button{background:none;border:0;color:#8C8C8C;font:inherit;font-size:13px;padding:6px 8px;cursor:pointer}
 .fxc-t button:hover{color:#fff}.fxc-t button.on{color:#fff;box-shadow:inset 0 -2px 0 #51BAD4}
@@ -834,8 +834,8 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 
 .fxr .lv{display:inline-flex;align-items:center;gap:6px}
 .fxr .lv i{width:7px;height:7px;border-radius:50%;animation:livep 2.4s ease-in-out infinite}
-.fxr .lv.up i{background:#5BC48E}.fxr .lv.dn i{background:#F07A73}
-.fxr .lv.up{color:#5BC48E}.fxr .lv.dn{color:#F07A73}
+.fxr .lv.up i{background:#1DB954}.fxr .lv.dn i{background:#F07A73}
+.fxr .lv.up{color:#1DB954}.fxr .lv.dn{color:#F07A73}
 @media(prefers-reduced-motion:reduce){.fxr .lv i{animation:none}}
 
 /* widget kursu na pulpicie (jasny) */
@@ -884,3 +884,24 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 .hf-ic{background:#F4F4F5}
 .hf-logo{background:#fff;border:1px solid var(--line2);overflow:hidden;padding:0}
 .hf-logo img{width:100%;height:100%;object-fit:contain;display:block}
+
+/* wybór miesiąca: jeden pasek, wybrany = primary, obecny = secondary, czarne kropki */
+.months{display:flex;flex-wrap:nowrap;gap:0;border:1px solid var(--line);background:#fff;overflow-x:auto;scrollbar-width:none}
+.months::-webkit-scrollbar{display:none}
+.months a{flex:1 0 auto;min-width:44px;height:40px;padding:0 10px;border:0;border-right:1px solid var(--line2);background:#fff;color:var(--mut);font-size:14px;font-weight:400;opacity:1;transition:background .15s,color .15s}
+.months a:last-child{border-right:0}
+.months a:hover{background:#F4F4F5;color:var(--ink)}
+.months a.has{color:var(--ink);font-weight:400}
+.months a.has::after{content:"";position:absolute;left:50%;bottom:6px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--ink)}
+.months a.fut{color:#B5B5B5}
+.months a.now{box-shadow:inset 0 0 0 1px var(--ink);color:var(--ink);background:#fff}
+.months a.on{background:var(--ink);color:#fff;box-shadow:none}
+.months a.on::after{background:#fff}
+.months a.yr{padding:0 14px;font-size:14px;color:var(--ink)}
+@media(max-width:900px){.months a{height:38px;min-width:46px}}
+.period .months{flex:0 1 auto;min-width:0}
+.months a{flex:0 0 auto}
+@media(max-width:900px){.period .months{grid-column:1/-1}}
+/* zielony Spotify jako kolor pozytywny; słupki bez beżu */
+.hb i{background:#E4E4E7}
+.hb.on i{background:var(--green)}
