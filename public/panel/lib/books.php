@@ -52,7 +52,8 @@ function ksef_fetch_costs(string $ym): array {
     books_migrate();
     $tok = ksef_access_token();
     $from = date('c', strtotime($ym . '-01 00:00:00')); $to = date('c', strtotime($ym . '-01 00:00:00 +1 month') - 1);
-    $new = 0; $all = 0; $page = 0;
+    $new = 0; $all = 0; $page = 0; $left = 0; $busy = false;
+    @set_time_limit(170);
     do {
         $r = ksef_http('POST', '/invoices/query/metadata?pageOffset=' . $page . '&pageSize=100&sortOrder=Asc', ['subjectType' => 'Subject2', 'dateRange' => ['dateType' => 'Issue', 'from' => $from, 'to' => $to]], $tok);
         $list = (array)($r['invoices'] ?? []);
@@ -60,7 +61,9 @@ function ksef_fetch_costs(string $ym): array {
             $k = (string)($m['ksefNumber'] ?? ''); if ($k === '') continue;
             $all++;
             $q = db()->prepare('SELECT 1 FROM costs WHERE ksef = ?'); $q->execute([$k]); if ($q->fetchColumn()) continue;
-            $xml = ksef_download_xml($k, $tok);
+            if ($busy) { $left++; continue; }
+            try { $xml = ksef_download_xml($k, $tok); } catch (KsefBusy $e) { $busy = true; $left++; continue; }
+            usleep(400000);
             $p = fa_parse($xml);
             $seller = (string)($m['seller']['name'] ?? ($m['sellerName'] ?? ($p['seller'] ?? '')));
             $nip = (string)($m['seller']['nip'] ?? ($m['sellerNip'] ?? ($p['nip'] ?? '')));
@@ -73,14 +76,24 @@ function ksef_fetch_costs(string $ym): array {
         $page++;
     } while (!empty($r['hasMore']) && $page < 20);
     set_setting('books_ksef_' . $ym, now());
-    return [$new, $all];
+    return [$new, $all, $left];
 }
+/** Limit zapytań KSeF (429): czekamy tyle, ile każe serwer, najwyżej kilka razy. */
+class KsefBusy extends RuntimeException {}
 function ksef_download_xml(string $ksef, string $tok): string {
-    $ch = curl_init(ksef_env()['api'] . '/invoices/ksef/' . rawurlencode($ksef));
-    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 30, CURLOPT_HTTPHEADER => ['Accept: application/xml', 'Authorization: Bearer ' . $tok]]);
-    $res = curl_exec($ch); $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE); curl_close($ch);
-    if ($res === false || $code >= 400) throw new RuntimeException('Nie udało się pobrać faktury ' . $ksef . ' z KSeF (' . $code . ').');
-    return (string)$res;
+    for ($try = 0; $try < 4; $try++) {
+        $wait = 0;
+        $ch = curl_init(ksef_env()['api'] . '/invoices/ksef/' . rawurlencode($ksef));
+        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 30, CURLOPT_HTTPHEADER => ['Accept: application/xml', 'Authorization: Bearer ' . $tok],
+            CURLOPT_HEADERFUNCTION => function ($c, $h) use (&$wait) { if (stripos($h, 'retry-after:') === 0) $wait = (int)trim(substr($h, 12)); return strlen($h); }]);
+        $res = curl_exec($ch); $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE); curl_close($ch);
+        if ($res !== false && $code < 400) return (string)$res;
+        if ($code !== 429) throw new RuntimeException('Nie udało się pobrać faktury ' . $ksef . ' z KSeF (' . $code . ').');
+        $wait = $wait ?: 2 * ($try + 1);
+        if ($wait > 12) break;
+        sleep($wait);
+    }
+    throw new KsefBusy('KSeF ogranicza liczbę pobrań.');
 }
 
 /** Paczka ZIP za miesiąc: sprzedaż (PDF, XML z KSeF), zakupy, zestawienie CSV. Zwraca ścieżkę do pliku tymczasowego. */
@@ -115,7 +128,10 @@ function books_zip_name(string $ym): string { return 'Creative_Vision_dokumenty_
 function books_send(string $ym): array {
     $to = trim(setting('acc_email'));
     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) return [false, 'Wpisz e-mail księgowej.'];
-    if (ksef_enabled()) { try { ksef_fetch_costs($ym); } catch (Throwable $e) { /* wyślemy to, co mamy */ } }
+    if (ksef_enabled()) {
+        try { [, , $left] = ksef_fetch_costs($ym); } catch (Throwable $e) { $left = 0; /* wyślemy to, co mamy */ }
+        if ($left) return [false, 'KSeF jeszcze nie oddał ' . $left . ' ' . plural($left, 'faktury', 'faktur', 'faktur') . ' (limit pobrań). Spróbuj za minutę, żeby paczka była kompletna.', 'busy'];
+    }
     $sales = sales_of($ym); $costs = costs_of($ym);
     $zip = books_zip($ym); $data = (string)file_get_contents($zip); @unlink($zip);
     if (strlen($data) > 20 * 1048576) return [false, 'Paczka ma ponad 20 MB, za dużo na maila. Pobierz ją i wyślij przez dysk.'];
@@ -138,7 +154,8 @@ function run_books_auto(): ?string {
     $ym = prev_ym();
     if (setting('acc_sent_' . $ym) !== '' || (int)setting('acc_try_' . $ym) > time() - 20 * 3600) return null;
     set_setting('acc_try_' . $ym, (string)time());
-    [$ok, $msg] = books_send($ym);
+    $r = books_send($ym); [$ok, $msg] = $r;
+    if (!$ok && ($r[2] ?? '') === 'busy') { set_setting('acc_try_' . $ym, (string)(time() - 19 * 3600)); return $msg; }
     if (!$ok) { [$s, $h, $t] = admin_mail('Paczka dla księgowej nie wyszła', 'Księgowość · ' . ym_label($ym), 'Paczka nie wyszła', e($msg) . ' Spróbujemy jutro, możesz też wysłać ją ręcznie w panelu.', CV_SITE . '/panel?a=books&ym=' . $ym); send_mail([setting('mail_reply')], $s, $h, $t, [], false); }
     return $msg;
 }
@@ -167,7 +184,7 @@ function books_post(string $a): never {
             if ($c) db()->prepare('UPDATE costs SET seller = ?, number = ?, gross = ? WHERE id = ?')->execute([trim((string)($_POST['seller'] ?? '')) ?: null, trim((string)($_POST['number'] ?? '')) ?: null, trim((string)($_POST['gross'] ?? '')) !== '' ? to_cents((string)$_POST['gross']) : null, $c['id']]);
             redirect($back);
         case 'books_ksef':
-            try { [$new, $all] = ksef_fetch_costs($ym); flash($all ? 'KSeF: ' . $all . ' ' . plural($all, 'faktura zakupowa', 'faktury zakupowe', 'faktur zakupowych') . ' za ' . ym_label($ym) . ', nowych: ' . $new . '.' : 'W KSeF nie ma faktur zakupowych za ' . ym_label($ym) . '.'); }
+            try { [$new, $all, $left] = ksef_fetch_costs($ym); flash($all ? 'KSeF: ' . $all . ' ' . plural($all, 'faktura zakupowa', 'faktury zakupowe', 'faktur zakupowych') . ' za ' . ym_label($ym) . ', pobrane teraz: ' . $new . '.' . ($left ? ' Jeszcze ' . $left . ' czeka, bo KSeF ogranicza liczbę pobrań na minutę. Kliknij „Pobierz z KSeF” ponownie za minutę.' : ' Wszystkie są w panelu.') : 'W KSeF nie ma faktur zakupowych za ' . ym_label($ym) . '.'); }
             catch (Throwable $e) { flash('!' . $e->getMessage()); }
             redirect($back);
         case 'books_send':
