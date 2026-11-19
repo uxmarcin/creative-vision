@@ -447,7 +447,7 @@ document.addEventListener('click', function (e) { var t = e.target.closest('[dat
       const j = await r.json(); let t = pln; for (const k in fx) { if (!j[k]) return; t += Math.round(fx[k] * j[k].rate); }
       if (t !== cur) anim(t);
       const fp = el.parentNode.querySelector('.fxpl'); if (fp) fp.textContent = fmt(t - pln).replace(/<[^>]+>/g, '');
-      const fr = el.parentNode.querySelector('.fxrt'); if (fr) fr.textContent = Object.keys(fx).map(k => j[k].rate.toFixed(4).replace('.', ',') + ' z ' + j[k].date.slice(8, 10) + '.' + j[k].date.slice(5, 7)).join(', ');
+      el.parentNode.querySelectorAll('.fxrt .lv').forEach((lv, n) => { const k = Object.keys(fx)[n]; if (!j[k]) return; const o = parseFloat(lv.textContent.replace(',', '.')); if (o !== j[k].rate) { lv.className = 'lv ' + (j[k].rate >= o ? 'up' : 'dn'); lv.innerHTML = '<i></i>' + j[k].rate.toFixed(4).replace('.', ','); } });
     } catch (e) {}
   };
   setInterval(poll, 60000); document.addEventListener('visibilitychange', poll);
