@@ -19,6 +19,7 @@ const JOB_FL_SKILLS = ['Website Design' => 'www', 'Web Development' => 'www', 'W
 function jobs_migrate(): void {
     static $d = false; if ($d) return; $d = true; leads_migrate();
     $tc = array_column(db()->query('PRAGMA table_info(tenders)')->fetchAll(PDO::FETCH_ASSOC), 'name');
+    if (setting('jobs_off_1') === '') { db()->exec("UPDATE tenders SET status = 'hidden' WHERE src IN ('useme','freelancer') AND status = 'new'"); set_setting('jobs_off_1', '1'); }
     if (!in_array('budget', $tc, true)) { db()->exec('ALTER TABLE tenders ADD COLUMN budget TEXT'); db()->exec('ALTER TABLE tenders ADD COLUMN offers INTEGER'); db()->exec('ALTER TABLE tenders ADD COLUMN excerpt TEXT'); db()->exec('ALTER TABLE tenders ADD COLUMN cat TEXT'); }
 }
 function job_is(array $t): bool { return in_array($t['src'] ?? '', JOB_SRCS, true); }
@@ -113,6 +114,7 @@ function jobs_fetch(): array {
 }
 /** Co pół godziny w godzinach 7 do 22, powiadomienie o najlepszych nowych zleceniach. */
 function run_jobs(): int {
+    return 0; // giełdy bez kontaktu do klienta (Useme, Freelancer) wyłączone 19.11.2026
     if (setting('jobs_on') === '0') return 0;
     $h = (int)date('G'); if ($h < 7 || $h >= 22) return 0;
     if (time() - strtotime(setting('jobs_at') ?: '2000-01-01') < 1700) return 0;

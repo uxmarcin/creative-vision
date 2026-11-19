@@ -313,11 +313,11 @@ function leads_post(string $a): never {
 // ---------- widoki ----------
 function view_leads(): never {
     leads_migrate();
-    $tab = (string)($_GET['t'] ?? 'pipe'); if (!in_array($tab, ['pipe', 'tenders', 'jobs', 'scan'], true)) $tab = 'pipe'; jobs_migrate();
+    $tab = (string)($_GET['t'] ?? 'pipe'); if (!in_array($tab, ['pipe', 'tenders', 'scan'], true)) $tab = 'pipe'; jobs_migrate();
     $tabs = '';
     $newT = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE status = 'new' AND src IN ('bzp','ted') AND (deadline IS NULL OR deadline = '' OR deadline >= date('now'))")->fetchColumn();
     $newJ = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE status = 'new' AND src IN ('useme','freelancer') AND deadline >= date('now') AND created >= datetime('now', '-1 day')")->fetchColumn();
-    foreach (['pipe' => 'Oferty', 'jobs' => 'Zlecenia', 'tenders' => 'Przetargi', 'scan' => 'Skaner stron'] as $k => $l) $tabs .= '<a href="' . P . '?a=leads&t=' . $k . '"' . ($tab === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ($k === 'tenders' && $newT ? ' <span>' . $newT . '</span>' : '') . ($k === 'jobs' && $newJ ? ' <span>' . $newJ . '</span>' : '') . '</a>';
+    foreach (['pipe' => 'Oferty', 'tenders' => 'Przetargi', 'scan' => 'Skaner stron'] as $k => $l) $tabs .= '<a href="' . P . '?a=leads&t=' . $k . '"' . ($tab === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ($k === 'tenders' && $newT ? ' <span>' . $newT . '</span>' : '') . ($k === 'jobs' && $newJ ? ' <span>' . $newJ . '</span>' : '') . '</a>';
     $body = '';
     if ($tab === 'pipe') {
         $st = (string)($_GET['s'] ?? 'open');
