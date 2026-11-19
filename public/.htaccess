@@ -20,7 +20,7 @@ ErrorDocument 404 /404.html
   # Panel faktur: dane i kod tylko dla PHP, czyste adresy panelu i strony klienta
   RewriteRule ^panel/(data|lib|vendor|fonts)(/|$) - [F,L]
   RewriteRule ^panel/?$ /panel/index.php [L]
-  RewriteRule ^panel/(index|f|cron)\.php$ - [L]
+  RewriteRule ^panel/(index|f|cron|o)\.php$ - [L]
   RewriteRule ^f/([A-Za-z0-9]{24,64})$ /panel/f.php?t=$1 [L,QSA]
 
   # Zmiana nazw podstron (2026-10): stałe przekierowania

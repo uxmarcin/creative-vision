@@ -83,7 +83,7 @@ function m_sign(): string {
 }
 
 /** Treść maila dla faktury. $kind: new | before | due | w1 | w2 | manual. Zwraca [temat, html, tekst]. */
-function invoice_mail(array $inv, string $kind): array {
+function invoice_mail(array $inv, string $kind, bool $track = false): array {
     $num = (string)$inv['number']; $gross = money((int)$inv['gross'], $inv['currency'] ?? 'PLN');
     $due = pl_date($inv['due_date']); $url = pay_url($inv);
     $left = days_between(today(), (string)$inv['due_date']);
@@ -137,6 +137,7 @@ function invoice_mail(array $inv, string $kind): array {
             break;
     }
     $rows .= m_transfer($inv) . m_auto();
+    if ($track && !empty($inv['token'])) $rows .= '<tr><td style="font-size:0;line-height:0"><img src="' . CV_SITE . '/panel/o.php?t=' . $inv['token'] . '&amp;k=' . $kind . '" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0"></td></tr>';
     $html = mail_layout($subj, $pre, $rows, true);
     $text = html_to_text($rows) . "\n\n" . $url . "\n\n" . setting('seller_name') . ' · ' . setting('seller_phone') . ' · creative-vision.pl';
     return [$subj, $html, $text];
@@ -229,9 +230,18 @@ function send_invoice_mail(array $inv, string $kind): bool {
     require_once __DIR__ . '/doc.php';
     $b = $inv['buyer'];
     $to = array_merge([(string)($b['email'] ?? '')], preg_split('/[\s,;]+/', (string)($b['cc'] ?? '')) ?: []);
-    [$subj, $html, $text] = invoice_mail($inv, $kind);
+    [$subj, $html, $text] = invoice_mail($inv, $kind, true);
     $att = in_array($kind, ['new', 'w1', 'w2'], true) ? [invoice_pdf_name($inv) => invoice_pdf($inv)] : [];
     $ok = send_mail($to, $subj, $html, $text, $att);
     log_event((int)$inv['id'], $ok ? 'mail' : 'error', ($ok ? '' : 'Nie udało się wysłać: ') . $subj . ' → ' . implode(', ', array_filter($to)));
     return $ok;
+}
+
+/** Pierwsze otwarcie maila albo faktury online: wpis w historii i krótki mail do nas. */
+function notify_seen(array $inv, string $what, string $ev = 'open'): void {
+    $name = (string)($inv['buyer']['name'] ?? 'Klient');
+    log_event((int)$inv['id'], $ev, $what);
+    if (setting('notify_open') !== '1') return;
+    [$s, $h, $t] = admin_mail($name . ': ' . mb_strtolower(mb_substr($what, 0, 1)) . mb_substr($what, 1) . ' (' . $inv['number'] . ')', 'Faktura ' . $inv['number'], $name, $what . ' · ' . date('d.m.Y H:i') . '. Kwota ' . e(money((int)$inv['gross'], $inv['currency'] ?? 'PLN')) . ', termin ' . e(pl_date($inv['due_date'])) . '.', CV_SITE . '/panel?a=view&id=' . $inv['id'], 'zobaczył wiadomość');
+    send_mail([setting('mail_reply') ?: setting('seller_email')], $s, $h, $t, [], false);
 }

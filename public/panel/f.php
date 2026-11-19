@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'declare')
 
 if (empty($inv['viewed_at'])) {
     db()->prepare('UPDATE invoices SET viewed_at = ? WHERE id = ?')->execute([now(), $id]);
-    log_event($id, 'view', 'Klient otworzył fakturę online');
+    notify_seen($inv, 'Klient otworzył fakturę online');
 }
 
 $s = seller(); $acc = nrb_digits($s['bank_account']);

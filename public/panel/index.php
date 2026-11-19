@@ -181,7 +181,7 @@ if ($post) {
         case 'settings_save':
             $keys = ['seller_name', 'seller_addr1', 'seller_addr2', 'seller_nip', 'seller_email', 'seller_phone', 'bank_name', 'bank_account', 'bank_swift', 'place', 'term_days', 'mail_from', 'mail_reply', 'r_before_days', 'r_w1_days', 'r_w2_days', 'interest_rate', 'footer_note'];
             foreach ($keys as $k) if (isset($_POST[$k])) set_setting($k, trim(mb_substr((string)$_POST[$k], 0, 300)));
-            if (!empty($_POST['_main'])) foreach (['mail_copy', 'r_before_on', 'r_due_on', 'r_w1_on', 'r_w2_on'] as $k) set_setting($k, !empty($_POST[$k]) ? '1' : '0');
+            if (!empty($_POST['_main'])) foreach (['mail_copy', 'r_before_on', 'r_due_on', 'r_w1_on', 'r_w2_on', 'notify_open'] as $k) set_setting($k, !empty($_POST[$k]) ? '1' : '0');
             if (!empty($_POST['_ksef'])) set_setting('ksef_auto', !empty($_POST['ksef_auto']) ? '1' : '0');
             if (isset(KSEF_ENV[(string)($_POST['ksef_env'] ?? '')]) && $_POST['ksef_env'] !== setting('ksef_env')) { set_setting('ksef_env', (string)$_POST['ksef_env']); set_setting('ksef_session', ''); }
             if (isset($_POST['zw_basis'])) set_setting('zw_basis', trim(mb_substr((string)$_POST['zw_basis'], 0, 200)));
@@ -776,7 +776,8 @@ function view_invoice(array $inv): never {
         . '<div><span>Do zapłaty</span><b style="font-weight:500">' . money((int)$inv['gross'], $inv['currency'] ?? 'PLN') . '</b></div>'
         . '<div><span>Termin</span><span>' . e(pl_date($inv['due_date'])) . '</span></div>'
         . ($inv['sent_at'] ? '<div><span>Wysłana</span><span>' . e(date('d.m.Y H:i', strtotime($inv['sent_at']))) . '</span></div>' : '')
-        . ($inv['viewed_at'] ? '<div><span>Klient otworzył</span><span>' . e(date('d.m.Y H:i', strtotime($inv['viewed_at']))) . '</span></div>' : '')
+        . (!empty($inv['opened_at']) ? '<div><span>Mail otwarty</span><span>' . e(date('d.m.Y H:i', strtotime($inv['opened_at']))) . '</span></div>' : '')
+        . ($inv['viewed_at'] ? '<div><span>Faktura online</span><span>' . e(date('d.m.Y H:i', strtotime($inv['viewed_at']))) . '</span></div>' : '')
         . ($inv['paid_at'] ? '<div><span>Wpłata</span><span class="ok-t">' . e(pl_date($inv['paid_at'])) . ', ' . money((int)$inv['paid_amount'], $inv['currency'] ?? 'PLN') . '</span></div>' : '')
         . '</div>';
     $decl = '';
@@ -881,7 +882,8 @@ function view_settings(): never {
         . '<span class="mut" style="font-size:13px">Ostatnie sprawdzenie: ' . ($last ? date('d.m.Y H:i', $last) : 'jeszcze nie było') . '</span></section>'
         . '</div><aside class="side">'
         . '<section class="card pad sec"><h2>Wysyłka maili</h2>' . $in('mail_from', 'Nadawca', 'email') . $in('mail_reply', 'Odpowiedzi i kopie na', 'email')
-        . '<label class="check"><input type="checkbox" name="mail_copy" value="1"' . $ch('mail_copy') . '> Wysyłaj mi ukrytą kopię każdego maila</label></section>'
+        . '<label class="check"><input type="checkbox" name="mail_copy" value="1"' . $ch('mail_copy') . '> Wysyłaj mi ukrytą kopię każdego maila</label>'
+        . '<label class="check"><input type="checkbox" name="notify_open" value="1"' . $ch('notify_open') . '> Daj mi znać mailem, gdy klient otworzy maila lub fakturę online</label></section>'
         . '<button class="btn">Zapisz ustawienia</button></aside></div></form>'
         . '<section class="card pad sec" id="poczta"><h2>Poczta faktury@</h2>'
         . '<span class="mut" style="font-size:14px">Skrzynka, z której wychodzą faktury, przypomnienia i wezwania. Odpowiedzi klientów zobaczysz w zakładce Poczta. Hasło zapisujemy tylko w bazie panelu na serwerze.</span>'
