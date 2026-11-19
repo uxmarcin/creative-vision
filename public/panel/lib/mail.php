@@ -73,7 +73,7 @@ function m_sign(): string {
 
 /** Treść maila dla faktury. $kind: new | before | due | w1 | w2 | manual. Zwraca [temat, html, tekst]. */
 function invoice_mail(array $inv, string $kind): array {
-    $num = (string)$inv['number']; $gross = money((int)$inv['gross']);
+    $num = (string)$inv['number']; $gross = money((int)$inv['gross'], $inv['currency'] ?? 'PLN');
     $due = pl_date($inv['due_date']); $url = pay_url($inv);
     $left = days_between(today(), (string)$inv['due_date']);
     if ($kind === 'manual') $kind = $left > 0 ? 'before' : ($left === 0 ? 'due' : 'w1');
@@ -121,7 +121,7 @@ function invoice_mail(array $inv, string $kind): array {
                 . m_text($hello . 'mimo wcześniejszego przypomnienia nie otrzymaliśmy wpłaty za fakturę ' . e($num) . ' z terminem płatności ' . e($due) . '. Wzywamy do zapłaty należności w terminie 7 dni, do ' . e($deadline7) . '.<br><br>'
                     . 'Zgodnie z ustawą o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych od dnia następującego po terminie płatności przysługują nam odsetki ustawowe za opóźnienie w transakcjach handlowych oraz rekompensata za koszty odzyskiwania należności w wysokości równowartości ' . $eur . ' euro.<br><br>'
                     . 'Zależy nam na dobrej współpracy, dlatego jeśli jest jakiś problem z płatnością, odpisz. Na pewno znajdziemy rozwiązanie. Brak wpłaty i kontaktu w tym terminie oznacza, że podejmiemy dalsze kroki w celu odzyskania należności.')
-                . m_box([['Faktura', $num], ['Termin płatności', $due], ['Dni po terminie', (string)$late], ['Należność główna', $gross], ['Odsetki do dziś (' . setting('interest_rate') . '% rocznie)', money($int)], ['Razem z odsetkami', money((int)$inv['gross'] + $int), true]])
+                . m_box([['Faktura', $num], ['Termin płatności', $due], ['Dni po terminie', (string)$late], ['Należność główna', $gross], ['Odsetki do dziś (' . setting('interest_rate') . '% rocznie)', money($int, $inv['currency'] ?? 'PLN')], ['Razem z odsetkami', money((int)$inv['gross'] + $int, $inv['currency'] ?? 'PLN'), true]])
                 . m_button($url, 'Zobacz fakturę');
             break;
     }

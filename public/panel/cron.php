@@ -9,4 +9,5 @@ header('Content-Type: application/json; charset=utf-8');
 header('X-Robots-Tag: noindex');
 header('Cache-Control: no-store');
 $r = run_reminders();
-echo json_encode(['ok' => true, 'run' => $r['run'], 'sent' => count($r['sent'] ?? [])]);
+$rec = run_recurring();
+echo json_encode(['ok' => true, 'run' => $r['run'], 'sent' => count($r['sent'] ?? []), 'recurring' => count($rec)]);

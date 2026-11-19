@@ -71,3 +71,38 @@ function upcoming_reminders(int $limit = 5): array {
     usort($list, fn($a, $b) => strcmp($a[0], $b[0]));
     return array_slice($list, 0, $limit);
 }
+
+// ---------- faktury cykliczne ----------
+function last_workday(string $ym): string {
+    $d = date('Y-m-t', strtotime($ym . '-01'));
+    while ((int)date('N', strtotime($d)) >= 6) $d = date('Y-m-d', strtotime($d . ' -1 day'));
+    return $d;
+}
+
+/** W ostatni dzień roboczy miesiąca tworzy szkic kolejnej faktury cyklicznej i daje nam znać mailem. Zaległych miesięcy nie nadrabia. */
+function run_recurring(): array {
+    $made = [];
+    $now = date('Y-m');
+    foreach (db()->query("SELECT * FROM invoices WHERE recurring = 1 AND status != 'cancelled'")->fetchAll() as $r) {
+        $inv = hydrate($r);
+        $base = (string)($inv['book_ym'] ?: substr((string)$inv['issue_date'], 0, 7));
+        if ($base >= $now || today() < last_workday($now)) continue;
+        $issue = date('Y-m-t', strtotime($now . '-01'));
+        $term = max(0, (int)$inv['term_days']);
+        $pdo = db(); $pdo->beginTransaction();
+        $f = ['client_id' => $inv['client_id'], 'buyer' => json_encode($inv['buyer'], JSON_UNESCAPED_UNICODE), 'issue_date' => $issue, 'sale_date' => $issue,
+            'due_date' => date('Y-m-d', strtotime($issue . " +$term days")), 'term_days' => $term, 'place' => $inv['place'], 'items' => $r['items'],
+            'net' => $inv['net'], 'vat' => $inv['vat'], 'gross' => $inv['gross'], 'notes' => $inv['notes'], 'reminders' => $inv['reminders'],
+            'currency' => $inv['currency'] ?: 'PLN', 'lang' => $inv['lang'] ?: 'pl', 'recurring' => 1, 'book_ym' => $now, 'source' => 'cykliczna', 'created' => now(), 'updated' => now()];
+        $pdo->prepare('INSERT INTO invoices (' . implode(', ', array_keys($f)) . ') VALUES (:' . implode(', :', array_keys($f)) . ')')->execute($f);
+        $id = (int)$pdo->lastInsertId();
+        $pdo->prepare('UPDATE invoices SET recurring = 0 WHERE id = ?')->execute([$inv['id']]);
+        $pdo->commit();
+        log_event($id, 'create', 'Szkic faktury cyklicznej na podstawie ' . $inv['number']);
+        $name = (string)($inv['buyer']['name'] ?? '');
+        [$s, $h, $t] = admin_mail('Szkic faktury cyklicznej: ' . $name, 'Faktura cykliczna · ' . $now, 'Szkic dla ' . $name, 'Przygotowaliśmy szkic faktury za ' . e(pl_date($issue)) . ' na kwotę ' . e(money((int)$inv['gross'], $inv['currency'] ?: 'PLN')) . ', na podstawie faktury ' . e((string)$inv['number']) . '. Sprawdź go i wystaw jednym kliknięciem.', CV_SITE . '/panel?a=view&id=' . $id, 'jest gotowy');
+        send_mail([setting('mail_reply')], $s, $h, $t, [], false);
+        $made[] = $id;
+    }
+    return $made;
+}

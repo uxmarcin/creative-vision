@@ -7,10 +7,15 @@ declare(strict_types=1);
  */
 function invoice_doc(array $inv, string $asset, bool $pdf = false, bool $online = true): string {
     $s = seller(); $b = $inv['buyer']; $c = $inv['calc'];
+    $cur = (string)($inv['currency'] ?? 'PLN') ?: 'PLN';
+    $bi = ($inv['lang'] ?? 'pl') === 'pl-en';
+    $L = fn(string $pl, string $en) => $bi ? $pl . '<span class="en"> / ' . $en . '</span>' : $pl;
     $num = $inv['number'] ?: 'Szkic';
     $term = (int)($inv['term_days'] ?? 0);
-    $rows = '';
+    $foreign = trim((string)($b['country'] ?? '')) !== '';
+    $rows = ''; $np = false;
     foreach ($c['items'] as $i => $it) {
+        if ($it['vat'] === 'np') $np = true;
         $rows .= '<tr class="it"><td class="lp">' . ($i + 1) . '</td><td class="nm"><strong>' . e($it['name']) . '</strong>'
             . ($it['desc'] !== '' ? '<br><span class="ds">' . nl2br(e($it['desc'])) . '</span>' : '') . '</td>'
             . '<td class="r nw">' . e(qty_fmt((float)$it['qty'])) . ' ' . e($it['unit']) . '</td>'
@@ -21,37 +26,41 @@ function invoice_doc(array $inv, string $asset, bool $pdf = false, bool $online 
     }
     $vatRows = '';
     foreach ($c['by_rate'] as $rate => $v) {
-        $vatRows .= '<tr><td>VAT ' . e(vat_rates()[$rate] ?? $rate) . '</td><td class="r">' . money($v) . '</td></tr>';
+        $vatRows .= '<tr><td>VAT ' . e(vat_rates()[$rate] ?? $rate) . '</td><td class="r">' . money($v, $cur) . '</td></tr>';
     }
     $acc = nrb_fmt($s['bank_account']);
-    $payBox = '<td class="pb-l"><div class="lbl">Do zapłaty</div><div class="big">' . money((int)$inv['gross']) . '</div>'
-        . '<div class="sm">Słownie: ' . e(slownie((int)$inv['gross'])) . '</div></td>'
-        . '<td class="pb-r"><div class="lbl">Sposób płatności</div><div class="v">Przelew' . ($term ? ', termin ' . $term . ' dni' : '') . '</div>'
-        . '<div class="lbl">Numer konta' . ($s['bank_name'] !== '' ? ' · ' . e($s['bank_name']) : '') . '</div><div class="v b">' . ($acc !== '' ? e($acc) : '[uzupełnij w ustawieniach]') . '</div>'
-        . '<div class="lbl">Tytuł przelewu</div><div class="v">Faktura ' . e($num) . '</div></td>';
+    if ($acc !== '' && ($foreign || $cur !== 'PLN')) $acc = 'PL' . $acc;
+    $swift = trim(setting('bank_swift'));
+    $payBox = '<td class="pb-l"><div class="lbl">' . $L('Do zapłaty', 'Amount due') . '</div><div class="big">' . money((int)$inv['gross'], $cur) . '</div>'
+        . '<div class="sm">' . $L('Słownie', 'In words') . ': ' . e(slownie((int)$inv['gross'], $cur)) . ($bi ? '<br>' . e(words_en((int)$inv['gross'], $cur)) : '') . '</div></td>'
+        . '<td class="pb-r"><div class="lbl">' . $L('Sposób płatności', 'Payment method') . '</div><div class="v">' . ($bi ? 'Przelew / Bank transfer' : 'Przelew') . ($term ? ', ' . ($bi ? $term . ' dni / days' : 'termin ' . $term . ' dni') : '') . '</div>'
+        . '<div class="lbl">' . $L('Numer konta', 'Bank account') . ($s['bank_name'] !== '' ? ' · ' . e($s['bank_name']) : '') . '</div><div class="v b">' . ($acc !== '' ? e($acc) : '[uzupełnij w ustawieniach]') . '</div>'
+        . ($swift !== '' && ($foreign || $cur !== 'PLN') ? '<div class="lbl">SWIFT / BIC</div><div class="v">' . e($swift) . '</div>' : '')
+        . '<div class="lbl">' . $L('Tytuł przelewu', 'Payment reference') . '</div><div class="v">' . ($bi ? 'Invoice ' : 'Faktura ') . e($num) . '</div></td>';
     $ksef = trim((string)($inv['ksef'] ?? ''));
-
-    $foot = '<table class="ft"><tr><td class="ty">' . e(setting('footer_note')) . '</td><td class="r g">' . e($s['seller_name']) . ' · Projektujemy strony, sklepy i aplikacje · Rzeszów<br>creative-vision.pl</td></tr></table>';
+    $taxLbl = $foreign ? 'VAT no.' : 'NIP';
+    $foot = '<table class="ft"><tr><td class="ty">' . e(setting('footer_note')) . ($bi ? '<span class="en"> Thank you.</span>' : '') . '</td><td class="r g">' . e($s['seller_name']) . ' · Projektujemy strony, sklepy i aplikacje · Rzeszów<br>creative-vision.pl</td></tr></table>';
     $css = invoice_css($asset);
     $h = '<div class="fv">'
         . '<div class="grad top"></div>'
         . '<table class="hd"><tr><td><img class="logo" src="' . $asset . 'logo-black.svg" alt="creative vision"></td>'
-        . '<td class="r"><div class="sm g">Faktura VAT</div><div class="no">' . e($num) . '</div><div class="xs g">Oryginał</div></td></tr></table>'
+        . '<td class="r"><div class="sm g">' . $L('Faktura VAT', 'VAT Invoice') . '</div><div class="no">' . e($num) . '</div><div class="xs g">' . $L('Oryginał', 'Original') . '</div></td></tr></table>'
         . '<table class="meta"><tr>'
-        . '<td><div class="g">Data wystawienia</div>' . e(pl_date($inv['issue_date'])) . '</td>'
-        . '<td><div class="g">Data sprzedaży</div>' . e(pl_date($inv['sale_date'])) . '</td>'
-        . '<td><div class="g">Termin płatności</div>' . e(pl_date($inv['due_date'])) . ($term ? ' (' . $term . ' dni)' : '') . '</td>'
-        . '<td><div class="g">Miejsce wystawienia</div>' . e((string)$inv['place']) . '</td></tr></table>'
+        . '<td><div class="g">' . $L('Data wystawienia', 'Issue date') . '</div>' . e(pl_date($inv['issue_date'])) . '</td>'
+        . '<td><div class="g">' . $L('Data sprzedaży', 'Date of sale') . '</div>' . e(pl_date($inv['sale_date'])) . '</td>'
+        . '<td><div class="g">' . $L('Termin płatności', 'Due date') . '</div>' . e(pl_date($inv['due_date'])) . ($term && !$bi ? ' (' . $term . ' dni)' : '') . '</td>'
+        . '<td><div class="g">' . $L('Miejsce wystawienia', 'Place of issue') . '</div>' . e((string)$inv['place']) . '</td></tr></table>'
         . '<table class="par"><tr>'
-        . '<td><div class="g">Sprzedawca</div><div class="pn">' . e($s['seller_name']) . '</div>' . e($s['seller_addr1']) . '<br>' . e($s['seller_addr2']) . '<br><span class="gap"></span>NIP ' . e($s['seller_nip']) . '<br>' . e($s['seller_email']) . '</td>'
-        . '<td><div class="g">Nabywca</div><div class="pn">' . e($b['name'] ?? '') . '</div>' . e($b['addr1'] ?? '') . '<br>' . e($b['addr2'] ?? '') . '<br><span class="gap"></span>' . (!empty($b['nip']) ? 'NIP ' . e($b['nip']) : '') . '</td>'
+        . '<td><div class="g">' . $L('Sprzedawca', 'Seller') . '</div><div class="pn">' . e($s['seller_name']) . '</div>' . e($s['seller_addr1']) . '<br>' . e($s['seller_addr2']) . ($foreign ? '<br>Polska / Poland' : '') . '<br><span class="gap"></span>' . ($foreign ? 'VAT no. PL' . e(nip_digits($s['seller_nip'])) : 'NIP ' . e($s['seller_nip'])) . '<br>' . e($s['seller_email']) . '</td>'
+        . '<td><div class="g">' . $L('Nabywca', 'Buyer') . '</div><div class="pn">' . e($b['name'] ?? '') . '</div>' . e($b['addr1'] ?? '') . '<br>' . e($b['addr2'] ?? '') . ($foreign ? '<br>' . e((string)$b['country']) : '') . '<br><span class="gap"></span>' . (!empty($b['nip']) ? $taxLbl . ' ' . e($b['nip']) : '') . '</td>'
         . '</tr></table>'
-        . '<table class="its"><thead><tr><th class="lp">Lp.</th><th>Nazwa usługi</th><th class="r">Ilość</th><th class="r">Cena netto</th><th class="r">VAT</th><th class="r">Netto</th><th class="r">Brutto</th></tr></thead><tbody>' . $rows . '</tbody></table>'
-        . '<table class="sum"><tr><td>Razem netto</td><td class="r">' . money((int)$inv['net']) . '</td></tr>' . $vatRows
-        . '<tr class="tot"><td>Razem brutto</td><td class="r">' . money((int)$inv['gross']) . '</td></tr></table>'
+        . '<table class="its"><thead><tr><th class="lp">' . $L('Lp.', 'No.') . '</th><th>' . $L('Nazwa usługi', 'Service') . '</th><th class="r">' . $L('Ilość', 'Qty') . '</th><th class="r">' . $L('Cena netto', 'Unit price') . '</th><th class="r">VAT</th><th class="r">' . $L('Netto', 'Net') . '</th><th class="r">' . $L('Brutto', 'Gross') . '</th></tr></thead><tbody>' . $rows . '</tbody></table>'
+        . '<table class="sum"><tr><td>' . $L('Razem netto', 'Total net') . '</td><td class="r">' . money((int)$inv['net'], $cur) . '</td></tr>' . $vatRows
+        . '<tr class="tot"><td>' . $L('Razem brutto', 'Total') . '</td><td class="r">' . money((int)$inv['gross'], $cur) . '</td></tr></table>'
         . '<table class="pay"><tr>' . $payBox . '</tr></table><div class="grad"></div>'
-        . ($online && $inv['status'] !== 'draft' && !empty($inv['token']) ? '<table class="online"><tr><td class="ol">Fakturę, PDF i dane do przelewu masz też online.</td><td class="r"><a class="obtn" href="' . e(pay_url($inv)) . '">Zobacz fakturę online</a></td></tr></table>' : '')
-        . (trim((string)$inv['notes']) !== '' ? '<div class="nt"><div class="g">Uwagi</div>' . nl2br(e((string)$inv['notes'])) . '</div>' : '')
+        . ($online && $inv['status'] !== 'draft' && !empty($inv['token']) ? '<table class="online"><tr><td class="ol">' . $L('Fakturę, PDF i dane do przelewu masz też online.', 'View the invoice online.') . '</td><td class="r"><a class="obtn" href="' . e(pay_url($inv)) . '">' . ($bi ? 'View invoice online' : 'Zobacz fakturę online') . '</a></td></tr></table>' : '')
+        . ($np ? '<div class="nt"><div class="g">' . $L('Odwrotne obciążenie', 'Reverse charge') . '</div>Do rozliczenia podatku VAT zobowiązany jest nabywca usługi (odwrotne obciążenie).' . ($bi ? '<br><span class="en2">VAT to be accounted for by the recipient of the service (reverse charge).</span>' : '') . '</div>' : '')
+        . (trim((string)$inv['notes']) !== '' ? '<div class="nt"><div class="g">' . $L('Uwagi', 'Notes') . '</div>' . nl2br(e((string)$inv['notes'])) . '</div>' : '')
         . ($ksef !== '' ? '<div class="nt"><div class="g">Numer KSeF</div>' . e($ksef) . '</div>' : '')
         . ($pdf ? '' : $foot)
         . '</div>';
@@ -61,7 +70,7 @@ function invoice_doc(array $inv, string $asset, bool $pdf = false, bool $online 
         . '@font-face{font-family:"Jost";font-weight:400;src:url("' . CV_ROOT . '/fonts/Jost-400.ttf") format("truetype")}'
         . '@font-face{font-family:"Jost";font-weight:500;src:url("' . CV_ROOT . '/fonts/Jost-500.ttf") format("truetype")}'
         . '@font-face{font-family:"Jost";font-weight:700;src:url("' . CV_ROOT . '/fonts/Jost-500.ttf") format("truetype")}'
-        . 'body{margin:0;font-family:Jost}' . $css . '.fv,.fv *{font-family:Jost !important}' . '.fv{padding:15mm 14mm 12mm;box-shadow:none;max-width:none}.pf{position:fixed;left:14mm;width:182mm;bottom:10mm;border-top:1px solid #E6E4DF;padding-top:3mm;font-family:Jost;color:#0B0B0B}.pf .l{font-size:11pt;font-weight:500}.pf .rr{position:absolute;right:0;top:3mm;text-align:right;font-size:9pt;color:#6B6B6B;line-height:1.35}</style></head><body><div class="pf"><div class="l">' . e(setting('footer_note')) . '</div><div class="rr">' . e($s['seller_name']) . ' · Projektujemy strony, sklepy i aplikacje · Rzeszów<br>creative-vision.pl</div></div>' . $h . '</body></html>';
+        . 'body{margin:0;font-family:Jost}' . $css . '.fv,.fv *{font-family:Jost !important}' . '.fv{padding:13mm 14mm 24mm;box-shadow:none;max-width:none;background:transparent}.fv .hd td{padding-bottom:12px}.fv .meta td{padding:10px 10px 10px 0}.fv .par td{padding:12px 16px 10px 0}.fv .its td{padding:8px 0 8px 8px}.fv .sum{margin:10px 0 12px auto}.fv .pay td{padding:15px 20px}.fv .online{margin-top:10px}.fv .nt{margin-top:10px;padding-top:8px}.pf{position:fixed;left:14mm;width:182mm;bottom:10mm;border-top:1px solid #E6E4DF;padding-top:3mm;font-family:Jost;color:#0B0B0B}.pf .l{font-size:11pt;font-weight:500}.pf .rr{position:absolute;right:0;top:3mm;text-align:right;font-size:9pt;color:#6B6B6B;line-height:1.35}</style></head><body>' . $h . '<div class="pf"><div class="l">' . e(setting('footer_note')) . (($inv['lang'] ?? 'pl') === 'pl-en' ? ' Thank you.' : '') . '</div><div class="rr">' . e($s['seller_name']) . ' · Projektujemy strony, sklepy i aplikacje · Rzeszów<br>creative-vision.pl</div></div></body></html>';
 }
 
 function invoice_css(string $asset): string {
@@ -79,7 +88,7 @@ function invoice_css(string $asset): string {
         . '.fv .pay{background:#0B0B0B;color:#fff}.fv .pay td{padding:20px 22px}.fv .pay .pb-l{width:48%}.fv .lbl{color:#BDBDBD;font-size:9pt;margin-top:6px}.fv .lbl:first-child{margin-top:0}.fv .big{font-size:24pt;font-weight:500;line-height:1.15;margin:2px 0 6px}.fv .pay .sm{color:#BDBDBD;font-size:9pt}.fv .v{font-size:10.5pt}.fv .v.b{font-weight:500;letter-spacing:.02em}'
         . '.fv .online{margin-top:14px}.fv .online td{vertical-align:middle}.fv .online .ol{font-size:9.5pt;color:#5F5F5F}.fv .obtn{display:inline-block;padding:9px 16px;border:1px solid #0B0B0B;color:#0B0B0B;text-decoration:none;font-size:8.5pt;font-weight:500;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}.fv .obtn:hover{background:#0B0B0B;color:#fff}'
         . '.fv .nt{margin-top:14px;padding-top:10px;border-top:1px solid #E6E4DF;font-size:10pt}.fv .nt .g{font-size:9pt;margin-bottom:3px}'
-        . '.fv .ft{margin-top:22px;border-top:1px solid #E6E4DF}.fv .ft td{padding-top:12px;font-size:9pt}.fv .ft .ty{font-size:11pt;font-weight:500;color:#0B0B0B;vertical-align:bottom}';
+        . '.fv .en{color:#8A8A8A;font-weight:400}.fv .en2{color:#6B6B6B}.fv .ft{margin-top:22px;border-top:1px solid #E6E4DF}.fv .ft td{padding-top:12px;font-size:9pt}.fv .ft .ty{font-size:11pt;font-weight:500;color:#0B0B0B;vertical-align:bottom}';
 }
 
 /** PDF jako string. */

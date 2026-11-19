@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'declare')
         db()->prepare('UPDATE invoices SET declared_at = ?, updated = ? WHERE id = ?')->execute([now(), now(), $id]);
         log_event($id, 'declare', 'Klient zgłosił, że zapłacił');
         [$s, $h, $tx] = admin_mail('Klient zgłosił wpłatę: ' . $inv['number'], 'Wpłata zgłoszona · ' . $inv['number'], ($inv['buyer']['name'] ?? 'Klient') . ' zgłasza',
-            'Klient kliknął „Zapłaciłem” przy fakturze ' . e($inv['number']) . ' na kwotę ' . e(money((int)$inv['gross'])) . '. Przypomnienia są wstrzymane. Gdy przelew dotrze, potwierdź wpłatę w panelu.', CV_SITE . '/panel?a=view&id=' . $id, 'wpłatę');
+            'Klient kliknął „Zapłaciłem” przy fakturze ' . e($inv['number']) . ' na kwotę ' . e(money((int)$inv['gross'], $inv['currency'] ?? 'PLN')) . '. Przypomnienia są wstrzymane. Gdy przelew dotrze, potwierdź wpłatę w panelu.', CV_SITE . '/panel?a=view&id=' . $id, 'wpłatę');
         send_mail([setting('mail_reply')], $s, $h, $tx, [], false);
     }
     header('Location: ' . $url . '?ok=1', true, 303); exit;
@@ -118,7 +118,7 @@ $v = @filemtime(__DIR__ . '/assets/panel.css') ?: 1;
   <section class="hero" aria-label="Płatność">
     <div class="l">
       <span class="k">Faktura <?= e($num) ?> · Do zapłaty</span>
-      <h1><?= e(money($gross)) ?></h1>
+      <h1><?= e(money($gross, $inv['currency'] ?? 'PLN')) ?></h1>
       <span class="who">dla <?= e($inv['buyer']['name'] ?? '') ?>, wystawiona <?= e(pl_date($inv['issue_date'])) ?></span>
       <span class="st <?= $status[1] ?>"><?= e($status[0]) ?></span>
       <div class="btns" style="margin-top:auto;padding-top:12px">
@@ -133,7 +133,7 @@ $v = @filemtime(__DIR__ . '/assets/panel.css') ?: 1;
       <div class="row2"><div><span class="lb">Numer konta<?= $s['bank_name'] !== '' ? ' · ' . e($s['bank_name']) : '' ?></span><span class="vl acc"><?= e(nrb_fmt($acc)) ?></span></div><?= $copy($acc, 'numer konta') ?></div>
       <div class="row2"><div><span class="lb">Odbiorca</span><span class="vl"><?= e($s['seller_name']) ?>, <?= e($s['seller_addr1']) ?>, <?= e($s['seller_addr2']) ?></span></div></div>
       <div class="row2"><div><span class="lb">Tytuł przelewu</span><span class="vl">Faktura <?= e($num) ?></span></div><?= $copy('Faktura ' . $num, 'tytuł') ?></div>
-      <div class="row2" style="border:0;padding:0"><div><span class="lb">Kwota</span><span class="vl"><?= e(money($gross)) ?></span></div><?= $copy(number_format($gross / 100, 2, ',', ''), 'kwotę') ?></div>
+      <div class="row2" style="border:0;padding:0"><div><span class="lb">Kwota</span><span class="vl"><?= e(money($gross, $inv['currency'] ?? 'PLN')) ?></span></div><?= $copy(number_format($gross / 100, 2, ',', ''), 'kwotę') ?></div>
       <?php if ($qr): ?>
       <div class="qrw"><div id="qr" data-qr="<?= e($qr) ?>" role="img" aria-label="Kod QR do przelewu"></div><p>Zeskanuj kod w aplikacji banku, a dane przelewu uzupełnią się same.</p></div>
       <?php endif ?>

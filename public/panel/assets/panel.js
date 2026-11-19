@@ -3,7 +3,8 @@
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var num = function (v) { v = String(v || '').replace(/\s| |zł/g, '').replace(',', '.'); var n = parseFloat(v); return isNaN(n) ? 0 : n; };
-  var fmt = function (c) { return (c / 100).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' zł'; };
+  var curr = function () { var c = document.getElementById('currency'); return c && c.value !== 'PLN' ? c.value : 'zł'; };
+  var fmt = function (c) { return (c / 100).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + '\u00a0' + curr(); };
 
   // kopiowanie
   $$('[data-copy]').forEach(function (b) {
@@ -36,7 +37,7 @@
   var clients = []; try { clients = JSON.parse($('#clients').textContent); } catch (e) {}
   $('#client_id').addEventListener('change', function () {
     var c = clients.filter(function (x) { return String(x.id) === this.value; }, this)[0];
-    ['nip', 'name', 'addr1', 'addr2', 'email', 'cc'].forEach(function (k) { var el = $('#' + k); if (el) el.value = c ? (c[k] || '') : ''; });
+    ['nip', 'name', 'addr1', 'addr2', 'country', 'email', 'cc'].forEach(function (k) { var el = $('#' + k); if (el) el.value = c ? (c[k] || '') : ''; });
   });
 
   // pozycje
@@ -56,6 +57,8 @@
     var d = e.target.closest('[data-del]'); if (!d) return;
     if ($$('[data-item]', box).length > 1) d.closest('[data-item]').remove(); else $$('input,textarea', d.closest('[data-item]')).forEach(function (i) { if (!i.hasAttribute('data-q')) i.value = ''; });
     recalc();
+  var cs = $('#currency'); if (cs) cs.addEventListener('change', recalc);
+  var co = $('#country'); if (co) co.addEventListener('change', function () { if (co.value.trim() && $('#lang').value === 'pl') $('#lang').value = 'pl-en'; });
   });
   $('#additem').addEventListener('click', function () {
     var w = document.createElement('div'); w.innerHTML = tpl.innerHTML.replace(/__N__/g, String(n++));

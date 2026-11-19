@@ -79,7 +79,7 @@ if ($post) {
             $d = (string)($_POST['paid_date'] ?? today()); if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $d)) $d = today();
             $amt = to_cents((string)($_POST['paid_amount'] ?? '')) ?: (int)$inv['gross'];
             db()->prepare("UPDATE invoices SET status = 'paid', paid_at = ?, paid_amount = ?, paid_method = ?, updated = ? WHERE id = ?")->execute([$d . ' 12:00:00', $amt, 'przelew', now(), $id]);
-            log_event($id, 'paid', 'Oznaczona jako opłacona: ' . money($amt) . ', ' . pl_date($d));
+            log_event($id, 'paid', 'Oznaczona jako opłacona: ' . money($amt, $inv['currency'] ?? 'PLN') . ', ' . pl_date($d));
             flash('Faktura ' . $inv['number'] . ' oznaczona jako opłacona.');
             redirect(P . '?a=view&id=' . $id);
         case 'unpaid':
@@ -122,8 +122,8 @@ if ($post) {
         case 'client_save':
             $c = client_from($_POST);
             if ($c['name'] === '') { flash('!Podaj nazwę klienta.'); redirect(P . '?a=clients'); }
-            if ($id) db()->prepare('UPDATE clients SET nip=?, name=?, addr1=?, addr2=?, email=?, cc=?, updated=? WHERE id=?')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['email'], $c['cc'], now(), $id]);
-            else db()->prepare('INSERT INTO clients (nip, name, addr1, addr2, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?)')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['email'], $c['cc'], now(), now()]);
+            if ($id) db()->prepare('UPDATE clients SET nip=?, name=?, addr1=?, addr2=?, country=?, email=?, cc=?, updated=? WHERE id=?')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['country'], $c['email'], $c['cc'], now(), $id]);
+            else db()->prepare('INSERT INTO clients (nip, name, addr1, addr2, country, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?,?)')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['country'], $c['email'], $c['cc'], now(), now()]);
             flash('Klient zapisany.');
             redirect(P . '?a=clients');
         case 'client_delete':
@@ -133,7 +133,7 @@ if ($post) {
             flash('Klient usunięty.');
             redirect(P . '?a=clients');
         case 'settings_save':
-            $keys = ['seller_name', 'seller_addr1', 'seller_addr2', 'seller_nip', 'seller_email', 'seller_phone', 'bank_name', 'bank_account', 'place', 'term_days', 'mail_from', 'mail_reply', 'r_before_days', 'r_w1_days', 'r_w2_days', 'interest_rate', 'footer_note'];
+            $keys = ['seller_name', 'seller_addr1', 'seller_addr2', 'seller_nip', 'seller_email', 'seller_phone', 'bank_name', 'bank_account', 'bank_swift', 'place', 'term_days', 'mail_from', 'mail_reply', 'r_before_days', 'r_w1_days', 'r_w2_days', 'interest_rate', 'footer_note'];
             foreach ($keys as $k) if (isset($_POST[$k])) set_setting($k, trim(mb_substr((string)$_POST[$k], 0, 300)));
             foreach (['mail_copy', 'r_before_on', 'r_due_on', 'r_w1_on', 'r_w2_on'] as $k) set_setting($k, !empty($_POST[$k]) ? '1' : '0');
             $acc = nrb_digits((string)($_POST['bank_account'] ?? ''));
@@ -155,6 +155,13 @@ if ($post) {
             $to = setting('mail_reply');
             flash(send_mail([$to], $sj, $h, $t, [], false) ? 'Wysłano test na ' . $to . '. Sprawdź skrzynkę i folder spam.' : '!Nie udało się wysłać testu.');
             redirect(P . '?a=settings');
+        case 'import':
+            $raw = is_uploaded_file($_FILES['file']['tmp_name'] ?? '') ? (string)file_get_contents($_FILES['file']['tmp_name']) : '';
+            $j = json_decode($raw, true);
+            if (!is_array($j) || !isset($j['invoices']) || !is_array($j['invoices'])) { flash('!To nie wygląda na plik importu faktur.'); redirect(P . '?a=settings#import'); }
+            [$ok, $skip] = import_invoices($j['invoices']);
+            flash('Zaimportowano ' . $ok . ' ' . plural($ok, 'fakturę', 'faktury', 'faktur') . ($skip ? '. Pominięte, bo już są w panelu: ' . implode(', ', $skip) : '') . '.');
+            redirect(P . '?a=list&y=' . date('Y') . '&m=0');
         case 'run':
             $r = run_reminders(true);
             flash('Sprawdzono przypomnienia. Wysłano: ' . count($r['sent'] ?? []) . '.');
@@ -176,7 +183,7 @@ switch ($a) {
     case 'view': view_invoice(must_invoice((int)($_GET['id'] ?? 0)));
     case 'clients': view_clients();
     case 'settings': view_settings();
-    default: run_reminders(); view_list();
+    default: run_reminders(); run_recurring(); view_list();
 }
 
 // =====================================================================
@@ -189,7 +196,7 @@ function must_invoice(int $id): array {
 
 function client_from(array $p): array {
     $f = fn($k) => trim(mb_substr((string)($p[$k] ?? ''), 0, 300));
-    return ['nip' => $f('nip'), 'name' => $f('name'), 'addr1' => $f('addr1'), 'addr2' => $f('addr2'), 'email' => $f('email'), 'cc' => $f('cc')];
+    return ['nip' => $f('nip'), 'name' => $f('name'), 'addr1' => $f('addr1'), 'addr2' => $f('addr2'), 'country' => $f('country'), 'email' => $f('email'), 'cc' => $f('cc')];
 }
 
 function next_number(string $ym): array {
@@ -228,14 +235,17 @@ function save_invoice(?int $id, array $p, string $act): array {
     if (!empty($p['save_client']) && $buyer['name'] !== '') {
         $cid = (int)($p['client_id'] ?? 0);
         if (!$cid && $buyer['nip'] !== '') { $s = $pdo->prepare('SELECT id FROM clients WHERE REPLACE(REPLACE(nip, "-", ""), " ", "") = ?'); $s->execute([nip_digits($buyer['nip'])]); $cid = (int)$s->fetchColumn(); }
-        if ($cid) $pdo->prepare('UPDATE clients SET nip=?, name=?, addr1=?, addr2=?, email=?, cc=?, updated=? WHERE id=?')->execute([$buyer['nip'], $buyer['name'], $buyer['addr1'], $buyer['addr2'], $buyer['email'], $buyer['cc'], now(), $cid]);
-        else { $pdo->prepare('INSERT INTO clients (nip, name, addr1, addr2, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?)')->execute([$buyer['nip'], $buyer['name'], $buyer['addr1'], $buyer['addr2'], $buyer['email'], $buyer['cc'], now(), now()]); $cid = (int)$pdo->lastInsertId(); }
+        if ($cid) $pdo->prepare('UPDATE clients SET nip=?, name=?, addr1=?, addr2=?, country=?, email=?, cc=?, updated=? WHERE id=?')->execute([$buyer['nip'], $buyer['name'], $buyer['addr1'], $buyer['addr2'], $buyer['country'], $buyer['email'], $buyer['cc'], now(), $cid]);
+        else { $pdo->prepare('INSERT INTO clients (nip, name, addr1, addr2, country, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?,?)')->execute([$buyer['nip'], $buyer['name'], $buyer['addr1'], $buyer['addr2'], $buyer['country'], $buyer['email'], $buyer['cc'], now(), now()]); $cid = (int)$pdo->lastInsertId(); }
         $clientId = $cid;
     } elseif ((int)($p['client_id'] ?? 0)) $clientId = (int)$p['client_id'];
     $f = [
         'client_id' => $clientId, 'buyer' => json_encode($buyer, JSON_UNESCAPED_UNICODE), 'issue_date' => $issue, 'sale_date' => $sale, 'due_date' => $due, 'term_days' => $term,
         'place' => trim((string)($p['place'] ?? setting('place'))), 'items' => json_encode($store, JSON_UNESCAPED_UNICODE),
         'book_ym' => preg_match('/^\d{4}-\d{2}$/', (string)($p['book_ym'] ?? '')) ? (string)$p['book_ym'] : substr($issue, 0, 7),
+        'currency' => isset(currencies()[(string)($p['currency'] ?? '')]) ? (string)$p['currency'] : 'PLN',
+        'lang' => ($p['lang'] ?? '') === 'pl-en' ? 'pl-en' : 'pl',
+        'recurring' => !empty($p['recurring']) ? 1 : 0,
         'net' => $c['net'], 'vat' => $c['vat'], 'gross' => $c['gross'], 'notes' => trim((string)($p['notes'] ?? '')), 'reminders' => !empty($p['reminders']) ? 1 : 0, 'updated' => now(),
     ];
     if ($old) {
@@ -274,6 +284,45 @@ function can_delete(array $inv): bool {
     $s = db()->prepare('SELECT MAX(seq) FROM invoices WHERE ym = ?'); $s->execute([$inv['ym']]);
     return (int)$s->fetchColumn() === (int)$inv['seq'];
 }
+/** Import faktur wystawionych wcześniej (np. z iFirmy). Numery zostają bez zmian. Zwraca [ile dodano, pominięte numery]. */
+function import_invoices(array $list): array {
+    $pdo = db(); $ok = 0; $skip = [];
+    $chk = $pdo->prepare('SELECT COUNT(*) FROM invoices WHERE number = ?');
+    foreach ($list as $x) {
+        $num = trim((string)($x['number'] ?? ''));
+        if (!preg_match('#^(\d+)/(\d{1,2})/(\d{4})$#', $num, $m)) continue;
+        $chk->execute([$num]); if ((int)$chk->fetchColumn() > 0) { $skip[] = $num; continue; }
+        $buyer = client_from((array)($x['buyer'] ?? []));
+        $c = calc_items((array)($x['items'] ?? []));
+        $store = array_map(fn($i) => ['name' => $i['name'], 'desc' => $i['desc'], 'qty' => $i['qty'], 'unit' => $i['unit'], 'price' => $i['price'], 'vat' => $i['vat']], $c['items']);
+        $d = fn($k) => preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)($x[$k] ?? '')) ? (string)$x[$k] : null;
+        $issue = $d('issue_date') ?? today(); $due = $d('due_date') ?? $issue;
+        $ym = sprintf('%04d-%02d', (int)$m[3], (int)$m[2]);
+        $pdo->beginTransaction();
+        $cid = null;
+        if ($buyer['name'] !== '') {
+            $q = $buyer['nip'] !== '' ? $pdo->prepare('SELECT id FROM clients WHERE REPLACE(REPLACE(REPLACE(nip, "-", ""), " ", ""), "PL", "") = ?') : $pdo->prepare('SELECT id FROM clients WHERE name = ?');
+            $q->execute([$buyer['nip'] !== '' ? str_replace('PL', '', preg_replace('/[\s-]/', '', $buyer['nip'])) : $buyer['name']]);
+            $cid = (int)$q->fetchColumn() ?: null;
+            if (!$cid) { $pdo->prepare('INSERT INTO clients (nip, name, addr1, addr2, country, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?,?)')->execute([$buyer['nip'], $buyer['name'], $buyer['addr1'], $buyer['addr2'], $buyer['country'], $buyer['email'], $buyer['cc'], now(), now()]); $cid = (int)$pdo->lastInsertId(); }
+        }
+        $paid = ($x['status'] ?? '') === 'paid';
+        $f = ['number' => $num, 'seq' => (int)$m[1], 'ym' => $ym, 'book_ym' => preg_match('/^\d{4}-\d{2}$/', (string)($x['book_ym'] ?? '')) ? $x['book_ym'] : $ym,
+            'client_id' => $cid, 'buyer' => json_encode($buyer, JSON_UNESCAPED_UNICODE), 'issue_date' => $issue, 'sale_date' => $d('sale_date') ?? $issue, 'due_date' => $due,
+            'term_days' => max(0, days_between($issue, $due)), 'place' => (string)($x['place'] ?? setting('place')), 'items' => json_encode($store, JSON_UNESCAPED_UNICODE),
+            'net' => $c['net'], 'vat' => $c['vat'], 'gross' => $c['gross'], 'notes' => (string)($x['notes'] ?? ''), 'status' => $paid ? 'paid' : 'issued', 'token' => bin2hex(random_bytes(16)),
+            'sent_at' => $issue . ' 12:00:00', 'paid_at' => $paid ? (($d('paid_date') ?? $due) . ' 12:00:00') : null, 'paid_amount' => $paid ? $c['gross'] : null, 'paid_method' => $paid ? 'przelew' : null,
+            'reminders' => !empty($x['reminders']) ? 1 : 0, 'currency' => isset(currencies()[(string)($x['currency'] ?? '')]) ? $x['currency'] : 'PLN', 'lang' => ($x['lang'] ?? '') === 'pl-en' ? 'pl-en' : 'pl',
+            'recurring' => !empty($x['recurring']) ? 1 : 0, 'source' => (string)($x['source'] ?? 'import'), 'created' => now(), 'updated' => now()];
+        $pdo->prepare('INSERT INTO invoices (' . implode(', ', array_keys($f)) . ') VALUES (:' . implode(', :', array_keys($f)) . ')')->execute($f);
+        $id = (int)$pdo->lastInsertId();
+        $pdo->commit();
+        log_event($id, 'create', 'Zaimportowano fakturę ' . $num . ' (' . $f['source'] . ')' . ($paid ? ', opłacona' : ''));
+        $ok++;
+    }
+    return [$ok, $skip];
+}
+
 function can_edit(array $inv): bool { return $inv['status'] === 'draft' || ($inv['status'] === 'issued' && empty($inv['sent_at'])); }
 
 function nip_lookup(string $nip): void {
@@ -385,13 +434,14 @@ function view_list(): never {
     $bym = fn($i) => (string)($i['book_ym'] ?: substr((string)($i['issue_date'] ?: $i['created']), 0, 7));
     $inPeriod = fn($i) => str_starts_with($bym($i), $period);
     $cnt = ['all' => 0, 'open' => 0, 'late' => 0, 'paid' => 0, 'draft' => 0];
-    $open = 0; $openN = 0; $late = 0; $lateN = 0; $sale = 0; $saleNet = 0; $saleN = 0; $days = []; $months = []; $years = [(int)date('Y') => 1, $y => 1];
+    $fxOpen = []; $fxLate = []; $fxSale = []; $open = 0; $openN = 0; $late = 0; $lateN = 0; $sale = 0; $saleNet = 0; $saleN = 0; $days = []; $months = []; $years = [(int)date('Y') => 1, $y => 1];
     foreach ($all as $i) {
         $st = inv_state($i); $b = $bym($i);
         $years[(int)substr($b, 0, 4)] = 1;
         if (substr($b, 0, 4) === (string)$y) $months[(int)substr($b, 5, 2)] = ($months[(int)substr($b, 5, 2)] ?? 0) + 1;
-        if (in_array($st, ['due', 'today', 'late'], true)) { $open += (int)$i['gross']; $openN++; }
-        if ($st === 'late') { $late += (int)$i['gross']; $lateN++; }
+        $pln = ($i['currency'] ?? 'PLN') === 'PLN'; $cu = $i['currency'] ?? 'PLN';
+        if (in_array($st, ['due', 'today', 'late'], true)) { if ($pln) $open += (int)$i['gross']; else $fxOpen[$cu] = ($fxOpen[$cu] ?? 0) + (int)$i['gross']; $openN++; }
+        if ($st === 'late') { if ($pln) $late += (int)$i['gross']; else $fxLate[$cu] = ($fxLate[$cu] ?? 0) + (int)$i['gross']; $lateN++; }
         if ($st === 'paid') $days[] = max(0, days_between((string)$i['issue_date'], substr((string)$i['paid_at'], 0, 10)));
         if (!$inPeriod($i) && $q === '') continue;
         $cnt['all']++;
@@ -399,7 +449,7 @@ function view_list(): never {
         if ($st === 'late') $cnt['late']++;
         if ($st === 'paid') $cnt['paid']++;
         if ($st === 'draft') $cnt['draft']++;
-        if ($inPeriod($i) && !in_array($st, ['draft', 'cancelled'], true)) { $sale += (int)$i['gross']; $saleNet += (int)$i['net']; $saleN++; }
+        if ($inPeriod($i) && !in_array($st, ['draft', 'cancelled'], true)) { if ($pln) { $sale += (int)$i['gross']; $saleNet += (int)$i['net']; } else $fxSale[$cu] = ($fxSale[$cu] ?? 0) + (int)$i['gross']; $saleN++; }
     }
     $rows = array_filter($all, function ($i) use ($tab, $q, $inPeriod) {
         if ($q === '' && !$inPeriod($i)) return false;
@@ -409,10 +459,11 @@ function view_list(): never {
         return $ok;
     });
     $avg = $days ? (int)round(array_sum($days) / count($days)) : null;
+    $fx = function (array $a): string { $o = ''; foreach ($a as $k => $v) $o .= '<span class="fx">+ ' . money($v, $k) . '</span>'; return $o; };
     $kpi = '<section class="kpis" aria-label="Podsumowanie">'
-        . '<div class="kpi dark"><span class="t">Do zapłaty</span><span class="v">' . money($open) . '</span><span class="s">' . ($openN ? $openN . ' ' . plural($openN, 'faktura czeka', 'faktury czekają', 'faktur czeka') . ' na wpłatę' : 'Wszystko opłacone') . '</span></div>'
-        . '<div class="kpi"><span class="t">Po terminie</span><span class="v' . ($late ? ' red' : '') . '">' . money($late) . '</span><span class="s">' . ($lateN ? $lateN . ' ' . plural($lateN, 'faktura', 'faktury', 'faktur') . ', wezwania idą same' : 'Nikt nie zalega') . '</span></div>'
-        . '<div class="kpi"><span class="t">Sprzedaż: ' . e($periodTxt) . '</span><span class="v">' . money($sale) . '</span><span class="s">netto ' . money($saleNet) . ' · ' . $saleN . ' ' . plural($saleN, 'faktura', 'faktury', 'faktur') . '</span></div>'
+        . '<div class="kpi dark"><span class="t">Do zapłaty</span><span class="v">' . money($open) . '</span>' . $fx($fxOpen) . '<span class="s">' . ($openN ? $openN . ' ' . plural($openN, 'faktura czeka', 'faktury czekają', 'faktur czeka') . ' na wpłatę' : 'Wszystko opłacone') . '</span></div>'
+        . '<div class="kpi"><span class="t">Po terminie</span><span class="v' . ($late ? ' red' : '') . '">' . money($late) . '</span>' . $fx($fxLate) . '<span class="s">' . ($lateN ? $lateN . ' ' . plural($lateN, 'faktura', 'faktury', 'faktur') . ', wezwania idą same' : 'Nikt nie zalega') . '</span></div>'
+        . '<div class="kpi"><span class="t">Sprzedaż: ' . e($periodTxt) . '</span><span class="v">' . money($sale) . '</span>' . $fx($fxSale) . '<span class="s">netto ' . money($saleNet) . ' · ' . $saleN . ' ' . plural($saleN, 'faktura', 'faktury', 'faktur') . '</span></div>'
         . '<div class="kpi"><span class="t">Średni czas zapłaty</span><span class="v">' . ($avg === null ? '–' : $avg . ' ' . plural($avg, 'dzień', 'dni', 'dni')) . '</span><span class="s">od wystawienia do wpłaty</span></div></section>';
     $qs = fn(array $o) => P . '?' . http_build_query(array_merge(['y' => $y, 'm' => $m, 't' => $tab], $o));
     $mp = '';
@@ -435,7 +486,7 @@ function view_list(): never {
         $tr .= '<tr class="row"><td class="c-num nw"><a class="num" href="' . $url . '">' . e($i['number'] ?: 'Szkic') . '</a></td>'
             . '<td class="c-cli"><span>' . e($i['buyer']['name'] ?? 'Bez nabywcy') . '</span><span class="sub">' . e(mb_strimwidth($first, 0, 60, '…')) . '</span></td>'
             . '<td class="c-due nw">' . e(pl_date($i['due_date'])) . '<span class="sub ' . $wc . '">' . e($w) . '</span></td>'
-            . '<td class="c-amt r amt">' . money((int)$i['gross']) . '</td>'
+            . '<td class="c-amt r amt">' . money((int)$i['gross'], $i['currency'] ?? 'PLN') . '</td>'
             . '<td class="c-st nw">' . state_chip($i) . '</td>'
             . '<td class="c-act r nw"><a class="link" href="' . $url . '">' . $act . '</a></td></tr>';
     }
@@ -450,7 +501,7 @@ function view_list(): never {
     $lastPaid = db()->query("SELECT * FROM invoices WHERE status = 'paid' ORDER BY paid_at DESC LIMIT 1")->fetch();
     $side = '<aside class="side" aria-label="Automatyczne wiadomości"><div class="card pad sec"><div class="hrow"><h2>Wyślemy sami</h2><a class="link" href="' . P . '?a=settings#auto">Ustawienia</a></div>'
         . '<div class="sched">' . ($up ?: '<span class="mut">Nic nie czeka w kolejce. Przypomnienia pojawią się tu, gdy wyślesz fakturę.</span>') . '</div></div>'
-        . ($lastPaid ? '<div class="dark-card"><span class="k">Ostatnia wpłata</span><span class="v">' . e(json_decode($lastPaid['buyer'], true)['name'] ?? '') . ' · ' . money((int)($lastPaid['paid_amount'] ?: $lastPaid['gross'])) . '</span><span class="s">Faktura ' . e($lastPaid['number']) . ', ' . e(pl_date($lastPaid['paid_at'])) . '</span></div>' : '')
+        . ($lastPaid ? '<div class="dark-card"><span class="k">Ostatnia wpłata</span><span class="v">' . e(json_decode($lastPaid['buyer'], true)['name'] ?? '') . ' · ' . money((int)($lastPaid['paid_amount'] ?: $lastPaid['gross']), $lastPaid['currency'] ?? 'PLN') . '</span><span class="s">Faktura ' . e($lastPaid['number']) . ', ' . e(pl_date($lastPaid['paid_at'])) . '</span></div>' : '')
         . '</aside>';
     $acts = '<form class="search" role="search" method="get" action="' . P . '"><input type="hidden" name="t" value="' . e($tab) . '"><input type="hidden" name="y" value="' . $y . '"><input type="hidden" name="m" value="' . $m . '">' . icon('search') . '<label class="sr" for="q">Szukaj faktury</label><input id="q" type="search" name="q" value="' . e($q) . '" placeholder="Szukaj klienta lub numeru"></form>'
         . '<a class="btn" href="' . P . '?a=new">Nowa faktura ' . icon('plus') . '</a>';
@@ -467,7 +518,7 @@ function view_form(?array $inv): never {
     $issue = $f['issue_date'] ?? ($inv['issue_date'] ?? today());
     $term = (int)($f['term_days'] ?? ($inv['term_days'] ?? setting('term_days')));
     $due = $f['due_date'] ?? ($inv['due_date'] ?? date('Y-m-d', strtotime($issue . " +$term days")));
-    $clients = db()->query('SELECT id, nip, name, addr1, addr2, email, cc FROM clients ORDER BY name')->fetchAll();
+    $clients = db()->query('SELECT id, nip, name, addr1, addr2, country, email, cc FROM clients ORDER BY name')->fetchAll();
     if (!$inv && !$f && ($cid = (int)($_GET['client'] ?? 0))) foreach ($clients as $c) if ((int)$c['id'] === $cid) $b = $c;
     $opts = '<option value="">Nowy klient</option>';
     foreach ($clients as $c) $opts .= '<option value="' . $c['id'] . '"' . ((int)($inv['client_id'] ?? ($b['id'] ?? 0)) === (int)$c['id'] ? ' selected' : '') . '>' . e($c['name']) . '</option>';
@@ -488,6 +539,7 @@ function view_form(?array $inv): never {
         . '<label class="f">Nazwa firmy<input class="in" name="name" id="name" value="' . $v('name') . '" required></label>'
         . '<label class="f">Ulica i numer<input class="in" name="addr1" id="addr1" value="' . $v('addr1') . '"></label>'
         . '<label class="f">Kod pocztowy i miasto<input class="in" name="addr2" id="addr2" value="' . $v('addr2') . '"></label>'
+        . '<label class="f">Kraj (tylko spoza Polski)<input class="in" name="country" id="country" value="' . $v('country') . '" placeholder="np. Stany Zjednoczone / United States"></label>'
         . '<label class="f">E-mail do faktur<input class="in" type="email" name="email" id="email" value="' . $v('email') . '"></label>'
         . '<label class="f">Kopia do (opcjonalnie)<input class="in" name="cc" id="cc" value="' . $v('cc') . '" placeholder="adresy po przecinku"></label></div>'
         . '<label class="check"><input type="checkbox" name="save_client" value="1" checked> Zapisz lub zaktualizuj klienta na liście</label></section>'
@@ -506,6 +558,11 @@ function view_form(?array $inv): never {
         . '<label class="f">Płatne do<input class="in" type="date" name="due_date" id="due_date" value="' . e($due) . '"></label>'
         . '<label class="f">Miesiąc księgowy<select class="in" name="book_ym" id="book_ym">' . book_opts((string)($f['book_ym'] ?? ($inv['book_ym'] ?? substr($issue, 0, 7)))) . '</select></label>'
         . '<label class="f">Miejsce wystawienia<input class="in" name="place" value="' . e((string)($f['place'] ?? ($inv['place'] ?? setting('place')))) . '"></label></section>'
+        . '<section class="card pad sec"><h2>Waluta i język</h2>'
+        . '<label class="f">Waluta<select class="in" name="currency" id="currency">' . implode('', array_map(fn($k, $l) => '<option value="' . $k . '"' . ($k === (string)($f['currency'] ?? ($inv['currency'] ?? 'PLN')) ? ' selected' : '') . '>' . $l . '</option>', array_keys(currencies()), currencies())) . '</select></label>'
+        . '<label class="f">Język faktury<select class="in" name="lang" id="lang"><option value="pl">Polski</option><option value="pl-en"' . ((string)($f['lang'] ?? ($inv['lang'] ?? 'pl')) === 'pl-en' ? ' selected' : '') . '>Polski i angielski (klient zagraniczny)</option></select></label>'
+        . '<span class="mut" style="font-size:13px">Dla klienta spoza UE wybierz stawkę „np.”: na fakturze pojawi się adnotacja o odwrotnym obciążeniu.</span>'
+        . '<label class="check"><input type="checkbox" name="recurring" value="1"' . ((int)($f['recurring'] ?? ($inv['recurring'] ?? 0)) ? ' checked' : '') . '> Faktura cykliczna: co miesiąc przygotuj szkic kolejnej</label></section>'
         . '<section class="card pad sec"><h2>Przypomnienia</h2><label class="check"><input type="checkbox" name="reminders" value="1"' . ((int)($f['reminders'] ?? ($inv['reminders'] ?? 1)) ? ' checked' : '') . '> Wyślij przypomnienia i wezwania automatycznie</label>'
         . '<span class="mut" style="font-size:13px">Według harmonogramu z ustawień. Zatrzymają się same, gdy oznaczysz wpłatę.</span></section>'
         . '<section class="card pad sec"><h2>Numer</h2><span>' . ($num ? e($num) : 'Nadamy przy wystawieniu, kolejny: <b style="font-weight:500">' . e(next_number(substr($issue, 0, 7))[1]) . '</b>') . '</span></section>'
@@ -566,11 +623,11 @@ function view_invoice(array $inv): never {
     if ($inv['status'] === 'paid') $acts .= $f('unpaid', 'Cofnij oznaczenie wpłaty');
     $kv = '<div class="kv">'
         . '<div><span>Status</span>' . state_chip($inv) . '</div>'
-        . '<div><span>Do zapłaty</span><b style="font-weight:500">' . money((int)$inv['gross']) . '</b></div>'
+        . '<div><span>Do zapłaty</span><b style="font-weight:500">' . money((int)$inv['gross'], $inv['currency'] ?? 'PLN') . '</b></div>'
         . '<div><span>Termin</span><span>' . e(pl_date($inv['due_date'])) . '</span></div>'
         . ($inv['sent_at'] ? '<div><span>Wysłana</span><span>' . e(date('d.m.Y H:i', strtotime($inv['sent_at']))) . '</span></div>' : '')
         . ($inv['viewed_at'] ? '<div><span>Klient otworzył</span><span>' . e(date('d.m.Y H:i', strtotime($inv['viewed_at']))) . '</span></div>' : '')
-        . ($inv['paid_at'] ? '<div><span>Wpłata</span><span class="ok-t">' . e(pl_date($inv['paid_at'])) . ', ' . money((int)$inv['paid_amount']) . '</span></div>' : '')
+        . ($inv['paid_at'] ? '<div><span>Wpłata</span><span class="ok-t">' . e(pl_date($inv['paid_at'])) . ', ' . money((int)$inv['paid_amount'], $inv['currency'] ?? 'PLN') . '</span></div>' : '')
         . '</div>';
     $decl = '';
     if (!empty($inv['declared_at']) && $inv['status'] === 'issued') {
@@ -602,16 +659,22 @@ function view_invoice(array $inv): never {
 
 // ---------- klienci ----------
 function view_clients(): never {
-    $rows = db()->query("SELECT c.*, COUNT(i.id) AS n, COALESCE(SUM(CASE WHEN i.status = 'paid' THEN i.gross END), 0) AS paid, COALESCE(SUM(CASE WHEN i.status = 'issued' THEN i.gross END), 0) AS open
-        FROM clients c LEFT JOIN invoices i ON i.client_id = c.id GROUP BY c.id ORDER BY c.name")->fetchAll();
+    $rows = db()->query('SELECT c.*, COUNT(i.id) AS n FROM clients c LEFT JOIN invoices i ON i.client_id = c.id GROUP BY c.id ORDER BY c.name')->fetchAll();
+    $sums = [];
+    foreach (db()->query("SELECT client_id, currency, status, SUM(gross) AS g FROM invoices WHERE status IN ('paid', 'issued') GROUP BY client_id, currency, status") as $r)
+        $sums[(int)$r['client_id']][$r['status']][$r['currency']] = (int)$r['g'];
+    $sumtxt = function (int $cid, string $st) use ($sums): string {
+        $a = $sums[$cid][$st] ?? []; if (!$a) return money(0);
+        return implode('<br>', array_map(fn($k, $v) => money($v, $k), array_keys($a), $a));
+    };
     $edit = (int)($_GET['id'] ?? 0); $ec = ['id' => 0, 'nip' => '', 'name' => '', 'addr1' => '', 'addr2' => '', 'email' => '', 'cc' => ''];
     $tr = '';
     foreach ($rows as $c) {
         if ($c['id'] == $edit) $ec = $c;
         $tr .= '<tr class="row"><td class="c-cli"><span style="font-weight:500">' . e($c['name']) . '</span><span class="sub">' . e(trim($c['nip'] . ' · ' . $c['email'], ' ·')) . '</span></td>'
             . '<td class="c-due nw">' . (int)$c['n'] . ' ' . plural((int)$c['n'], 'faktura', 'faktury', 'faktur') . '</td>'
-            . '<td class="c-amt r amt">' . money((int)$c['open']) . '<span class="sub">do zapłaty</span></td>'
-            . '<td class="c-st r amt">' . money((int)$c['paid']) . '<span class="sub">opłacone</span></td>'
+            . '<td class="c-amt r amt">' . $sumtxt((int)$c['id'], 'issued') . '<span class="sub">do zapłaty</span></td>'
+            . '<td class="c-st r amt">' . $sumtxt((int)$c['id'], 'paid') . '<span class="sub">opłacone</span></td>'
             . '<td class="c-act r nw"><a class="link" href="' . P . '?a=new&client=' . $c['id'] . '">Faktura</a> &nbsp; <a class="link" href="' . P . '?a=clients&id=' . $c['id'] . '#edit">Edytuj</a></td></tr>';
     }
     $v = fn($k) => e((string)$ec[$k]);
@@ -638,7 +701,7 @@ function view_settings(): never {
     $body = '<form class="sec" method="post" action="' . P . '?a=settings_save">' . csrf_field()
         . '<div class="cols"><div class="wide sec">'
         . '<section class="card pad sec"><h2>Sprzedawca</h2><div class="grid2">' . $in('seller_name', 'Nazwa') . $in('seller_nip', 'NIP') . $in('seller_addr1', 'Ulica i numer') . $in('seller_addr2', 'Kod pocztowy i miasto') . $in('seller_email', 'E-mail na fakturze', 'email') . $in('seller_phone', 'Telefon') . '</div></section>'
-        . '<section class="card pad sec"><h2>Konto bankowe</h2><div class="grid2">' . $in('bank_account', 'Numer konta (26 cyfr)', 'text', ' inputmode="numeric" placeholder="00 0000 0000 0000 0000 0000 0000"') . $in('bank_name', 'Nazwa banku') . '</div>'
+        . '<section class="card pad sec"><h2>Konto bankowe</h2><div class="grid2">' . $in('bank_account', 'Numer konta (26 cyfr)', 'text', ' inputmode="numeric" placeholder="00 0000 0000 0000 0000 0000 0000"') . $in('bank_name', 'Nazwa banku') . $in('bank_swift', 'SWIFT / BIC (dla klientów zagranicznych)') . '</div>'
         . (nrb_digits(setting('bank_account')) === '' ? '<span class="late-t" style="font-size:14px">Uzupełnij numer konta, zanim wyślesz pierwszą fakturę. Pojawi się na fakturze, w mailach i na stronie płatności.</span>' : '') . '</section>'
         . '<section class="card pad sec"><h2>Faktury</h2><div class="grid3">' . $in('place', 'Miejsce wystawienia') . $in('term_days', 'Domyślny termin (dni)', 'number', ' min="0" max="120"')
         . '<label class="f">Następny numer w tym miesiącu<input class="in" type="number" name="next_seq" min="1" placeholder="' . e(explode('/', $nextNum)[0]) . '"></label></div>'
@@ -656,6 +719,8 @@ function view_settings(): never {
         . '<section class="card pad sec"><h2>Wysyłka maili</h2>' . $in('mail_from', 'Nadawca', 'email') . $in('mail_reply', 'Odpowiedzi i kopie na', 'email')
         . '<label class="check"><input type="checkbox" name="mail_copy" value="1"' . $ch('mail_copy') . '> Wysyłaj mi ukrytą kopię każdego maila</label></section>'
         . '<button class="btn">Zapisz ustawienia</button></aside></div></form>'
+        . '<section class="card pad sec" id="import"><h2>Import faktur</h2><span class="mut" style="font-size:14px">Wgraj plik z fakturami wystawionymi wcześniej (przygotowuję go z PDF-ów). Numery zostają bez zmian, a faktury, które już są w panelu, zostaną pominięte.</span>'
+        . '<form class="hrow" method="post" action="' . P . '?a=import" enctype="multipart/form-data" style="justify-content:flex-start;flex-wrap:wrap">' . csrf_field() . '<input class="in" type="file" name="file" accept=".json,application/json" required style="max-width:360px;padding-top:10px"><button class="btn ghost">Importuj</button></form></section>'
         . '<div class="cols"><section class="card pad sec wide"><h2>Hasło</h2><form class="grid3" method="post" action="' . P . '?a=password" style="align-items:end">' . csrf_field()
         . '<label class="f">Obecne hasło<input class="in" type="password" name="old" autocomplete="current-password" required></label><label class="f">Nowe hasło<input class="in" type="password" name="new" minlength="10" autocomplete="new-password" required></label><button class="btn ghost">Zmień hasło</button></form></section>'
         . '<section class="card pad sec side"><h2>Test wysyłki</h2><span class="mut" style="font-size:14px">Wyśle krótką wiadomość na adres z pola „Odpowiedzi i kopie na”.</span><form method="post" action="' . P . '?a=testmail">' . csrf_field() . '<button class="btn ghost">Wyślij test</button></form>'

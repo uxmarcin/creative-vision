@@ -39,6 +39,9 @@ function migrate(PDO $pdo): void {
         sent_at TEXT, viewed_at TEXT, declared_at TEXT, paid_at TEXT, paid_amount INTEGER, paid_method TEXT,
         ksef TEXT, reminders INTEGER NOT NULL DEFAULT 1, created TEXT NOT NULL, updated TEXT NOT NULL)');
     $cols = array_column($pdo->query('PRAGMA table_info(invoices)')->fetchAll(PDO::FETCH_ASSOC), 'name');
+    foreach (['currency' => "TEXT NOT NULL DEFAULT 'PLN'", 'lang' => "TEXT NOT NULL DEFAULT 'pl'", 'recurring' => 'INTEGER NOT NULL DEFAULT 0', 'source' => 'TEXT'] as $c => $def)
+        if (!in_array($c, $cols, true)) $pdo->exec("ALTER TABLE invoices ADD COLUMN $c $def");
+    if (!in_array('country', array_column($pdo->query('PRAGMA table_info(clients)')->fetchAll(PDO::FETCH_ASSOC), 'name'), true)) $pdo->exec('ALTER TABLE clients ADD COLUMN country TEXT');
     if (!in_array('book_ym', $cols, true)) {
         $pdo->exec('ALTER TABLE invoices ADD COLUMN book_ym TEXT');
         $pdo->exec('UPDATE invoices SET book_ym = substr(COALESCE(issue_date, created), 1, 7)');
@@ -57,6 +60,7 @@ const DEFAULTS = [
     'seller_email' => 'kontakt@creative-vision.pl',
     'seller_phone' => '534 154 230',
     'bank_name' => '',
+    'bank_swift' => '',
     'bank_account' => '',
     'place' => 'Rzeszów',
     'term_days' => '7',
@@ -140,11 +144,14 @@ function to_cents(string $v): int {
     if ($v === '' || !is_numeric($v)) return 0;
     return (int)round(((float)$v) * 100);
 }
-function money(int $c, bool $cur = true): string {
+/** Kwota z groszy. $cur: true = zł, false = bez waluty, kod waluty (PLN, USD, EUR). */
+function money(int $c, bool|string $cur = true): string {
     $s = number_format(abs($c) / 100, 2, ',', ' ');
     $s = str_replace(' ', "\u{00A0}", $s);
-    return ($c < 0 ? '-' : '') . $s . ($cur ? "\u{00A0}zł" : '');
+    $sym = $cur === true || $cur === 'PLN' ? 'zł' : ($cur === false ? '' : $cur);
+    return ($c < 0 ? '-' : '') . $s . ($sym !== '' ? "\u{00A0}" . $sym : '');
 }
+function currencies(): array { return ['PLN' => 'PLN (zł)', 'USD' => 'USD ($)', 'EUR' => 'EUR (€)']; }
 function pl_date(?string $d): string { return $d ? date('d.m.Y', strtotime($d)) : ''; }
 function days_between(string $a, string $b): int { return (int)round((strtotime($b) - strtotime($a)) / 86400); }
 
@@ -171,7 +178,7 @@ function calc_items(array $items): array {
 function qty_fmt(float $q): string { return rtrim(rtrim(number_format($q, 2, ',', ''), '0'), ','); }
 
 /** Kwota słownie po polsku, np. "dwanaście tysięcy sto pięćdziesiąt dwa złote 40/100". */
-function slownie(int $cents): string {
+function slownie(int $cents, string $currency = 'PLN'): string {
     $zl = intdiv($cents, 100); $gr = $cents % 100;
     $j = ['', 'jeden', 'dwa', 'trzy', 'cztery', 'pięć', 'sześć', 'siedem', 'osiem', 'dziewięć'];
     $n = ['dziesięć', 'jedenaście', 'dwanaście', 'trzynaście', 'czternaście', 'piętnaście', 'szesnaście', 'siedemnaście', 'osiemnaście', 'dziewiętnaście'];
@@ -206,7 +213,30 @@ function slownie(int $cents): string {
     }
     $u = $zl % 10; $t = $zl % 100;
     $cur = ($zl === 1) ? 'złoty' : (($u >= 2 && $u <= 4 && !($t >= 12 && $t <= 14)) ? 'złote' : 'złotych');
+    if ($currency !== 'PLN') return $words . ' ' . $currency . ' ' . sprintf('%02d', $gr) . '/100';
     return $words . ' ' . $cur . ' ' . sprintf('%02d', $gr) . '/100';
+}
+
+/** Kwota słownie po angielsku, np. "three thousand five hundred USD 00/100". */
+function words_en(int $cents, string $currency): string {
+    $n = intdiv($cents, 100); $gr = $cents % 100;
+    $o = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+    $t = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+    $three = function (int $x) use ($o, $t): string {
+        $w = [];
+        if ($x >= 100) $w[] = $o[intdiv($x, 100)] . ' hundred';
+        $r = $x % 100;
+        if ($r >= 20) $w[] = $t[intdiv($r, 10)] . ($r % 10 ? '-' . $o[$r % 10] : '');
+        elseif ($r > 0) $w[] = $o[$r];
+        return implode(' ', $w);
+    };
+    if ($n === 0) $words = 'zero';
+    else {
+        $parts = []; $sc = ['', ' thousand', ' million']; $i = 0;
+        while ($n > 0 && $i < 3) { $g = $n % 1000; if ($g) array_unshift($parts, $three($g) . $sc[$i]); $n = intdiv($n, 1000); $i++; }
+        $words = implode(' ', $parts);
+    }
+    return $words . ' ' . $currency . ' ' . sprintf('%02d', $gr) . '/100';
 }
 
 function nip_digits(string $nip): string { return preg_replace('/\D/', '', $nip) ?? ''; }
