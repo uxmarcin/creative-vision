@@ -894,7 +894,7 @@ function view_list(): never {
         . '<div class="kpi"><span class="t">Średni czas zapłaty</span><span class="v">' . ($avg === null ? '–' : $avg . ' ' . plural($avg, 'dzień', 'dni', 'dni')) . '</span><span class="s">od wystawienia do wpłaty</span></div></div></section>';
     $qs = fn(array $o) => P . '?' . http_build_query(array_merge(['a' => 'list', 'y' => $y, 'm' => $m, 't' => $tab], $o));
     $mp = '';
-    for ($i = 1; $i <= 12; $i++) $mp .= '<a href="' . $qs(['m' => $i, 'q' => null]) . '" class="' . trim(($m === $i ? 'on' : '') . (!empty($months[$i]) ? ' has' : '') . (sprintf('%04d-%02d', $y, $i) === date('Y-m') ? ' now' : '') . (sprintf('%04d-%02d', $y, $i) > date('Y-m') ? ' fut' : '')) . '" title="' . pl_month($i) . ' ' . $y . (!empty($months[$i]) ? ': ' . $months[$i] . ' ' . plural($months[$i], 'faktura', 'faktury', 'faktur') : '') . '"' . ($m === $i ? ' aria-current="true"' : '') . '>' . pl_mshort($i) . '</a>';
+    for ($i = 1; $i <= 12; $i++) $mp .= '<a href="' . $qs(['m' => $i, 'q' => null]) . '" class="' . trim(($m === $i ? 'on' : '') . (!empty($months[$i]) ? ' has' : '') . (sprintf('%04d-%02d', $y, $i) === date('Y-m') ? ' now' : '') . (sprintf('%04d-%02d', $y, $i) > date('Y-m') ? ' fut' : '')) . '" title="' . pl_month($i) . ' ' . $y . (!empty($months[$i]) ? ': ' . $months[$i] . ' ' . plural($months[$i], 'faktura', 'faktury', 'faktur') : '') . '"' . ($m === $i ? ' aria-current="true"' : '') . '><b>' . sprintf('%02d', $i) . '</b><span>' . pl_mshort($i) . '</span></a>';
     krsort($years); $yo = '';
     foreach (array_keys($years) as $yy) $yo .= '<option value="' . $yy . '"' . ($yy === $y ? ' selected' : '') . '>' . $yy . '</option>';
     $per = '<div class="period"><div class="pl"><span class="k">Miesiąc księgowy</span><b>' . e(ucfirst($periodTxt)) . '</b></div>'
@@ -942,7 +942,7 @@ function view_list(): never {
         . '</aside>';
     $acts = '<form class="search" role="search" method="get" action="' . P . '"><input type="hidden" name="a" value="list"><input type="hidden" name="t" value="' . e($tab) . '"><input type="hidden" name="y" value="' . $y . '"><input type="hidden" name="m" value="' . $m . '">' . icon('search') . '<label class="sr" for="q">Szukaj faktury</label><input id="q" type="search" name="q" value="' . e($q) . '" placeholder="Szukaj klienta lub numeru"></form>'
         . '<a class="btn" href="' . P . '?a=new">Nowa faktura ' . icon('plus') . '</a>';
-    page('Faktury', 'list', $kpi . '<div class="cols">' . $table . $side . '</div>', ucfirst($periodTxt), $acts);
+    page('Faktury', 'list', $kpi . '<div class="cols">' . $table . $side . '</div>', 'Miesiąc księgowy: ' . $periodTxt, $acts);
 }
 
 // ---------- formularz ----------

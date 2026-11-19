@@ -925,3 +925,26 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 .slowc-t{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;font-size:14px}.slowc-t b{font-weight:500}.slowc-t span{color:var(--mut);font-size:13px}
 .slowc-a{display:flex;gap:8px;flex:none}
 @media(max-width:900px){.slowc{bottom:96px;flex-direction:column;align-items:stretch}.slowc-a .btn{flex:1}}
+
+/* miesiące: duże numery, etykieta okresu obok wyboru roku */
+.period{flex-wrap:nowrap}
+.period .months{order:1;flex:1 1 auto}
+.period .pl{order:2;margin:0 0 0 8px;min-width:0;text-align:right;align-items:flex-end}
+.period .yearf{order:3}
+.months a{flex:1 0 52px;height:60px;flex-direction:column;gap:2px;padding:0 8px}
+.months a b{font-size:18px;font-weight:500;line-height:1;font-variant-numeric:tabular-nums;color:inherit}
+.months a span{font-size:12px;line-height:1;color:inherit;opacity:.75}
+.months a.has::after{left:auto;right:7px;top:7px;bottom:auto;margin:0}
+.months a.fut b,.months a.fut span{opacity:.6}
+.months a.yr{flex:0 0 auto;padding:0 16px}
+@media(max-width:1100px){.period{flex-wrap:wrap}.period .months{flex-basis:100%;order:3}.period .pl{order:1;margin-right:auto;text-align:left;align-items:flex-start}.period .yearf{order:2}}
+@media(max-width:900px){.months a{height:54px;flex-basis:50px}.months a b{font-size:16px}}
+
+/* okres pokazujemy w nagłówku strony, pasek miesięcy na całą szerokość */
+.period .pl{display:none}
+.period{flex-wrap:nowrap}
+.period .months{order:1;flex:1 1 auto;flex-basis:auto}
+.period .yearf{order:2}
+@media(max-width:1100px){.period{flex-wrap:nowrap}.period .months{flex-basis:auto;order:1}.period .yearf{order:2}}
+@media(max-width:900px){.period{display:flex;flex-wrap:wrap}.period .months{flex-basis:100%;order:2}.period .yearf{order:1;margin-left:auto}}
+.months a{flex:1 1 0;min-width:46px}.months a.yr{flex:0 0 auto}

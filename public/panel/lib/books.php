@@ -303,7 +303,7 @@ function view_books(): never {
     foreach ($q->fetchAll(PDO::FETCH_NUM) as [$m, $n]) $has[(int)substr($m, 5, 2)] = ($has[(int)substr($m, 5, 2)] ?? 0) + (int)$n;
     $mp = '';
     for ($i = 1; $i <= 12; $i++) { $k = sprintf('%04d-%02d', $yy, $i); $fut = $k > date('Y-m');
-        $mp .= '<a href="' . P . '?a=books&ym=' . $k . '" class="' . trim(($i === $mm ? 'on' : '') . (!empty($has[$i]) ? ' has' : '') . ($fut ? ' fut' : '') . ($k === date('Y-m') ? ' now' : '')) . '" title="' . pl_month($i) . ' ' . $yy . '"' . ($i === $mm ? ' aria-current="true"' : '') . '>' . pl_mshort($i) . '</a>'; }
+        $mp .= '<a href="' . P . '?a=books&ym=' . $k . '" class="' . trim(($i === $mm ? 'on' : '') . (!empty($has[$i]) ? ' has' : '') . ($fut ? ' fut' : '') . ($k === date('Y-m') ? ' now' : '')) . '" title="' . pl_month($i) . ' ' . $yy . '"' . ($i === $mm ? ' aria-current="true"' : '') . '><b>' . sprintf('%02d', $i) . '</b><span>' . pl_mshort($i) . '</span></a>'; }
     $yo = ''; for ($y = (int)date('Y'); $y >= 2025; $y--) $yo .= '<option value="' . $y . '-' . sprintf('%02d', min($mm, $y === (int)date('Y') ? (int)date('n') : 12)) . '"' . ($y === $yy ? ' selected' : '') . '>' . $y . '</option>';
     $nav = '<section class="card"><div class="period"><div class="pl"><span class="k">Miesiąc księgowy</span><b>' . e(ucfirst(ym_label($ym))) . '</b></div>'
         . '<nav class="months" aria-label="Miesiąc księgowy">' . $mp . '</nav>'
@@ -371,7 +371,7 @@ function view_books(): never {
         . '<label class="f">Dopisek w mailu (opcjonalnie)<textarea class="in" name="acc_note" rows="3" placeholder="np. Proszę o potwierdzenie odbioru.">' . e(setting('acc_note')) . '</textarea></label>'
         . '<button class="btn ghost">Zapisz</button><span class="mut" style="font-size:13px">Przed wysyłką pobierzemy jeszcze faktury zakupowe z KSeF. Wysyłamy w dni robocze rano.</span></form></section>'
         . '</aside></div>';
-    page('Księgowość', 'books', $body, 'Dokumenty dla księgowej');
+    page('Księgowość', 'books', $body, 'Miesiąc księgowy: ' . ym_label($ym));
 }
 
 function view_cost(array $c): never {
