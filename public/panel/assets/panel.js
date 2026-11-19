@@ -382,3 +382,12 @@ document.addEventListener('click', function (e) { var t = e.target.closest('[dat
   var g = document.querySelector('.nav .grp'); if (!g || !matchMedia('(max-width:900px)').matches) return;
   var w = document.createElement('div'); w.className = 'nav navb'; w.appendChild(g); document.body.appendChild(w);
 })();
+// tablica Ofert: wysokość do dolnej krawędzi ekranu, kolumny przewijane w środku, bez pustego pola pod spodem
+(function () {
+  var kb = document.getElementById('kboard'); if (!kb) return;
+  var fit = function () {
+    var top = kb.getBoundingClientRect().top + window.scrollY, nav = document.querySelector('.navb .grp'), bottom = nav ? nav.offsetHeight + 12 : 20;
+    kb.style.height = Math.max(420, window.innerHeight - top - bottom) + 'px';
+  };
+  fit(); addEventListener('resize', fit); addEventListener('load', fit);
+})();

@@ -174,7 +174,7 @@ function view_job(array $t, string $body): never {
     $id = (int)$t['id']; $c = $t['cat'] ?: 'other'; $left = days_between(today(), substr((string)$t['deadline'], 0, 10));
     $f = fn($a, $l, $cl = 'btn') => '<form method="post" action="' . P . '?a=' . $a . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '"><button class="' . $cl . '" style="width:100%">' . $l . '</button></form>';
     $site = $t['src'] === 'useme' ? 'Useme' : 'Freelancer.com';
-    $acts = ($t['lead_id'] ? '<a class="btn" href="' . P . '?a=lead&id=' . $t['lead_id'] . '">Szansa w ofertach ' . icon('arrow') . '</a>' . (ai_enabled() ? '<a class="btn ghost" href="' . P . '?a=quote_new&lead=' . $t['lead_id'] . '&ai=1">' . icon('spark') . ' Przygotuj wycenę z AI</a>' : '') : $f('tender_lead', icon('target') . ' Do ofert'))
+    $acts = ($t['lead_id'] ? '<a class="btn" href="' . P . '?a=lead&id=' . $t['lead_id'] . '">Lead w ofertach ' . icon('arrow') . '</a>' . (ai_enabled() ? '<a class="btn ghost" href="' . P . '?a=quote_new&lead=' . $t['lead_id'] . '&ai=1">' . icon('spark') . ' Przygotuj wycenę z AI</a>' : '') : $f('tender_lead', icon('target') . ' Do ofert'))
         . '<a class="btn ghost" href="' . e($t['url']) . '" target="_blank" rel="noopener">Złóż ofertę na ' . $site . ' ↗</a>';
     $kv = '<div class="kv"><div><span>Budżet</span><span>' . e((string)($t['budget'] ?: 'Do negocjacji')) . '</span></div><div><span>Ofert</span><span>' . (int)$t['offers'] . '</span></div>'
         . ($t['src'] === 'useme' && $t['buyer'] ? '<div><span>Zleceniodawca</span><span>' . e((string)$t['buyer']) . '</span></div>' : '')

@@ -313,7 +313,7 @@ function view_quote(array $q): never {
     $autodl = !empty($_GET['dl']) ? '<a id="autodl" hidden href="' . P . '?a=quote_pdf&id=' . (int)$q['id'] . '&dl=1"></a>' : '';
     $tools = '<div class="ias tb">' . ia('eye', 'Podgląd PDF', P . '?a=quote_pdf&id=' . $id, ['blank' => true]) . ia('download', 'Pobierz PDF', P . '?a=quote_pdf&id=' . $id . '&dl=1')
         . ($q['status'] !== 'invoiced' ? ia('pencil', 'Edytuj', P . '?a=quote_edit&id=' . $id) : '')
-        . (!empty($q['src']['lead']) ? ia('target', 'Szansa w ofertach', P . '?a=lead&id=' . (int)$q['src']['lead']) : '')
+        . (!empty($q['src']['lead']) ? ia('target', 'Lead w ofertach', P . '?a=lead&id=' . (int)$q['src']['lead']) : '')
         . imore(array_values(array_filter([
             $q['status'] !== 'invoiced' && $q['status'] !== 'accepted' ? ['check', 'Klient zaakceptował', ['post' => 'quote_status', 'id' => $id, 'extra' => '<input type="hidden" name="st" value="accepted">']] : null,
             $q['status'] !== 'invoiced' && $q['status'] !== 'rejected' ? ['x', 'Klient odrzucił', ['post' => 'quote_status', 'id' => $id, 'extra' => '<input type="hidden" name="st" value="rejected">']] : null,

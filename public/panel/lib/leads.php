@@ -295,7 +295,7 @@ function leads_post(string $a): never {
                 'next_at' => preg_match('/^\d{4}-\d{2}-\d{2}$/', $v('next_at')) ? $v('next_at') : null, 'next_note' => $v('next_note'), 'notes' => $v('notes', 5000)];
             if ($f['name'] === '' && $f['company'] === '') { flash('!Wpisz osobę albo firmę.'); redirect(P . '?a=' . ($id ? 'lead&id=' . $id : 'lead_new')); }
             $id = lead_save($f, $id ?: null);
-            flash('Szansa zapisana.'); redirect(P . '?a=lead&id=' . $id);
+            flash('Lead zapisany.'); redirect(P . '?a=lead&id=' . $id);
         case 'lead_stage':
             lead_stage($id, (string)($_POST['stage'] ?? '')); redirect(P . '?a=lead&id=' . $id);
         case 'lead_next':
@@ -394,7 +394,7 @@ function view_leads(): never {
         $val = array_sum(array_map(fn($l) => (int)$l['value'], $open));
         $due = array_filter($open, fn($l) => $l['next_at'] && $l['next_at'] <= today());
         $wonM = array_filter($all, fn($l) => $l['stage'] === 'won' && substr((string)$l['updated'], 0, 7) === date('Y-m'));
-        $body .= '<section class="kpis"><div class="kpi dark"><span class="t">Otwarte szanse</span><span class="v">' . money($val) . '</span><span class="s">' . count($open) . ' ' . plural(count($open), 'szansa', 'szanse', 'szans') . ' w ofertach, wartość netto</span></div><div class="kpis-r">'
+        $body .= '<section class="kpis"><div class="kpi dark"><span class="t">Otwarte leady</span><span class="v">' . money($val) . '</span><span class="s">' . count($open) . ' ' . plural(count($open), 'lead', 'leady', 'leadów') . ' w ofertach, wartość netto</span></div><div class="kpis-r">'
             . '<div class="kpi"><span class="t">Na dziś</span><span class="v' . ($due ? ' red' : '') . '">' . count($due) . '</span><span class="s">' . plural(count($due), 'follow-up', 'follow-upy', 'follow-upów') . ' do zrobienia</span>' . ($due ? '<a class="kpi-a" href="' . P . '?a=leads' . (($_GET['f'] ?? '') === 'due' ? '' : '&f=due#due') . '">' . (($_GET['f'] ?? '') === 'due' ? 'Ukryj' : 'Zobacz') . ' ' . icon('arrow') . '</a>' : '') . '</div>'
             . '<div class="kpi"><span class="t">Wygrane w tym miesiącu</span><span class="v">' . count($wonM) . '</span><span class="s">' . money(array_sum(array_map(fn($l) => (int)$l['value'], $wonM))) . '</span></div></div></section>';
         if (($_GET['f'] ?? '') === 'due') {
@@ -418,9 +418,9 @@ function view_leads(): never {
                 . (($l['company'] && $l['name']) ? '<span class="kc-b">' . e($l['name']) . '</span>' : '')
                 . ($l['value'] ? '<span class="kc-v">' . money((int)$l['value']) . '</span>' : '')
                 . ($l['next_at'] ? '<span class="kc-d' . ($late ? ' late-t' : '') . '">' . ($late ? 'Dziś: ' : e(date('d.m', strtotime($l['next_at']))) . ': ') . e($l['next_note'] ?: 'kontakt') . '</span>' : '')
-                . '<div class="kc-f"><div class="ias">' . ia('eye', !empty($srcT = json_decode((string)$l['src'], true)['tender'] ?? null) ? 'Podgląd ogłoszenia' : 'Otwórz szansę', !empty($srcT) ? P . '?a=tender&id=' . (int)$srcT : $url)
+                . '<div class="kc-f"><div class="ias">' . ia('eye', !empty($srcT = json_decode((string)$l['src'], true)['tender'] ?? null) ? 'Podgląd ogłoszenia' : 'Otwórz lead', !empty($srcT) ? P . '?a=tender&id=' . (int)$srcT : $url)
                 . ($l['website'] !== '' && $l['website'] !== null ? ia('external', $l['source'] === 'przetarg' ? 'Ogłoszenie w serwisie' : 'Strona firmy', preg_match('#^https?://#', (string)$l['website']) ? (string)$l['website'] : 'https://' . $l['website'], ['blank' => true]) : '')
-                . ($l['quote_id'] ? ia('quote', 'Wycena', P . '?a=quote&id=' . (int)$l['quote_id']) : ia('spark', 'Przygotuj wycenę', P . '?a=quote_new&lead=' . $l['id'] . (ai_enabled() ? '&ai=1' : ''))) . ia('trash', 'Usuń', '', ['post' => 'lead_delete', 'id' => $l['id'], 'confirm' => 'Usunąć „' . ($l['company'] ?: $l['name'] ?: 'tę szansę') . '” z ofert?']) . '</div>'
+                . ($l['quote_id'] ? ia('quote', 'Wycena', P . '?a=quote&id=' . (int)$l['quote_id']) : ia('spark', 'Przygotuj wycenę', P . '?a=quote_new&lead=' . $l['id'] . (ai_enabled() ? '&ai=1' : ''))) . ia('trash', 'Usuń', '', ['post' => 'lead_delete', 'id' => $l['id'], 'confirm' => 'Usunąć „' . ($l['company'] ?: $l['name'] ?: 'ten lead') . '” z ofert?']) . '</div>'
                 . '<label class="kc-mv"><span class="sr">Przenieś do</span><select data-move>' . $opts($st) . '</select></label></div></article>';
             $cnt[$st]++; $sum[$st] += (int)$l['value'];
         }
@@ -428,7 +428,7 @@ function view_leads(): never {
         $board = '';
         foreach (LEAD_STAGES as $k => $lbl) $board .= '<section class="kcol" data-st="' . $k . '"><header><b>' . $lbl . '</b><span class="kc-n">' . $cnt[$k] . '</span></header><p class="kc-hint">' . ($sum[$k] ? money($sum[$k]) . ' netto' : $hint[$k]) . '</p><div class="kc-list">' . $by[$k] . '</div></section>';
         $body .= '<section class="card"><nav class="tabs">' . $tabs . '</nav><div class="pad" style="padding-top:14px;padding-bottom:14px"><span class="mut" style="font-size:14px">Przeciągnij kartę do innej kolumny (na telefonie przytrzymaj kartę albo wybierz etap z listy na karcie).</span></div></section>'
-            . ($all ? '<div class="kboard" id="kboard" data-move-url="lead_move">' . $board . '</div>' : '<section class="card"><div class="empty">Pusto. Dodaj szansę, zapisz przetarg albo przeskanuj strony firm.</div></section>');
+            . ($all ? '<div class="kboard" id="kboard" data-move-url="lead_move">' . $board . '</div>' : '<section class="card"><div class="empty">Pusto. Dodaj lead, zapisz przetarg albo przeskanuj strony firm.</div></section>');
     } elseif ($tab === 'tenders') {
         $all = db()->query("SELECT * FROM tenders WHERE status = 'new' AND src IN ('bzp','ted','bk') AND (deadline IS NULL OR deadline = '' OR deadline >= date('now')) ORDER BY score DESC, deadline LIMIT 300")->fetchAll();
         $cat = (string)($_GET['c'] ?? 'all'); if ($cat !== 'all' && !isset(TENDER_CATS[$cat])) $cat = 'all';
@@ -479,7 +479,7 @@ function view_leads(): never {
             . '<div class="hrow" style="flex-wrap:wrap"><span class="mut" style="font-size:14px">Sprawdzimy HTTPS, wersję mobilną, szybkość (PageSpeed), aktualność i dane kontaktowe. Każda strona trafi do ofert z oceną potencjału.</span><button class="btn" data-busy>' . icon('search') . ' Skanuj</button></div></form>'
             . ($tr ? '<div class="tw"><table class="list"><tbody>' . $tr . '</tbody></table></div>' : '') . '</section>';
     }
-    page('Szanse', 'leads', $body, 'Nowi klienci dla Creative Vision', '<a class="btn" href="' . P . '?a=lead_new">Nowa szansa ' . icon('plus') . '</a>');
+    page('Leady', 'leads', $body, 'Nowi klienci dla Creative Vision', '<a class="btn" href="' . P . '?a=lead_new">Nowy lead ' . icon('plus') . '</a>');
 }
 
 function view_lead(?array $l): never {
@@ -491,8 +491,8 @@ function view_lead(?array $l): never {
         . '<label class="f">Strona lub link<input class="in" name="website" value="' . $v('website') . '"></label><label class="f">Wartość netto (szacunkowo)<input class="in" name="value" inputmode="decimal" value="' . (!empty($l['value']) ? money((int)$l['value'], false) : '') . '"></label>'
         . '<label class="f">Źródło<select class="in" name="source">' . $opt(LEAD_SOURCES, (string)($l['source'] ?? 'reczne')) . '</select></label><label class="f">Etap<select class="in" name="stage">' . $opt(LEAD_STAGES, (string)($l['stage'] ?? 'new')) . '</select></label>'
         . '<label class="f">Następny krok, kiedy<input class="in" type="date" name="next_at" value="' . $v('next_at') . '"></label><label class="f">Co zrobić<input class="in" name="next_note" value="' . $v('next_note') . '" placeholder="np. zadzwonić z propozycją"></label></div>'
-        . '<label class="f">Notatki<textarea class="in" name="notes" rows="6">' . $v('notes') . '</textarea></label><button class="btn">Zapisz szansę</button></form>';
-    if (!$l) { $GLOBALS['back'] = [P . '?a=leads', 'Szanse']; page('Nowa szansa', 'leads', '<section class="card pad sec" style="max-width:860px">' . $form . '</section>', 'Oferty'); }
+        . '<label class="f">Notatki<textarea class="in" name="notes" rows="6">' . $v('notes') . '</textarea></label><button class="btn">Zapisz lead</button></form>';
+    if (!$l) { $GLOBALS['back'] = [P . '?a=leads', 'Leady']; page('Nowy lead', 'leads', '<section class="card pad sec" style="max-width:860px">' . $form . '</section>', 'Oferty'); }
     $id = (int)$l['id'];
     $f = fn($a, $label, $cls = 'btn ghost', $extra = '') => '<form method="post" action="' . P . '?a=' . $a . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '">' . $extra . '<button class="' . $cls . '">' . $label . '</button></form>';
     $stages = ''; foreach (LEAD_STAGES as $k => $x) if ($k !== $l['stage']) $stages .= $f('lead_stage', $x, 'btn ghost sm', '<input type="hidden" name="stage" value="' . $k . '">');
@@ -518,9 +518,9 @@ function view_lead(?array $l): never {
         . '<span class="is">' . lead_chip($l['stage']) . ($l['value'] ? '<span>' . money((int)$l['value']) . ' netto</span>' : '') . ($l['next_at'] ? '<span class="' . ($l['next_at'] <= today() ? 'late-t' : 'mut') . '">' . e(pl_date($l['next_at'])) . ': ' . e((string)$l['next_note']) . '</span>' : '') . '</span></div>';
     $body = '<div class="cols"><div class="wide sec">' . $audit . '<section class="card pad sec"><h2>Dane i notatki</h2>' . $form . '</section></div>'
         . '<aside class="side"><div class="card pad sec">' . $hero . '<div class="acts-col">' . $acts . '</div><details class="more"><summary>Następny krok</summary>' . $next . '</details><details class="more"><summary>Zmień etap</summary><div class="inl">' . $stages . '</div></details>'
-        . '<details class="more"><summary>Usuń</summary>' . $f('lead_delete', 'Usuń szansę', 'btn danger') . '</details></div></aside></div>';
-    $GLOBALS['back'] = [P . '?a=leads', 'Szanse']; $GLOBALS['pgcls'] = 'pg-inv';
-    page($l['company'] ?: ($l['name'] ?: 'Szansa'), 'leads', $body, 'Szansa sprzedaży');
+        . '<details class="more"><summary>Usuń</summary>' . $f('lead_delete', 'Usuń lead', 'btn danger') . '</details></div></aside></div>';
+    $GLOBALS['back'] = [P . '?a=leads', 'Leady']; $GLOBALS['pgcls'] = 'pg-inv';
+    page($l['company'] ?: ($l['name'] ?: 'Lead'), 'leads', $body, 'Lead');
 }
 
 function view_tender(int $id): never {
@@ -532,7 +532,7 @@ function view_tender(int $id): never {
     $left = $t['deadline'] ? days_between(today(), substr($t['deadline'], 0, 10)) : null;
     $f = fn($a, $l, $c = 'btn') => '<form method="post" action="' . P . '?a=' . $a . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="' . $c . '" style="width:100%">' . $l . '</button></form>';
     $acts = $f('tender_quote', icon('spark') . ' Wyceń' . (ai_enabled() ? ' z AI' : ''))
-        . ($t['lead_id'] ? '<a class="btn ghost" href="' . P . '?a=lead&id=' . $t['lead_id'] . '">Szansa w ofertach ' . icon('arrow') . '</a>' : $f('tender_lead', icon('target') . ' Do ofert', 'btn ghost'))
+        . ($t['lead_id'] ? '<a class="btn ghost" href="' . P . '?a=lead&id=' . $t['lead_id'] . '">Lead w ofertach ' . icon('arrow') . '</a>' : $f('tender_lead', icon('target') . ' Do ofert', 'btn ghost'))
         . '<a class="btn ghost" href="' . e($t['url']) . '" target="_blank" rel="noopener">Otwórz ogłoszenie ' . (['bk' => 'w Bazie Konkurencyjności', 'bzp' => 'w BZP', 'ted' => 'w TED'][$t['src']] ?? '') . ' ↗</a>'
         . ($t['status'] !== 'hidden' && !$t['lead_id'] ? $f('tender_hide', icon('x') . ' Ignoruj', 'btn ghost ignore') : '');
     $t['body'] = $body; tender_summary($t);

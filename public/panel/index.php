@@ -743,11 +743,11 @@ function flash_html(): string {
 
 function page(string $title, string $active, string $body, string $kicker = '', string $acts = ''): never {
     $accs = mail_accounts(); $un = unseen_total(); $poll = $accs['f']['on'] || $accs['k']['on'];
-    $nav = [['inbox', 'Poczta <b class="bdg" id="mailbdg"' . ($poll ? ' data-poll' : '') . ($un > 0 ? '>' . $un : ' hidden>') . '</b>', 'mail', P . '?a=inbox'], ['list', 'Faktury', 'list', P], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['leads', 'Szanse', 'target', P . '?a=leads'], ['quotes', 'Wyceny', 'quote', P . '?a=quotes'], ['books', 'Księgowość', 'books', P . '?a=books'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
+    $nav = [['inbox', 'Poczta <b class="bdg" id="mailbdg"' . ($poll ? ' data-poll' : '') . ($un > 0 ? '>' . $un : ' hidden>') . '</b>', 'mail', P . '?a=inbox'], ['list', 'Faktury', 'list', P], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['leads', 'Leady', 'target', P . '?a=leads'], ['quotes', 'Wyceny', 'quote', P . '?a=quotes'], ['books', 'Księgowość', 'books', P . '?a=books'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
     $links = '';
     foreach ($nav as [$k, $l, $i, $h]) $links .= '<a href="' . $h . '" class="n-' . $k . ($active === $k ? ' on" aria-current="page' : '') . '" title="' . strip_tags($l) . '"' . ($k === 'new' ? ' data-plus' : '') . '>' . icon($i) . '<span class="tx">' . $l . '</span></a>';
     $sheet = '<dialog class="mdlg plus" id="plusdlg"><div class="sheet"><div class="hrow"><h2>Co tworzymy?</h2><button type="button" class="x" data-close aria-label="Zamknij">×</button></div>'
-        . '<a class="btn" href="' . P . '?a=new">' . icon('list') . ' Nowa faktura</a><a class="btn ghost" href="' . P . '?a=quote_new">' . icon('quote') . ' Nowa wycena</a><a class="btn ghost" href="' . P . '?a=lead_new">' . icon('target') . ' Nowa szansa</a></div></dialog>';
+        . '<a class="btn" href="' . P . '?a=new">' . icon('list') . ' Nowa faktura</a><a class="btn ghost" href="' . P . '?a=quote_new">' . icon('quote') . ' Nowa wycena</a><a class="btn ghost" href="' . P . '?a=lead_new">' . icon('target') . ' Nowy lead</a></div></dialog>';
     $v = substr((string)@md5_file(__DIR__ . '/assets/panel.js'), 0, 10);
     echo head($title) . '<body data-ver="' . app_ver() . '" data-csrf="' . e(csrf_token()) . '" class="pg-' . e($active) . (!empty($GLOBALS['pgcls']) ? ' ' . $GLOBALS['pgcls'] : '') . '"><div class="app"><nav class="nav" aria-label="Menu panelu">'
         . '<a class="brand" href="' . P . '"><img src="' . P . '/assets/logo-white.svg" alt="creative vision"></a>'
