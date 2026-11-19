@@ -5,10 +5,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          UA="Mozilla/5.0 (Macintosh) Chrome/130"
-          for u in "https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl/" "https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl/api/announcements/search?page=1&limit=5" "https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl/ogloszenia/szukaj?q=strona%20internetowa" "https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl/api/v1/announcements?limit=3"; do
-            echo "=== $u"; curl -sSL -A "$UA" -o o -w "%{http_code} %{content_type} %{size_download}\n" "$u"; head -c 700 o | tr -s '\n' ' '; echo
-            grep -oE '(src|href)="[^"]*\.js[^"]*"' o | head -5; grep -oE '"/api[^"]*"|/api/[a-zA-Z0-9/_-]+' o | sort -u | head -20
-          done
-          js=$(curl -sSL -A "$UA" https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl/ | grep -oE 'src="[^"]*\.js"' | sed 's/src="//;s/"//' | head -3)
-          for j in $js; do case $j in http*) u=$j;; *) u="https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl$j";; esac; echo "JS $u"; curl -sSL "$u" | grep -oE '"/?api/[a-zA-Z0-9/_{}.-]+"' | sort -u | head -40; done
+          B=https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl
+          curl -sSL $B/assets/index-D3ELI812.js -o a.js
+          python3 - <<'P'
+          import re
+          s=open('a.js').read()
+          for k in ['announcements/search','/api/announcements"']:
+            for m in list(re.finditer(re.escape(k),s))[:3]:
+              print('##',k); print(s[max(0,m.start()-700):m.start()+500].replace('\n',' '))
+          P
+          echo; echo "=== POST"
+          curl -sS -X POST -H 'Content-Type: application/json' -d '{"page":1,"limit":3}' "$B/api/announcements/search" | head -c 1500; echo
+          curl -sS "$B/api/announcements/search?page=1&limit=3&sort=-publication_date" | head -c 800; echo
+          curl -sS "$B/api/announcements?page=1&limit=3" | head -c 800; echo
