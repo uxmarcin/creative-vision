@@ -863,7 +863,7 @@ function view_list(): never {
             $parts = array_merge($open ? [money($open)] : [], ['<span class="fxpl">' . money($tot - $open) . '</span>']);
             return '<span class="t">Do zapłaty</span>'
                 . '<span class="v livetot" data-pln="' . $open . '" data-fx="' . e(json_encode($fxOpen)) . '" data-tot="' . $tot . '">' . money_split($tot) . '</span>'
-                . '<span class="fxb">' . implode(' + ', $parts) . ' <span class="fxr">(<span class="fxrt">' . implode(', ', $rt) . '</span>)</span></span>';
+                . '<span class="fxb">' . implode(' + ', $parts) . ' <span class="fxr"><span class="fxrt">' . implode(', ', $rt) . '</span></span></span>';
         })() . '<span class="s">' . ($openN ? $openN . ' ' . plural($openN, 'faktura czeka', 'faktury czekają', 'faktur czeka') . ' na wpłatę' : 'Wszystko opłacone') . ($lateN ? '<span class="dz-late">' . $lateN . ' ' . plural($lateN, 'faktura', 'faktury', 'faktur') . ' po terminie, wezwania idą same</span>' : '') . '</span></div>'
         . ($fxOpen ? '<div class="dz-c fxc" data-cur="' . e((string)array_key_first($fxOpen)) . '"><div class="fxc-h"><div><span class="fxc-k">1 ' . e((string)array_key_first($fxOpen)) . ' =</span><b class="fxc-v">–</b><span class="fxc-d"></span></div>'
             . '<div class="fxc-t" role="tablist">' . implode('', array_map(fn($d, $l) => '<button type="button" data-d="' . $d . '"' . ($d === 30 ? ' class="on"' : '') . '>' . $l . '</button>', [7, 30, 180, 365], ['1T', '1M', '6M', '1R'])) . '</div></div>'
