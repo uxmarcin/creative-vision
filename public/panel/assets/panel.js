@@ -34,6 +34,13 @@
     tr.addEventListener('click', function (e) { if (e.target.closest('a,button,input,form')) return; if (e.metaKey || e.ctrlKey) window.open(tr.getAttribute('data-href')); else location.href = tr.getAttribute('data-href'); });
   });
 
+  var dlg = $('#maildlg');
+  if (dlg) {
+    $$('[data-mail]').forEach(function (b) { b.addEventListener('click', function () { $('input[name=next]', dlg).value = b.getAttribute('data-mail'); dlg.showModal(); $('input[type=email]', dlg).focus(); }); });
+    $$('[data-close]', dlg).forEach(function (b) { b.addEventListener('click', function () { dlg.close(); }); });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+  }
+
   var form = $('#invform');
   if (!form) return;
 

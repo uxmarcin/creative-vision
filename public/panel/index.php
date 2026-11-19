@@ -59,7 +59,18 @@ if ($post) {
             if ($err) { flash('!' . $err); $_SESSION['form'] = $_POST; redirect(P . '?a=' . ($id ? 'edit&id=' . $id : 'new')); }
             unset($_SESSION['form']);
             redirect(P . '?a=view&id=' . $id);
+        case 'set_email':
+            $inv = must_invoice($id);
+            $em = trim((string)($_POST['email'] ?? ''));
+            if (!filter_var($em, FILTER_VALIDATE_EMAIL)) { flash('!Ten adres e-mail wygląda na niepoprawny.'); redirect(P . '?a=view&id=' . $id); }
+            $b = $inv['buyer']; $b['email'] = $em;
+            db()->prepare('UPDATE invoices SET buyer = ?, updated = ? WHERE id = ?')->execute([json_encode($b, JSON_UNESCAPED_UNICODE), now(), $id]);
+            if (!empty($_POST['save_client']) && $inv['client_id']) db()->prepare('UPDATE clients SET email = ?, updated = ? WHERE id = ?')->execute([$em, now(), $inv['client_id']]);
+            log_event($id, 'edit', 'Dodano e-mail klienta: ' . $em);
+            if (($_POST['next'] ?? '') === 'remind') { $a = 'remind'; goto remind; }
+            goto send;
         case 'send':
+            send:
             $inv = must_invoice($id);
             if ($inv['status'] !== 'issued' && $inv['status'] !== 'paid') { flash('!Najpierw wystaw fakturę.'); redirect(P . '?a=view&id=' . $id); }
             if (trim((string)($inv['buyer']['email'] ?? '')) === '') { flash('!Dodaj e-mail klienta, żeby wysłać fakturę.'); redirect(P . '?a=edit&id=' . $id); }
@@ -70,6 +81,7 @@ if ($post) {
             } else flash('!Nie udało się wysłać maila. Spróbuj ponownie za chwilę.');
             redirect(P . '?a=view&id=' . $id);
         case 'remind':
+            remind:
             $inv = must_invoice($id);
             if ($inv['status'] !== 'issued') redirect(P . '?a=view&id=' . $id);
             $ok = send_invoice_mail($inv, 'manual');
@@ -663,8 +675,16 @@ function view_invoice(array $inv): never {
     if ($inv['status'] === 'draft') {
         $acts .= '<a class="btn" href="' . P . '?a=edit&id=' . $id . '">Dokończ i wystaw ' . icon('arrow') . '</a>';
     } elseif ($inv['status'] === 'issued') {
-        $acts .= $f('send', empty($inv['sent_at']) ? 'Wyślij do klienta' : 'Wyślij ponownie', empty($inv['sent_at']) ? 'btn' : 'btn ghost');
-        if (!empty($inv['sent_at'])) $acts .= $f('remind', 'Przypomnij teraz');
+        $noMail = !filter_var(trim((string)($inv['buyer']['email'] ?? '')), FILTER_VALIDATE_EMAIL);
+        $mb = fn($act, $label, $cls) => $noMail ? '<button type="button" class="' . $cls . '" data-mail="' . $act . '">' . $label . '</button>' : $f($act, $label, $cls);
+        $acts .= $mb('send', empty($inv['sent_at']) ? 'Wyślij do klienta' : 'Wyślij ponownie', empty($inv['sent_at']) ? 'btn' : 'btn ghost');
+        if (!empty($inv['sent_at'])) $acts .= $mb('remind', 'Przypomnij teraz', 'btn ghost');
+        if ($noMail) $acts .= '<dialog class="mdlg" id="maildlg"><form method="post" action="' . P . '?a=set_email" class="sec">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="next" value="send">'
+            . '<div class="hrow"><h2>Na jaki adres wysłać?</h2><button type="button" class="x" data-close aria-label="Zamknij">×</button></div>'
+            . '<p class="mut" style="margin:0;font-size:14px">Przy tej fakturze nie ma e-maila klienta. Wpisz go, a od razu wyślemy wiadomość.</p>'
+            . '<label class="f">E-mail klienta<input class="in" type="email" name="email" required autocomplete="email"></label>'
+            . ($inv['client_id'] ? '<label class="check"><input type="checkbox" name="save_client" value="1" checked> Zapisz ten adres u klienta na przyszłość</label>' : '')
+            . '<button class="btn">Zapisz i wyślij ' . icon('arrow') . '</button></form></dialog>';
         $acts .= '<details class="more"><summary>Oznacz jako opłaconą</summary><form class="inl" method="post" action="' . P . '?a=paid">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '">'
             . '<label class="f">Data wpłaty<input class="in" type="date" name="paid_date" value="' . today() . '"></label>'
             . '<label class="f">Kwota<input class="in" name="paid_amount" value="' . money((int)$inv['gross'], false) . '" inputmode="decimal"></label><button class="btn">Zapisz wpłatę</button></form></details>';
