@@ -463,6 +463,12 @@ function pln_hint(int $cents, ?string $cur, bool $short = false): string {
     $cur = $cur ?: 'PLN'; if ($cur === 'PLN') return ''; $r = nbp_rate($cur); if (!$r) return '';
     return '<span class="sub fxp" title="Średni kurs NBP (tabela A) z ' . pl_date($r['date']) . ', tylko do podglądu w panelu">≈ ' . money((int)round($cents * $r['rate'])) . ($short ? '' : ' · NBP ' . number_format($r['rate'], 4, ',', '') . ' z ' . date('d.m', strtotime($r['date']))) . '</span>';
 }
+/** Kurs NBP z ostatniego dnia roboczego miesiąca (weekend lub święto: dzień roboczy wcześniej). Dla trwającego miesiąca kurs bieżący, 'live' => true. */
+function nbp_rate_month_end(string $cur, string $ym): ?array {
+    $next = date('Y-m-d', strtotime($ym . '-01 +1 month'));
+    if ($next > date('Y-m-d')) { $r = nbp_rate($cur); return $r ? $r + ['live' => true] : null; }
+    return nbp_rate_before($cur, $next);
+}
 /** Kurs NBP z ostatniego dnia roboczego przed podaną datą (zasada do księgowania faktur w walucie). ['rate', 'date', 'table'] albo null. */
 function nbp_rate_before(string $cur, string $date): ?array {
     $cur = strtoupper($cur); if ($cur === 'PLN' || !preg_match('/^[A-Z]{3}$/', $cur) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) return null;
