@@ -636,9 +636,9 @@ ul.pts{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;fon
 .due-t{display:flex;flex-direction:column;gap:2px;text-decoration:none;color:var(--ink);min-width:0;flex:1 1 260px}.due-t b{font-weight:500}.due-t span{font-size:14px;color:var(--mut)}.due-t span.late-t{color:#C9302C}
 .due-a{display:flex;gap:8px;flex-wrap:wrap}.due-a form{margin:0}
 @media (max-width:900px){.due-a{display:grid;grid-template-columns:repeat(4,1fr);width:100%;gap:6px}.due-a .btn{width:100%;padding:0 4px;font-size:13px;letter-spacing:0}.due-a .btn svg{display:none}}
-#kboard{align-items:stretch;padding-bottom:0}
-#kboard .kcol{min-height:0;overflow:hidden}
-#kboard .kc-list{max-height:none;flex:1 1 auto;min-height:0;overflow-y:auto}
+#kboard{align-items:start;padding-bottom:8px}
+#kboard .kcol{min-height:0}
+#kboard .kc-list{flex:0 1 auto;min-height:0;max-height:max(420px,calc(100dvh - 260px));overflow-y:auto}
 body.pg-leads .main{padding-bottom:20px}
 /* ===== ikony: Lucide, najwyżej 20 px w całej aplikacji ===== */
 svg.ic{max-width:20px;max-height:20px;stroke-width:1.75}
@@ -869,3 +869,5 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 .kc-add:hover{border-color:var(--ink);color:var(--ink);background:#fff}
 .kc-add svg.ic{width:20px;height:20px}
 .kcard select,.kcard .in{background-color:#F4F4F5;border-color:#E4E4E7}
+
+.kc-list:has(.kc-add){overflow:visible;padding-bottom:8px}

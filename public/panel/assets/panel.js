@@ -409,7 +409,7 @@ document.addEventListener('click', function (e) { var t = e.target.closest('[dat
     var top = kb.getBoundingClientRect().top + window.scrollY, nav = document.querySelector('.navb .grp'), bottom = nav ? nav.offsetHeight + 12 : 20;
     kb.style.height = Math.max(420, window.innerHeight - top - bottom) + 'px';
   };
-  fit(); addEventListener('resize', fit); addEventListener('load', fit);
+  void fit; // tablica przewija się razem ze stroną, kolumny mają wysokość treści
 })();
 // pasek ładowania: od razu widać, że aplikacja przechodzi dalej, zamiast pustego ekranu
 (function () {
