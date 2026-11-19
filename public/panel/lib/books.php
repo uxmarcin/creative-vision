@@ -11,6 +11,13 @@ function books_migrate(): void {
         ksef TEXT UNIQUE, seller TEXT, nip TEXT, number TEXT, issue_date TEXT, gross INTEGER, currency TEXT, created TEXT NOT NULL)');
     $cols = array_column(db()->query('PRAGMA table_info(costs)')->fetchAll(PDO::FETCH_ASSOC), 'name');
     if (!in_array('vat', $cols, true)) { db()->exec('ALTER TABLE costs ADD COLUMN net INTEGER'); db()->exec('ALTER TABLE costs ADD COLUMN vat INTEGER'); }
+    if (setting('seed_autobajka_1') === '') {
+        // faktura zakupowa podana ręcznie: Autobajka Rzeszów, październik 2026, wymiana rozrządu, 2200 zł brutto (VAT 23%)
+        $q = db()->query("SELECT COUNT(*) FROM costs WHERE ym = '2026-10' AND seller LIKE 'Autobajka%'");
+        if (!(int)$q->fetchColumn()) db()->prepare('INSERT INTO costs (ym, src, fname, mime, path, size, seller, number, issue_date, gross, currency, created, net, vat) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
+            ->execute(['2026-10', 'manual', 'Wymiana rozrządu', null, '', 0, 'Autobajka Rzeszów', null, null, 220000, 'PLN', now(), 178862, 41138]);
+        set_setting('seed_autobajka_1', '1');
+    }
     if (setting('costs_vat_1') === '') {
         foreach (db()->query("SELECT id, path FROM costs WHERE vat IS NULL AND path LIKE '%.xml'")->fetchAll() as $c) {
             $f = COST_DIR . '/' . $c['path']; if (!is_file($f)) continue; $p = fa_parse((string)file_get_contents($f));
@@ -288,6 +295,15 @@ function books_post(string $a): never {
             $c = cost_by_id((int)($_POST['id'] ?? 0));
             if ($c) { @unlink(COST_DIR . '/' . $c['path']); db()->prepare('DELETE FROM costs WHERE id = ?')->execute([$c['id']]); flash('Usunięto ' . ($c['number'] ?: $c['fname']) . '.'); $back = P . '?a=books&ym=' . $c['ym']; }
             redirect($back);
+        case 'cost_manual':
+            $g = (int)round((float)str_replace([' ', ','], ['', '.'], (string)($_POST['gross'] ?? '0')) * 100); $rate = (string)($_POST['rate'] ?? '23');
+            $seller = trim(mb_substr((string)($_POST['seller'] ?? ''), 0, 200));
+            if ($seller === '' || $g <= 0) { flash('!Podaj sprzedawcę i kwotę brutto.'); redirect($back); }
+            $vat = is_numeric($rate) ? (int)round($g - $g / (1 + (int)$rate / 100)) : 0;
+            $d = preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)($_POST['issue_date'] ?? '')) ? (string)$_POST['issue_date'] : null;
+            db()->prepare('INSERT INTO costs (ym, src, fname, mime, path, size, seller, number, issue_date, gross, currency, created, net, vat) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
+                ->execute([$ym, 'manual', trim(mb_substr((string)($_POST['what'] ?? ''), 0, 200)) ?: 'Faktura bez pliku', null, '', 0, $seller, trim((string)($_POST['number'] ?? '')) ?: null, $d, $g, 'PLN', now(), $g - $vat, $vat]);
+            flash('Dodano fakturę od ' . $seller . ' za ' . ym_label($ym) . '. Plik możesz dograć później.'); redirect($back);
         case 'cost_edit':
             $c = cost_by_id((int)($_POST['id'] ?? 0));
             if ($c) db()->prepare('UPDATE costs SET seller = ?, number = ?, gross = ? WHERE id = ?')->execute([trim((string)($_POST['seller'] ?? '')) ?: null, trim((string)($_POST['number'] ?? '')) ?: null, trim((string)($_POST['gross'] ?? '')) !== '' ? to_cents((string)$_POST['gross']) : null, $c['id']]);
@@ -367,15 +383,19 @@ function view_books(): never {
     $ctr = '';
     foreach ($costs as $c) {
         $url = P . '?a=cost&id=' . $c['id'];
-        $ctr .= '<tr class="row" data-href="' . $url . '"><td class="c-num nw"><span class="num" style="border:0">' . ($c['src'] === 'ksef' ? 'KSeF' : strtoupper(pathinfo((string)$c['path'], PATHINFO_EXTENSION))) . '</span></td>'
-            . '<td class="c-cli"><span>' . e($c['seller'] ?: $c['fname']) . '</span><span class="sub">' . e($c['number'] ?: ($c['seller'] ? '' : 'dodano ' . date('d.m', strtotime($c['created'])))) . '</span></td>'
+        $ctr .= '<tr class="row" data-href="' . $url . '"><td class="c-num nw"><span class="num" style="border:0">' . ($c['src'] === 'ksef' ? 'KSeF' : ($c['src'] === 'manual' ? 'Ręcznie' : strtoupper(pathinfo((string)$c['path'], PATHINFO_EXTENSION)))) . '</span></td>'
+            . '<td class="c-cli"><span>' . e($c['seller'] ?: $c['fname']) . '</span><span class="sub">' . e($c['number'] ?: ($c['src'] === 'manual' ? (string)$c['fname'] : ($c['seller'] ? '' : 'dodano ' . date('d.m', strtotime($c['created']))))) . '</span></td>'
             . '<td class="c-due nw">' . e($c['issue_date'] ? pl_date($c['issue_date']) : '') . '</td><td class="c-amt r amt">' . ($c['gross'] !== null ? money((int)$c['gross'], $c['currency'] ?: 'PLN') : '') . '</td><td class="c-st"></td>'
             . '<td class="c-act r nw"><form method="post" action="' . P . '?a=cost_delete">' . csrf_field() . '<input type="hidden" name="id" value="' . $c['id'] . '"><button class="link" style="color:var(--red)">Usuń</button></form></td></tr>';
     }
     $sent = setting('acc_sent_' . $ym); $kAt = setting('books_ksef_' . $ym);
     $drop = '<form class="drop" id="drop" method="post" action="' . P . '?a=books_upload" enctype="multipart/form-data">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '">'
         . '<input type="file" name="files[]" id="dropin" multiple accept="application/pdf,image/*,.pdf,.jpg,.jpeg,.png,.heic,.xml">'
-        . '<label for="dropin">' . icon('clip') . '<b>Przeciągnij tu faktury zakupowe</b><span>albo kliknij, żeby wybrać pliki lub zrobić zdjęcie. PDF, JPG, PNG, XML.</span></label></form>';
+        . '<label for="dropin">' . icon('clip') . '<b>Przeciągnij tu faktury zakupowe</b><span>albo kliknij, żeby wybrać pliki lub zrobić zdjęcie. PDF, JPG, PNG, XML.</span></label></form>'
+        . '<details class="more cman"><summary>' . icon('plus') . ' Dodaj fakturę bez pliku</summary><form class="grid3" method="post" action="' . P . '?a=cost_manual">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '">'
+        . '<label class="f">Sprzedawca<input class="in" name="seller" required placeholder="np. Autobajka Rzeszów"></label><label class="f">Za co<input class="in" name="what" placeholder="np. wymiana rozrządu"></label><label class="f">Numer faktury<input class="in" name="number" placeholder="opcjonalnie"></label>'
+        . '<label class="f">Kwota brutto (zł)<input class="in" name="gross" inputmode="decimal" required placeholder="2200,00"></label><label class="f">VAT<select class="in" name="rate"><option value="23">23%</option><option value="8">8%</option><option value="5">5%</option><option value="0">0%</option><option value="zw">zw.</option></select></label><label class="f">Data wystawienia<input class="in" type="date" name="issue_date"></label>'
+        . '<button class="btn">Dodaj</button></form></details>';
     $body = $nav
         . '<section class="kpis"><div class="kpi dark"><span class="t">Paczka za ' . e(ym_label($ym)) . '</span><span class="v">' . count($sales) . ' + ' . count($costs) . '</span><span class="s">' . count($sales) . ' ' . plural(count($sales), 'faktura sprzedażowa', 'faktury sprzedażowe', 'faktur sprzedażowych') . ', ' . count($costs) . ' ' . plural(count($costs), 'zakupowa', 'zakupowe', 'zakupowych') . '</span><span class="s acc-s">' . icon($sent ? 'check' : 'send') . ' ' . ($sent ? 'Wysłana do księgowej ' . e(date('d.m', strtotime($sent))) : 'Jeszcze nie wysłana' . (setting('acc_auto') === '1' && setting('acc_email') !== '' ? ', sama wyjdzie ' . (int)setting('acc_day') . '. dnia miesiąca' : '')) . '</span></div><div class="kpis-r">'
         . '<div class="kpi"><span class="t">Sprzedaż: ' . e(ym_label($ym)) . '</span>' . $saleKpi . '</div>' . $costKpi . '</div></section>'

@@ -177,7 +177,7 @@ if ($post) {
             $n = push_send('Panel Creative Vision', 'Powiadomienia działają. Tak zobaczysz nowe maile i otwarte faktury.', '/panel', 'test');
             flash($n ? 'Wysłaliśmy testowe powiadomienie na ' . $n . ' ' . plural($n, 'urządzenie', 'urządzenia', 'urządzeń') . '.' : '!Brak urządzeń z włączonymi powiadomieniami.');
             redirect(P . '?a=settings#push');
-        case 'books_upload': case 'cost_delete': case 'cost_edit': case 'books_ksef': case 'books_send': case 'books_att': case 'books_tax': case 'books_settings': books_post($a);
+        case 'books_upload': case 'cost_delete': case 'cost_edit': case 'books_ksef': case 'books_send': case 'books_att': case 'cost_manual': case 'books_tax': case 'books_settings': books_post($a);
         case 'duplicate':
             $src = must_invoice($id); $t = today(); $term = (int)($src['term_days'] ?? 7);
             $f = ['client_id' => $src['client_id'], 'buyer' => json_encode($src['buyer'], JSON_UNESCAPED_UNICODE), 'issue_date' => $t, 'sale_date' => $t, 'due_date' => date('Y-m-d', strtotime($t . " +$term days")), 'term_days' => $term,
