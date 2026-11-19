@@ -513,6 +513,7 @@ function icon(string $n): string {
         'out' => '<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h11"/>',
         'refresh' => '<path d="M20 11a8 8 0 0 0-14.9-3.9M4 5v4h4M4 13a8 8 0 0 0 14.9 3.9M20 19v-4h-4"/>',
         'mail' => '<path d="M3 5h18v14H3z"/><path d="m3 6 9 7 9-7"/>',
+        'back' => '<path d="M15 5l-7 7 7 7"/>',
         'clip' => '<path d="M21 11.5 12.5 20a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/>',
     ][$n] ?? '';
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square" aria-hidden="true">' . $p . '</svg>';
@@ -545,7 +546,7 @@ function page(string $title, string $active, string $body, string $kicker = '', 
         . '<div class="bot"><span>Przypomnienia wysyłamy sami, w dni robocze rano.</span>'
         . '<form method="post" action="' . P . '?a=logout">' . csrf_field() . '<button class="link" style="color:#C9C9C9">Wyloguj</button></form></div></nav>'
         . '<main class="main" id="main">'
-        . '<header class="top"><div>' . ($kicker ? '<p class="k">' . e($kicker) . '</p>' : '') . '<h1>' . e($title) . '</h1></div>' . ($acts ? '<div class="acts">' . $acts . '</div>' : '') . '</header>'
+        . '<header class="top"><div>' . (!empty($GLOBALS['back']) ? '<a class="back" href="' . e($GLOBALS['back'][0]) . '">' . icon('back') . '<span>' . e($GLOBALS['back'][1]) . '</span></a>' : '') . ($kicker ? '<p class="k">' . e($kicker) . '</p>' : '') . '<h1>' . e($title) . '</h1></div>' . ($acts ? '<div class="acts">' . $acts . '</div>' : '') . '</header>'
         . flash_html() . $body . '</main></div><script src="' . P . '/assets/panel.js?v=' . $v . '"></script></body></html>';
     exit;
 }
@@ -738,6 +739,7 @@ function view_form(?array $inv): never {
         . '<button class="btn ghost" name="act" value="issue">' . ($num ? 'Zapisz' : 'Wystaw bez wysyłki') . '</button>'
         . '<button class="btn" name="act" value="send">' . ($num ? 'Zapisz i wyślij' : 'Wystaw i wyślij') . ' ' . icon('arrow') . '</button></div>'
         . '</form>';
+    $GLOBALS['back'] = $inv ? [P . '?a=view&id=' . $inv['id'], $num ? 'Faktura ' . $num : 'Szkic'] : [P, 'Faktury'];
     page($inv ? ($num ? 'Faktura ' . $num : 'Szkic faktury') : 'Nowa faktura', $inv ? 'list' : 'new', $body, $inv ? 'Edycja' : 'Wystaw w minutę');
 }
 
@@ -853,6 +855,7 @@ function view_invoice(array $inv): never {
     $body = '<div class="cols"><div class="wide"><div class="doc-wrap">' . invoice_doc($inv, P . '/assets/') . '</div></div>'
         . '<aside class="side">' . $decl . '<div class="card pad sec">' . $kv . '<div class="acts-col">' . $acts . '</div>' . $danger . '</div>' . $auto . $ksef
         . '<div class="card pad sec"><h2>Historia</h2><div class="hist">' . ($hist ?: '<span class="mut">Brak zdarzeń.</span>') . '</div></div></aside></div>';
+    $GLOBALS['back'] = [P, 'Faktury'];
     page($inv['number'] ? 'Faktura ' . $inv['number'] : 'Szkic faktury', 'list', $body, $inv['buyer']['name'] ?? '', '<a class="btn ghost" href="' . P . '">Wszystkie faktury</a>');
 }
 
@@ -1059,6 +1062,8 @@ function view_mail(): never {
         . '<form method="post" action="' . P . '?a=mail_delete">' . csrf_field() . '<input type="hidden" name="uid" value="' . $uid . '"><input type="hidden" name="box" value="' . e($box) . '"><button class="link" style="color:var(--red)">Usuń wiadomość</button></form>'
         . ($box === 'INBOX' ? '<form method="post" action="' . P . '?a=mail_unseen">' . csrf_field() . '<input type="hidden" name="uid" value="' . $uid . '"><input type="hidden" name="box" value="' . e($box) . '"><button class="link">Oznacz jako nieprzeczytaną</button></form>' : '')
         . '</aside></div>';
+    $GLOBALS['back'] = [P . '?a=inbox&box=' . urlencode($box), $box === 'INBOX' ? 'Odebrane' : 'Wysłane'];
+    $GLOBALS['pgcls'] = 'pg-sub';
     page($subj, 'inbox', $body, $box === 'INBOX' ? 'Odebrane' : 'Wysłane', '<a class="btn ghost" href="' . P . '?a=inbox&box=' . urlencode($box) . '">Wszystkie wiadomości</a>');
 }
 function inv_attach_select(int $sel = 0): string {
@@ -1077,5 +1082,6 @@ function view_compose(): never {
         . '<label class="f">Temat<input class="in" name="subject" value="' . e($inv ? 'Faktura ' . $inv['number'] : '') . '" required></label>'
         . '<label class="f">Treść<textarea class="in" name="body" rows="10" required>Dzień dobry,' . "\n\n\n" . 'Pozdrawiam' . "\n" . 'Marcin Bednarz</textarea></label>'
         . inv_attach_select($inv ? (int)$inv['id'] : 0) . '<button class="btn" style="align-self:flex-start">Wyślij ' . icon('arrow') . '</button></form></section>';
+    $GLOBALS['back'] = [P . '?a=inbox', 'Poczta'];
     page('Nowa wiadomość', 'inbox', $body, 'z ' . setting('imap_user'));
 }
