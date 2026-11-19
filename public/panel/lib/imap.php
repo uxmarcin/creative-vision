@@ -53,6 +53,13 @@ final class Imap {
         return 0;
     }
     /** Zwraca nazwę folderu z flagą (np. \Sent) albo null. */
+    /** Lista folderów: [[flagi, nazwa], …] */
+    public function folders(): array {
+        $o = [];
+        foreach ($this->cmd('LIST "" "*"') as $l) if (preg_match('/^\* LIST \(([^)]*)\) (?:"[^"]*"|NIL) (?:"((?:[^"\\]|\\.)*)"|(\S+))\s*$/i', trim($l), $m)) $o[] = [$m[1], stripslashes(($m[2] ?? '') !== '' ? $m[2] : ($m[3] ?? ''))];
+        return $o;
+    }
+    public function create(string $box): void { $this->cmd('CREATE ' . $this->q($box)); try { $this->cmd('SUBSCRIBE ' . $this->q($box)); } catch (Throwable $e) {} }
     public function special(string $flag): ?string {
         foreach ($this->cmd('LIST "" "*"') as $l) if (stripos($l, $flag) !== false && preg_match('/"([^"]+)"\s*$|\s(\S+)\s*$/', trim($l), $m)) return $m[1] !== '' ? $m[1] : $m[2];
         return null;
@@ -168,4 +175,20 @@ function mail_addr(string $v): array {
 
 // ---------- skrzynka panelu ----------
 function inbox_enabled(): bool { return setting('imap_pass') !== '' && setting('imap_user') !== ''; }
+/** Folder „Wysłane”: zapamiętany, oznaczony flagą \Sent, o typowej nazwie, a gdy go nie ma, zakładamy go. */
+function sent_box(Imap $im): string {
+    $fs = $im->folders(); $names = array_column($fs, 1);
+    $saved = setting('imap_sent');
+    if ($saved !== '' && in_array($saved, $names, true)) return $saved;
+    $pick = null;
+    foreach ($fs as [$fl, $n]) if (stripos($fl, '\\Sent') !== false) { $pick = $n; break; }
+    if (!$pick) foreach ($names as $n) if (preg_match('/^(INBOX[.\/])?(Sent|Sent Items|Sent Messages|Wys(ł|l)ane)$/i', $n)) { $pick = $n; break; }
+    if (!$pick) {
+        $pref = false; foreach ($names as $n) if (stripos($n, 'INBOX.') === 0) $pref = true;
+        $pick = $pref ? 'INBOX.Sent' : 'Sent';
+        try { $im->create($pick); } catch (Throwable $e) { $pick = $pref ? 'Sent' : 'INBOX.Sent'; try { $im->create($pick); } catch (Throwable $e2) {} }
+    }
+    set_setting('imap_sent', $pick);
+    return $pick;
+}
 function imap_open_box(): Imap { return new Imap(setting('imap_host'), (int)setting('imap_port'), setting('imap_user'), setting('imap_pass')); }

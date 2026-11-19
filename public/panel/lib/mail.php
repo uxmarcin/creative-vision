@@ -203,8 +203,7 @@ function send_mail(array $to, string $subject, string $html, string $text, array
         catch (Throwable $e) { mail_last_error($e->getMessage()); return false; }
         try {
             require_once __DIR__ . '/imap.php';
-            $im = imap_open_box(); $sent = setting('imap_sent') ?: ($im->special('\\Sent') ?? 'INBOX.Sent');
-            if (setting('imap_sent') === '') set_setting('imap_sent', $sent);
+            $im = imap_open_box(); $sent = sent_box($im);
             $im->append($sent, $full);
         } catch (Throwable $e) { /* kopia w Wysłanych nie jest konieczna */ }
         return true;

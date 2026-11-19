@@ -203,8 +203,7 @@ if ($post) {
             redirect(P . '?a=settings#poczta');
         case 'mail_check':
             try {
-                $im = imap_open_box(); $n = $im->select('INBOX'); $sent = $im->special('\\Sent'); unset($im);
-                if ($sent) set_setting('imap_sent', $sent);
+                $im = imap_open_box(); $n = $im->select('INBOX'); sent_box($im); unset($im);
                 $msg = 'Skrzynka działa: ' . $n . ' ' . plural($n, 'wiadomość', 'wiadomości', 'wiadomości') . ' w odebranych.';
                 try { smtp_check(); $msg .= ' Wysyłka przez SMTP też działa.'; } catch (Throwable $e) { $msg .= ' Ale wysyłka SMTP: ' . $e->getMessage(); }
                 flash($msg);
@@ -222,7 +221,7 @@ if ($post) {
             flash($ok ? 'Wiadomość wysłana do ' . implode(', ', $to) . '.' : '!Nie udało się wysłać: ' . mail_last_error());
             redirect(P . '?a=inbox');
         case 'mail_unseen':
-            try { $im = imap_open_box(); $im->select((string)($_POST['box'] ?? 'INBOX')); $im->flag((int)($_POST['uid'] ?? 0), '\\Seen', false); } catch (Throwable $e) { flash('!' . $e->getMessage()); }
+            try { $im = imap_open_box(); $im->select(real_box($im, (string)($_POST['box'] ?? 'INBOX'))); $im->flag((int)($_POST['uid'] ?? 0), '\\Seen', false); } catch (Throwable $e) { flash('!' . $e->getMessage()); }
             redirect(P . '?a=inbox');
         case 'testmail':
             [$sj, $h, $t] = admin_mail('Test maila z panelu faktur', 'Test wysyłki · panel faktur', 'Maile z panelu', 'Jeśli to czytasz, wysyłka z panelu faktur działa poprawnie. Sprawdź też, czy wiadomość nie wpadła do spamu.', null, 'działają');
@@ -270,7 +269,7 @@ switch ($a) {
     case 'compose': view_compose();
     case 'mail_att':
         try {
-            $im = imap_open_box(); $box = (string)($_GET['box'] ?? 'INBOX'); $im->select($box);
+            $im = imap_open_box(); $box = (string)($_GET['box'] ?? 'INBOX'); $im->select(real_box($im, $box));
             $m = mime_parse($im->raw((int)($_GET['uid'] ?? 0)));
             $at = $m['att'][(int)($_GET['i'] ?? -1)] ?? null;
             if (!$at) { http_response_code(404); exit('Nie ma takiego załącznika.'); }
@@ -497,7 +496,7 @@ function flash_html(): string {
 }
 
 function page(string $title, string $active, string $body, string $kicker = '', string $acts = ''): never {
-    $nav = [['list', 'Faktury', 'list', P], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['inbox', 'Poczta <b class="bdg" id="mailbdg"' . (inbox_enabled() ? ' data-poll' : '') . ((int)setting('imap_unseen') > 0 ? '>' . (int)setting('imap_unseen') : ' hidden>') . '</b>', 'mail', P . '?a=inbox'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
+    $nav = [['inbox', 'Poczta <b class="bdg" id="mailbdg"' . (inbox_enabled() ? ' data-poll' : '') . ((int)setting('imap_unseen') > 0 ? '>' . (int)setting('imap_unseen') : ' hidden>') . '</b>', 'mail', P . '?a=inbox'], ['list', 'Faktury', 'list', P], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
     $links = '';
     foreach ($nav as [$k, $l, $i, $h]) $links .= '<a href="' . $h . '"' . ($active === $k ? ' class="on" aria-current="page"' : '') . ' title="' . strip_tags($l) . '">' . icon($i) . '<span class="tx">' . $l . '</span></a>';
     $v = substr((string)@md5_file(__DIR__ . '/assets/panel.js'), 0, 10);
@@ -913,7 +912,8 @@ function smtp_check(): void {
 function m_quote(string $q): string {
     return '<tr><td class="p" style="padding:26px 48px 0 48px"><div style="border-left:3px solid #E6E4DF;padding:4px 0 4px 16px;' . MF . 'font-size:14px;line-height:22px;color:#6B6B6B">' . nl2br(e(mb_substr($q, 0, 4000))) . '</div></td></tr>';
 }
-function mail_boxes(): array { return ['INBOX' => 'Odebrane', (setting('imap_sent') ?: 'INBOX.Sent') => 'Wysłane']; }
+function mail_boxes(): array { return ['INBOX' => 'Odebrane', 'sent' => 'Wysłane']; }
+function real_box(Imap $im, string $box): string { return $box === 'sent' ? sent_box($im) : 'INBOX'; }
 function inv_links(string $txt): string {
     if (!preg_match_all('#\b(\d{1,4}/\d{1,2}/20\d{2})\b#', $txt, $m)) return '';
     $o = ''; $st = db()->prepare('SELECT id, number FROM invoices WHERE number = ?');
@@ -928,7 +928,7 @@ function view_inbox(): never {
     $box = (string)($_GET['box'] ?? 'INBOX'); if (!isset(mail_boxes()[$box])) $box = 'INBOX';
     $pg = max(1, (int)($_GET['p'] ?? 1)); $per = 30;
     try {
-        $im = imap_open_box(); $im->select($box);
+        $im = imap_open_box(); $im->select(real_box($im, $box));
         $uids = $im->uids('ALL'); rsort($uids);
         $total = count($uids);
         $hs = $im->headers(array_slice($uids, ($pg - 1) * $per, $per));
@@ -959,9 +959,9 @@ function view_inbox(): never {
 }
 function view_mail(): never {
     if (!inbox_enabled()) inbox_off();
-    $box = (string)($_GET['box'] ?? 'INBOX'); $uid = (int)($_GET['uid'] ?? 0);
+    $box = ($_GET['box'] ?? '') === 'sent' ? 'sent' : 'INBOX'; $uid = (int)($_GET['uid'] ?? 0);
     try {
-        $im = imap_open_box(); $im->select($box);
+        $im = imap_open_box(); $im->select(real_box($im, $box));
         $raw = $im->raw($uid);
         if ($box === 'INBOX') { $im->flag($uid, '\\Seen'); set_setting('imap_unseen', (string)count($im->uids('UNSEEN'))); }
         unset($im);
