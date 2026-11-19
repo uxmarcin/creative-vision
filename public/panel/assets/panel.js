@@ -337,3 +337,4 @@
   });
   $('#email').addEventListener('input', function () { this.setCustomValidity(''); });
 })();
+(function () { var a = document.getElementById('autodl'); if (a) { setTimeout(function () { location.href = a.href; }, 300); try { history.replaceState(null, '', location.href.replace(/&dl=1/, '')); } catch (e) {} } })();

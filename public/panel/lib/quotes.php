@@ -132,7 +132,7 @@ function quote_post(string $a): never {
         if ($err) { flash('!' . $err); $_SESSION['qform'] = $_POST; redirect(P . '?a=' . ($id ? 'quote_edit&id=' . $id : 'quote_new')); }
         unset($_SESSION['qform']);
         if (($_SESSION['qsend'] ?? 0) === $id) { unset($_SESSION['qsend']); redirect(P . '?a=quote_mail&id=' . $id); }
-        redirect(P . '?a=quote&id=' . $id);
+        redirect(P . '?a=quote&id=' . $id . (($_POST['act'] ?? '') === 'dl' ? '&dl=1' : ''));
     }
     $q = quote_by_id($id); if (!$q) { flash('!Nie ma takiej wyceny.'); redirect(P . '?a=quotes'); }
     switch ($a) {
@@ -290,6 +290,7 @@ function view_quote_form(?array $q): never {
         . '</aside></div>'
         . '<div class="bar"><span class="note">Wycenę wyślemy z ' . e(quote_from_addr()) . ', z PDF w załączniku' . ($src ? ', jako odpowiedź na zapytanie' : '') . '.</span>'
         . '<a class="btn ghost" href="' . ($q ? P . '?a=quote&id=' . $q['id'] : ($src && !empty($src['uid']) ? P . '?a=mail&box=INBOX&uid=' . (int)$src['uid'] . (($src['acc'] ?? '') === 'k' ? '&acc=k' : '') : P . '?a=quotes')) . '">Anuluj</a>'
+        . '<button class="btn ghost bdl" name="act" value="dl" title="Zapisz i pobierz PDF" aria-label="Zapisz i pobierz PDF">' . icon('download') . '<span> PDF</span></button>'
         . '<button class="btn ghost" name="act" value="save">Zapisz wycenę</button>'
         . '<button class="btn" name="act" value="send">Zapisz i wyślij ' . icon('arrow') . '</button>' . '</div></form>';
     $GLOBALS['pgcls'] = 'pg-form';
@@ -309,6 +310,7 @@ function view_quote(array $q): never {
         $acts .= $f('quote_invoice', icon('receipt') . ' Zamień na fakturę', 'btn');
         $acts .= '<a class="btn' . (empty($q['sent_at']) ? '' : ' ghost') . '" href="' . P . '?a=quote_mail&id=' . $id . '">' . icon('send') . ' ' . (empty($q['sent_at']) ? 'Wyślij do klienta' : 'Wyślij ponownie') . '</a>';
     }
+    $autodl = !empty($_GET['dl']) ? '<a id="autodl" hidden href="' . P . '?a=quote_pdf&id=' . (int)$q['id'] . '&dl=1"></a>' : '';
     $tools = '<div class="ias tb">' . ia('eye', 'Podgląd PDF', P . '?a=quote_pdf&id=' . $id, ['blank' => true]) . ia('download', 'Pobierz PDF', P . '?a=quote_pdf&id=' . $id . '&dl=1')
         . ($q['status'] !== 'invoiced' ? ia('pencil', 'Edytuj', P . '?a=quote_edit&id=' . $id) : '')
         . (!empty($q['src']['lead']) ? ia('target', 'Szansa w lejku', P . '?a=lead&id=' . (int)$q['src']['lead']) : '')
@@ -336,7 +338,7 @@ function view_quote(array $q): never {
         . (!empty($src['subject']) ? '<span>' . e((string)$src['subject']) . '</span>' : '') . (!empty($src['uid']) ? '<a class="link" href="' . P . '?a=mail&box=INBOX&uid=' . (int)$src['uid'] . (($src['acc'] ?? '') === 'k' ? '&acc=k' : '') . '">Otwórz wiadomość</a>' : '') . '</div>' : '';
     $danger = $q['status'] !== 'invoiced' ? '<details class="more"><summary>Usuń wycenę</summary>' . $f('quote_delete', 'Usuń wycenę ' . $q['number'], 'btn danger') . '</details>' : '';
     $body = '<div class="cols"><div class="wide"><div class="doc-wrap">' . invoice_doc($q, P . '/assets/') . '</div></div>'
-        . '<aside class="side"><div class="card pad sec">' . $hero . $tools . '<div class="acts-col">' . $acts . '</div></div>' . $inq . '</aside></div>';
+        . '<aside class="side"><div class="card pad sec">' . $hero . $tools . '<div class="acts-col">' . $acts . '</div></div>' . $inq . '</aside></div>' . $autodl;
     $GLOBALS['pgcls'] = 'pg-inv';
     $GLOBALS['back'] = [P . '?a=quotes', 'Wyceny'];
     page('Wycena ' . $q['number'], 'quotes', $body, $q['buyer']['name'] ?? '', '<a class="btn ghost" href="' . P . '?a=quotes">Wszystkie wyceny</a>');
