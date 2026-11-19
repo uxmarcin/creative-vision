@@ -331,7 +331,7 @@ function view_lead(?array $l): never {
     $f = fn($a, $label, $cls = 'btn ghost', $extra = '') => '<form method="post" action="' . P . '?a=' . $a . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '">' . $extra . '<button class="' . $cls . '">' . $label . '</button></form>';
     $stages = ''; foreach (LEAD_STAGES as $k => $x) if ($k !== $l['stage']) $stages .= $f('lead_stage', $x, 'btn ghost sm', '<input type="hidden" name="stage" value="' . $k . '">');
     $quote = $l['quote_id'] ? quote_by_id((int)$l['quote_id']) : null;
-    $acts = ($quote ? '<a class="btn" href="' . P . '?a=quote&id=' . $quote['id'] . '">Wycena ' . e($quote['number']) . ' ' . icon('arrow') . '</a>' : '<a class="btn" href="' . P . '?a=quote_new&lead=' . $id . '">' . icon('quote') . ' Utwórz wycenę</a>')
+    $acts = ($quote ? '<a class="btn" href="' . P . '?a=quote&id=' . $quote['id'] . '">Wycena ' . e($quote['number']) . ' ' . icon('arrow') . '</a>' : '<a class="btn" href="' . P . '?a=quote_new&lead=' . $id . (ai_enabled() ? '&ai=1' : '') . '">' . icon(ai_enabled() ? 'spark' : 'quote') . (ai_enabled() ? ' Przygotuj wycenę z AI' : ' Utwórz wycenę') . '</a>')
         . ($l['email'] !== '' ? '<a class="btn ghost" href="' . P . '?a=compose&acc=k&to=' . rawurlencode($l['email']) . '&lead=' . $id . '">' . icon('mail') . ' Napisz z kontakt@</a>' : '')
         . ($l['phone'] !== '' ? '<a class="btn ghost" href="tel:' . e(preg_replace('/[^\d+]/', '', $l['phone'])) . '">Zadzwoń ' . e($l['phone']) . '</a>' : '')
         . (!empty($l['src']['uid']) ? '<a class="btn ghost" href="' . P . '?a=mail&box=INBOX&uid=' . (int)$l['src']['uid'] . (($l['src']['acc'] ?? '') === 'k' ? '&acc=k' : '') . '">Otwórz zapytanie</a>' : '');

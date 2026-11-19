@@ -551,3 +551,10 @@ ul.pts{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;fon
   .kcard.tile .btn.sm{height:40px;font-size:14px}
 }
 @media (max-width:900px){.top .acts .btn[href$="?a=lead_new"],.top .acts .btn[href$="?a=quote_new"]{display:none}}
+/* wycena z AI */
+.aicard{position:relative;border-color:#D6DCF8}
+.aicard::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--grad)}
+.aicard h2{display:flex;align-items:center;gap:10px}.aicard h2 svg{width:20px;height:20px}
+#aibtn.busy svg{animation:cvspin 1.2s linear infinite}
+.aiout{background:#F5F6FD;padding:16px 18px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.aiout p{margin:0}.aiout ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}

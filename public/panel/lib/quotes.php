@@ -216,7 +216,7 @@ function view_quote_form(?array $q): never {
     if (!$q && !$f && ($lid = (int)($_GET['lead'] ?? 0)) && function_exists('lead_by_id') && ($ld = lead_by_id($lid))) {
         $b = array_merge($b, ['name' => $ld['company'] ?: $ld['name'], 'email' => $ld['email'], 'phone' => $ld['phone']]);
         foreach ($clients as $c) if ($ld['email'] !== '' && strcasecmp((string)$c['email'], $ld['email']) === 0) { $b = $c; $cidSel = (int)$c['id']; }
-        $src = array_merge($ld['src'] ?: [], ['lead' => $lid]);
+        $src = array_merge($ld['src'] ?: [], ['lead' => $lid]); $ldNotes = trim($ld['notes'] . "\n" . $ld['next_note'] . (!empty($ld['audit']['points']) ? "\nAudyt strony " . $ld['website'] . ': ' . implode(' ', $ld['audit']['points']) : ''));
     }
     $opts = '<option value="">Nowy klient</option>';
     foreach ($clients as $c) $opts .= '<option value="' . $c['id'] . '"' . ($cidSel === (int)$c['id'] ? ' selected' : '') . '>' . e($c['name']) . '</option>';
@@ -237,7 +237,7 @@ function view_quote_form(?array $q): never {
     $srcJson = $src ? json_encode(array_diff_key($src, ['text' => 1]), JSON_UNESCAPED_UNICODE) : '';
     $body = '<form class="sec" method="post" action="' . P . '?a=quote_save" id="invform" autocomplete="off">' . csrf_field() . '<input type="hidden" name="id" value="' . ($q['id'] ?? '') . '"><input type="hidden" name="src" value="' . e((string)$srcJson) . '">'
         . '<script type="application/json" id="clients">' . json_encode($clients, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) . '</script>'
-        . '<div class="cols"><div class="wide sec">' . $inqCard
+        . '<div class="cols"><div class="wide sec">' . $inqCard . quote_ai_card($src, $inq, $ldNotes ?? '')
         . '<section class="card pad sec"><div class="hrow"><h2>Klient</h2><label class="f" style="flex-direction:row;align-items:center;gap:10px"><span>Z listy</span><select class="in" name="client_id" id="client_id" style="height:40px;min-width:200px">' . $opts . '</select></label></div>'
         . '<div class="grid2"><label class="f">NIP (opcjonalnie)<div class="nipw"><input class="in" name="nip" id="nip" value="' . $v('nip') . '" inputmode="numeric"><button type="button" class="btn ghost sm" id="nipbtn" style="height:46px">Pobierz dane</button></div><span id="nipmsg" class="mut" style="font-size:13px"></span></label>'
         . '<label class="f">Nazwa firmy lub imię i nazwisko<input class="in" name="name" id="name" value="' . $v('name') . '" required></label>'
@@ -317,4 +317,15 @@ function quote_from_mail_box(int $uid): string {
     return '<section class="card pad sec"><h2>Zapytanie od klienta?</h2><span class="mut" style="font-size:14px">Zrób z tej wiadomości wycenę. Dane nadawcy wpiszemy same, a wycenę wyślesz jako odpowiedź.</span>'
         . '<a class="btn" href="' . P . '?a=quote_new&uid=' . $uid . aq() . '">' . icon('quote') . ' Utwórz wycenę</a>'
         . '<form method="post" action="' . P . '?a=lead_from_mail">' . csrf_field() . acc_field() . '<input type="hidden" name="uid" value="' . $uid . '"><button class="btn ghost" style="width:100%">' . icon('target') . ' Dodaj do lejka</button></form>' . $ex . '</section>';
+}
+
+/** Karta „Przygotuj z AI” w formularzu wyceny. */
+function quote_ai_card(?array $src, ?array $inq, string $leadNotes): string {
+    $ctx = trim((!empty($src['subject']) ? 'Temat: ' . $src['subject'] . "\n" : '') . (!empty($inq['text']) ? $inq['text'] : '') . ($leadNotes !== '' ? "\n" . $leadNotes : ''));
+    if (!ai_enabled()) return '<section class="card pad sec aicard"><div class="hrow"><h2>' . icon('spark') . ' Przygotuj z AI</h2></div><span class="mut" style="font-size:14px">AI ułoży etapy, godziny i ceny z Twojego cennika. Wpisz klucz API Anthropic w <a href="' . P . '?a=settings#ai">ustawieniach</a>.</span></section>';
+    return '<section class="card pad sec aicard" id="aicard"><div class="hrow"><h2>' . icon('spark') . ' Przygotuj z AI</h2></div>'
+        . '<textarea hidden id="ai_ctx">' . e($ctx) . '</textarea>'
+        . '<label class="f">' . ($ctx !== '' ? 'Zapytanie klienta weźmiemy pod uwagę. Dopisz, co wiesz (opcjonalnie)' : 'Opisz, czego potrzebuje klient') . '<textarea class="in" id="ai_brief" rows="3" placeholder="np. strona dla kancelarii, 6 podstron, teksty od klienta, termin do końca stycznia, budżet ok. 8 tys."></textarea></label>'
+        . '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap"><button type="button" class="btn" id="aibtn"' . (!empty($_GET['ai']) ? ' data-auto' : '') . '>' . icon('spark') . ' Przygotuj wycenę</button><span class="mut" id="aist" style="font-size:14px"></span></div>'
+        . '<div id="aiout" hidden class="aiout"></div></section>';
 }

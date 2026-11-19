@@ -179,6 +179,44 @@
     kb.addEventListener('contextmenu', function (e) { if (e.target.closest('.kcard')) e.preventDefault(); });
   }
 
+  // wycena z AI
+  var aib = $('#aibtn');
+  if (aib) {
+    var aist = $('#aist'), aiout = $('#aiout');
+    var pl = function (v) { return Number(v).toFixed(2).replace('.', ','); };
+    var fillItems = function (items) {
+      var box = $('#items'), rows = $$('[data-item]', box);
+      rows.slice(1).forEach(function (r) { r.remove(); });
+      items.forEach(function (it, i) {
+        if (i > 0) $('#additem').click();
+        var r = $$('[data-item]', box).pop();
+        var set = function (sel, v) { var el = $(sel, r); if (el) el.value = v; };
+        set('[name$="[name]"]', it.name); set('[name$="[desc]"]', it.desc || ''); set('[data-q]', String(it.qty || 1).replace('.', ',')); set('[name$="[unit]"]', it.unit || 'usł.'); set('[data-p]', pl(it.price)); set('[data-v]', it.vat || '23');
+      });
+      box.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    var esc = function (t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; };
+    var runAi = function () {
+      aib.disabled = true; aib.classList.add('busy'); aist.textContent = 'Układam wycenę, to potrwa kilkanaście sekund…';
+      var f = new FormData(); f.append('csrf', document.body.getAttribute('data-csrf'));
+      f.append('ctx', ($('#ai_ctx') || {}).value || ''); f.append('brief', $('#ai_brief').value); f.append('client', ($('#name') || {}).value || '');
+      fetch('/panel?a=ai_quote', { method: 'POST', body: f, credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+        if (!j.ok) throw new Error(j.error || 'Nie udało się.');
+        fillItems(j.items);
+        var nt = $('[name=notes]'); if (nt && j.notes) nt.value = j.notes;
+        var pd = $('[name=pay_days]'); if (pd && j.pay_days != null) pd.value = j.pay_days;
+        var pill = $('#pills button[data-term="' + j.valid_days + '"]'); if (pill) pill.click();
+        var sum = j.items.reduce(function (a, it) { return a + it.price * (it.qty || 1); }, 0);
+        aiout.innerHTML = '<b>Propozycja: ' + j.items.length + ' pozycji, ' + pl(sum).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + ' zł netto</b>' + (j.summary ? '<p>' + esc(j.summary) + '</p>' : '')
+          + (j.questions && j.questions.length ? '<span class="mut">Warto dopytać klienta:</span><ul>' + j.questions.map(function (q) { return '<li>' + esc(q) + '</li>'; }).join('') + '</ul>' : '') + '<span class="mut" style="font-size:13px">Sprawdź pozycje i ceny poniżej, popraw co trzeba i zapisz.</span>';
+        aiout.hidden = false; aist.textContent = 'Gotowe. Możesz poprawić wskazówki i przygotować jeszcze raz.';
+        $('#items').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }).catch(function (e) { aist.textContent = e.message; }).then(function () { aib.disabled = false; aib.classList.remove('busy'); });
+    };
+    aib.addEventListener('click', runAi);
+    if (aib.hasAttribute('data-auto')) setTimeout(runAi, 400);
+  }
+
   var dz = $('#drop');
   if (dz) {
     var di = $('#dropin', dz), go = function () { if (di.files.length) { dz.classList.add('busy'); $('label b', dz).textContent = 'Wgrywam ' + di.files.length + '…'; dz.submit(); } };

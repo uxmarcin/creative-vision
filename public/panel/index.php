@@ -13,6 +13,7 @@ require_once __DIR__ . '/lib/quotes.php';
 require_once __DIR__ . '/lib/books.php';
 require_once __DIR__ . '/lib/push.php';
 require_once __DIR__ . '/lib/leads.php';
+require_once __DIR__ . '/lib/ai.php';
 
 if (($_GET['a'] ?? '') === 'sw') { header('Content-Type: application/javascript; charset=utf-8'); header('Cache-Control: no-cache'); readfile(__DIR__ . '/sw.js'); exit; }
 security_headers();
@@ -113,6 +114,17 @@ if ($post) {
     switch ($a) {
         case 'quote_save': case 'quote_send': case 'quote_status': case 'quote_invoice': case 'quote_delete': quote_post($a);
         case 'lead_save': case 'lead_stage': case 'lead_next': case 'lead_delete': case 'lead_from_mail': case 'tender_lead': case 'tender_hide': case 'lead_move': case 'tenders_fetch': case 'tender_settings': case 'scan': case 'lead_rescan': leads_post($a);
+        case 'ai_quote':
+            header('Content-Type: application/json; charset=utf-8'); @set_time_limit(150);
+            try { echo json_encode(['ok' => true] + ai_quote((string)($_POST['ctx'] ?? ''), trim((string)($_POST['brief'] ?? '')), trim((string)($_POST['client'] ?? ''))), JSON_UNESCAPED_UNICODE); }
+            catch (Throwable $e) { echo json_encode(['ok' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE); }
+            exit;
+        case 'ai_settings':
+            $k = trim((string)($_POST['ai_key'] ?? '')); if ($k !== '') set_setting('ai_key', $k);
+            if (!empty($_POST['ai_key_clear'])) set_setting('ai_key', '');
+            if (isset(AI_MODELS[(string)($_POST['ai_model'] ?? '')])) set_setting('ai_model', (string)$_POST['ai_model']);
+            if (isset($_POST['ai_pricing'])) set_setting('ai_pricing', trim(mb_substr((string)$_POST['ai_pricing'], 0, 8000)));
+            flash('Ustawienia AI zapisane.'); redirect(P . '?a=settings#ai');
         case 'push_sub':
             push_migrate(); header('Content-Type: application/json');
             $ep = (string)($_POST['endpoint'] ?? '');
@@ -622,6 +634,7 @@ function icon(string $n): string {
         'quote' => '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h5"/>',
         'books' => '<path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/>',
         'target' => '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
+        'spark' => '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>',
         'clip' => '<path d="M21 11.5 12.5 20a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/>',
     ][$n] ?? '';
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square" aria-hidden="true">' . $p . '</svg>';
@@ -1064,6 +1077,12 @@ function view_settings(): never {
             . '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn ghost">Zapisz pocztę kontakt@</button>' . ($has ? '<label class="check" style="font-size:13px"><input type="checkbox" name="imap_pass_clear" value="1"> Usuń zapisane hasło</label>' : '') . '</div></form>'
             . ($has ? '<form method="post" action="' . P . '?a=mail_check">' . csrf_field() . '<input type="hidden" name="acc" value="k"><button class="link">Sprawdź połączenie ze skrzynką</button></form>' : '') . '</section>';
             mail_acc('f'); return $h; })()
+        . '<section class="card pad sec" id="ai"><h2>AI do wycen</h2><span class="mut" style="font-size:14px">Przycisk „Przygotuj z AI” w wycenie układa etapy, godziny i ceny z Twojego cennika na podstawie zapytania klienta. Działa na Twoim kluczu API z console.anthropic.com (płatność za użycie, jedna wycena to zwykle kilka groszy). Treść zapytania idzie do API Anthropic tylko w chwili kliknięcia. Klucz zapisujemy wyłącznie w bazie panelu na serwerze.</span>'
+            . '<form class="sec" method="post" action="' . P . '?a=ai_settings">' . csrf_field()
+            . '<div class="grid2"><label class="f">Klucz API Anthropic' . (setting('ai_key') !== '' ? ' (zapisany, wpisz nowy, aby zmienić)' : '') . '<input class="in" type="password" name="ai_key" autocomplete="off" placeholder="' . (setting('ai_key') !== '' ? '••••••••••••' : 'sk-ant-…') . '"></label>'
+            . '<label class="f">Model<select class="in" name="ai_model">' . implode('', array_map(fn($k, $l) => '<option value="' . $k . '"' . ((setting('ai_model') ?: 'claude-sonnet-5-5') === $k ? ' selected' : '') . '>' . $l . '</option>', array_keys(AI_MODELS), AI_MODELS)) . '</select></label></div>'
+            . '<label class="f">Cennik i zasady wycen (AI trzyma się tego tekstu)<textarea class="in" name="ai_pricing" rows="10">' . e(setting('ai_pricing') ?: AI_PRICING_DEFAULT) . '</textarea></label>'
+            . '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn ghost">Zapisz AI</button>' . (setting('ai_key') !== '' ? '<label class="check" style="font-size:13px"><input type="checkbox" name="ai_key_clear" value="1"> Usuń zapisany klucz</label>' : '') . '</div></form></section>'
         . (function () { push_migrate(); $n = (int)db()->query('SELECT COUNT(*) FROM push_subs')->fetchColumn();
             return '<section class="card pad sec" id="push"><h2>Powiadomienia</h2><span class="mut" style="font-size:14px">Powiadomienia o nowych mailach w faktury@ i kontakt@ oraz o tym, że klient otworzył fakturę. Na iPhonie działają w aplikacji dodanej do ekranu początkowego (Udostępnij, Do ekranu początkowego), na Macu w Safari, Chrome albo w aplikacji z Docka. Włącz je osobno na każdym urządzeniu.</span>'
             . '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap"><button type="button" class="btn" id="pushon">Włącz na tym urządzeniu</button><button type="button" class="btn ghost" id="pushoff" hidden>Wyłącz na tym urządzeniu</button><span class="mut" id="pushst" style="font-size:14px"></span></div>'
