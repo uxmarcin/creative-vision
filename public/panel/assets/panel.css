@@ -564,3 +564,28 @@ ul.pts{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;fon
 .tabs.sub{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.tabs.sub a{white-space:nowrap;flex:none}
 .tbody{font-size:14px;line-height:1.6;max-height:70vh;overflow:auto}
 .att{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;background:#FAF9F6;border:1px solid var(--line);font-size:14px}.att svg{width:16px;height:16px}.att b{font-weight:500}#aimsg.busy svg{animation:cvspin 1.2s linear infinite}
+/* akcje jako ikony (lucide) */
+.ias{display:inline-flex;align-items:center;gap:2px;justify-content:flex-end}
+.iaf{display:inline}
+.ia{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:1px solid transparent;background:none;color:var(--mut);cursor:pointer;text-decoration:none;position:relative;list-style:none}
+.ia::-webkit-details-marker{display:none}
+.ia svg{width:18px;height:18px}
+.ia:hover{color:var(--ink);background:#F1F0EC}
+.ia.done{color:var(--green)}
+.ia[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;padding:4px 8px;white-space:nowrap}
+.imenu{position:relative;display:inline-block}
+.imenu[open]>summary{background:#F1F0EC;color:var(--ink)}
+.imenu-l{position:absolute;right:0;top:calc(100% + 4px);z-index:30;min-width:240px;background:#fff;border:1px solid var(--line);box-shadow:0 14px 34px rgba(0,0,0,.14);padding:6px;display:flex;flex-direction:column}
+.imenu.up .imenu-l{top:auto;bottom:calc(100% + 4px)}
+.imenu-l a,.imenu-l button{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;background:none;border:0;text-align:left;font-size:14px;color:var(--ink);text-decoration:none;cursor:pointer;white-space:nowrap}
+.imenu-l a:hover,.imenu-l button:hover{background:#F5F4F1}
+.imenu-l svg{width:17px;height:17px;color:var(--mut);flex:none}
+.imenu-l .dg,.imenu-l .dg svg{color:var(--red)}
+.imenu-l form{display:block}
+.ias.tb{display:flex;justify-content:flex-start;gap:4px;padding:2px 0 4px;border-bottom:1px solid var(--line);margin-bottom:2px}
+.ias.tb .ia{border-color:#E6E4DF;width:44px;height:44px}.ias.tb .ia svg{width:19px;height:19px}
+.ias.tb .imenu{margin-left:auto}
+.kc-f .ias{margin-right:auto}
+.kcard .ia{width:32px;height:32px}.kcard .ia svg{width:17px;height:17px}
+.list td.c-act{width:1%}
+@media (max-width:900px){.ia{width:40px;height:40px}.ias.tb .ia{width:46px;height:46px}.imenu-l{min-width:220px}}

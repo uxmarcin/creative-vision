@@ -311,8 +311,9 @@ function view_leads(): never {
                 . (($l['company'] && $l['name']) ? '<span class="kc-b">' . e($l['name']) . '</span>' : '')
                 . ($l['value'] ? '<span class="kc-v">' . money((int)$l['value']) . '</span>' : '')
                 . ($l['next_at'] ? '<span class="kc-d' . ($late ? ' late-t' : '') . '">' . ($late ? 'Dziś: ' : e(date('d.m', strtotime($l['next_at']))) . ': ') . e($l['next_note'] ?: 'kontakt') . '</span>' : '')
-                . '<div class="kc-f">' . (!empty($srcT = json_decode((string)$l['src'], true)['tender'] ?? null) ? '<a class="link" href="' . P . '?a=tender&id=' . (int)$srcT . '">Podgląd</a>' : '')
-                . ($l['website'] !== '' && $l['website'] !== null ? '<a class="link" href="' . e(preg_match('#^https?://#', (string)$l['website']) ? (string)$l['website'] : 'https://' . $l['website']) . '" target="_blank" rel="noopener">' . ($l['source'] === 'przetarg' ? 'Ogłoszenie' : 'Strona') . ' ↗</a>' : '')
+                . '<div class="kc-f"><div class="ias">' . ia('eye', !empty($srcT = json_decode((string)$l['src'], true)['tender'] ?? null) ? 'Podgląd ogłoszenia' : 'Otwórz szansę', !empty($srcT) ? P . '?a=tender&id=' . (int)$srcT : $url)
+                . ($l['website'] !== '' && $l['website'] !== null ? ia('external', $l['source'] === 'przetarg' ? 'Ogłoszenie w serwisie' : 'Strona firmy', preg_match('#^https?://#', (string)$l['website']) ? (string)$l['website'] : 'https://' . $l['website'], ['blank' => true]) : '')
+                . ($l['quote_id'] ? ia('quote', 'Wycena', P . '?a=quote&id=' . (int)$l['quote_id']) : ia('spark', 'Przygotuj wycenę', P . '?a=quote_new&lead=' . $l['id'] . (ai_enabled() ? '&ai=1' : ''))) . '</div>'
                 . '<label class="kc-mv"><span class="sr">Przenieś do</span><select data-move>' . $opts($st) . '</select></label></div></article>';
             $cnt[$st]++; $sum[$st] += (int)$l['value'];
         }
@@ -338,7 +339,7 @@ function view_leads(): never {
             $tiles .= '<article class="kcard tile"><div class="kc-h"><span class="sc' . ($t['score'] >= 50 ? ' hi' : '') . '">' . (int)$t['score'] . '</span><span class="kc-cat c-' . $t['cat'] . '">' . TENDER_CATS[$t['cat']] . '</span><span class="kc-src" style="margin-left:auto">' . strtoupper($t['src']) . ($t['province'] ? ' · ' . e($t['province']) : '') . '</span></div>'
                 . '<b class="kc-t">' . e(tender_title((string)$t['title'])) . '</b><span class="kc-b">' . e(trim($t['buyer'] . ($t['city'] ? ', ' . $t['city'] : ''))) . '</span>'
                 . '<span class="kc-d' . ($left !== null && $left <= 3 ? ' late-t' : '') . '">' . e($dl) . '</span>'
-                . '<div class="kc-f">' . $f('tender_lead', icon('target') . ' Do lejka', 'btn sm') . '<a class="btn ghost sm" href="' . P . '?a=tender&id=' . $t['id'] . '">Podgląd</a><a class="link" href="' . e($t['url']) . '" target="_blank" rel="noopener">Ogłoszenie ↗</a>' . $f('tender_hide', 'Pomiń', 'link') . '</div></article>';
+                . '<div class="kc-f">' . $f('tender_lead', icon('target') . ' Do lejka', 'btn sm') . '<div class="ias">' . ia('eye', 'Podgląd ogłoszenia', P . '?a=tender&id=' . $t['id']) . ia('external', 'Ogłoszenie w serwisie', (string)$t['url'], ['blank' => true]) . ia('x', 'Pomiń', '', ['post' => 'tender_hide', 'id' => $t['id']]) . '</div>' . '</div></article>';
         }
         $at = setting('tender_at');
         $body .= '<section class="card"><nav class="tabs">' . $tabs . '</nav><div class="hrow pad" style="flex-wrap:wrap"><span class="mut" style="font-size:14px">Przetargi z BZP i TED na strony, portale, sklepy, aplikacje i grafikę, od najlepiej dopasowanych. Te, które bierzemy, dodaj do lejka' . ($inLead ? ' (już w lejku: ' . $inLead . ')' : '') . '. Sprawdzamy codziennie rano' . ($at ? ', ostatnio ' . e(date('d.m H:i', strtotime($at))) : '') . '.</span>'

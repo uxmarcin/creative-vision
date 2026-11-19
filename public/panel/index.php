@@ -637,9 +637,42 @@ function icon(string $n): string {
         'books' => '<path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/>',
         'target' => '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
         'spark' => '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>',
+        'eye' => '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+        'more' => '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+        'send' => '<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/>',
+        'download' => '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>',
+        'pencil' => '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+        'trash' => '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+        'copy' => '<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+        'receipt' => '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/>',
+        'external' => '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+        'check' => '<path d="M20 6 9 17l-5-5"/>',
+        'x' => '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+        'link' => '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+        'bell' => '<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>',
+        'banknote' => '<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+        'undo' => '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>',
         'clip' => '<path d="M21 11.5 12.5 20a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/>',
     ][$n] ?? '';
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square" aria-hidden="true">' . $p . '</svg>';
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $p . '</svg>';
+}
+/** Akcja jako ikona: link albo przycisk w formularzu POST. $o: ['post' => akcja, 'id' => …, 'extra' => html, 'confirm' => tekst, 'cls' => '', 'blank' => bool, 'data' => attrs] */
+function ia(string $ic, string $label, string $href = '', array $o = []): string {
+    $cls = 'ia' . (!empty($o['cls']) ? ' ' . $o['cls'] : '');
+    if (!empty($o['post'])) return '<form method="post" action="' . P . '?a=' . $o['post'] . '" class="iaf">' . csrf_field() . (isset($o['id']) ? '<input type="hidden" name="id" value="' . (int)$o['id'] . '">' : '') . ($o['extra'] ?? '')
+        . '<button class="' . $cls . '" title="' . e($label) . '" aria-label="' . e($label) . '"' . (!empty($o['confirm']) ? ' data-confirm="' . e($o['confirm']) . '"' : '') . ($o['data'] ?? '') . '>' . icon($ic) . '</button></form>';
+    if ($href === '') return '<button type="button" class="' . $cls . '" title="' . e($label) . '" aria-label="' . e($label) . '"' . ($o['data'] ?? '') . '>' . icon($ic) . '</button>';
+    return '<a class="' . $cls . '" href="' . e($href) . '" title="' . e($label) . '" aria-label="' . e($label) . '"' . (!empty($o['blank']) ? ' target="_blank" rel="noopener"' : '') . ($o['data'] ?? '') . '>' . icon($ic) . '</a>';
+}
+/** Menu „więcej”: [[ikona, etykieta, href lub ['post' => …]], …] */
+function imore(array $items, string $label = 'Więcej'): string {
+    $o = '';
+    foreach ($items as $it) {
+        [$ic, $l, $h] = $it; $opt = $it[3] ?? [];
+        if (is_array($h)) $o .= '<form method="post" action="' . P . '?a=' . $h['post'] . '">' . csrf_field() . (isset($h['id']) ? '<input type="hidden" name="id" value="' . (int)$h['id'] . '">' : '') . ($h['extra'] ?? '') . '<button' . (!empty($opt['danger']) ? ' class="dg"' : '') . (!empty($h['confirm']) ? ' data-confirm="' . e($h['confirm']) . '"' : '') . '>' . icon($ic) . e($l) . '</button></form>';
+        else $o .= '<a href="' . e($h) . '"' . (!empty($opt['blank']) ? ' target="_blank" rel="noopener"' : '') . (!empty($opt['data']) ? $opt['data'] : '') . (!empty($opt['danger']) ? ' class="dg"' : '') . '>' . icon($ic) . e($l) . '</a>';
+    }
+    return '<details class="imenu"><summary class="ia" title="' . e($label) . '" aria-label="' . e($label) . '">' . icon('more') . '</summary><div class="imenu-l">' . $o . '</div></details>';
 }
 
 function head(string $title): string {
@@ -781,7 +814,14 @@ function view_list(): never {
             . '<td class="c-due nw">' . e(pl_date($i['due_date'])) . '<span class="sub ' . $wc . '">' . e($w) . '</span></td>'
             . '<td class="c-amt r amt">' . money((int)$i['gross'], $i['currency'] ?? 'PLN') . '</td>'
             . '<td class="c-st nw">' . state_chip($i) . '</td>'
-            . '<td class="c-act r nw">' . ($act !== '' ? '<a class="link" href="' . $url . '">' . $act . '</a>' : '') . '</td></tr>';
+            . '<td class="c-act r nw"><div class="ias">' . ia('eye', 'Podgląd faktury', $url)
+            . ($i['status'] !== 'draft' ? ia('download', 'Pobierz PDF', P . '?a=pdf&id=' . $i['id'] . '&dl=1') : ia('pencil', 'Dokończ szkic', P . '?a=edit&id=' . $i['id']))
+            . imore(array_values(array_filter([
+                $i['status'] !== 'draft' ? ['external', 'Faktura online', pay_url($i), ['blank' => true]] : null,
+                in_array(inv_state($i), ['due', 'today', 'late'], true) ? ['banknote', 'Oznacz jako opłaconą', ['post' => 'paid', 'id' => $i['id'], 'extra' => '<input type="hidden" name="paid_date" value="' . today() . '">']] : null,
+                can_edit($i) ? ['pencil', 'Edytuj', P . '?a=edit&id=' . $i['id']] : null,
+                ['copy', 'Nowa faktura dla tego klienta', P . '?a=new' . (!empty($i['client_id']) ? '&client=' . $i['client_id'] : '')],
+            ]))) . '</div></td></tr>';
     }
     $table = '<section class="card wide" aria-label="Lista faktur">' . $per . '<nav class="tabs" aria-label="Filtr faktur">' . $tabs . '</nav>'
         . ($tr ? '<div class="tw"><table class="list"><thead><tr><th>Numer</th><th>Klient</th><th>Termin</th><th class="r">Kwota brutto</th><th>Status</th><th><span class="sr">Akcje</span></th></tr></thead><tbody>' . $tr . '</tbody></table></div>'
@@ -932,11 +972,13 @@ function view_invoice(array $inv): never {
             . '<label class="f">Na adres<input class="in" type="email" name="to" value="' . e(setting('imap_user') ?: setting('mail_reply')) . '"></label>'
             . '<button class="btn ghost sm">Wyślij podgląd</button><span class="mut" style="font-size:13px">Klient nic nie dostanie. W temacie będzie dopisek [Podgląd].</span></form></details>';
     }
+    $tools = '';
     if ($inv['status'] !== 'draft') {
-        $acts .= '<a class="btn ghost" href="' . P . '?a=pdf&id=' . $id . '&dl=1">Pobierz PDF</a>';
-        $acts .= '<button type="button" class="btn ghost" data-copy="' . e(pay_url($inv)) . '">Kopiuj link dla klienta</button>';
+        $tools = '<div class="ias tb">' . ia('eye', 'Podgląd PDF', P . '?a=pdf&id=' . $id, ['blank' => true]) . ia('download', 'Pobierz PDF', P . '?a=pdf&id=' . $id . '&dl=1')
+            . ia('link', 'Kopiuj link dla klienta', '', ['data' => ' data-copy="' . e(pay_url($inv)) . '"'])
+            . (can_edit($inv) ? ia('pencil', 'Edytuj', P . '?a=edit&id=' . $id) : '')
+            . imore([['external', 'Faktura online (jak widzi klient)', pay_url($inv), ['blank' => true]], ['copy', 'Nowa faktura dla tego klienta', P . '?a=new' . (!empty($inv['client_id']) ? '&client=' . $inv['client_id'] : '')]]) . '</div>';
     }
-    if (can_edit($inv) && $inv['status'] !== 'draft') $acts .= '<a class="btn ghost" href="' . P . '?a=edit&id=' . $id . '">Edytuj</a>';
     if ($inv['status'] === 'paid') $acts .= $f('unpaid', 'Cofnij oznaczenie wpłaty');
     [$wt, $wc] = when_text($inv);
     $kv = '<div class="ihero"><span class="ik">' . e($inv['buyer']['name'] ?? 'Bez nabywcy') . '</span><span class="iv">' . money((int)$inv['gross'], $inv['currency'] ?? 'PLN') . '</span>'
@@ -987,7 +1029,7 @@ function view_invoice(array $inv): never {
     if ($inv['status'] === 'issued') $danger .= '<details class="more"><summary>Anuluj fakturę</summary><span class="mut" style="font-size:13px;display:block;margin-bottom:10px">Faktura zostaje w historii z numerem, ale przestaje być do zapłaty. Wysłanej fakturę lepiej skorygować.</span>' . $f('cancel', 'Anuluj fakturę', 'btn danger') . '</details>';
     $GLOBALS['pgcls'] = 'pg-inv';
     $body = '<div class="cols"><div class="wide"><div class="doc-wrap">' . invoice_doc($inv, P . '/assets/') . '</div></div>'
-        . '<aside class="side">' . $decl . '<div class="card pad sec">' . $kv . '<div class="acts-col">' . $acts . '</div>' . $danger . '</div>' . $auto . $ksef
+        . '<aside class="side">' . $decl . '<div class="card pad sec">' . $kv . $tools . '<div class="acts-col">' . $acts . '</div>' . $danger . '</div>' . $auto . $ksef
         . '<div class="card pad sec"><h2>Historia</h2><div class="hist">' . ($hist ?: '<span class="mut">Brak zdarzeń.</span>') . '</div></div></aside></div>';
     $GLOBALS['back'] = [P, 'Faktury'];
     page($inv['number'] ? 'Faktura ' . $inv['number'] : 'Szkic faktury', 'list', $body, $inv['buyer']['name'] ?? '', '<a class="btn ghost" href="' . P . '">Wszystkie faktury</a>');

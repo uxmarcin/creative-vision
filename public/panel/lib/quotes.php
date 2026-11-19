@@ -190,7 +190,15 @@ function view_quotes(): never {
             . '<td class="c-cli"><span>' . e($x['buyer']['name'] ?? '') . '</span><span class="sub">' . e(mb_strimwidth($first, 0, 60, '…')) . '</span></td>'
             . '<td class="c-due nw">' . e(pl_date($x['due_date'])) . '<span class="sub mut">' . e($w) . '</span></td>'
             . '<td class="c-amt r amt">' . money((int)$x['gross'], $x['currency'] ?? 'PLN') . '</td>'
-            . '<td class="c-st nw">' . quote_chip($x) . '</td><td class="c-act"></td></tr>';
+            . '<td class="c-st nw">' . quote_chip($x) . '</td><td class="c-act r nw"><div class="ias">' . ia('eye', 'Podgląd wyceny', $url) . ia('download', 'Pobierz PDF', P . '?a=quote_pdf&id=' . $x['id'] . '&dl=1')
+            . ($x['status'] !== 'invoiced' ? ia('send', 'Wyślij do klienta', P . '?a=quote_mail&id=' . $x['id']) : '')
+            . imore(array_values(array_filter([
+                $x['status'] !== 'invoiced' ? ['pencil', 'Edytuj', P . '?a=quote_edit&id=' . $x['id']] : null,
+                $x['status'] !== 'invoiced' ? ['receipt', 'Zamień na fakturę', ['post' => 'quote_invoice', 'id' => $x['id']]] : (!empty($x['invoice_id']) ? ['receipt', 'Otwórz fakturę', P . '?a=view&id=' . $x['invoice_id']] : null),
+                $x['status'] !== 'invoiced' && $x['status'] !== 'accepted' ? ['check', 'Klient zaakceptował', ['post' => 'quote_status', 'id' => $x['id'], 'extra' => '<input type="hidden" name="st" value="accepted">']] : null,
+                $x['status'] !== 'invoiced' && $x['status'] !== 'rejected' ? ['x', 'Klient odrzucił', ['post' => 'quote_status', 'id' => $x['id'], 'extra' => '<input type="hidden" name="st" value="rejected">']] : null,
+                $x['status'] !== 'invoiced' ? ['trash', 'Usuń wycenę', ['post' => 'quote_delete', 'id' => $x['id'], 'confirm' => 'Usunąć wycenę ' . $x['number'] . '?'], ['danger' => true]] : null,
+            ]))) . '</div></td></tr>';
     }
     $kpi = '<section class="kpis" aria-label="Podsumowanie wycen"><div class="kpi dark"><span class="t">Otwarte wyceny</span><span class="v">' . money($openSum) . '</span><span class="s">netto, ' . $cnt['open'] . ' ' . plural($cnt['open'], 'wycena czeka', 'wyceny czekają', 'wycen czeka') . ' na decyzję</span></div><div class="kpis-r">'
         . '<div class="kpi"><span class="t">Zaakceptowane</span><span class="v">' . money($accSum) . '</span><span class="s">netto, do zafakturowania</span></div>'
@@ -297,11 +305,19 @@ function view_quote(array $q): never {
         $inv = invoice_by_id((int)$q['invoice_id']);
         if ($inv) $acts .= '<a class="btn" href="' . P . '?a=' . ($inv['status'] === 'draft' ? 'edit' : 'view') . '&id=' . $inv['id'] . '">' . ($inv['status'] === 'draft' ? 'Dokończ fakturę' : 'Faktura ' . e($inv['number'])) . ' ' . icon('arrow') . '</a>';
     } else {
-        $acts .= $f('quote_invoice', 'Zamień na fakturę ' . icon('arrow'), 'btn');
-        $acts .= '<a class="btn' . (empty($q['sent_at']) ? '' : ' ghost') . '" href="' . P . '?a=quote_mail&id=' . $id . '">' . icon('mail') . ' ' . (empty($q['sent_at']) ? 'Wyślij do klienta' : 'Wyślij ponownie') . '</a>';
-        $acts .= '<a class="btn ghost" href="' . P . '?a=quote_edit&id=' . $id . '">Edytuj</a>';
+        $acts .= $f('quote_invoice', icon('receipt') . ' Zamień na fakturę', 'btn');
+        $acts .= '<a class="btn' . (empty($q['sent_at']) ? '' : ' ghost') . '" href="' . P . '?a=quote_mail&id=' . $id . '">' . icon('send') . ' ' . (empty($q['sent_at']) ? 'Wyślij do klienta' : 'Wyślij ponownie') . '</a>';
     }
-    $acts .= '<a class="btn ghost" href="' . P . '?a=quote_pdf&id=' . $id . '&dl=1">Pobierz PDF</a>';
+    $tools = '<div class="ias tb">' . ia('eye', 'Podgląd PDF', P . '?a=quote_pdf&id=' . $id, ['blank' => true]) . ia('download', 'Pobierz PDF', P . '?a=quote_pdf&id=' . $id . '&dl=1')
+        . ($q['status'] !== 'invoiced' ? ia('pencil', 'Edytuj', P . '?a=quote_edit&id=' . $id) : '')
+        . (!empty($q['src']['lead']) ? ia('target', 'Szansa w lejku', P . '?a=lead&id=' . (int)$q['src']['lead']) : '')
+        . imore(array_values(array_filter([
+            $q['status'] !== 'invoiced' && $q['status'] !== 'accepted' ? ['check', 'Klient zaakceptował', ['post' => 'quote_status', 'id' => $id, 'extra' => '<input type="hidden" name="st" value="accepted">']] : null,
+            $q['status'] !== 'invoiced' && $q['status'] !== 'rejected' ? ['x', 'Klient odrzucił', ['post' => 'quote_status', 'id' => $id, 'extra' => '<input type="hidden" name="st" value="rejected">']] : null,
+            in_array($q['status'], ['accepted', 'rejected'], true) ? ['undo', 'Wróć do wysłanej', ['post' => 'quote_status', 'id' => $id, 'extra' => '<input type="hidden" name="st" value="sent">']] : null,
+            ['copy', 'Nowa wycena dla tego klienta', P . '?a=quote_new' . (!empty($q['client_id']) ? '&client=' . $q['client_id'] : '')],
+            $q['status'] !== 'invoiced' ? ['trash', 'Usuń wycenę', ['post' => 'quote_delete', 'id' => $id, 'confirm' => 'Usunąć wycenę ' . $q['number'] . '? Tego nie da się cofnąć.'], ['danger' => true]] : null,
+        ]))) . '</div>';
     $status = '';
     if ($q['status'] !== 'invoiced') {
         $status = '<details class="more"><summary>Zmień status</summary><div class="inl">'
@@ -319,7 +335,7 @@ function view_quote(array $q): never {
         . (!empty($src['subject']) ? '<span>' . e((string)$src['subject']) . '</span>' : '') . (!empty($src['uid']) ? '<a class="link" href="' . P . '?a=mail&box=INBOX&uid=' . (int)$src['uid'] . (($src['acc'] ?? '') === 'k' ? '&acc=k' : '') . '">Otwórz wiadomość</a>' : '') . '</div>' : '';
     $danger = $q['status'] !== 'invoiced' ? '<details class="more"><summary>Usuń wycenę</summary>' . $f('quote_delete', 'Usuń wycenę ' . $q['number'], 'btn danger') . '</details>' : '';
     $body = '<div class="cols"><div class="wide"><div class="doc-wrap">' . invoice_doc($q, P . '/assets/') . '</div></div>'
-        . '<aside class="side"><div class="card pad sec">' . $hero . '<div class="acts-col">' . $acts . '</div>' . $status . $danger . '</div>' . $inq . '</aside></div>';
+        . '<aside class="side"><div class="card pad sec">' . $hero . $tools . '<div class="acts-col">' . $acts . '</div></div>' . $inq . '</aside></div>';
     $GLOBALS['pgcls'] = 'pg-inv';
     $GLOBALS['back'] = [P . '?a=quotes', 'Wyceny'];
     page('Wycena ' . $q['number'], 'quotes', $body, $q['buyer']['name'] ?? '', '<a class="btn ghost" href="' . P . '?a=quotes">Wszystkie wyceny</a>');

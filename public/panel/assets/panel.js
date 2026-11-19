@@ -9,8 +9,8 @@
   // kopiowanie
   $$('[data-copy]').forEach(function (b) {
     b.addEventListener('click', function () {
-      var t = b.getAttribute('data-copy'), old = b.textContent;
-      var done = function () { b.textContent = 'Skopiowano'; setTimeout(function () { b.textContent = old; }, 1600); };
+      var t = b.getAttribute('data-copy'), old = b.textContent, ic = b.classList.contains('ia');
+      var done = function () { if (ic) { b.classList.add('done'); b.setAttribute('data-tip', 'Skopiowano'); setTimeout(function () { b.classList.remove('done'); b.removeAttribute('data-tip'); }, 1600); return; } b.textContent = 'Skopiowano'; setTimeout(function () { b.textContent = old; }, 1600); };
       if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, done); else { var i = document.createElement('input'); i.value = t; document.body.appendChild(i); i.select(); document.execCommand('copy'); i.remove(); done(); }
     });
   });
@@ -31,7 +31,7 @@
   $$('[data-autosubmit]').forEach(function (el) { el.addEventListener('change', function () { el.form.submit(); }); });
 
   $$('tr[data-href]').forEach(function (tr) {
-    tr.addEventListener('click', function (e) { if (e.target.closest('a,button,input,form,label,.c-chk')) return; if (e.metaKey || e.ctrlKey) window.open(tr.getAttribute('data-href')); else location.href = tr.getAttribute('data-href'); });
+    tr.addEventListener('click', function (e) { if (e.target.closest('a,button,input,form,label,details,.c-chk')) return; if (e.metaKey || e.ctrlKey) window.open(tr.getAttribute('data-href')); else location.href = tr.getAttribute('data-href'); });
   });
 
   var mon = $('.months a.on'); if (mon && mon.parentNode.scrollWidth > mon.parentNode.clientWidth) mon.parentNode.scrollLeft = mon.offsetLeft - mon.parentNode.clientWidth / 2 + mon.clientWidth / 2;
@@ -154,14 +154,14 @@
       drag = null; overCol = null;
     };
     kb.addEventListener('mousedown', function (e) {
-      var card = e.target.closest('.kcard'); if (!card || e.button !== 0 || e.target.closest('a,button,select,input,label')) return;
+      var card = e.target.closest('.kcard'); if (!card || e.button !== 0 || e.target.closest('a,button,select,input,label,details,form')) return;
       sx = e.clientX; sy = e.clientY; moved = false; e.preventDefault();
       var mm = function (ev) { if (!drag && Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 6) { moved = true; start(card, sx, sy); } move(ev.clientX, ev.clientY); };
       var mu = function () { document.removeEventListener('mousemove', mm); document.removeEventListener('mouseup', mu); if (!moved && card.getAttribute('data-href')) location.href = card.getAttribute('data-href'); end(); };
       document.addEventListener('mousemove', mm); document.addEventListener('mouseup', mu);
     });
     kb.addEventListener('touchstart', function (e) {
-      var card = e.target.closest('.kcard'); if (!card || e.target.closest('a,button,select,input,label')) return;
+      var card = e.target.closest('.kcard'); if (!card || e.target.closest('a,button,select,input,label,details,form')) return;
       var t = e.touches[0]; sx = t.clientX; sy = t.clientY;
       timer = setTimeout(function () { start(card, sx, sy); }, 280);
     }, { passive: true });
@@ -172,7 +172,7 @@
     }, { passive: false });
     kb.addEventListener('touchend', function (e) {
       var card = e.target.closest('.kcard');
-      if (!drag && timer && card && card.getAttribute('data-href') && !e.target.closest('a,button,select,input,label')) { clearTimeout(timer); timer = null; location.href = card.getAttribute('data-href'); return; }
+      if (!drag && timer && card && card.getAttribute('data-href') && !e.target.closest('a,button,select,input,label,details,form')) { clearTimeout(timer); timer = null; location.href = card.getAttribute('data-href'); return; }
       end();
     });
     kb.addEventListener('touchcancel', end);
@@ -228,6 +228,19 @@
       if (!j.ok) throw new Error(j.error); $('#qmsg').value = j.message; st.textContent = 'Gotowe. Popraw, jeśli chcesz, i wyślij.';
     }).catch(function (e) { st.textContent = e.message; }).then(function () { aim.disabled = false; aim.classList.remove('busy'); });
   });
+
+  // menu „więcej”: zamykanie po kliknięciu obok i po wybraniu
+  document.addEventListener('click', function (e) { $$('details.imenu[open]').forEach(function (d) { if (!d.contains(e.target)) d.removeAttribute('open'); }); });
+  document.addEventListener('toggle', function (e) {
+    var d = e.target; if (!d.classList || !d.classList.contains('imenu') || !d.open) return;
+    $$('details.imenu[open]').forEach(function (x) { if (x !== d) x.removeAttribute('open'); });
+    var l = $('.imenu-l', d), r = $('summary', d).getBoundingClientRect();
+    l.style.position = 'fixed'; l.style.right = 'auto'; l.style.bottom = 'auto';
+    var w = l.offsetWidth, h = l.offsetHeight, top = r.bottom + 4;
+    if (top + h > window.innerHeight - 80) top = Math.max(8, r.top - h - 4);
+    l.style.top = top + 'px'; l.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.right - w)) + 'px';
+  }, true);
+  window.addEventListener('scroll', function () { $$('details.imenu[open]').forEach(function (x) { x.removeAttribute('open'); }); }, { passive: true });
 
   // potwierdzenie przed wysyłką maila do klienta
   var cdlg = document.createElement('dialog'); cdlg.className = 'mdlg plus';
