@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 const LEAD_STAGES = ['new' => 'Nowe', 'contact' => 'W kontakcie', 'offer' => 'Wycena wysłana', 'nego' => 'Negocjacje', 'won' => 'Wygrane', 'lost' => 'Przegrane'];
-const LEAD_SOURCES = ['reczne' => 'Dodana ręcznie', 'mail' => 'Zapytanie mailowe', 'przetarg' => 'Przetarg', 'skaner' => 'Skaner stron', 'polecenie' => 'Polecenie'];
+const LEAD_SOURCES = ['reczne' => 'Dodana ręcznie', 'mail' => 'Zapytanie mailowe', 'przetarg' => 'Przetarg', 'gielda' => 'Giełda zleceń', 'skaner' => 'Skaner stron', 'polecenie' => 'Polecenie'];
 const TENDER_CATS = ['www' => 'Strony i portale', 'shop' => 'Sklepy', 'app' => 'Aplikacje i systemy', 'design' => 'Grafika i marketing', 'other' => 'Inne'];
 /** Rodzaj przetargu po tytule i kodach CPV. */
 function tender_title(string $t): string { return preg_match('/^Polska\s*[–-]\s*[^–]{3,120}\s*[–-]\s*(.+)$/u', $t, $m) ? trim($m[1]) : $t; }
@@ -93,7 +93,8 @@ function tender_body(int $id): string {
     $q = db()->prepare('SELECT * FROM tenders WHERE id = ?'); $q->execute([$id]); $t = $q->fetch(); if (!$t) return '';
     if (trim((string)$t['body']) !== '') return (string)$t['body'];
     $body = '';
-    if ($t['src'] === 'bzp' && $t['published']) {
+    if (job_is($t)) $body = job_body_fetch($t);
+    elseif ($t['src'] === 'bzp' && $t['published']) {
         $r = http_get('https://ezamowienia.gov.pl/mo-board/api/v1/notice?NoticeType=ContractNotice&NoticeNumber=' . rawurlencode($t['ref']) . '&PublicationDateFrom=' . $t['published'] . 'T00:00:00&PublicationDateTo=' . $t['published'] . 'T23:59:59&PageSize=5', 30);
         foreach ((array)json_decode($r['body'], true) as $x) if (is_array($x) && ($x['noticeNumber'] ?? '') === $t['ref']) { $body = html_text((string)($x['htmlBody'] ?? '')); break; }
     } elseif ($t['src'] === 'ted') {
@@ -249,6 +250,12 @@ function leads_post(string $a): never {
             $t = db()->prepare('SELECT * FROM tenders WHERE id = ?'); $t->execute([$id]); $t = $t->fetch();
             if (!$t) redirect(P . '?a=leads&t=tenders');
             if ($t['lead_id']) redirect(P . '?a=lead&id=' . $t['lead_id']);
+            if (job_is($t)) {
+                $lid = lead_save(['name' => (string)$t['buyer'], 'company' => '', 'source' => 'gielda', 'stage' => 'new', 'next_at' => today(), 'next_note' => 'Złożyć ofertę na ' . ($t['src'] === 'useme' ? 'Useme' : 'Freelancer.com') . ' (dziś, zanim zbierze się dużo ofert)',
+                    'website' => $t['url'], 'notes' => $t['title'] . "\n" . ($t['budget'] ? 'Budżet: ' . $t['budget'] . "\n" : '') . $t['url'], 'src' => ['tender' => (int)$t['id'], 'job' => 1], 'score' => (int)$t['score']]);
+                db()->prepare("UPDATE tenders SET status = 'saved', lead_id = ? WHERE id = ?")->execute([$lid, $id]);
+                flash('Zlecenie dodane do lejka.'); redirect(P . '?a=lead&id=' . $lid);
+            }
             $lid = lead_save(['name' => '', 'company' => $t['buyer'], 'source' => 'przetarg', 'stage' => 'new', 'next_at' => $t['deadline'] ? date('Y-m-d', strtotime(substr($t['deadline'], 0, 10) . ' -3 days')) : today(),
                 'next_note' => 'Przygotować ofertę do przetargu' . ($t['deadline'] ? ' (termin ' . date('d.m H:i', strtotime($t['deadline'])) . ')' : ''), 'website' => $t['url'], 'notes' => $t['title'] . "\n" . $t['ref'] . ' · ' . $t['city'] . "\n" . $t['url'], 'src' => ['tender' => (int)$t['id']], 'score' => (int)$t['score']]);
             db()->prepare("UPDATE tenders SET status = 'saved', lead_id = ? WHERE id = ?")->execute([$lid, $id]);
@@ -259,7 +266,17 @@ function leads_post(string $a): never {
             if (!isset(LEAD_STAGES[$st]) || !lead_by_id($id)) { echo '{"ok":false}'; exit; }
             lead_stage($id, $st); echo '{"ok":true}'; exit;
         case 'tender_hide':
-            db()->prepare("UPDATE tenders SET status = 'hidden' WHERE id = ?")->execute([$id]); redirect(P . '?a=leads&t=tenders');
+            db()->prepare("UPDATE tenders SET status = 'hidden' WHERE id = ?")->execute([$id]);
+            $s = db()->prepare('SELECT src FROM tenders WHERE id = ?'); $s->execute([$id]); redirect(P . '?a=leads&t=' . (in_array($s->fetchColumn(), JOB_SRCS, true) ? 'jobs' . (!empty($_POST['c']) ? '&c=' . rawurlencode((string)$_POST['c']) : '') : 'tenders'));
+        case 'jobs_fetch':
+            @set_time_limit(120);
+            [$new, $err] = jobs_fetch();
+            flash(($err && !$new ? '!' : '') . 'Nowe zlecenia: ' . count($new) . '.' . ($err ? ' Nie odpowiedziało: ' . implode(', ', array_unique($err)) . '.' : ''));
+            redirect(P . '?a=leads&t=jobs');
+        case 'jobs_settings':
+            set_setting('jobs_on', !empty($_POST['jobs_on']) ? '1' : '0'); set_setting('jobs_fl', !empty($_POST['jobs_fl']) ? '1' : '0');
+            set_setting('jobs_push', (string)max(0, min(100, (int)($_POST['jobs_push'] ?? 50))));
+            flash('Ustawienia zleceń zapisane.'); redirect(P . '?a=leads&t=jobs');
         case 'tenders_fetch':
             @set_time_limit(120);
             [$new, $err] = tenders_fetch((int)($_POST['days'] ?? 7));
@@ -296,10 +313,11 @@ function leads_post(string $a): never {
 // ---------- widoki ----------
 function view_leads(): never {
     leads_migrate();
-    $tab = (string)($_GET['t'] ?? 'pipe'); if (!in_array($tab, ['pipe', 'tenders', 'scan'], true)) $tab = 'pipe';
+    $tab = (string)($_GET['t'] ?? 'pipe'); if (!in_array($tab, ['pipe', 'tenders', 'jobs', 'scan'], true)) $tab = 'pipe'; jobs_migrate();
     $tabs = '';
-    $newT = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE status = 'new' AND (deadline IS NULL OR deadline = '' OR deadline >= date('now'))")->fetchColumn();
-    foreach (['pipe' => 'Lejek', 'tenders' => 'Przetargi', 'scan' => 'Skaner stron'] as $k => $l) $tabs .= '<a href="' . P . '?a=leads&t=' . $k . '"' . ($tab === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ($k === 'tenders' && $newT ? ' <span>' . $newT . '</span>' : '') . '</a>';
+    $newT = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE status = 'new' AND src IN ('bzp','ted') AND (deadline IS NULL OR deadline = '' OR deadline >= date('now'))")->fetchColumn();
+    $newJ = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE status = 'new' AND src IN ('useme','freelancer') AND deadline >= date('now') AND created >= datetime('now', '-1 day')")->fetchColumn();
+    foreach (['pipe' => 'Lejek', 'jobs' => 'Zlecenia', 'tenders' => 'Przetargi', 'scan' => 'Skaner stron'] as $k => $l) $tabs .= '<a href="' . P . '?a=leads&t=' . $k . '"' . ($tab === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ($k === 'tenders' && $newT ? ' <span>' . $newT . '</span>' : '') . ($k === 'jobs' && $newJ ? ' <span>' . $newJ . '</span>' : '') . '</a>';
     $body = '';
     if ($tab === 'pipe') {
         $st = (string)($_GET['s'] ?? 'open');
@@ -334,14 +352,14 @@ function view_leads(): never {
         $body .= '<section class="card"><nav class="tabs">' . $tabs . '</nav><div class="pad" style="padding-top:14px;padding-bottom:14px"><span class="mut" style="font-size:14px">Przeciągnij kartę do innej kolumny (na telefonie przytrzymaj kartę albo wybierz etap z listy na karcie).</span></div></section>'
             . ($all ? '<div class="kboard" id="kboard" data-move-url="lead_move">' . $board . '</div>' : '<section class="card"><div class="empty">Pusto. Dodaj szansę, zapisz przetarg albo przeskanuj strony firm.</div></section>');
     } elseif ($tab === 'tenders') {
-        $all = db()->query("SELECT * FROM tenders WHERE status = 'new' AND (deadline IS NULL OR deadline = '' OR deadline >= date('now')) ORDER BY score DESC, deadline LIMIT 300")->fetchAll();
+        $all = db()->query("SELECT * FROM tenders WHERE status = 'new' AND src IN ('bzp','ted') AND (deadline IS NULL OR deadline = '' OR deadline >= date('now')) ORDER BY score DESC, deadline LIMIT 300")->fetchAll();
         $cat = (string)($_GET['c'] ?? 'all'); if ($cat !== 'all' && !isset(TENDER_CATS[$cat])) $cat = 'all';
         $cc = array_fill_keys(array_keys(TENDER_CATS), 0);
         foreach ($all as &$t) { $t['cat'] = tender_cat((string)$t['title'], (string)$t['cpv']); $cc[$t['cat']]++; } unset($t);
         $rows = $cat === 'all' ? $all : array_values(array_filter($all, fn($t) => $t['cat'] === $cat));
         $ctabs = '<a href="' . P . '?a=leads&t=tenders"' . ($cat === 'all' ? ' class="on" aria-current="true"' : '') . '>Wszystkie <span>' . count($all) . '</span></a>';
         foreach (TENDER_CATS as $k => $l) if ($cc[$k] || $cat === $k) $ctabs .= '<a href="' . P . '?a=leads&t=tenders&c=' . $k . '"' . ($cat === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ' <span>' . $cc[$k] . '</span></a>';
-        $inLead = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE lead_id IS NOT NULL")->fetchColumn();
+        $inLead = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE lead_id IS NOT NULL AND src IN ('bzp','ted')")->fetchColumn();
         $tiles = '';
         foreach ($rows as $t) {
             $left = $t['deadline'] ? days_between(today(), substr($t['deadline'], 0, 10)) : null;
@@ -362,6 +380,8 @@ function view_leads(): never {
             . '<label class="f">Województwa z bonusem (kody NUTS, np. PL18 podkarpackie, PL21 małopolskie, PL81 lubelskie)<input class="in" name="tender_prov" value="' . e(setting('tender_prov') ?: 'PL18') . '"></label>'
             . '<label class="f">Minimalna ocena dopasowania (0 do 100)<input class="in" type="number" name="tender_min" min="0" max="100" value="' . e(setting('tender_min') ?: '20') . '"></label>'
             . '<label class="check"><input type="checkbox" name="tender_on" value="1"' . (setting('tender_on') !== '0' ? ' checked' : '') . '> Sprawdzaj codziennie i daj znać o najlepszych (powiadomienie)</label><button class="btn ghost sm">Zapisz</button></form></details></section>';
+    } elseif ($tab === 'jobs') {
+        $body .= view_jobs_tab($tabs);
     } else {
         $rows = db()->query("SELECT * FROM leads WHERE audit IS NOT NULL AND audit != '' ORDER BY score DESC, updated DESC LIMIT 100")->fetchAll();
         $tr = '';
@@ -422,6 +442,7 @@ function view_tender(int $id): never {
     $q = db()->prepare('SELECT * FROM tenders WHERE id = ?'); $q->execute([$id]); $t = $q->fetch();
     if (!$t) redirect(P . '?a=leads&t=tenders');
     $body = tender_body($id);
+    if (job_is($t)) view_job($t, $body);
     $left = $t['deadline'] ? days_between(today(), substr($t['deadline'], 0, 10)) : null;
     $f = fn($a, $l, $c = 'btn') => '<form method="post" action="' . P . '?a=' . $a . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="' . $c . '" style="width:100%">' . $l . '</button></form>';
     $acts = ($t['lead_id'] ? '<a class="btn" href="' . P . '?a=lead&id=' . $t['lead_id'] . '">Szansa w lejku ' . icon('arrow') . '</a>' . (ai_enabled() ? '<a class="btn ghost" href="' . P . '?a=quote_new&lead=' . $t['lead_id'] . '&ai=1">' . icon('spark') . ' Przygotuj wycenę z AI</a>' : '') : $f('tender_lead', icon('target') . ' Do lejka'))
@@ -435,3 +456,4 @@ function view_tender(int $id): never {
     $GLOBALS['back'] = [P . '?a=leads&t=tenders', 'Przetargi']; $GLOBALS['pgcls'] = 'pg-inv';
     page('Przetarg', 'leads', $body, $t['buyer']);
 }
+require_once __DIR__ . '/jobs.php';

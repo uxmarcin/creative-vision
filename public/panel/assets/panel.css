@@ -590,3 +590,4 @@ ul.pts{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;fon
 .list td.c-act{width:1%}
 @media (max-width:900px){.ia{width:40px;height:40px}.ias.tb .ia{width:46px;height:46px}.imenu-l{min-width:220px}}
 .chip.sent{background:var(--ink);color:#fff;border:0}
+.kc-x{font-size:13.5px;line-height:1.5;color:var(--ink);opacity:.78;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.kc-b b{color:var(--ink);font-weight:500}

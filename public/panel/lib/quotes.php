@@ -241,7 +241,7 @@ function view_quote_form(?array $q): never {
         $b = array_merge($b, ['name' => $ld['company'] ?: $ld['name'], 'email' => $ld['email'], 'phone' => $ld['phone']]);
         if (!empty($ld['src']['tender']) && function_exists('tender_contact')) foreach (tender_contact((int)$ld['src']['tender']) as $k => $v) if (trim((string)($b[$k] ?? '')) === '') $b[$k] = $v;
         foreach ($clients as $c) if ($ld['email'] !== '' && strcasecmp((string)$c['email'], $ld['email']) === 0) { $b = $c; $cidSel = (int)$c['id']; }
-        $src = array_merge($ld['src'] ?: [], ['lead' => $lid]); $ldNotes = trim($ld['notes'] . "\n" . $ld['next_note'] . (!empty($ld['audit']['points']) ? "\nAudyt strony " . $ld['website'] . ': ' . implode(' ', $ld['audit']['points']) : '') . (!empty($ld['src']['tender']) && function_exists('tender_body') ? "\n\nTREŚĆ OGŁOSZENIA PRZETARGOWEGO:\n" . tender_body((int)$ld['src']['tender']) : ''));
+        $src = array_merge($ld['src'] ?: [], ['lead' => $lid]); $ldNotes = trim($ld['notes'] . "\n" . $ld['next_note'] . (!empty($ld['audit']['points']) ? "\nAudyt strony " . $ld['website'] . ': ' . implode(' ', $ld['audit']['points']) : '') . (!empty($ld['src']['tender']) && function_exists('tender_body') ? (!empty($ld['src']['job']) ? "\n\nTREŚĆ ZLECENIA Z GIEŁDY (ofertę składamy na giełdzie, klient porównuje wiele ofert, napisz krótką, konkretną wiadomość jak propozycję na giełdę):\n" : "\n\nTREŚĆ OGŁOSZENIA PRZETARGOWEGO:\n") . tender_body((int)$ld['src']['tender']) : ''));
     }
     $opts = '<option value="">Nowy klient</option>';
     foreach ($clients as $c) $opts .= '<option value="' . $c['id'] . '"' . ($cidSel === (int)$c['id'] ? ' selected' : '') . '>' . e($c['name']) . '</option>';
@@ -366,7 +366,7 @@ function quote_ai_card(?array $src, ?array $inq, string $leadNotes): string {
 
 /** Wycena do przetargu: składana na platformie, nie wysyłamy jej mailem. */
 function quote_is_tender(?array $src): bool {
-    if (!$src) return false;
+    if (!$src || !empty($src['job'])) return false;
     if (!empty($src['tender'])) return true;
     if (!empty($src['lead']) && function_exists('lead_by_id') && ($l = lead_by_id((int)$src['lead']))) return $l['source'] === 'przetarg' || !empty($l['src']['tender']);
     return false;
