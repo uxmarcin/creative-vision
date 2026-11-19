@@ -228,7 +228,7 @@ if ($post) {
             if ($id) db()->prepare('UPDATE clients SET nip=?, name=?, addr1=?, addr2=?, country=?, phone=?, email=?, cc=?, updated=? WHERE id=?')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['country'], $c['phone'], $c['email'], $c['cc'], now(), $id]);
             else db()->prepare('INSERT INTO clients (nip, name, addr1, addr2, country, phone, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?,?,?)')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['country'], $c['phone'], $c['email'], $c['cc'], now(), now()]);
             $cid = $id ?: (int)db()->lastInsertId();
-            db()->prepare('UPDATE clients SET no_remind = ?, auto_paid = ? WHERE id = ?')->execute([!empty($_POST['no_remind']) ? 1 : 0, !empty($_POST['auto_paid']) ? 1 : 0, $cid]);
+            db()->prepare('UPDATE clients SET no_remind = ?, auto_paid = ?, no_mail = ? WHERE id = ?')->execute([!empty($_POST['no_remind']) ? 1 : 0, !empty($_POST['auto_paid']) ? 1 : 0, !empty($_POST['no_mail']) ? 1 : 0, $cid]);
             if (!empty($_POST['no_remind'])) db()->prepare("UPDATE invoices SET reminders = 0 WHERE client_id = ? AND status = 'issued'")->execute([$cid]);
             flash('Klient zapisany.');
             redirect(P . '?a=clients');
@@ -869,9 +869,13 @@ function view_invoice(array $inv): never {
         $acts .= '<a class="btn" href="' . P . '?a=edit&id=' . $id . '">Dokończ i wystaw ' . icon('arrow') . '</a>';
     } elseif ($inv['status'] === 'issued') {
         $noMail = !filter_var(trim((string)($inv['buyer']['email'] ?? '')), FILTER_VALIDATE_EMAIL);
+        $offMail = client_no_mail(isset($inv['client_id']) ? (int)$inv['client_id'] : null);
         $mb = fn($act, $label, $cls) => $noMail ? '<button type="button" class="' . $cls . '" data-mail="' . $act . '">' . $label . '</button>' : $f($act, $label, $cls);
-        $acts .= $mb('send', empty($inv['sent_at']) ? 'Wyślij do klienta' : 'Wyślij ponownie', empty($inv['sent_at']) ? 'btn' : 'btn ghost');
-        if (!empty($inv['sent_at'])) $acts .= $mb('remind', 'Przypomnij teraz', 'btn ghost');
+        if ($offMail) $acts .= '<span class="mut" style="font-size:14px">Temu klientowi nie wysyłamy faktur mailem (ustawienie w Klientach).</span>';
+        else {
+            $acts .= $mb('send', empty($inv['sent_at']) ? 'Wyślij do klienta' : 'Wyślij ponownie', empty($inv['sent_at']) ? 'btn' : 'btn ghost');
+            if (!empty($inv['sent_at'])) $acts .= $mb('remind', 'Przypomnij teraz', 'btn ghost');
+        }
         if ($noMail) $acts .= '<dialog class="mdlg" id="maildlg"><form method="post" action="' . P . '?a=set_email" class="sec">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '"><input type="hidden" name="next" value="send">'
             . '<div class="hrow"><h2>Na jaki adres wysłać?</h2><button type="button" class="x" data-close aria-label="Zamknij">×</button></div>'
             . '<p class="mut" style="margin:0;font-size:14px">Przy tej fakturze nie ma e-maila klienta. Wpisz go, a od razu wyślemy wiadomość.</p>'
@@ -979,6 +983,7 @@ function view_clients(): never {
         . '<label class="f">E-mail do faktur<input class="in" type="email" name="email" value="' . $v('email') . '"></label>'
         . '<label class="f">Kopia do<input class="in" name="cc" value="' . $v('cc') . '"></label>'
         . '<label class="f">Telefon do SMS<input class="in" type="tel" name="phone" value="' . $v('phone') . '"></label>'
+        . '<label class="check"><input type="checkbox" name="no_mail" value="1"' . (!empty($ec['no_mail']) ? ' checked' : '') . '> Nie wysyłaj temu klientowi faktur mailem</label>'
         . '<label class="check"><input type="checkbox" name="no_remind" value="1"' . (!empty($ec['no_remind']) ? ' checked' : '') . '> Nie wysyłaj temu klientowi przypomnień ani wezwań</label>'
         . '<label class="check"><input type="checkbox" name="auto_paid" value="1"' . (!empty($ec['auto_paid']) ? ' checked' : '') . '> Płaci sam ostatniego dnia miesiąca: oznaczaj faktury jako opłacone automatycznie</label>'
         . '<button class="btn">Zapisz klienta</button></form>'

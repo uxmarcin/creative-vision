@@ -228,6 +228,7 @@ function send_mail(array $to, string $subject, string $html, string $text, array
 /** Wysyła mail do klienta w sprawie faktury i zapisuje w historii. */
 function send_invoice_mail(array $inv, string $kind): bool {
     require_once __DIR__ . '/doc.php';
+    if (client_no_mail(isset($inv['client_id']) ? (int)$inv['client_id'] : null)) { mail_last_error('Ten klient ma wyłączone maile z fakturami.'); return false; }
     $b = $inv['buyer'];
     $to = array_merge([(string)($b['email'] ?? '')], preg_split('/[\s,;]+/', (string)($b['cc'] ?? '')) ?: []);
     [$subj, $html, $text] = invoice_mail($inv, $kind, true);

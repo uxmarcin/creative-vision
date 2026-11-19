@@ -51,6 +51,10 @@ function migrate(PDO $pdo): void {
         $pdo->exec("UPDATE clients SET no_remind = 1, auto_paid = 1 WHERE id IN (SELECT client_id FROM invoices WHERE currency != 'PLN' AND client_id IS NOT NULL)");
         $pdo->exec("UPDATE invoices SET reminders = 0 WHERE client_id IN (SELECT id FROM clients WHERE no_remind = 1)");
     }
+    if (!in_array('no_mail', $ccols, true)) {
+        $pdo->exec('ALTER TABLE clients ADD COLUMN no_mail INTEGER NOT NULL DEFAULT 0');
+        $pdo->exec('UPDATE clients SET no_mail = 1 WHERE auto_paid = 1');
+    }
     if (!in_array('book_ym', $cols, true)) {
         $pdo->exec('ALTER TABLE invoices ADD COLUMN book_ym TEXT');
         $pdo->exec('UPDATE invoices SET book_ym = substr(COALESCE(issue_date, created), 1, 7)');
@@ -331,6 +335,7 @@ function app_ver(): string {
     foreach (array_merge([__DIR__ . '/../index.php', __DIR__ . '/../assets/panel.css', __DIR__ . '/../assets/panel.js'], glob(__DIR__ . '/*.php') ?: []) as $f) $h .= $f . @filesize($f) . @md5_file($f);
     return substr(md5($h), 0, 12);
 }
+function client_no_mail(?int $cid): bool { if (!$cid) return false; $q = db()->prepare('SELECT no_mail FROM clients WHERE id = ?'); $q->execute([$cid]); return (int)$q->fetchColumn() === 1; }
 function quote_by_id(int $id): ?array {
     $s = db()->prepare('SELECT * FROM quotes WHERE id = ?'); $s->execute([$id]);
     $r = $s->fetch(); if (!$r) return null;
