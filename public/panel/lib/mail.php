@@ -6,7 +6,7 @@ const MF = "font-family:Jost,'Helvetica Neue',Helvetica,Arial,sans-serif;";
 const MM = "font-family:'IBM Plex Mono',Menlo,Consolas,'Courier New',monospace;";
 
 /** Wspólny szkielet maila: czarny nagłówek z logo, gradient, biała treść. $rows: gotowe wiersze <tr>…</tr>. */
-function mail_layout(string $title, string $pre, string $rows): string {
+function mail_layout(string $title, string $pre, string $rows, bool $system = false): string {
     $img = CV_SITE . '/img/mail/';
     $phone = setting('seller_phone'); $mail = setting('seller_email');
     return '<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
@@ -27,7 +27,7 @@ function mail_layout(string $title, string $pre, string $rows): string {
         . '<a href="tel:+48' . e(preg_replace('/\D/', '', $phone)) . '" style="color:#0B0B0B;text-decoration:none">' . e($phone) . '</a> &nbsp;·&nbsp; '
         . '<a href="mailto:' . e($mail) . '" style="color:#0B0B0B;text-decoration:none">' . e($mail) . '</a> &nbsp;·&nbsp; '
         . '<a href="' . CV_SITE . '" style="color:#0B0B0B;text-decoration:none">creative-vision.pl</a><br>'
-        . 'Masz pytanie do faktury? Odpisz na tę wiadomość.</td></tr>'
+        . ($system ? 'Wiadomość systemowa Creative Vision. Nie odpowiadaj na nią.' : 'Masz pytanie do faktury? Odpisz na tę wiadomość.') . '</td></tr>'
         . '</table></td></tr></table></body></html>';
 }
 
@@ -63,6 +63,14 @@ function m_transfer(array $inv): string {
         ['Odbiorca', $s['seller_name'] . ', ' . $s['seller_addr1'] . ', ' . $s['seller_addr2']],
         ['Tytuł', 'Faktura ' . $inv['number']],
     ]);
+}
+/** Stopka wiadomości automatycznej: bez podpisu osoby, z informacją, gdzie pisać. */
+function m_auto(): string {
+    $mail = setting('seller_email'); $phone = setting('seller_phone');
+    return '<tr><td class="p" style="padding:40px 48px 40px 48px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F5F4F1" style="background:#F5F4F1"><tr><td style="padding:18px 22px;' . MF . 'font-size:14px;line-height:22px;color:#5F5F5F">'
+        . '<span style="' . MM . 'font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#0B0B0B">Wiadomość automatyczna</span><br>'
+        . 'Ta wiadomość została wygenerowana automatycznie, prosimy na nią nie odpowiadać. W sprawie faktury napisz na <a href="mailto:' . e($mail) . '" style="color:#0B0B0B">' . e($mail) . '</a>' . ($phone !== '' ? ' lub zadzwoń: <a href="tel:+48' . e(preg_replace('/\D/', '', $phone)) . '" style="color:#0B0B0B;text-decoration:none">' . e($phone) . '</a>' : '') . '.'
+        . '</td></tr></table></td></tr>';
 }
 function m_sign(): string {
     return '<tr><td class="p" style="padding:44px 48px 44px 48px"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>'
@@ -107,7 +115,7 @@ function invoice_mail(array $inv, string $kind): array {
             $subj = 'Wezwanie do zapłaty: faktura ' . $num;
             $pre = 'Faktura ' . $num . ' jest ' . $late . ' ' . ($late === 1 ? 'dzień' : 'dni') . ' po terminie.';
             $rows = m_kicker('Wezwanie do zapłaty · ' . $num) . m_h1('Faktura ' . $num, 'czeka na wpłatę')
-                . m_text($hello . 'nie odnotowaliśmy jeszcze wpłaty za fakturę ' . e($num) . ', której termin minął ' . e($due) . '. Prosimy o uregulowanie należności w ciągu 7 dni, do ' . e($deadline7) . '.<br><br>Jeśli płatność już wyszła, zignoruj tę wiadomość. Jeśli coś się nie zgadza, po prostu odpisz, wyjaśnimy to od ręki.')
+                . m_text($hello . 'nie odnotowaliśmy jeszcze wpłaty za fakturę ' . e($num) . ', której termin minął ' . e($due) . '. Prosimy o uregulowanie należności w ciągu 7 dni, do ' . e($deadline7) . '.<br><br>Jeśli płatność już wyszła, zignoruj tę wiadomość. Jeśli coś się nie zgadza, napisz do nas na ' . e(setting('seller_email')) . ', wyjaśnimy to od ręki.')
                 . m_box([['Faktura', $num], ['Termin płatności', $due], ['Dni po terminie', (string)$late], ['Do zapłaty', $gross, true]]) . m_button($url, 'Zobacz fakturę');
             break;
         case 'w2':
@@ -120,13 +128,13 @@ function invoice_mail(array $inv, string $kind): array {
             $rows = m_kicker('Ostateczne wezwanie do zapłaty · ' . $num) . m_h1('Prosimy o pilną', 'wpłatę')
                 . m_text($hello . 'mimo wcześniejszego przypomnienia nie otrzymaliśmy wpłaty za fakturę ' . e($num) . ' z terminem płatności ' . e($due) . '. Wzywamy do zapłaty należności w terminie 7 dni, do ' . e($deadline7) . '.<br><br>'
                     . 'Zgodnie z ustawą o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych od dnia następującego po terminie płatności przysługują nam odsetki ustawowe za opóźnienie w transakcjach handlowych oraz rekompensata za koszty odzyskiwania należności w wysokości równowartości ' . $eur . ' euro.<br><br>'
-                    . 'Zależy nam na dobrej współpracy, dlatego jeśli jest jakiś problem z płatnością, odpisz. Na pewno znajdziemy rozwiązanie. Brak wpłaty i kontaktu w tym terminie oznacza, że podejmiemy dalsze kroki w celu odzyskania należności.')
+                    . 'Zależy nam na dobrej współpracy, dlatego jeśli jest jakiś problem z płatnością, napisz do nas na ' . e(setting('seller_email')) . '. Na pewno znajdziemy rozwiązanie. Brak wpłaty i kontaktu w tym terminie oznacza, że podejmiemy dalsze kroki w celu odzyskania należności.')
                 . m_box([['Faktura', $num], ['Termin płatności', $due], ['Dni po terminie', (string)$late], ['Należność główna', $gross], ['Odsetki do dziś (' . setting('interest_rate') . '% rocznie)', money($int, $inv['currency'] ?? 'PLN')], ['Razem z odsetkami', money((int)$inv['gross'] + $int, $inv['currency'] ?? 'PLN'), true]])
                 . m_button($url, 'Zobacz fakturę');
             break;
     }
-    $rows .= m_transfer($inv) . m_sign();
-    $html = mail_layout($subj, $pre, $rows);
+    $rows .= m_transfer($inv) . m_auto();
+    $html = mail_layout($subj, $pre, $rows, true);
     $text = html_to_text($rows) . "\n\n" . $url . "\n\n" . setting('seller_name') . ' · ' . setting('seller_phone') . ' · creative-vision.pl';
     return [$subj, $html, $text];
 }
