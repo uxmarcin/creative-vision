@@ -43,6 +43,7 @@ function migrate(PDO $pdo): void {
         if (!in_array($c, $cols, true)) $pdo->exec("ALTER TABLE invoices ADD COLUMN $c $def");
     $ccols = array_column($pdo->query('PRAGMA table_info(clients)')->fetchAll(PDO::FETCH_ASSOC), 'name');
     if (!in_array('country', $ccols, true)) $pdo->exec('ALTER TABLE clients ADD COLUMN country TEXT');
+    if (!in_array('phone', $ccols, true)) $pdo->exec('ALTER TABLE clients ADD COLUMN phone TEXT');
     if (!in_array('no_remind', $ccols, true)) {
         $pdo->exec('ALTER TABLE clients ADD COLUMN no_remind INTEGER NOT NULL DEFAULT 0');
         $pdo->exec('ALTER TABLE clients ADD COLUMN auto_paid INTEGER NOT NULL DEFAULT 0');
@@ -78,6 +79,8 @@ const DEFAULTS = [
     'imap_sent' => '',
     'smtp_on' => '1',
     'notify_open' => '1',
+    'sms_on' => '0', 'sms_token' => '', 'sms_from' => '', 'sms_api' => 'api.smsapi.pl',
+    'sms_before' => '0', 'sms_due' => '1', 'sms_w1' => '1', 'sms_w2' => '1', 'sms_manual' => '1',
     'ksef_env' => 'prod',
     'ksef_token' => '',
     'ksef_auto' => '1',

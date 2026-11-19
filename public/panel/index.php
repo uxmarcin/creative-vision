@@ -8,6 +8,7 @@ require __DIR__ . '/lib/reminders.php';
 require_once __DIR__ . '/lib/ksef.php';
 require_once __DIR__ . '/lib/imap.php';
 require_once __DIR__ . '/lib/smtp.php';
+require_once __DIR__ . '/lib/sms.php';
 
 security_headers();
 header('Cache-Control: no-store');
@@ -98,7 +99,8 @@ if ($post) {
             if ($inv['status'] !== 'issued') redirect(P . '?a=view&id=' . $id);
             $ok = send_invoice_mail($inv, 'manual');
             if ($ok) log_event($id, 'manual', reminder_label('manual'));
-            flash($ok ? 'Przypomnienie wysłane.' : '!Nie udało się wysłać przypomnienia.');
+            $sr = sms_invoice($inv, 'manual');
+            flash(($ok ? '' : '!') . ($ok ? 'Przypomnienie wysłane mailem.' : 'Nie udało się wysłać maila z przypomnieniem.') . ($sr ? ' ' . $sr[1] . '.' : ''));
             redirect(P . '?a=view&id=' . $id);
         case 'paid':
             $inv = must_invoice($id);
@@ -168,8 +170,8 @@ if ($post) {
         case 'client_save':
             $c = client_from($_POST);
             if ($c['name'] === '') { flash('!Podaj nazwę klienta.'); redirect(P . '?a=clients'); }
-            if ($id) db()->prepare('UPDATE clients SET nip=?, name=?, addr1=?, addr2=?, country=?, email=?, cc=?, updated=? WHERE id=?')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['country'], $c['email'], $c['cc'], now(), $id]);
-            else db()->prepare('INSERT INTO clients (nip, name, addr1, addr2, country, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?,?)')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['country'], $c['email'], $c['cc'], now(), now()]);
+            if ($id) db()->prepare('UPDATE clients SET nip=?, name=?, addr1=?, addr2=?, country=?, phone=?, email=?, cc=?, updated=? WHERE id=?')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['country'], $c['phone'], $c['email'], $c['cc'], now(), $id]);
+            else db()->prepare('INSERT INTO clients (nip, name, addr1, addr2, country, phone, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?,?,?)')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['country'], $c['phone'], $c['email'], $c['cc'], now(), now()]);
             $cid = $id ?: (int)db()->lastInsertId();
             db()->prepare('UPDATE clients SET no_remind = ?, auto_paid = ? WHERE id = ?')->execute([!empty($_POST['no_remind']) ? 1 : 0, !empty($_POST['auto_paid']) ? 1 : 0, $cid]);
             if (!empty($_POST['no_remind'])) db()->prepare("UPDATE invoices SET reminders = 0 WHERE client_id = ? AND status = 'issued'")->execute([$cid]);
@@ -205,6 +207,17 @@ if ($post) {
             db()->prepare('UPDATE users SET pass = ? WHERE id = ?')->execute([password_hash($new, PASSWORD_DEFAULT), user_id()]);
             flash('Hasło zmienione.');
             redirect(P . '?a=settings');
+        case 'sms_settings':
+            foreach (['sms_from', 'sms_api'] as $k) if (isset($_POST[$k])) set_setting($k, trim(mb_substr((string)$_POST[$k], 0, 60)));
+            if (trim((string)($_POST['sms_token'] ?? '')) !== '') set_setting('sms_token', trim((string)$_POST['sms_token']));
+            if (!empty($_POST['sms_token_clear'])) set_setting('sms_token', '');
+            foreach (['sms_on', 'sms_before', 'sms_due', 'sms_w1', 'sms_w2', 'sms_manual'] as $k) set_setting($k, !empty($_POST[$k]) ? '1' : '0');
+            flash('Ustawienia SMS zapisane.');
+            redirect(P . '?a=settings#sms');
+        case 'sms_test':
+            [$ok, $msg] = sms_send((string)($_POST['to'] ?? ''), 'Creative Vision: test SMS z panelu faktur. Jesli to czytasz, przypomnienia SMS dzialaja.');
+            flash(($ok ? '' : '!') . $msg);
+            redirect(P . '?a=settings#sms');
         case 'mail_settings':
             foreach (['imap_user', 'imap_host', 'imap_port', 'smtp_host', 'smtp_port'] as $k) if (isset($_POST[$k])) set_setting($k, trim(mb_substr((string)$_POST[$k], 0, 200)));
             $pw = (string)($_POST['imap_pass'] ?? '');
@@ -311,7 +324,7 @@ function must_invoice(int $id): array {
 
 function client_from(array $p): array {
     $f = fn($k) => trim(mb_substr((string)($p[$k] ?? ''), 0, 300));
-    return ['nip' => $f('nip'), 'name' => $f('name'), 'addr1' => $f('addr1'), 'addr2' => $f('addr2'), 'country' => $f('country'), 'email' => $f('email'), 'cc' => $f('cc')];
+    return ['nip' => $f('nip'), 'name' => $f('name'), 'addr1' => $f('addr1'), 'addr2' => $f('addr2'), 'country' => $f('country'), 'phone' => $f('phone'), 'email' => $f('email'), 'cc' => $f('cc')];
 }
 
 function next_number(string $ym): array {
@@ -350,8 +363,8 @@ function save_invoice(?int $id, array $p, string $act): array {
     if (!empty($p['save_client']) && $buyer['name'] !== '') {
         $cid = (int)($p['client_id'] ?? 0);
         if (!$cid && $buyer['nip'] !== '') { $s = $pdo->prepare('SELECT id FROM clients WHERE REPLACE(REPLACE(nip, "-", ""), " ", "") = ?'); $s->execute([nip_digits($buyer['nip'])]); $cid = (int)$s->fetchColumn(); }
-        if ($cid) $pdo->prepare('UPDATE clients SET nip=?, name=?, addr1=?, addr2=?, country=?, email=?, cc=?, updated=? WHERE id=?')->execute([$buyer['nip'], $buyer['name'], $buyer['addr1'], $buyer['addr2'], $buyer['country'], $buyer['email'], $buyer['cc'], now(), $cid]);
-        else { $pdo->prepare('INSERT INTO clients (nip, name, addr1, addr2, country, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?,?)')->execute([$buyer['nip'], $buyer['name'], $buyer['addr1'], $buyer['addr2'], $buyer['country'], $buyer['email'], $buyer['cc'], now(), now()]); $cid = (int)$pdo->lastInsertId(); }
+        if ($cid) $pdo->prepare('UPDATE clients SET nip=?, name=?, addr1=?, addr2=?, country=?, phone=?, email=?, cc=?, updated=? WHERE id=?')->execute([$buyer['nip'], $buyer['name'], $buyer['addr1'], $buyer['addr2'], $buyer['country'], $buyer['phone'], $buyer['email'], $buyer['cc'], now(), $cid]);
+        else { $pdo->prepare('INSERT INTO clients (nip, name, addr1, addr2, country, phone, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?,?,?)')->execute([$buyer['nip'], $buyer['name'], $buyer['addr1'], $buyer['addr2'], $buyer['country'], $buyer['phone'], $buyer['email'], $buyer['cc'], now(), now()]); $cid = (int)$pdo->lastInsertId(); }
         $clientId = $cid;
     } elseif ((int)($p['client_id'] ?? 0)) $clientId = (int)$p['client_id'];
     $f = [
@@ -431,7 +444,7 @@ function import_invoices(array $list): array {
             $q = $buyer['nip'] !== '' ? $pdo->prepare('SELECT id FROM clients WHERE REPLACE(REPLACE(REPLACE(nip, "-", ""), " ", ""), "PL", "") = ?') : $pdo->prepare('SELECT id FROM clients WHERE name = ?');
             $q->execute([$buyer['nip'] !== '' ? str_replace('PL', '', preg_replace('/[\s-]/', '', $buyer['nip'])) : $buyer['name']]);
             $cid = (int)$q->fetchColumn() ?: null;
-            if (!$cid) { $pdo->prepare('INSERT INTO clients (nip, name, addr1, addr2, country, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?,?)')->execute([$buyer['nip'], $buyer['name'], $buyer['addr1'], $buyer['addr2'], $buyer['country'], $buyer['email'], $buyer['cc'], now(), now()]); $cid = (int)$pdo->lastInsertId(); }
+            if (!$cid) { $pdo->prepare('INSERT INTO clients (nip, name, addr1, addr2, country, phone, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?,?,?)')->execute([$buyer['nip'], $buyer['name'], $buyer['addr1'], $buyer['addr2'], $buyer['country'], $buyer['phone'], $buyer['email'], $buyer['cc'], now(), now()]); $cid = (int)$pdo->lastInsertId(); }
         }
         $paid = ($x['status'] ?? '') === 'paid';
         $f = ['number' => $num, 'seq' => (int)$m[1], 'ym' => $ym, 'book_ym' => preg_match('/^\d{4}-\d{2}$/', (string)($x['book_ym'] ?? '')) ? $x['book_ym'] : $ym,
@@ -664,7 +677,7 @@ function view_form(?array $inv): never {
     $issue = $f['issue_date'] ?? ($inv['issue_date'] ?? today());
     $term = (int)($f['term_days'] ?? ($inv['term_days'] ?? setting('term_days')));
     $due = $f['due_date'] ?? ($inv['due_date'] ?? date('Y-m-d', strtotime($issue . " +$term days")));
-    $clients = db()->query('SELECT id, nip, name, addr1, addr2, country, email, cc FROM clients ORDER BY name')->fetchAll();
+    $clients = db()->query('SELECT id, nip, name, addr1, addr2, country, phone, email, cc FROM clients ORDER BY name')->fetchAll();
     if (!$inv && !$f && ($cid = (int)($_GET['client'] ?? 0))) foreach ($clients as $c) if ((int)$c['id'] === $cid) $b = $c;
     $opts = '<option value="">Nowy klient</option>';
     foreach ($clients as $c) $opts .= '<option value="' . $c['id'] . '"' . ((int)($inv['client_id'] ?? ($b['id'] ?? 0)) === (int)$c['id'] ? ' selected' : '') . '>' . e($c['name']) . '</option>';
@@ -687,7 +700,8 @@ function view_form(?array $inv): never {
         . '<label class="f">Kod pocztowy i miasto<input class="in" name="addr2" id="addr2" value="' . $v('addr2') . '"></label>'
         . '<label class="f">Kraj (tylko spoza Polski)<input class="in" name="country" id="country" value="' . $v('country') . '" placeholder="np. Stany Zjednoczone / United States"></label>'
         . '<label class="f">E-mail do faktur<input class="in" type="email" name="email" id="email" value="' . $v('email') . '"></label>'
-        . '<label class="f">Kopia do (opcjonalnie)<input class="in" name="cc" id="cc" value="' . $v('cc') . '" placeholder="adresy po przecinku"></label></div>'
+        . '<label class="f">Kopia do (opcjonalnie)<input class="in" name="cc" id="cc" value="' . $v('cc') . '" placeholder="adresy po przecinku"></label>'
+        . '<label class="f">Telefon do przypomnień SMS (opcjonalnie)<input class="in" type="tel" name="phone" id="phone" value="' . $v('phone') . '" placeholder="np. 534 154 230"></label></div>'
         . '<label class="check"><input type="checkbox" name="save_client" value="1" checked> Zapisz lub zaktualizuj klienta na liście</label></section>'
         // pozycje
         . '<section class="card pad sec"><h2>Pozycje <small>ceny netto</small></h2><div class="items" id="items">' . $rows . '</div>'
@@ -843,7 +857,7 @@ function view_clients(): never {
         $a = $sums[$cid][$st] ?? []; if (!$a) return money(0);
         return implode('<br>', array_map(fn($k, $v) => money($v, $k), array_keys($a), $a));
     };
-    $edit = (int)($_GET['id'] ?? 0); $ec = ['id' => 0, 'nip' => '', 'name' => '', 'addr1' => '', 'addr2' => '', 'email' => '', 'cc' => ''];
+    $edit = (int)($_GET['id'] ?? 0); $ec = ['id' => 0, 'nip' => '', 'name' => '', 'addr1' => '', 'addr2' => '', 'email' => '', 'cc' => '', 'phone' => ''];
     $tr = '';
     foreach ($rows as $c) {
         if ($c['id'] == $edit) $ec = $c;
@@ -861,6 +875,7 @@ function view_clients(): never {
         . '<label class="f">Kod pocztowy i miasto<input class="in" name="addr2" id="addr2" value="' . $v('addr2') . '"></label>'
         . '<label class="f">E-mail do faktur<input class="in" type="email" name="email" value="' . $v('email') . '"></label>'
         . '<label class="f">Kopia do<input class="in" name="cc" value="' . $v('cc') . '"></label>'
+        . '<label class="f">Telefon do SMS<input class="in" type="tel" name="phone" value="' . $v('phone') . '"></label>'
         . '<label class="check"><input type="checkbox" name="no_remind" value="1"' . (!empty($ec['no_remind']) ? ' checked' : '') . '> Nie wysyłaj temu klientowi przypomnień ani wezwań</label>'
         . '<label class="check"><input type="checkbox" name="auto_paid" value="1"' . (!empty($ec['auto_paid']) ? ' checked' : '') . '> Płaci sam ostatniego dnia miesiąca: oznaczaj faktury jako opłacone automatycznie</label>'
         . '<button class="btn">Zapisz klienta</button></form>'
@@ -908,6 +923,18 @@ function view_settings(): never {
         . '<label class="check"><input type="checkbox" name="smtp_on" value="1"' . (setting('smtp_on') === '1' ? ' checked' : '') . '> Wysyłaj faktury i przypomnienia z tej skrzynki (kopie trafią do folderu Wysłane)</label>'
         . '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn ghost">Zapisz pocztę</button>' . (setting('imap_pass') !== '' ? '<label class="check" style="font-size:13px"><input type="checkbox" name="imap_pass_clear" value="1"> Usuń zapisane hasło</label>' : '') . '</div></form>'
         . (setting('imap_pass') !== '' ? '<form method="post" action="' . P . '?a=mail_check">' . csrf_field() . '<button class="link">Sprawdź połączenie ze skrzynką</button></form>' : '') . '</section>'
+        . '<section class="card pad sec" id="sms"><h2>Przypomnienia SMS</h2>'
+        . '<span class="mut" style="font-size:14px">SMS-y wysyłamy przez SMSAPI.pl. Załóż tam konto, w sekcji tokenów OAuth wygeneruj token z uprawnieniem do wysyłki SMS i wklej go tutaj. SMS idzie tylko do klientów z wpisanym telefonem.</span>'
+        . '<form class="sec" method="post" action="' . P . '?a=sms_settings">' . csrf_field()
+        . '<div class="grid2"><label class="f">Token SMSAPI' . (setting('sms_token') !== '' ? ' (zapisany, wpisz nowy, aby zmienić)' : '') . '<input class="in" type="password" name="sms_token" autocomplete="off" placeholder="' . (setting('sms_token') !== '' ? '••••••••••••' : 'wklej token') . '"></label>'
+        . '<label class="f">Nazwa nadawcy (zarejestrowana w SMSAPI, puste = Test)<input class="in" name="sms_from" maxlength="11" value="' . e(setting('sms_from')) . '" placeholder="np. CreativeVis"></label></div>'
+        . '<label class="check"><input type="checkbox" name="sms_on" value="1"' . (setting('sms_on') === '1' ? ' checked' : '') . '> Wysyłaj przypomnienia SMS</label>'
+        . '<div class="grid2"><label class="check"><input type="checkbox" name="sms_before" value="1"' . (setting('sms_before') === '1' ? ' checked' : '') . '> Przed terminem</label><label class="check"><input type="checkbox" name="sms_due" value="1"' . (setting('sms_due') === '1' ? ' checked' : '') . '> W dniu terminu</label>'
+        . '<label class="check"><input type="checkbox" name="sms_w1" value="1"' . (setting('sms_w1') === '1' ? ' checked' : '') . '> Wezwanie do zapłaty</label><label class="check"><input type="checkbox" name="sms_w2" value="1"' . (setting('sms_w2') === '1' ? ' checked' : '') . '> Ostateczne wezwanie</label>'
+        . '<label class="check"><input type="checkbox" name="sms_manual" value="1"' . (setting('sms_manual') === '1' ? ' checked' : '') . '> Przy „Przypomnij teraz”</label></div>'
+        . '<input type="hidden" name="sms_api" value="' . e(setting('sms_api')) . '">'
+        . '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn ghost">Zapisz SMS</button>' . (setting('sms_token') !== '' ? '<label class="check" style="font-size:13px"><input type="checkbox" name="sms_token_clear" value="1"> Usuń zapisany token</label>' : '') . '</div></form>'
+        . (setting('sms_token') !== '' ? '<form class="hrow" method="post" action="' . P . '?a=sms_test" style="justify-content:flex-start;flex-wrap:wrap">' . csrf_field() . '<input class="in" type="tel" name="to" value="534154230" style="max-width:220px"><button class="btn ghost sm">Wyślij testowy SMS</button></form>' : '') . '</section>'
         . '<section class="card pad sec" id="ksef"><h2>KSeF</h2>'
         . '<span class="mut" style="font-size:14px">Panel łączy się z KSeF tokenem z Aplikacji Podatnika (uprawnienia: wystawianie i przeglądanie faktur). Token zapisujemy tylko w bazie panelu na serwerze.</span>'
         . '<form class="sec" method="post" action="' . P . '?a=settings_save">' . csrf_field()

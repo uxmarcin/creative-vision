@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/mail.php';
+require_once __DIR__ . '/sms.php';
 
 function reminders_sent(int $id): array {
     $s = db()->prepare('SELECT kind FROM reminders WHERE invoice_id = ?'); $s->execute([$id]);
@@ -49,6 +50,7 @@ function run_reminders(bool $force = false): array {
         if (!$kind) continue;
         if (send_invoice_mail($inv, $kind)) {
             mark_reminder((int)$inv['id'], $kind, now());
+            if (function_exists('sms_invoice')) sms_invoice($inv, $kind);
             log_event((int)$inv['id'], 'auto', reminder_label($kind) . ' wysłane automatycznie');
             $out['sent'][] = $inv['number'] . ' ' . $kind;
         }
