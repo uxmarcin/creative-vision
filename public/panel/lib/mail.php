@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 const MF = "font-family:Jost,'Helvetica Neue',Helvetica,Arial,sans-serif;";
-const MM = "font-family:'IBM Plex Mono',Menlo,Consolas,'Courier New',monospace;";
+const MM = MF;
 
 /** Wspólny szkielet maila: czarny nagłówek z logo, gradient, biała treść. $rows: gotowe wiersze <tr>…</tr>. */
 function mail_layout(string $title, string $pre, string $rows, bool $system = false): string {
@@ -11,12 +11,10 @@ function mail_layout(string $title, string $pre, string $rows, bool $system = fa
     $phone = setting('seller_phone'); $mail = setting('seller_email');
     return '<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
         . '<meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>' . e($title) . '</title>'
-        . '<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">'
+        . '<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&display=swap" rel="stylesheet">'
         . '<style>'
         . '@font-face{font-family:Jost;font-style:normal;font-weight:300 700;src:url(https://creative-vision.pl/fonts/jost-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+20A0-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}'
         . '@font-face{font-family:Jost;font-style:normal;font-weight:300 700;src:url(https://creative-vision.pl/fonts/jost-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}'
-        . '@font-face{font-family:"IBM Plex Mono";font-style:normal;font-weight:400;src:url(https://creative-vision.pl/fonts/plex-mono-400-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+20A0-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}'
-        . '@font-face{font-family:"IBM Plex Mono";font-style:normal;font-weight:400;src:url(https://creative-vision.pl/fonts/plex-mono-400-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+FEFF,U+FFFD}'
         . 'body{margin:0;padding:0;background:#F1F1EF}a{color:#0B0B0B}'
         . '@media screen and (-webkit-min-device-pixel-ratio:0){.gt{background:linear-gradient(90deg,#E9685F,#E03F3B 20%,#AC2069 40%,#88409F 60%,#3E63EF 80%,#51BAD4);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent!important}}'
         . '@media (max-width:620px){.w{width:100%!important}.p{padding-left:24px!important;padding-right:24px!important}.h{font-size:34px!important;line-height:38px!important}.b a{display:block!important}.lab{display:block!important;width:auto!important;padding-bottom:0!important}.val{display:block!important;padding-top:4px!important;text-align:left!important;border-top:0!important}}</style>'
@@ -36,16 +34,16 @@ function mail_layout(string $title, string $pre, string $rows, bool $system = fa
         . '</table></td></tr></table></body></html>';
 }
 
-function m_kicker(string $t): string { return '<tr><td class="p" style="padding:52px 48px 0 48px;' . MM . 'font-size:13px;line-height:20px;letter-spacing:2px;text-transform:uppercase;color:#5F5F5F">' . e($t) . '</td></tr>'; }
+function m_kicker(string $t): string { return '<tr><td class="p" style="padding:52px 48px 0 48px;' . MF . 'font-size:15px;line-height:22px;color:#6B6B6B">' . e($t) . '</td></tr>'; }
 /** Nagłówek: pierwsza linia czarna, druga w gradiencie marki. */
 function m_h1(string $a, string $b = ''): string {
-    return '<tr><td class="p h" style="padding:18px 48px 0 48px;' . MF . 'font-size:46px;line-height:50px;font-weight:600;letter-spacing:-1px;color:#0B0B0B">' . e($a)
+    return '<tr><td class="p h" style="padding:18px 48px 0 48px;' . MF . 'font-size:44px;line-height:50px;font-weight:500;letter-spacing:-0.5px;color:#0B0B0B">' . e($a)
         . ($b !== '' ? '<br><span class="gt" style="color:#AC2069">' . e($b) . '</span>' : '') . '</td></tr>';
 }
 function m_text(string $html, int $top = 30): string { return '<tr><td class="p" style="padding:' . $top . 'px 48px 0 48px;' . MF . 'font-size:18px;line-height:30px;color:#1F1F1F">' . $html . '</td></tr>'; }
 function m_button(string $href, string $label): string {
     return '<tr><td class="p b" style="padding:36px 48px 0 48px"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#0B0B0B" style="background:#0B0B0B">'
-        . '<a href="' . e($href) . '" style="display:inline-block;padding:19px 34px;' . MF . 'font-size:13px;line-height:16px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#FFFFFF;text-decoration:none;text-align:center">' . e($label) . ' &rarr;</a>'
+        . '<a href="' . e($href) . '" style="display:inline-block;padding:19px 34px;' . MF . 'font-size:16px;line-height:20px;font-weight:500;color:#FFFFFF;text-decoration:none;text-align:center">' . e($label) . ' &rarr;</a>'
         . '</td></tr></table></td></tr>';
 }
 /** Sekcja z tytułem i wierszami [etykieta, wartość, wyróżnij?] jak „Dane zgłoszenia”. */
@@ -53,10 +51,10 @@ function m_rows(string $title, array $rows, int $top = 48): string {
     $h = '';
     foreach ($rows as $r) {
         $big = !empty($r[2]);
-        $h .= '<tr><td class="lab" width="34%" valign="top" style="width:34%;padding:20px 16px 20px 0;border-top:1px solid #E6E4DF;' . MM . 'font-size:13px;line-height:22px;letter-spacing:1.5px;text-transform:uppercase;color:#5F5F5F">' . e($r[0]) . '</td>'
+        $h .= '<tr><td class="lab" width="34%" valign="top" style="width:34%;padding:20px 16px 20px 0;border-top:1px solid #E6E4DF;' . MF . 'font-size:15px;line-height:22px;color:#6B6B6B">' . e($r[0]) . '</td>'
             . '<td class="val" valign="top" style="padding:' . ($big ? '16px' : '20px') . ' 0 20px 0;border-top:1px solid #E6E4DF;' . MF . ($big ? 'font-size:26px;line-height:30px;font-weight:600;' : 'font-size:18px;line-height:24px;') . 'color:#0B0B0B">' . e($r[1]) . '</td></tr>';
     }
-    return '<tr><td class="p" style="padding:' . $top . 'px 48px 0 48px;' . MM . 'font-size:13px;line-height:20px;letter-spacing:2px;text-transform:uppercase;color:#5F5F5F">' . e($title) . '</td></tr>'
+    return '<tr><td class="p" style="padding:' . $top . 'px 48px 0 48px;' . MF . 'font-size:17px;line-height:24px;font-weight:500;color:#0B0B0B">' . e($title) . '</td></tr>'
         . '<tr><td class="p" style="padding:16px 48px 0 48px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom:1px solid #E6E4DF">' . $h . '</table></td></tr>';
 }
 function m_box(array $rows, int $top = 48): string { return m_rows('Szczegóły faktury', $rows, $top); }
@@ -73,7 +71,7 @@ function m_transfer(array $inv): string {
 function m_auto(): string {
     $mail = setting('seller_email'); $phone = setting('seller_phone');
     return '<tr><td class="p" style="padding:40px 48px 40px 48px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F5F4F1" style="background:#F5F4F1"><tr><td style="padding:18px 22px;' . MF . 'font-size:14px;line-height:22px;color:#5F5F5F">'
-        . '<span style="' . MM . 'font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#0B0B0B">Wiadomość automatyczna</span><br>'
+        . '<span style="font-weight:500;color:#0B0B0B">Wiadomość automatyczna</span><br>'
         . 'Ta wiadomość została wygenerowana automatycznie, prosimy na nią nie odpowiadać. W sprawie faktury napisz na <a href="mailto:' . e($mail) . '" style="color:#0B0B0B">' . e($mail) . '</a>' . ($phone !== '' ? ' lub zadzwoń: <a href="tel:+48' . e(preg_replace('/\D/', '', $phone)) . '" style="color:#0B0B0B;text-decoration:none">' . e($phone) . '</a>' : '') . '.'
         . '</td></tr></table></td></tr>';
 }
