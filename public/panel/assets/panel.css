@@ -601,3 +601,4 @@ ul.pts{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;fon
   .nav .grp a[href$="?a=new"]:active::before{transform:scale(.94)}
   .nav .grp a[href$="?a=new"] svg{width:22px;height:22px;stroke-width:1.75;position:relative}
 }
+@media (max-width:900px){.nav .grp a[data-plus] .tx{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.nav .grp a[data-plus] svg{display:block;margin:0}}
