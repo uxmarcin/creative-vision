@@ -155,7 +155,7 @@ function bk_fetch(): array {
     $new = []; $err = []; $seen = [];
     $qs = [];
     foreach (['72413000-8', '72400000-4', '72212000-4', '72200000-7', '72000000-5', '48000000-8', '79342000-3', '79822500-7', '72415000-2', '72420000-0'] as $c) $qs[] = ['cpvItem%5B0%5D=' . $c, $c];
-    foreach (['strony internetowej', 'sklepu internetowego', 'serwisu internetowego', 'aplikacji mobilnej', 'aplikacji webowej', 'platformy internetowej', 'UX'] as $q) $qs[] = ['query=' . rawurlencode($q), ''];
+    foreach (['strony internetowej', 'sklepu internetowego', 'sklep internetowy', 'e-commerce', 'platformy sprzedażowej', 'platformy B2B', 'PrestaShop', 'WooCommerce', 'Shopify', 'Magento', 'serwisu internetowego', 'aplikacji mobilnej', 'aplikacji webowej', 'platformy internetowej', 'UX'] as $q) $qs[] = ['query=' . rawurlencode($q), ''];
     foreach ($qs as [$q, $cpv]) {
         $d = bk_get('/api/announcements/search?page=1&limit=50&sort=default&status%5B0%5D=PUBLISHED&' . $q);
         if ($d === null) { $err[] = 'Baza Konkurencyjności'; continue; }

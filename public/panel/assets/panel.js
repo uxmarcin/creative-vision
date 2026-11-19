@@ -341,3 +341,37 @@
   $('#email').addEventListener('input', function () { this.setCustomValidity(''); });
 })();
 (function () { var a = document.getElementById('autodl'); if (a) { setTimeout(function () { location.href = a.href; }, 300); try { history.replaceState(null, '', location.href.replace(/&dl=1/, '')); } catch (e) {} } })();
+// animacja wysyłki: pełny ekran z postępem, dopóki serwer nie odpowie
+(function () {
+  var plane = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>';
+  var steps = {
+    send: ['Przygotowuję PDF', 'Łączę się z pocztą', 'Wysyłam do klienta', 'Zapisuję kopię w Wysłanych'],
+    invoice: ['Wystawiam fakturę', 'Przygotowuję PDF', 'Łączę się z pocztą', 'Wysyłam do klienta', 'Zapisuję kopię w Wysłanych'],
+    books: ['Pobieram faktury', 'Pakuję paczkę ZIP', 'Łączę się z pocztą', 'Wysyłam do księgowej'],
+    mail: ['Łączę się z pocztą', 'Wysyłam wiadomość', 'Zapisuję w Wysłanych']
+  };
+  var ov = null, tick = null;
+  function show(kind, title) {
+    if (!ov) { ov = document.createElement('div'); ov.className = 'sendov'; ov.setAttribute('role', 'status'); ov.setAttribute('aria-live', 'polite'); document.body.appendChild(ov); }
+    var st = steps[kind] || steps.send, i = 0, p = 4;
+    ov.innerHTML = '<div class="so-card"><div class="so-ic">' + plane + '</div><b class="so-t">' + title + '</b><span class="so-s">' + st[0] + '…</span><div class="so-bar"><i></i></div><span class="so-n">Zwykle trwa to kilka sekund. Nie zamykaj aplikacji.</span></div>';
+    var bar = ov.querySelector('.so-bar i'), s = ov.querySelector('.so-s');
+    requestAnimationFrame(function () { ov.classList.add('on'); bar.style.width = p + '%'; });
+    clearInterval(tick);
+    tick = setInterval(function () {
+      p += (92 - p) * 0.09; bar.style.width = p.toFixed(1) + '%';
+      var k = Math.min(st.length - 1, Math.floor((p / 92) * st.length));
+      if (k !== i) { i = k; s.classList.remove('in'); void s.offsetWidth; s.textContent = st[i] + '…'; s.classList.add('in'); }
+    }, 350);
+  }
+  document.addEventListener('submit', function (e) {
+    var f = e.target, sub = e.submitter, a = ((f.getAttribute('action') || '').match(/[?&]a=([a-z_]+)/) || [])[1] || '';
+    if (e.defaultPrevented) return;
+    if (a === 'quote_send') show('send', 'Wysyłam wycenę');
+    else if (a === 'send' || a === 'remind') show('send', a === 'remind' ? 'Wysyłam przypomnienie' : 'Wysyłam fakturę');
+    else if (a === 'books_send') show('books', 'Wysyłam paczkę do księgowej');
+    else if (a === 'mail_send') show('mail', 'Wysyłam wiadomość');
+    else if (sub && sub.name === 'act' && sub.value === 'send' && f.id === 'invform') show('invoice', 'Wystawiam i wysyłam');
+  });
+  addEventListener('pageshow', function () { clearInterval(tick); if (ov) ov.classList.remove('on'); });
+})();

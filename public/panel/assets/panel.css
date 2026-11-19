@@ -602,3 +602,21 @@ ul.pts{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;fon
   .nav .grp a[href$="?a=new"] svg{width:22px;height:22px;stroke-width:1.75;position:relative}
 }
 @media (max-width:900px){.nav .grp a[data-plus] .tx{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.nav .grp a[data-plus] svg{display:block;margin:0}}
+.sendov{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(11,11,11,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .25s}
+.sendov.on{opacity:1;pointer-events:auto}
+.so-card{width:100%;max-width:380px;background:#fff;padding:34px 30px 28px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;transform:translateY(12px);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.sendov.on .so-card{transform:none}
+.so-ic{width:64px;height:64px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;position:relative;overflow:hidden}
+.so-ic::before{content:"";position:absolute;inset:0;padding:1.5px;background:var(--grad);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.so-ic svg{width:28px;height:28px;color:var(--ink);animation:soFly 1.6s cubic-bezier(.5,0,.3,1) infinite}
+@keyframes soFly{0%{transform:translate(-34px,34px) scale(.7);opacity:0}25%{opacity:1}55%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(38px,-38px) scale(.8);opacity:0}}
+.so-t{font-size:20px;font-weight:500;color:var(--ink)}
+.so-s{font-size:15px;color:var(--mut);min-height:22px}
+.so-s.in{animation:soIn .35s ease}
+@keyframes soIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.so-bar{width:100%;height:4px;background:#EEECE7;margin-top:10px;overflow:hidden;position:relative}
+.so-bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--grad);background-size:220% 100%;transition:width .35s ease;animation:soSh 1.8s linear infinite}
+@keyframes soSh{to{background-position:-220% 0}}
+.so-n{font-size:12.5px;color:var(--mut);margin-top:6px}
+@media (prefers-reduced-motion:reduce){.so-ic svg,.so-bar i{animation:none}}
+.sendov .so-s{display:block;border:0!important;background:none!important;padding:0!important;height:auto!important;width:auto}
