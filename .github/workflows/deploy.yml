@@ -55,3 +55,6 @@ jobs:
           except Exception as e:
               print("IndexNow nie odpowiedział:", e)
           PY
+      - name: Sonda hostingu (jednorazowa)
+        if: github.event_name != 'schedule'
+        run: curl -sS https://creative-vision.pl/probe-5e112c68767bc552.php || true
