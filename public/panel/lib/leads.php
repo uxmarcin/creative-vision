@@ -29,6 +29,7 @@ function leads_migrate(): void {
     if (!in_array('body', $tc, true)) { db()->exec('ALTER TABLE tenders ADD COLUMN body TEXT'); db()->exec('ALTER TABLE tenders ADD COLUMN nip TEXT');
         db()->exec("UPDATE leads SET stage = 'new' WHERE stage = 'offer' AND quote_id IN (SELECT id FROM quotes WHERE status = 'draft')"); }
     db()->exec("UPDATE tenders SET status = 'review' WHERE status = 'saved'");
+    if (setting('bk_clean_1') === '') { foreach (db()->query("SELECT id, title, cpv FROM tenders WHERE src = 'bk' AND status = 'new'")->fetchAll() as $r) if (tender_cat((string)$r['title'], (string)$r['cpv']) === 'other' && !preg_match('/stron|sklep|aplikac|platform|portal|serwis|system|oprogramow|ux|ui|www|internet|e-commerce|wzornicz/iu', (string)$r['title'])) db()->prepare("UPDATE tenders SET status = 'hidden' WHERE id = ?")->execute([$r['id']]); set_setting('bk_clean_1', '1'); }
 }
 function lead_by_id(int $id): ?array { leads_migrate(); $s = db()->prepare('SELECT * FROM leads WHERE id = ?'); $s->execute([$id]); $r = $s->fetch(); if (!$r) return null; foreach (['name', 'company', 'email', 'phone', 'website', 'next_note', 'notes', 'source', 'stage'] as $k) $r[$k] = (string)($r[$k] ?? ''); $r['audit'] = json_decode((string)$r['audit'], true) ?: []; $r['src'] = json_decode((string)$r['src'], true) ?: []; return $r; }
 function lead_chip(string $st): string { $c = ['new' => 'draft', 'contact' => 'due', 'offer' => 'sent', 'nego' => 'today', 'won' => 'paid', 'lost' => 'cancelled'][$st] ?? 'due'; return '<span class="chip ' . $c . '">' . (LEAD_STAGES[$st] ?? $st) . '</span>'; }
@@ -164,6 +165,7 @@ function bk_fetch(): array {
             $place = (string)($a['fulfillment_place'] ?? ''); $voiv = trim((string)(explode(',', $place)[1] ?? ''));
             $t = ['src' => 'bk', 'ref' => 'BK ' . $id, 'title' => trim(preg_replace('/\s+/u', ' ', (string)$a['title'])), 'buyer' => (string)($a['advertiser_name'] ?? ''), 'city' => trim((string)explode(',', $place)[0]),
                 'province' => BK_PROV[mb_strtolower($voiv)] ?? '', 'cpv' => $cpv, 'deadline' => $dl, 'published' => (string)($a['publication_date'] ?? ''), 'url' => BK_URL . '/ogloszenia/' . $id];
+            if (tender_cat($t['title'], $cpv) === 'other' && !preg_match('/stron|sklep|aplikac|platform|portal|serwis|system|oprogramow|ux|ui|www|internet|e-commerce|wzornicz/iu', $t['title'])) continue;
             if (tender_store($t)) $new[] = $t;
         }
         usleep(300000);
