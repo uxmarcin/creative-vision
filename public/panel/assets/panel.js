@@ -446,7 +446,8 @@ document.addEventListener('click', function (e) { var t = e.target.closest('[dat
       const r = await fetch(location.pathname + '?a=fx&c=' + Object.keys(fx).join(','), {credentials: 'same-origin', cache: 'no-store'}); if (!r.ok) return;
       const j = await r.json(); let t = pln; for (const k in fx) { if (!j[k]) return; t += Math.round(fx[k] * j[k].rate); }
       if (t !== cur) anim(t);
-      const fr = el.parentNode.querySelector('.fxr'); if (fr) fr.textContent = '· kurs NBP ' + Object.keys(fx).map(k => j[k].rate.toFixed(4).replace('.', ',') + ' z ' + j[k].date.slice(8, 10) + '.' + j[k].date.slice(5, 7)).join(', ');
+      const fp = el.parentNode.querySelector('.fxpl'); if (fp) fp.textContent = fmt(t - pln).replace(/<[^>]+>/g, '');
+      const fr = el.parentNode.querySelector('.fxrt'); if (fr) fr.textContent = Object.keys(fx).map(k => j[k].rate.toFixed(4).replace('.', ',') + ' z ' + j[k].date.slice(8, 10) + '.' + j[k].date.slice(5, 7)).join(', ');
     } catch (e) {}
   };
   setInterval(poll, 60000); document.addEventListener('visibilitychange', poll);

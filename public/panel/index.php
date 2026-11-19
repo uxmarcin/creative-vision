@@ -857,13 +857,15 @@ function view_list(): never {
             $tot = $open; $ok = true; $rt = [];
             foreach ($fxOpen as $k => $v) { $r = nbp_rate($k); if (!$r) { $ok = false; continue; } $tot += (int)round($v * $r['rate']); $rt[] = number_format($r['rate'], 4, ',', '') . ' z ' . date('d.m', strtotime($r['date'])); }
             if (!$ok) return '<span class="t">Do zapłaty</span><span class="v">' . money($open) . '</span>' . implode('', array_map(fn($k, $v) => '<span class="fx">+ ' . money($v, $k) . '</span>', array_keys($fxOpen), $fxOpen));
-            $parts = array_merge($open ? [money($open)] : [], array_map(fn($k, $v) => money($v, $k), array_keys($fxOpen), $fxOpen));
+            $parts = array_merge($open ? [money($open)] : [], ['<span class="fxpl">' . money($tot - $open) . '</span>']);
             return '<span class="t">Do zapłaty <span class="live" title="Kwota przelicza się sama, gdy NBP opublikuje nowy kurs"><i></i>na żywo</span></span>'
                 . '<span class="v livetot" data-pln="' . $open . '" data-fx="' . e(json_encode($fxOpen)) . '" data-tot="' . $tot . '">' . money_split($tot) . '</span>'
-                . '<span class="fxb">' . implode(' + ', $parts) . ' <span class="fxr">· kurs NBP ' . e(implode(', ', $rt)) . '</span></span>';
+                . '<span class="fxb">' . implode(' + ', $parts) . ' <span class="fxr">(' . e(implode(' + ', array_map(fn($k, $v) => money($v, $k), array_keys($fxOpen), $fxOpen))) . ') · kurs NBP <span class="fxrt">' . e(implode(', ', $rt)) . '</span></span></span>';
         })() . '<span class="s">' . ($openN ? $openN . ' ' . plural($openN, 'faktura czeka', 'faktury czekają', 'faktur czeka') . ' na wpłatę' : 'Wszystko opłacone') . '</span></div><div class="kpis-r">'
         . '<div class="kpi"><span class="t">Po terminie</span><span class="v' . ($late ? ' red' : '') . '">' . money($late) . '</span>' . $fx($fxLate) . '<span class="s">' . ($lateN ? $lateN . ' ' . plural($lateN, 'faktura', 'faktury', 'faktur') . ', wezwania idą same' : 'Nikt nie zalega') . '</span></div>'
-        . '<div class="kpi"><span class="t">Sprzedaż: ' . e($periodTxt) . '</span><span class="v">' . money($sale) . '</span>' . $fx($fxSale) . '<span class="s">netto ' . money($saleNet) . ' · ' . $saleN . ' ' . plural($saleN, 'faktura', 'faktury', 'faktur') . '</span></div>'
+        . '<div class="kpi"><span class="t">Sprzedaż: ' . e($periodTxt) . '</span>' . ($fxSale && $saleFxOk
+            ? '<span class="v">' . money_split($sale + $saleFxPln) . '</span><span class="fxb">' . ($sale ? money($sale) . ' + ' : '') . money($saleFxPln) . ' <span class="fxr">(' . e(implode(' + ', array_map(fn($k, $v) => money($v, $k), array_keys($fxSale), $fxSale))) . ') · kurs NBP ' . e(implode(', ', $saleRates)) . '</span></span>'
+            : '<span class="v">' . money($sale) . '</span>' . $fx($fxSale)) . '<span class="s">netto ' . money($saleNet) . ' · ' . $saleN . ' ' . plural($saleN, 'faktura', 'faktury', 'faktur') . '</span></div>'
         . '<div class="kpi"><span class="t">Średni czas zapłaty</span><span class="v">' . ($avg === null ? '–' : $avg . ' ' . plural($avg, 'dzień', 'dni', 'dni')) . '</span><span class="s">od wystawienia do wpłaty</span></div></div></section>';
     $qs = fn(array $o) => P . '?' . http_build_query(array_merge(['y' => $y, 'm' => $m, 't' => $tab], $o));
     $mp = '';
