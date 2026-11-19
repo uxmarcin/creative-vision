@@ -25,7 +25,7 @@ function ai_quote(string $context, string $brief, string $client): array {
         . "Nie wymyślaj faktów o kliencie. Jeśli czegoś brakuje, przyjmij rozsądne założenie i dopisz je do założeń oraz pytań do klienta.\n\nCENNIK I ZASADY CREATIVE VISION:\n" . (trim(setting('ai_pricing')) ?: AI_PRICING_DEFAULT);
     $user = "Klient: " . ($client !== '' ? $client : 'nieznany') . "\n\nZAPYTANIE I KONTEKST:\n" . ($context !== '' ? mb_substr($context, 0, 12000) : '(brak, opieraj się na opisie poniżej)')
         . ($brief !== '' ? "\n\nWSKAZÓWKI OD MARCINA:\n" . mb_substr($brief, 0, 3000) : '')
-        . "\n\nPrzygotuj wycenę narzędziem zapisz_wycene. Pozycje mają być etapami prac z liczbą godzin w opisie (np. „ok. 16 h”) i ceną netto za pozycję. Ilość 1, jednostka usł., chyba że opieka miesięczna (jednostka mies.).";
+        . "\n\nPrzygotuj wycenę i zapisz ją, wywołując narzędzie zapisz_wycene (zawsze użyj narzędzia, nie odpowiadaj samym tekstem). Pozycje mają być etapami prac z liczbą godzin w opisie (np. „ok. 16 h”) i ceną netto za pozycję. Ilość 1, jednostka usł., chyba że opieka miesięczna (jednostka mies.).";
     $tool = ['name' => 'zapisz_wycene', 'description' => 'Zapisuje gotową wycenę w panelu.', 'input_schema' => ['type' => 'object', 'required' => ['items', 'notes', 'summary'], 'properties' => [
         'items' => ['type' => 'array', 'minItems' => 1, 'maxItems' => 12, 'items' => ['type' => 'object', 'required' => ['name', 'price_net'], 'properties' => [
             'name' => ['type' => 'string', 'description' => 'Krótka nazwa etapu lub usługi'],
@@ -38,7 +38,7 @@ function ai_quote(string $context, string $brief, string $client): array {
         'pay_days' => ['type' => 'integer', 'description' => 'Termin płatności faktury w dniach, zwykle 7'],
         'summary' => ['type' => 'string', 'description' => 'Dla Marcina: przyjęte założenia i skąd taka cena, 2 do 4 zdań'],
         'questions' => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'Pytania do klienta, które doprecyzują wycenę']]]];
-    $body = ['model' => $model, 'max_tokens' => 3000, 'system' => $system, 'messages' => [['role' => 'user', 'content' => $user]], 'tools' => [$tool], 'tool_choice' => ['type' => 'tool', 'name' => 'zapisz_wycene']];
+    $body = ['model' => $model, 'max_tokens' => 3000, 'system' => $system, 'messages' => [['role' => 'user', 'content' => $user]], 'tools' => [$tool], 'tool_choice' => ['type' => 'auto']];
     $ch = curl_init(getenv('CV_AI_URL') ?: 'https://api.anthropic.com/v1/messages');
     curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode($body, JSON_UNESCAPED_UNICODE), CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 120, CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'x-api-key: ' . setting('ai_key'), 'anthropic-version: 2023-06-01']]);
@@ -46,6 +46,14 @@ function ai_quote(string $context, string $brief, string $client): array {
     if ($res === false) throw new RuntimeException('Brak połączenia z API Anthropic: ' . $err);
     $j = json_decode((string)$res, true);
     if ($code >= 400) throw new RuntimeException('API Anthropic: ' . ($j['error']['message'] ?? ('błąd ' . $code)));
+    if ($r = ai_parse($j, $model)) return $r;
+    foreach ((array)($j['content'] ?? []) as $c) if (($c['type'] ?? '') === 'text' && preg_match('/\{.*\}/s', (string)$c['text'], $m) && is_array($in = json_decode($m[0], true)) && !empty($in['items'])) {
+        $j['content'] = [['type' => 'tool_use', 'input' => $in]]; return ai_parse($j, $model);
+    }
+    throw new RuntimeException('AI nie zwróciło wyceny. Spróbuj jeszcze raz.');
+}
+
+function ai_parse(array $j, string $model): ?array {
     foreach ((array)($j['content'] ?? []) as $c) if (($c['type'] ?? '') === 'tool_use' && is_array($c['input'] ?? null)) {
         $in = $c['input'];
         $items = [];
@@ -54,5 +62,5 @@ function ai_quote(string $context, string $brief, string $client): array {
         return ['items' => $items, 'notes' => (string)($in['notes'] ?? ''), 'valid_days' => max(1, min(60, (int)($in['valid_days'] ?? 14))), 'pay_days' => max(0, min(60, (int)($in['pay_days'] ?? 7))),
             'summary' => (string)($in['summary'] ?? ''), 'questions' => array_values(array_map('strval', (array)($in['questions'] ?? []))), 'model' => $model];
     }
-    throw new RuntimeException('AI nie zwróciło wyceny. Spróbuj jeszcze raz.');
+    return null;
 }
