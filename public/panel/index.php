@@ -129,8 +129,13 @@ if (!user_id()) {
 }
 
 // ---------- skrzynka: faktury@ albo kontakt@ ----------
-if (in_array($a, ['inbox', 'mail', 'compose', 'mail_att', 'mail_send', 'mail_delete', 'mail_unseen', 'mail_settings', 'mail_check', 'quote_new'], true)) mail_acc((string)($_GET['acc'] ?? $_POST['acc'] ?? 'f'));
-function aq(): string { return mail_acc() === 'k' ? '&acc=k' : ''; }
+if (in_array($a, ['inbox', 'mail', 'compose', 'mail_att', 'mail_send', 'mail_delete', 'mail_unseen', 'mail_settings', 'mail_check', 'quote_new'], true)) {
+    // skrzynka: domyślnie kontakt@, potem ta, którą ostatnio wybrałeś
+    $acc = (string)($_GET['acc'] ?? $_POST['acc'] ?? ($a === 'inbox' ? ($_SESSION['acc'] ?? 'k') : 'f'));
+    mail_acc($acc); if ($a === 'inbox' && mail_accounts()['k']['on'] === false && mail_acc() === 'k' && !isset($_GET['acc'])) mail_acc('f');
+    if ($a === 'inbox') $_SESSION['acc'] = mail_acc();
+}
+function aq(): string { return '&acc=' . mail_acc(); }
 function acc_field(): string { return '<input type="hidden" name="acc" value="' . mail_acc() . '">'; }
 function mail_accounts(): array {
     $o = []; $cur = mail_acc();
@@ -1274,8 +1279,8 @@ function inv_links(string $txt): string {
 function acc_switch(string $box = 'INBOX'): string {
     $accs = mail_accounts(); if (!$accs['k']['on'] && mail_acc() === 'f') return '';
     $o = '';
-    foreach ($accs as $k => $x) $o .= '<a href="' . P . '?a=inbox' . ($k === 'k' ? '&acc=k' : '') . '"' . (mail_acc() === $k ? ' class="on" aria-current="true"' : '') . '>' . e($x['user']) . ($x['on'] && $x['unseen'] ? ' <b class="cnt">' . $x['unseen'] . '</b>' : '') . '</a>';
-    return '<nav class="seg" aria-label="Skrzynka">' . $o . '</nav>';
+    foreach (['k', 'f'] as $k) { $x = $accs[$k]; $o .= '<option value="' . P . '?a=inbox&acc=' . $k . '"' . (mail_acc() === $k ? ' selected' : '') . '>' . e($x['user']) . ($x['on'] && $x['unseen'] ? ' (' . $x['unseen'] . ' nowe)' : '') . '</option>'; }
+    return '<label class="accsel">' . icon('mail') . '<select aria-label="Skrzynka" onchange="location.href=this.value">' . $o . '</select></label>';
 }
 function inbox_off(): never {
     $k = mail_acc() === 'k'; $u = setting('imap_user');
