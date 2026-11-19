@@ -19,6 +19,7 @@ function ai_enabled(): bool { return setting('ai_key') !== ''; }
 /** Zwraca wycenę: ['items' => [...], 'notes' => '', 'valid_days' => 14, 'pay_days' => 7, 'summary' => '', 'questions' => [...]]. */
 function ai_quote(string $context, string $brief, string $client): array {
     if (!ai_enabled()) throw new RuntimeException('Wpisz klucz API Anthropic w ustawieniach (sekcja AI do wycen).');
+    @set_time_limit(200);
     $model = isset(AI_MODELS[setting('ai_model')]) ? setting('ai_model') : 'claude-sonnet-5-5';
     $system = "Jesteś doświadczonym project managerem w Creative Vision, agencji UX/UI z Rzeszowa, która projektuje i wdraża strony internetowe, sklepy i aplikacje. "
         . "Przygotowujesz wycenę dla klienta na podstawie zapytania. Piszesz po polsku, ciepło i konkretnie, bez żargonu, bez myślników typu — i –, bez wielkich liter dla ozdoby. Nie pisz „Dziękujemy za współpracę” ani podobnych formułek, bo współpraca dopiero się zaczyna. Terminy realizacji: najpierw oszacuj typowy czas, a klientowi podaj o połowę krótszy (np. zamiast 8 tygodni napisz 4 tygodnie), zaokrąglając w górę do pełnego tygodnia lub dnia roboczego. Tak samo w uwagach i w wiadomości. Godzin i cen nie zmniejszaj. "
@@ -43,15 +44,16 @@ function ai_quote(string $context, string $brief, string $client): array {
             'addr2' => ['type' => 'string', 'description' => 'Kod pocztowy i miasto'], 'email' => ['type' => 'string', 'description' => 'E-mail do kontaktu lub składania ofert. W ogłoszeniu BZP to zwykle pole „Adres poczty elektronicznej” zamawiającego. Zawsze go przepisz, jeśli jest w tekście.'], 'phone' => ['type' => 'string']]],
         'message' => ['type' => 'string', 'description' => 'Ciepła, konkretna wiadomość mailowa do klienta, do której dołączymy wycenę w PDF. Zacznij od „Dzień dobry,”, nawiąż do zapytania, w 2 do 3 akapitach opisz proponowane podejście i co klient dostaje, wspomnij termin i ważność wyceny, zaproponuj krótką rozmowę online. Bez podpisu (podpis dodajemy sami), bez myślników — i –.'],
         'submit' => ['type' => 'string', 'description' => 'Gdzie i jak złożyć ofertę: platforma lub adres (link), e-mail, termin, wymagane dokumenty i wadium, jeśli są w tekście. Puste, gdy nie dotyczy.']]]];
-    $body = ['model' => $model, 'max_tokens' => 3000, 'system' => $system, 'messages' => [['role' => 'user', 'content' => $user]], 'tools' => [$tool], 'tool_choice' => ['type' => 'auto']];
+    $body = ['model' => $model, 'max_tokens' => 12000, 'system' => $system, 'messages' => [['role' => 'user', 'content' => $user]], 'tools' => [$tool], 'tool_choice' => ['type' => 'auto']];
     $ch = curl_init(getenv('CV_AI_URL') ?: 'https://api.anthropic.com/v1/messages');
-    curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode($body, JSON_UNESCAPED_UNICODE), CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 120, CURLOPT_CONNECTTIMEOUT => 10,
+    curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode($body, JSON_UNESCAPED_UNICODE), CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 180, CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'x-api-key: ' . setting('ai_key'), 'anthropic-version: 2023-06-01']]);
     $res = curl_exec($ch); $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE); $err = curl_error($ch); curl_close($ch);
     if ($res === false) throw new RuntimeException('Brak połączenia z API Anthropic: ' . $err);
     $j = json_decode((string)$res, true);
     if ($code >= 400) throw new RuntimeException('API Anthropic: ' . ($j['error']['message'] ?? ('błąd ' . $code)));
-    if ($r = ai_parse($j, $model)) return ai_fill_mail($r, $context . "\n" . $brief);
+    if (($r = ai_parse($j, $model)) && $r['items']) return ai_fill_mail($r, $context . "\n" . $brief);
+    if (($j['stop_reason'] ?? '') === 'max_tokens') throw new RuntimeException('Wycena wyszła za długa i AI nie zdążyło jej dokończyć. Dopisz we wskazówkach, żeby była krótsza (np. najwyżej 6 pozycji), i spróbuj jeszcze raz.');
     foreach ((array)($j['content'] ?? []) as $c) if (($c['type'] ?? '') === 'text' && preg_match('/\{.*\}/s', (string)$c['text'], $m) && is_array($in = json_decode($m[0], true)) && !empty($in['items'])) {
         $j['content'] = [['type' => 'tool_use', 'input' => $in]]; $r = ai_parse($j, $model); return $r ? ai_fill_mail($r, $context . "\n" . $brief) : null;
     }
