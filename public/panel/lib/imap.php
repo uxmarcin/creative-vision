@@ -56,7 +56,7 @@ final class Imap {
     /** Lista folderów: [[flagi, nazwa], …] */
     public function folders(): array {
         $o = [];
-        foreach ($this->cmd('LIST "" "*"') as $l) if (preg_match('/^\* LIST \(([^)]*)\) (?:"[^"]*"|NIL) (?:"((?:[^"\\]|\\.)*)"|(\S+))\s*$/i', trim($l), $m)) $o[] = [$m[1], stripslashes(($m[2] ?? '') !== '' ? $m[2] : ($m[3] ?? ''))];
+        foreach ($this->cmd('LIST "" "*"') as $l) if (preg_match('/^\* LIST \(([^)]*)\) (?:"[^"]*"|NIL) (?:"((?:[^"\\\\]|\\\\.)*)"|(\S+))\s*$/i', trim($l), $m)) $o[] = [$m[1], stripslashes(($m[2] ?? '') !== '' ? $m[2] : ($m[3] ?? ''))];
         return $o;
     }
     /** Przenosi wiadomości do kosza (MOVE, a gdy serwer go nie zna: COPY + usunięcie). */

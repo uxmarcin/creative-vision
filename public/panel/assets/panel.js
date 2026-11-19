@@ -204,6 +204,7 @@
         if (!j.ok) throw new Error(j.error || 'Nie udało się.');
         fillItems(j.items);
         var nt = $('[name=notes]'); if (nt && j.notes) nt.value = j.notes;
+        var qm = $('#qmsg'); if (qm && j.message && !qm.value.trim()) qm.value = j.message;
         if (j.client) ['name', 'nip', 'addr1', 'addr2', 'email', 'phone'].forEach(function (k) { var el = $('#' + k); if (el && j.client[k] && (!el.value.trim() || (k === 'name' && el.value.length < 4))) el.value = j.client[k]; });
         var pd = $('[name=pay_days]'); if (pd && j.pay_days != null) pd.value = j.pay_days;
         var pill = $('#pills button[data-term="' + j.valid_days + '"]'); if (pill) pill.click();
@@ -218,6 +219,21 @@
     aib.addEventListener('click', runAi);
     if (aib.hasAttribute('data-auto')) setTimeout(runAi, 400);
   }
+
+  // potwierdzenie przed wysyłką maila do klienta
+  var cdlg = document.createElement('dialog'); cdlg.className = 'mdlg plus';
+  cdlg.innerHTML = '<div class="sheet"><div class="hrow"><h2 id="cfq">Wysłać?</h2><button type="button" class="x" data-cno aria-label="Zamknij">×</button></div><p class="mut" style="margin:0;font-size:14px" id="cfs">Klient dostanie maila z PDF w załączniku.</p><button type="button" class="btn" data-cyes>Tak, wyślij</button><button type="button" class="btn ghost" data-cno>Nie, wróć</button></div>';
+  document.body.appendChild(cdlg); var cfBtn = null;
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-confirm]'); if (!b || b.dataset.ok === '1') return;
+    e.preventDefault();
+    var em = ($('#email') || {}).value || '';
+    if (b.getAttribute('data-confirm').indexOf('{email}') !== -1 && !em.trim()) { var el = $('#email'); if (el) { el.setCustomValidity('Podaj e-mail klienta, żeby wysłać.'); el.reportValidity(); } return; }
+    $('#cfq', cdlg).textContent = b.getAttribute('data-confirm').replace('{email}', em.trim());
+    cfBtn = b; cdlg.showModal();
+  }, true);
+  $('[data-cyes]', cdlg).addEventListener('click', function () { cdlg.close(); if (!cfBtn) return; cfBtn.dataset.ok = '1'; if (cfBtn.form && cfBtn.form.requestSubmit) cfBtn.form.requestSubmit(cfBtn); else cfBtn.click(); });
+  $$('[data-cno]', cdlg).forEach(function (x) { x.addEventListener('click', function () { cdlg.close(); }); });
 
   var dz = $('#drop');
   if (dz) {

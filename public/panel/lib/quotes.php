@@ -51,7 +51,7 @@ function save_quote(?int $id, array $p, string $act): array {
         'term_days' => max(0, min(120, (int)($p['pay_days'] ?? setting('term_days')))), 'place' => trim((string)($p['place'] ?? setting('place'))),
         'items' => json_encode($store, JSON_UNESCAPED_UNICODE), 'net' => $c['net'], 'vat' => $c['vat'], 'gross' => $c['gross'],
         'currency' => isset(currencies()[(string)($p['currency'] ?? '')]) ? (string)$p['currency'] : 'PLN',
-        'lang' => ($p['lang'] ?? '') === 'pl-en' ? 'pl-en' : 'pl', 'notes' => trim((string)($p['notes'] ?? '')), 'updated' => now(),
+        'lang' => ($p['lang'] ?? '') === 'pl-en' ? 'pl-en' : 'pl', 'notes' => trim((string)($p['notes'] ?? '')), 'message' => trim(mb_substr((string)($p['message'] ?? ''), 0, 5000)), 'updated' => now(),
     ];
     if ($old) {
         $set = implode(', ', array_map(fn($k) => "$k = :$k", array_keys($f)));
@@ -59,12 +59,13 @@ function save_quote(?int $id, array $p, string $act): array {
     } else {
         $ym = substr($issue, 0, 7); [$seq, $num] = next_quote_number($ym);
         $src = json_decode((string)($p['src'] ?? ''), true);
-        $f += ['number' => $num, 'seq' => $seq, 'ym' => $ym, 'status' => 'draft', 'src' => is_array($src) ? json_encode(array_intersect_key($src, array_flip(['acc', 'uid', 'from', 'email', 'subject', 'date', 'msgid', 'lead'])), JSON_UNESCAPED_UNICODE) : null, 'created' => now()];
+        $f += ['number' => $num, 'seq' => $seq, 'ym' => $ym, 'status' => 'draft', 'src' => is_array($src) ? json_encode(array_intersect_key($src, array_flip(['acc', 'uid', 'from', 'email', 'subject', 'date', 'msgid', 'lead', 'tender'])), JSON_UNESCAPED_UNICODE) : null, 'created' => now()];
         $pdo->prepare('INSERT INTO quotes (' . implode(', ', array_keys($f)) . ') VALUES (:' . implode(', :', array_keys($f)) . ')')->execute($f);
         $id = (int)$pdo->lastInsertId();
         if (is_array($src) && !empty($src['lead'])) $pdo->prepare("UPDATE leads SET quote_id = ?, stage = CASE WHEN stage = 'new' THEN 'contact' ELSE stage END, value = COALESCE(value, ?), updated = ? WHERE id = ?")->execute([$id, $c['net'], now(), (int)$src['lead']]);
     }
     $pdo->commit();
+    if ($act === 'send' && quote_is_tender(quote_by_id($id)['src'] ?? null)) { flash('Wycena zapisana. Do przetargu nie wysyłamy jej mailem, pobierz PDF i dołącz do oferty.'); return [$id, null]; }
     if ($act === 'send') {
         $q = quote_by_id($id);
         if (send_quote_mail($q)) flash('Wycena ' . $q['number'] . ' zapisana i wysłana do ' . $buyer['email'] . '.');
@@ -87,7 +88,7 @@ function send_quote_mail(array $q): bool {
     $subj = !empty($src['subject']) ? (preg_match('/^re:/i', (string)$src['subject']) ? $src['subject'] : 'Re: ' . $src['subject']) . ' · wycena ' . $num : 'Wycena ' . $num . ' od Creative Vision';
     $pre = 'Wycena ' . $num . ' na ' . $gross . ', ważna do ' . pl_date($q['due_date']) . '.';
     $rows = m_kicker('Wycena · ' . $num) . m_h1('Wycena ' . $num . ' na:', $gross)
-        . m_text('Dzień dobry,<br><br>dziękujemy za zapytanie. W załączniku przesyłamy wycenę ' . e($num) . '. Jest ważna do ' . e(pl_date($q['due_date'])) . '.<br><br>Jeśli wszystko się zgadza, po prostu odpowiedz na tę wiadomość, a ustalimy termin startu. Chętnie też porozmawiamy online, jeśli coś trzeba doprecyzować.')
+        . m_text(trim((string)($q['message'] ?? '')) !== '' ? nl2br(e(trim((string)$q['message']))) : 'Dzień dobry,<br><br>dziękujemy za zapytanie. W załączniku przesyłamy wycenę ' . e($num) . '. Jest ważna do ' . e(pl_date($q['due_date'])) . '.<br><br>Jeśli wszystko się zgadza, po prostu odpowiedz na tę wiadomość, a ustalimy termin startu. Chętnie też porozmawiamy online, jeśli coś trzeba doprecyzować.')
         . m_rows('Szczegóły wyceny', [['Wycena', $num], ['Ważna do', pl_date($q['due_date'])], ['Wartość netto', money((int)$q['net'], $q['currency'] ?? 'PLN')], ['Wartość brutto', $gross, true]])
         . m_sign();
     $html = mail_layout($subj, $pre, $rows);
@@ -131,6 +132,7 @@ function quote_post(string $a): never {
     $q = quote_by_id($id); if (!$q) { flash('!Nie ma takiej wyceny.'); redirect(P . '?a=quotes'); }
     switch ($a) {
         case 'quote_send':
+            if (quote_is_tender($q['src'])) { flash('!Wyceny do przetargu nie wysyłamy mailem. Pobierz PDF i dołącz do oferty na platformie.'); redirect(P . '?a=quote&id=' . $id); }
             if (!filter_var(trim((string)($q['buyer']['email'] ?? '')), FILTER_VALIDATE_EMAIL)) { flash('!Dodaj e-mail klienta w edycji wyceny.'); redirect(P . '?a=quote_edit&id=' . $id); }
             flash(send_quote_mail($q) ? 'Wycena wysłana do ' . $q['buyer']['email'] . '.' : '!Nie udało się wysłać: ' . mail_last_error());
             redirect(P . '?a=quote&id=' . $id);
@@ -253,6 +255,7 @@ function view_quote_form(?array $q): never {
         . '<div class="hrow" style="align-items:flex-start;flex-wrap:wrap"><button type="button" class="btn ghost sm" id="additem">' . icon('plus') . ' Dodaj pozycję</button>'
         . '<div class="totals" id="totals"><div><span>Razem netto</span><b data-t="net">0,00 zł</b></div><div><span>VAT</span><b data-t="vat">0,00 zł</b></div><div class="g"><span>Razem brutto</span><b data-t="gross">0,00 zł</b></div></div></div></section>'
         . '<section class="card pad sec"><h2>Uwagi do wyceny</h2><textarea class="in" name="notes" rows="4" placeholder="Np. termin realizacji, co jest w cenie, etapy płatności">' . e((string)($f['notes'] ?? ($q['notes'] ?? ''))) . '</textarea></section>'
+        . '<section class="card pad sec"><h2>Wiadomość do klienta <small>w mailu z wyceną</small></h2><textarea class="in" name="message" id="qmsg" rows="7" placeholder="Dzień dobry, dziękujemy za rozmowę… (zostaw puste, a wyślemy krótką standardową wiadomość)">' . e((string)($f['message'] ?? ($q['message'] ?? ''))) . '</textarea><span class="mut" style="font-size:13px">Wycena w PDF będzie w załączniku. AI przygotuje tę wiadomość razem z wyceną.</span></section>'
         . '</div><aside class="side">'
         . '<section class="card pad sec"><h2>Ważność</h2><label class="f">Data wyceny<input class="in" type="date" name="issue_date" id="issue_date" value="' . e($issue) . '"></label>'
         . '<div class="f" style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--mut)">Ważna przez<div class="pills" id="pills" style="grid-template-columns:repeat(3,1fr)">' . $pills . '</div></div>'
@@ -266,7 +269,7 @@ function view_quote_form(?array $q): never {
         . '<div class="bar"><span class="note">Wycenę wyślemy z ' . e(quote_from_addr()) . ', z PDF w załączniku' . ($src ? ', jako odpowiedź na zapytanie' : '') . '.</span>'
         . '<a class="btn ghost" href="' . ($q ? P . '?a=quote&id=' . $q['id'] : ($src && !empty($src['uid']) ? P . '?a=mail&box=INBOX&uid=' . (int)$src['uid'] . (($src['acc'] ?? '') === 'k' ? '&acc=k' : '') : P . '?a=quotes')) . '">Anuluj</a>'
         . '<button class="btn ghost" name="act" value="save">Zapisz wycenę</button>'
-        . '<button class="btn" name="act" value="send">Zapisz i wyślij ' . icon('arrow') . '</button></div></form>';
+        . (quote_is_tender($src) ? '' : '<button class="btn" name="act" value="send" data-confirm="Wysłać wycenę do {email}?">Zapisz i wyślij ' . icon('arrow') . '</button>') . '</div></form>';
     $GLOBALS['pgcls'] = 'pg-form';
     $GLOBALS['back'] = $q ? [P . '?a=quote&id=' . $q['id'], 'Wycena ' . $q['number']] : [P . '?a=quotes', 'Wyceny'];
     page($q ? 'Wycena ' . $q['number'] : 'Nowa wycena', 'quotes', $body, $q ? 'Edycja' : ($src ? 'Z zapytania' : 'Wycena w kilka minut'));
@@ -275,14 +278,15 @@ function quote_from_addr(): string { $c = mail_acc(); mail_acc('k'); $a = inbox_
 
 function view_quote(array $q): never {
     $id = (int)$q['id']; $st = quote_state($q);
-    $f = fn($action, $label, $cls = 'btn ghost', $extra = '') => '<form method="post" action="' . P . '?a=' . $action . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '">' . $extra . '<button class="' . $cls . '">' . $label . '</button></form>';
+    $f = fn($action, $label, $cls = 'btn ghost', $extra = '', $conf = '') => '<form method="post" action="' . P . '?a=' . $action . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '">' . $extra . '<button class="' . $cls . '"' . ($conf !== '' ? ' data-confirm="' . e($conf) . '"' : '') . '>' . $label . '</button></form>';
     $acts = '';
     if ($q['status'] === 'invoiced') {
         $inv = invoice_by_id((int)$q['invoice_id']);
         if ($inv) $acts .= '<a class="btn" href="' . P . '?a=' . ($inv['status'] === 'draft' ? 'edit' : 'view') . '&id=' . $inv['id'] . '">' . ($inv['status'] === 'draft' ? 'Dokończ fakturę' : 'Faktura ' . e($inv['number'])) . ' ' . icon('arrow') . '</a>';
     } else {
         $acts .= $f('quote_invoice', 'Zamień na fakturę ' . icon('arrow'), 'btn');
-        $acts .= $f('quote_send', empty($q['sent_at']) ? 'Wyślij do klienta' : 'Wyślij ponownie');
+        if (quote_is_tender($q['src'])) $acts .= '<span class="mut" style="font-size:14px">Wycena do przetargu: ofertę składasz na platformie zamawiającego, więc nie wysyłamy jej mailem. Pobierz PDF i dołącz do oferty.</span>';
+        else $acts .= $f('quote_send', empty($q['sent_at']) ? 'Wyślij do klienta' : 'Wyślij ponownie', 'btn ghost', '', 'Wysłać wycenę ' . $q['number'] . ' do ' . trim((string)($q['buyer']['email'] ?? '')) . '?');
         $acts .= '<a class="btn ghost" href="' . P . '?a=quote_edit&id=' . $id . '">Edytuj</a>';
     }
     $acts .= '<a class="btn ghost" href="' . P . '?a=quote_pdf&id=' . $id . '&dl=1">Pobierz PDF</a>';
@@ -329,4 +333,12 @@ function quote_ai_card(?array $src, ?array $inq, string $leadNotes): string {
         . '<label class="f">' . ($ctx !== '' ? 'Zapytanie klienta weźmiemy pod uwagę. Dopisz, co wiesz (opcjonalnie)' : 'Opisz, czego potrzebuje klient') . '<textarea class="in" id="ai_brief" rows="3" placeholder="np. strona dla kancelarii, 6 podstron, teksty od klienta, termin do końca stycznia, budżet ok. 8 tys."></textarea></label>'
         . '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap"><button type="button" class="btn" id="aibtn"' . (!empty($_GET['ai']) ? ' data-auto' : '') . '>' . icon('spark') . ' Przygotuj wycenę</button><span class="mut" id="aist" style="font-size:14px"></span></div>'
         . '<div id="aiout" hidden class="aiout"></div></section>';
+}
+
+/** Wycena do przetargu: składana na platformie, nie wysyłamy jej mailem. */
+function quote_is_tender(?array $src): bool {
+    if (!$src) return false;
+    if (!empty($src['tender'])) return true;
+    if (!empty($src['lead']) && function_exists('lead_by_id') && ($l = lead_by_id((int)$src['lead']))) return $l['source'] === 'przetarg' || !empty($l['src']['tender']);
+    return false;
 }

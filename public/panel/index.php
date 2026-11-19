@@ -866,7 +866,7 @@ function view_form(?array $inv): never {
         . '<div class="bar"><span class="note">Wyślemy z ' . e(setting('mail_from')) . ', z PDF w załączniku i linkiem do faktury online.</span>'
         . '<a class="btn ghost" href="' . ($inv ? P . '?a=view&id=' . $inv['id'] : P) . '">Anuluj</a>'
         . '<button class="btn ghost" name="act" value="issue">' . ($num ? 'Zapisz' : 'Wystaw i zapisz') . '</button>'
-        . '<button class="btn" name="act" value="send">' . ($num ? 'Zapisz i wyślij' : 'Wystaw i wyślij') . ' ' . icon('arrow') . '</button></div>'
+        . '<button class="btn" name="act" value="send" data-confirm="Wysłać fakturę do {email}?">' . ($num ? 'Zapisz i wyślij' : 'Wystaw i wyślij') . ' ' . icon('arrow') . '</button></div>'
         . '</form>';
     $GLOBALS['back'] = $inv ? [P . '?a=view&id=' . $inv['id'], $num ? 'Faktura ' . $num : 'Szkic'] : [P, 'Faktury'];
     page($inv ? ($num ? 'Faktura ' . $num : 'Szkic faktury') : 'Nowa faktura', $inv ? 'list' : 'new', $body, $inv ? 'Edycja' : 'Wystaw w minutę');
@@ -901,14 +901,14 @@ function view_invoice(array $inv): never {
     $ev = db()->prepare('SELECT * FROM events WHERE invoice_id = ? ORDER BY at DESC, id DESC'); $ev->execute([$id]);
     $hist = '';
     foreach ($ev->fetchAll() as $e) $hist .= '<div class="it"><span class="d">' . date('d.m H:i', strtotime($e['at'])) . '</span><span' . ($e['kind'] === 'error' ? ' class="late-t"' : '') . '>' . e($e['msg']) . '</span></div>';
-    $f = fn($action, $label, $cls = 'btn ghost', $extra = '') => '<form method="post" action="' . P . '?a=' . $action . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '">' . $extra . '<button class="' . $cls . '">' . $label . '</button></form>';
+    $f = fn($action, $label, $cls = 'btn ghost', $extra = '', $conf = '') => '<form method="post" action="' . P . '?a=' . $action . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '">' . $extra . '<button class="' . $cls . '"' . ($conf !== '' ? ' data-confirm="' . e($conf) . '"' : '') . '>' . $label . '</button></form>';
     $acts = '';
     if ($inv['status'] === 'draft') {
         $acts .= '<a class="btn" href="' . P . '?a=edit&id=' . $id . '">Dokończ i wystaw ' . icon('arrow') . '</a>';
     } elseif ($inv['status'] === 'issued') {
         $noMail = !filter_var(trim((string)($inv['buyer']['email'] ?? '')), FILTER_VALIDATE_EMAIL);
         $offMail = client_no_mail(isset($inv['client_id']) ? (int)$inv['client_id'] : null);
-        $mb = fn($act, $label, $cls) => $noMail ? '<button type="button" class="' . $cls . '" data-mail="' . $act . '">' . $label . '</button>' : $f($act, $label, $cls);
+        $mb = fn($act, $label, $cls) => $noMail ? '<button type="button" class="' . $cls . '" data-mail="' . $act . '">' . $label . '</button>' : $f($act, $label, $cls, '', ($act === 'remind' ? 'Wysłać przypomnienie' : 'Wysłać fakturę ' . $inv['number']) . ' do ' . trim((string)$inv['buyer']['email']) . '?');
         if ($offMail) $acts .= '<span class="mut" style="font-size:14px">Temu klientowi nie wysyłamy faktur mailem (ustawienie w Klientach).</span>';
         else {
             $acts .= $mb('send', empty($inv['sent_at']) ? 'Wyślij do klienta' : 'Wyślij ponownie', empty($inv['sent_at']) ? 'btn' : 'btn ghost');
@@ -1186,6 +1186,7 @@ function view_inbox(): never {
     $tabs = '';
     foreach (mail_boxes() as $k => $l) $tabs .= '<a href="' . P . '?a=inbox&box=' . urlencode($k) . aq() . '"' . ($k === $box ? ' class="on"' : '') . '>' . $l . ($k === 'INBOX' && (int)setting('imap_unseen') ? ' <span>' . (int)setting('imap_unseen') . '</span>' : '') . '</a>';
     $pages = $total > $per ? '<div class="hrow pad" style="justify-content:flex-end;gap:16px">' . ($pg > 1 ? '<a class="link" href="' . P . '?a=inbox&box=' . urlencode($box) . aq() . '&p=' . ($pg - 1) . '">Nowsze</a>' : '') . '<span class="mut" style="font-size:13px">' . (($pg - 1) * $per + 1) . '–' . min($total, $pg * $per) . ' z ' . $total . '</span>' . ($pg * $per < $total ? '<a class="link" href="' . P . '?a=inbox&box=' . urlencode($box) . aq() . '&p=' . ($pg + 1) . '">Starsze</a>' : '') . '</div>' : '';
+    if ($box === 'sent' && setting('imap_append_err') !== '') $tr = '<tr><td colspan="4" class="late-t" style="padding:14px 20px">Ostatnia kopia nie trafiła do folderu Wysłane (' . e(setting('imap_append_err')) . '). Sama wiadomość wyszła.</td></tr>' . $tr;
     $body = acc_switch() . '<form id="mdel" method="post" action="' . P . '?a=mail_delete">' . csrf_field() . acc_field() . '<input type="hidden" name="box" value="' . e($box) . '"></form>'
         . '<section class="card"><nav class="tabs">' . $tabs . '<button class="link mdelbtn" form="mdel" hidden>Usuń zaznaczone</button></nav>' . ($tr ? '<div class="tw"><table class="list mails"><tbody>' . $tr . '</tbody></table></div>' : '<div class="empty">Brak wiadomości.</div>') . $pages . '</section>';
     page('Poczta', 'inbox', $body, setting('imap_user'), '<a class="btn ghost" href="' . P . '?a=inbox&box=' . urlencode($box) . aq() . '" data-refresh>' . icon('refresh') . ' Odbierz</a><a class="btn" href="' . P . '?a=compose' . aq() . '">Napisz ' . icon('plus') . '</a>');

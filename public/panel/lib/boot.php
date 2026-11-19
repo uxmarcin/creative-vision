@@ -51,6 +51,8 @@ function migrate(PDO $pdo): void {
         $pdo->exec("UPDATE clients SET no_remind = 1, auto_paid = 1 WHERE id IN (SELECT client_id FROM invoices WHERE currency != 'PLN' AND client_id IS NOT NULL)");
         $pdo->exec("UPDATE invoices SET reminders = 0 WHERE client_id IN (SELECT id FROM clients WHERE no_remind = 1)");
     }
+    $qc = array_column($pdo->query('PRAGMA table_info(quotes)')->fetchAll(PDO::FETCH_ASSOC), 'name');
+    if ($qc && !in_array('message', $qc, true)) $pdo->exec('ALTER TABLE quotes ADD COLUMN message TEXT');
     if (!in_array('no_mail', $ccols, true)) {
         $pdo->exec('ALTER TABLE clients ADD COLUMN no_mail INTEGER NOT NULL DEFAULT 0');
         $pdo->exec('UPDATE clients SET no_mail = 1 WHERE auto_paid = 1');
@@ -120,7 +122,7 @@ const DEFAULTS = [
 ];
 
 /** Skrzynki pocztowe: f = faktury@, k = kontakt@. Ustawienia skrzynki k mają przedrostek k_. */
-const ACC_KEYS = ['imap_user', 'imap_pass', 'imap_sent', 'imap_trash', 'imap_unseen', 'imap_unseen_at'];
+const ACC_KEYS = ['imap_user', 'imap_pass', 'imap_sent', 'imap_trash', 'imap_unseen', 'imap_unseen_at', 'imap_append_err'];
 function mail_acc(?string $a = null): string { static $cur = 'f'; if ($a !== null) $cur = $a === 'k' ? 'k' : 'f'; return $cur; }
 function acc_key(string $k): string { return mail_acc() === 'k' && in_array($k, ACC_KEYS, true) ? 'k_' . $k : $k; }
 function &settings_cache(): array {

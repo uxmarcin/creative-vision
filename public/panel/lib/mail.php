@@ -219,7 +219,8 @@ function send_mail(array $to, string $subject, string $html, string $text, array
             require_once __DIR__ . '/imap.php';
             $im = imap_open_box(); $sent = sent_box($im);
             $im->append($sent, $full);
-        } catch (Throwable $e) { /* kopia w Wysłanych nie jest konieczna */ }
+            set_setting('imap_append_err', '');
+        } catch (Throwable $e) { set_setting('imap_append_err', date('d.m H:i') . ' ' . mb_substr($e->getMessage(), 0, 200)); }
         return true;
     }
     $ok = @mail(implode(', ', $to), mime_h($subject), $body, implode("\r\n", $h));

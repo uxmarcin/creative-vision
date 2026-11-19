@@ -41,6 +41,7 @@ function ai_quote(string $context, string $brief, string $client): array {
         'client' => ['type' => 'object', 'description' => 'Dane klienta lub zamawiającego wyczytane z zapytania albo ogłoszenia. Tylko to, co jest w tekście, nic nie zgaduj.', 'properties' => [
             'name' => ['type' => 'string', 'description' => 'Pełna nazwa firmy lub instytucji'], 'nip' => ['type' => 'string'], 'addr1' => ['type' => 'string', 'description' => 'Ulica i numer'],
             'addr2' => ['type' => 'string', 'description' => 'Kod pocztowy i miasto'], 'email' => ['type' => 'string', 'description' => 'E-mail do kontaktu lub składania ofert'], 'phone' => ['type' => 'string']]],
+        'message' => ['type' => 'string', 'description' => 'Ciepła, konkretna wiadomość mailowa do klienta, do której dołączymy wycenę w PDF. Zacznij od „Dzień dobry,”, nawiąż do zapytania, w 2 do 3 akapitach opisz proponowane podejście i co klient dostaje, wspomnij termin i ważność wyceny, zaproponuj krótką rozmowę online. Bez podpisu (podpis dodajemy sami), bez myślników — i –.'],
         'submit' => ['type' => 'string', 'description' => 'Gdzie i jak złożyć ofertę: platforma lub adres (link), e-mail, termin, wymagane dokumenty i wadium, jeśli są w tekście. Puste, gdy nie dotyczy.']]]];
     $body = ['model' => $model, 'max_tokens' => 3000, 'system' => $system, 'messages' => [['role' => 'user', 'content' => $user]], 'tools' => [$tool], 'tool_choice' => ['type' => 'auto']];
     $ch = curl_init(getenv('CV_AI_URL') ?: 'https://api.anthropic.com/v1/messages');
@@ -65,7 +66,7 @@ function ai_parse(array $j, string $model): ?array {
             'qty' => (float)($it['qty'] ?? 1) ?: 1, 'unit' => (string)($it['unit'] ?? 'usł.') ?: 'usł.', 'price' => round((float)($it['price_net'] ?? 0), 2), 'vat' => in_array((string)($it['vat'] ?? '23'), ['23', '8', '0', 'zw', 'np'], true) ? (string)($it['vat'] ?? '23') : '23'];
         return ['items' => $items, 'notes' => (string)($in['notes'] ?? ''), 'valid_days' => max(1, min(60, (int)($in['valid_days'] ?? 14))), 'pay_days' => max(0, min(60, (int)($in['pay_days'] ?? 7))),
             'summary' => (string)($in['summary'] ?? ''), 'questions' => array_values(array_map('strval', (array)($in['questions'] ?? []))), 'model' => $model,
-            'client' => array_map(fn($v) => mb_substr(trim((string)$v), 0, 200), array_intersect_key(is_array($in['client'] ?? null) ? $in['client'] : [], array_flip(['name', 'nip', 'addr1', 'addr2', 'email', 'phone']))), 'submit' => (string)($in['submit'] ?? '')];
+            'client' => array_map(fn($v) => mb_substr(trim((string)$v), 0, 200), array_intersect_key(is_array($in['client'] ?? null) ? $in['client'] : [], array_flip(['name', 'nip', 'addr1', 'addr2', 'email', 'phone']))), 'submit' => (string)($in['submit'] ?? ''), 'message' => (string)($in['message'] ?? '')];
     }
     return null;
 }
