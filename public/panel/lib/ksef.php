@@ -81,7 +81,7 @@ function ksef_xml(array $inv): string {
     $acc = nrb_digits($s['bank_account']);
     $pay = '<Platnosc>' . ($inv['status'] === 'paid' && !empty($inv['paid_at']) && substr((string)$inv['paid_at'], 0, 10) <= (string)$inv['issue_date'] ? '<Zaplacono>1</Zaplacono><DataZaplaty>' . substr((string)$inv['paid_at'], 0, 10) . '</DataZaplaty>' : '')
         . '<TerminPlatnosci><Termin>' . x((string)$inv['due_date']) . '</Termin></TerminPlatnosci><FormaPlatnosci>6</FormaPlatnosci>'
-        . (strlen($acc) === 26 ? '<RachunekBankowy><NrRB>' . ($foreign || $cur !== 'PLN' ? 'PL' : '') . $acc . '</NrRB>' . (trim(setting('bank_swift')) !== '' ? '<SWIFT>' . x(trim(setting('bank_swift'))) . '</SWIFT>' : '') . ($s['bank_name'] !== '' ? '<NazwaBanku>' . x($s['bank_name']) . '</NazwaBanku>' : '') . '</RachunekBankowy>' : '')
+        . (strlen($acc) === 26 ? '<RachunekBankowy><NrRB>' . ($foreign || $cur !== 'PLN' ? 'PL' : '') . $acc . '</NrRB>' . (bank_swift() !== '' ? '<SWIFT>' . x(bank_swift()) . '</SWIFT>' : '') . ($s['bank_name'] !== '' ? '<NazwaBanku>' . x($s['bank_name']) . '</NazwaBanku>' : '') . '</RachunekBankowy>' : '')
         . '</Platnosc>';
     $sale = (string)$inv['sale_date'];
     $notes = trim((string)$inv['notes']);

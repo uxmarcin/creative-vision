@@ -295,6 +295,8 @@ function words_en(int $cents, string $currency): string {
     return $words . ' ' . $currency . ' ' . sprintf('%02d', $gr) . '/100';
 }
 
+/** SWIFT/BIC: 8 albo 11 znaków (np. INGBPLPW). Inna wartość (np. numer konta) jest pomijana. */
+function bank_swift(): string { $v = strtoupper(preg_replace('/\s+/', '', setting('bank_swift')) ?? ''); return preg_match('/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/', $v) ? $v : ''; }
 function nip_digits(string $nip): string { return preg_replace('/\D/', '', $nip) ?? ''; }
 function nrb_digits(string $a): string { return preg_replace('/\D/', '', $a) ?? ''; }
 function nrb_fmt(string $a): string {

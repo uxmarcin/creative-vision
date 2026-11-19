@@ -33,7 +33,7 @@ function invoice_doc(array $inv, string $asset, bool $pdf = false, bool $online 
     }
     $acc = nrb_fmt($s['bank_account']);
     if ($acc !== '' && ($foreign || $cur !== 'PLN')) $acc = 'PL' . $acc;
-    $swift = trim(setting('bank_swift'));
+    $swift = bank_swift();
     if ($Q) $payBox = '<td class="pb-l"><div class="lbl">' . $L('Wartość wyceny', 'Quoted total') . '</div><div class="big">' . money((int)$inv['gross'], $cur) . '</div>'
         . '<div class="sm">' . $L('Netto', 'Net') . ' ' . money((int)$inv['net'], $cur) . ' · ' . $L('Słownie', 'In words') . ': ' . e(slownie((int)$inv['gross'], $cur)) . '</div></td>'
         . '<td class="pb-r"><div class="lbl">' . $L('Wycena ważna do', 'Valid until') . '</div><div class="v b">' . e(pl_date($inv['due_date'])) . '</div>'
