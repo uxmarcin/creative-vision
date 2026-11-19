@@ -2,7 +2,7 @@
 // Szanse sprzedażowe: lejek, przetargi (BZP i TED) i skaner stron firmowych.
 declare(strict_types=1);
 
-const LEAD_STAGES = ['new' => 'Nowe', 'contact' => 'W kontakcie', 'offer' => 'Wycena wysłana', 'nego' => 'Negocjacje', 'won' => 'Wygrane', 'lost' => 'Przegrane'];
+const LEAD_STAGES = ['new' => 'Nowe', 'contact' => 'W kontakcie', 'offer' => 'Wycena wysłana', 'nego' => 'Odpowiedź', 'won' => 'Wygrane', 'lost' => 'Przegrane'];
 const LEAD_SOURCES = ['reczne' => 'Dodana ręcznie', 'mail' => 'Zapytanie mailowe', 'przetarg' => 'Przetarg', 'gielda' => 'Giełda zleceń', 'zapytanie' => 'Zapytanie ofertowe UE', 'skaner' => 'Skaner stron', 'polecenie' => 'Polecenie'];
 const TENDER_CATS = ['www' => 'Strony i portale', 'shop' => 'Sklepy', 'app' => 'Aplikacje i systemy', 'design' => 'Grafika i marketing', 'other' => 'Inne'];
 /** Rodzaj przetargu po tytule i kodach CPV. */
@@ -413,7 +413,7 @@ function view_leads(): never {
                 . '<label class="kc-mv"><span class="sr">Przenieś do</span><select data-move>' . $opts($st) . '</select></label></div></article>';
             $cnt[$st]++; $sum[$st] += (int)$l['value'];
         }
-        $hint = ['new' => 'Zapytania, przetargi i firmy ze skanera.', 'contact' => 'Rozmawiamy, zbieramy wymagania.', 'offer' => 'Wycena u klienta.', 'nego' => 'Doprecyzowujemy zakres i cenę.', 'won' => 'Do startu i faktury.', 'lost' => 'Nie tym razem.'];
+        $hint = ['new' => 'Zapytania, przetargi i firmy ze skanera.', 'contact' => 'Rozmawiamy, zbieramy wymagania.', 'offer' => 'Wycena u klienta.', 'nego' => 'Klient odpisał, ustalamy szczegóły.', 'won' => 'Do startu i faktury.', 'lost' => 'Nie tym razem.'];
         $board = '';
         foreach (LEAD_STAGES as $k => $lbl) $board .= '<section class="kcol" data-st="' . $k . '"><header><b>' . $lbl . '</b><span class="kc-n">' . $cnt[$k] . '</span></header><p class="kc-hint">' . ($sum[$k] ? money($sum[$k]) . ' netto' : $hint[$k]) . '</p><div class="kc-list">' . $by[$k] . '</div></section>';
         $body .= '<section class="card"><nav class="tabs">' . $tabs . '</nav><div class="pad" style="padding-top:14px;padding-bottom:14px"><span class="mut" style="font-size:14px">Przeciągnij kartę do innej kolumny (na telefonie przytrzymaj kartę albo wybierz etap z listy na karcie).</span></div></section>'
