@@ -11,5 +11,5 @@ jobs:
     steps:
       - name: Panel
         run: |
-          for u in panel "panel?a=inbox" panel/cron.php panel/lib/imap.php panel/vendor/qrcode/QRCode.php; do echo "$(curl -s -o /dev/null -w '%{http_code}' "https://creative-vision.pl/$u") $u"; done
+          for u in panel "panel?a=quotes" "panel?a=books" panel/cron.php panel/lib/books.php panel/data/costs/ panel/.user.ini; do echo "$(curl -s -o /dev/null -w '%{http_code}' "https://creative-vision.pl/$u") $u"; done
           curl -s https://creative-vision.pl/panel | grep -o '<h1>[^<]*' || true
