@@ -15,13 +15,14 @@ require_once __DIR__ . '/lib/push.php';
 require_once __DIR__ . '/lib/leads.php';
 require_once __DIR__ . '/lib/ai.php';
 require_once __DIR__ . '/lib/tfa.php';
+require_once __DIR__ . '/lib/home.php';
 
 if (($_GET['a'] ?? '') === 'sw') { header('Content-Type: application/javascript; charset=utf-8'); header('Cache-Control: no-cache'); readfile(__DIR__ . '/sw.js'); exit; }
 security_headers();
 header('Cache-Control: no-store');
 start_session();
 
-$a = (string)($_GET['a'] ?? 'list');
+$a = (string)($_GET['a'] ?? 'home');
 $post = $_SERVER['REQUEST_METHOD'] === 'POST';
 const P = '/panel';
 
@@ -423,6 +424,8 @@ switch ($a) {
     case 'new': case 'edit': view_form($a === 'edit' ? must_invoice((int)($_GET['id'] ?? 0)) : null);
     case 'view': view_invoice(must_invoice((int)($_GET['id'] ?? 0)));
     case 'clients': view_clients();
+    case 'home': run_auto_paid(); view_home();
+    case 'notif': view_notifs();
     case 'quotes': view_quotes();
     case 'books': view_books();
     case 'leads': view_leads();
@@ -675,6 +678,7 @@ function icon(string $n): string {
     $p = [
         'list' => '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M14 8H8"/><path d="M16 12H8"/><path d="M13 16H8"/>',
         'plus' => '<path d="M5 12h14"/><path d="M12 5v14"/>',
+        'home' => '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
         'users' => '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
         'cog' => '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
         'search' => '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
@@ -743,7 +747,7 @@ function flash_html(): string {
 
 function page(string $title, string $active, string $body, string $kicker = '', string $acts = ''): never {
     $accs = mail_accounts(); $un = unseen_total(); $poll = $accs['f']['on'] || $accs['k']['on'];
-    $nav = [['inbox', 'Poczta <b class="bdg" id="mailbdg"' . ($poll ? ' data-poll' : '') . ($un > 0 ? '>' . $un : ' hidden>') . '</b>', 'mail', P . '?a=inbox'], ['list', 'Faktury', 'list', P], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['leads', 'Leady', 'target', P . '?a=leads'], ['quotes', 'Wyceny', 'quote', P . '?a=quotes'], ['books', 'Księgowość', 'books', P . '?a=books'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
+    $nav = [['home', 'Pulpit', 'home', P], ['inbox', 'Poczta <b class="bdg" id="mailbdg"' . ($poll ? ' data-poll' : '') . ($un > 0 ? '>' . $un : ' hidden>') . '</b>', 'mail', P . '?a=inbox'], ['list', 'Faktury', 'list', P . '?a=list'], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['leads', 'Leady', 'target', P . '?a=leads'], ['quotes', 'Wyceny', 'quote', P . '?a=quotes'], ['books', 'Księgowość', 'books', P . '?a=books'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
     $links = '';
     foreach ($nav as [$k, $l, $i, $h]) $links .= '<a href="' . $h . '" class="n-' . $k . ($active === $k ? ' on" aria-current="page' : '') . '" title="' . strip_tags($l) . '"' . ($k === 'new' ? ' data-plus' : '') . '>' . icon($i) . '<span class="tx">' . $l . '</span></a>';
     $sheet = '<dialog class="mdlg plus" id="plusdlg"><div class="sheet"><div class="hrow"><h2>Co tworzymy?</h2><button type="button" class="x" data-close aria-label="Zamknij">×</button></div>'
@@ -752,7 +756,7 @@ function page(string $title, string $active, string $body, string $kicker = '', 
     echo head($title) . '<body data-ver="' . app_ver() . '" data-csrf="' . e(csrf_token()) . '" class="pg-' . e($active) . (!empty($GLOBALS['pgcls']) ? ' ' . $GLOBALS['pgcls'] : '') . '"><div class="app"><nav class="nav" aria-label="Menu panelu">'
         . '<a class="brand" href="' . P . '"><img class="logo" src="' . P . '/assets/logo-white.svg" alt="creative vision"><img class="sig" src="' . P . '/assets/sygnet-white.svg" alt="Creative Vision"></a>'
         . '<div class="grp"><p class="lbl">Finanse</p>' . $links . '</div>'
-        . '<div class="bot"><span>Przypomnienia wysyłamy sami, w dni robocze rano.</span><a class="set' . ($active === 'clients' ? ' on' : '') . '" href="' . P . '?a=clients" aria-label="Klienci">' . icon('users') . '</a><a class="set' . ($active === 'settings' ? ' on' : '') . '" href="' . P . '?a=settings" aria-label="Ustawienia">' . icon('cog') . '</a>'
+        . '<div class="bot"><span>Przypomnienia wysyłamy sami, w dni robocze rano.</span><a class="set mob' . ($active === 'inbox' ? ' on' : '') . '" href="' . P . '?a=inbox" aria-label="Poczta">' . icon('mail') . ($un > 0 ? '<b class="dot">' . min(99, $un) . '</b>' : '') . '</a><a class="set' . ($active === 'notif' ? ' on' : '') . '" href="' . P . '?a=notif" aria-label="Powiadomienia">' . icon('bell') . (($nn = notif_unseen()) > 0 ? '<b class="dot">' . min(99, $nn) . '</b>' : '') . '</a><a class="set' . ($active === 'clients' ? ' on' : '') . '" href="' . P . '?a=clients" aria-label="Klienci">' . icon('users') . '</a><a class="set' . ($active === 'settings' ? ' on' : '') . '" href="' . P . '?a=settings" aria-label="Ustawienia">' . icon('cog') . '</a>'
         . '<form method="post" action="' . P . '?a=logout">' . csrf_field() . '<button class="link out" style="color:#C9C9C9" aria-label="Wyloguj" title="Wyloguj">' . icon('out') . '<span>Wyloguj</span></button></form></div></nav>'
         . '<main class="main" id="main">'
         . '<header class="top"><div>' . (!empty($GLOBALS['back']) ? '<a class="back" href="' . e($GLOBALS['back'][0]) . '">' . icon('back') . '<span>' . e($GLOBALS['back'][1]) . '</span></a>' : '') . ($kicker ? '<p class="k">' . e($kicker) . '</p>' : '') . '<h1>' . e($title) . '</h1></div>' . ($acts ? '<div class="acts">' . $acts . '</div>' : '') . '</header>'
@@ -1145,7 +1149,7 @@ function security_section(): string {
             . '<label class="f">Hasło<input class="in" type="password" name="pass" autocomplete="current-password" required></label><label class="f">Kod z aplikacji<input class="in" name="code" inputmode="numeric" autocomplete="one-time-code" required></label><button class="btn ghost" data-confirm="Wyłączyć logowanie dwuetapowe?" data-csub="Do panelu znowu wystarczy samo hasło." data-cyes-l="Tak, wyłącz">Wyłącz</button></form></details>';
     }
     $o .= '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px"><span class="mut" style="font-size:14px;flex:1;min-width:220px">Hasła do poczty, token KSeF, klucze API i SMS są w bazie zaszyfrowane. Gdy zalogujesz się z nowego urządzenia, dostaniesz maila.</span>'
-        . '<form method="post" action="' . P . '?a=logout_all">' . csrf_field() . '<button class="btn ghost sm" data-confirm="Wylogować wszystkie inne urządzenia?" data-csub="Na tym urządzeniu zostaniesz zalogowany." data-cyes-l="Tak, wyloguj">Wyloguj inne urządzenia</button></form></div>';
+        . '<form method="post" action="' . P . '?a=logout_all">' . csrf_field() . '<button class="btn ghost sm" data-confirm="Wylogować wszystkie inne urządzenia?" data-csub="Na tym urządzeniu zostaniesz zalogowany." data-cyes-l="Tak, wyloguj">Wyloguj inne urządzenia</button></form><form method="post" action="' . P . '?a=logout">' . csrf_field() . '<button class="btn ghost sm">' . icon('out') . ' Wyloguj się</button></form></div>';
     return $o . '</section>';
 }
 function view_settings(): never {

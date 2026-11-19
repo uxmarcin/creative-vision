@@ -50,7 +50,15 @@ function push_encrypt(string $payload, string $uaPub, string $auth): string {
 }
 
 /** Wysyła powiadomienie na wszystkie zapisane urządzenia. Zwraca liczbę udanych wysyłek. */
+function notif_migrate(): void { static $d = false; if ($d) return; $d = true; db()->exec('CREATE TABLE IF NOT EXISTS notifs (id INTEGER PRIMARY KEY, title TEXT, body TEXT, url TEXT, tag TEXT, at TEXT NOT NULL, seen INTEGER NOT NULL DEFAULT 0)'); }
+function notif_log(string $title, string $body, string $url, string $tag): void {
+    notif_migrate();
+    db()->prepare('INSERT INTO notifs (title, body, url, tag, at) VALUES (?, ?, ?, ?, ?)')->execute([$title, $body, $url, $tag, now()]);
+    db()->exec("DELETE FROM notifs WHERE id NOT IN (SELECT id FROM notifs ORDER BY id DESC LIMIT 300)");
+}
+function notif_unseen(): int { try { notif_migrate(); return (int)db()->query('SELECT COUNT(*) FROM notifs WHERE seen = 0')->fetchColumn(); } catch (Throwable $e) { return 0; } }
 function push_send(string $title, string $body, string $url = '/panel', string $tag = 'cv'): int {
+    try { notif_log($title, $body, $url, $tag); } catch (Throwable $e) {}
     push_migrate();
     $subs = db()->query('SELECT * FROM push_subs')->fetchAll(); if (!$subs) return 0;
     [$pub] = vapid(); $ok = 0;
