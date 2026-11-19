@@ -100,10 +100,10 @@ if ($post) {
             redirect(P . '?a=view&id=' . $id);
         case 'delete':
             $inv = must_invoice($id);
-            if ($inv['status'] === 'draft') {
-                db()->prepare('DELETE FROM events WHERE invoice_id = ?')->execute([$id]);
+            if ($inv['status'] === 'draft' || can_delete($inv)) {
+                foreach (['events', 'reminders'] as $t) db()->prepare("DELETE FROM $t WHERE invoice_id = ?")->execute([$id]);
                 db()->prepare('DELETE FROM invoices WHERE id = ?')->execute([$id]);
-                flash('Szkic usunięty.');
+                flash($inv['status'] === 'draft' ? 'Szkic usunięty.' : 'Faktura ' . $inv['number'] . ' usunięta. Ten numer wróci do użycia.');
             }
             redirect(P);
         case 'ksef':
@@ -151,7 +151,7 @@ if ($post) {
             flash('Hasło zmienione.');
             redirect(P . '?a=settings');
         case 'testmail':
-            [$sj, $h, $t] = admin_mail('Test maila z panelu faktur', 'Test', 'Maile z panelu działają', 'Jeśli to czytasz, wysyłka z panelu faktur działa poprawnie. Sprawdź też, czy wiadomość nie wpadła do spamu.');
+            [$sj, $h, $t] = admin_mail('Test maila z panelu faktur', 'Test wysyłki · panel faktur', 'Maile z panelu', 'Jeśli to czytasz, wysyłka z panelu faktur działa poprawnie. Sprawdź też, czy wiadomość nie wpadła do spamu.', null, 'działają');
             $to = setting('mail_reply');
             flash(send_mail([$to], $sj, $h, $t, [], false) ? 'Wysłano test na ' . $to . '. Sprawdź skrzynkę i folder spam.' : '!Nie udało się wysłać testu.');
             redirect(P . '?a=settings');
@@ -235,6 +235,7 @@ function save_invoice(?int $id, array $p, string $act): array {
     $f = [
         'client_id' => $clientId, 'buyer' => json_encode($buyer, JSON_UNESCAPED_UNICODE), 'issue_date' => $issue, 'sale_date' => $sale, 'due_date' => $due, 'term_days' => $term,
         'place' => trim((string)($p['place'] ?? setting('place'))), 'items' => json_encode($store, JSON_UNESCAPED_UNICODE),
+        'book_ym' => preg_match('/^\d{4}-\d{2}$/', (string)($p['book_ym'] ?? '')) ? (string)$p['book_ym'] : substr($issue, 0, 7),
         'net' => $c['net'], 'vat' => $c['vat'], 'gross' => $c['gross'], 'notes' => trim((string)($p['notes'] ?? '')), 'reminders' => !empty($p['reminders']) ? 1 : 0, 'updated' => now(),
     ];
     if ($old) {
@@ -266,6 +267,13 @@ function save_invoice(?int $id, array $p, string $act): array {
     return [$id, null];
 }
 
+/** Wystawioną fakturę można usunąć tylko, gdy ma ostatni numer w miesiącu (bez dziury w numeracji) i nie jest opłacona. */
+function can_delete(array $inv): bool {
+    if ($inv['status'] === 'draft') return true;
+    if ($inv['status'] === 'paid' || empty($inv['ym'])) return false;
+    $s = db()->prepare('SELECT MAX(seq) FROM invoices WHERE ym = ?'); $s->execute([$inv['ym']]);
+    return (int)$s->fetchColumn() === (int)$inv['seq'];
+}
 function can_edit(array $inv): bool { return $inv['status'] === 'draft' || ($inv['status'] === 'issued' && empty($inv['sent_at'])); }
 
 function nip_lookup(string $nip): void {
@@ -369,18 +377,32 @@ function when_text(array $inv): array {
 // ---------- lista ----------
 function view_list(): never {
     $tab = (string)($_GET['t'] ?? 'all'); $q = trim((string)($_GET['q'] ?? ''));
+    $y = (int)($_GET['y'] ?? date('Y')); if ($y < 2000 || $y > 2100) $y = (int)date('Y');
+    $m = isset($_GET['m']) ? max(0, min(12, (int)$_GET['m'])) : (int)date('n');
+    $period = $m ? sprintf('%04d-%02d', $y, $m) : (string)$y;
+    $periodTxt = $m ? pl_month($m) . ' ' . $y : 'cały ' . $y;
     $all = array_map('hydrate', db()->query('SELECT * FROM invoices ORDER BY COALESCE(issue_date, created) DESC, id DESC')->fetchAll());
+    $bym = fn($i) => (string)($i['book_ym'] ?: substr((string)($i['issue_date'] ?: $i['created']), 0, 7));
+    $inPeriod = fn($i) => str_starts_with($bym($i), $period);
     $cnt = ['all' => 0, 'open' => 0, 'late' => 0, 'paid' => 0, 'draft' => 0];
-    $open = 0; $openN = 0; $late = 0; $lateN = 0; $paidM = 0; $paidMN = 0; $days = [];
-    $ym = date('Y-m');
+    $open = 0; $openN = 0; $late = 0; $lateN = 0; $sale = 0; $saleNet = 0; $saleN = 0; $days = []; $months = []; $years = [(int)date('Y') => 1, $y => 1];
     foreach ($all as $i) {
-        $st = inv_state($i); $cnt['all']++;
-        if (in_array($st, ['due', 'today', 'late'], true)) { $cnt['open']++; $open += (int)$i['gross']; $openN++; }
-        if ($st === 'late') { $cnt['late']++; $late += (int)$i['gross']; $lateN++; }
-        if ($st === 'paid') { $cnt['paid']++; if (substr((string)$i['paid_at'], 0, 7) === $ym) { $paidM += (int)($i['paid_amount'] ?: $i['gross']); $paidMN++; } $days[] = max(0, days_between((string)$i['issue_date'], substr((string)$i['paid_at'], 0, 10))); }
+        $st = inv_state($i); $b = $bym($i);
+        $years[(int)substr($b, 0, 4)] = 1;
+        if (substr($b, 0, 4) === (string)$y) $months[(int)substr($b, 5, 2)] = ($months[(int)substr($b, 5, 2)] ?? 0) + 1;
+        if (in_array($st, ['due', 'today', 'late'], true)) { $open += (int)$i['gross']; $openN++; }
+        if ($st === 'late') { $late += (int)$i['gross']; $lateN++; }
+        if ($st === 'paid') $days[] = max(0, days_between((string)$i['issue_date'], substr((string)$i['paid_at'], 0, 10)));
+        if (!$inPeriod($i) && $q === '') continue;
+        $cnt['all']++;
+        if (in_array($st, ['due', 'today', 'late'], true)) $cnt['open']++;
+        if ($st === 'late') $cnt['late']++;
+        if ($st === 'paid') $cnt['paid']++;
         if ($st === 'draft') $cnt['draft']++;
+        if ($inPeriod($i) && !in_array($st, ['draft', 'cancelled'], true)) { $sale += (int)$i['gross']; $saleNet += (int)$i['net']; $saleN++; }
     }
-    $rows = array_filter($all, function ($i) use ($tab, $q) {
+    $rows = array_filter($all, function ($i) use ($tab, $q, $inPeriod) {
+        if ($q === '' && !$inPeriod($i)) return false;
         $st = inv_state($i);
         $ok = match ($tab) { 'open' => in_array($st, ['due', 'today', 'late'], true), 'late' => $st === 'late', 'paid' => $st === 'paid', 'draft' => $st === 'draft', default => true };
         if ($ok && $q !== '') $ok = mb_stripos(($i['number'] ?? '') . ' ' . ($i['buyer']['name'] ?? '') . ' ' . ($i['buyer']['nip'] ?? ''), $q) !== false;
@@ -390,11 +412,20 @@ function view_list(): never {
     $kpi = '<section class="kpis" aria-label="Podsumowanie">'
         . '<div class="kpi dark"><span class="t">Do zapłaty</span><span class="v">' . money($open) . '</span><span class="s">' . ($openN ? $openN . ' ' . plural($openN, 'faktura czeka', 'faktury czekają', 'faktur czeka') . ' na wpłatę' : 'Wszystko opłacone') . '</span></div>'
         . '<div class="kpi"><span class="t">Po terminie</span><span class="v' . ($late ? ' red' : '') . '">' . money($late) . '</span><span class="s">' . ($lateN ? $lateN . ' ' . plural($lateN, 'faktura', 'faktury', 'faktur') . ', wezwania idą same' : 'Nikt nie zalega') . '</span></div>'
-        . '<div class="kpi"><span class="t">Opłacone w ' . pl_month((int)date('n'), true) . '</span><span class="v">' . money($paidM) . '</span><span class="s">' . $paidMN . ' ' . plural($paidMN, 'wpłata', 'wpłaty', 'wpłat') . '</span></div>'
+        . '<div class="kpi"><span class="t">Sprzedaż: ' . e($periodTxt) . '</span><span class="v">' . money($sale) . '</span><span class="s">netto ' . money($saleNet) . ' · ' . $saleN . ' ' . plural($saleN, 'faktura', 'faktury', 'faktur') . '</span></div>'
         . '<div class="kpi"><span class="t">Średni czas zapłaty</span><span class="v">' . ($avg === null ? '–' : $avg . ' ' . plural($avg, 'dzień', 'dni', 'dni')) . '</span><span class="s">od wystawienia do wpłaty</span></div></section>';
+    $qs = fn(array $o) => P . '?' . http_build_query(array_merge(['y' => $y, 'm' => $m, 't' => $tab], $o));
+    $mp = '';
+    for ($i = 1; $i <= 12; $i++) $mp .= '<a href="' . $qs(['m' => $i, 'q' => null]) . '" class="' . trim(($m === $i ? 'on' : '') . (!empty($months[$i]) ? ' has' : '')) . '" title="' . pl_month($i) . ' ' . $y . (!empty($months[$i]) ? ': ' . $months[$i] . ' ' . plural($months[$i], 'faktura', 'faktury', 'faktur') : '') . '"' . ($m === $i ? ' aria-current="true"' : '') . '>' . $i . '</a>';
+    krsort($years); $yo = '';
+    foreach (array_keys($years) as $yy) $yo .= '<option value="' . $yy . '"' . ($yy === $y ? ' selected' : '') . '>' . $yy . '</option>';
+    $per = '<div class="period"><div class="pl"><span class="k">Miesiąc księgowy</span><b>' . e(ucfirst($periodTxt)) . '</b></div>'
+        . '<nav class="months" aria-label="Miesiąc księgowy">' . $mp . '<a href="' . $qs(['m' => 0, 'q' => null]) . '" class="yr' . ($m === 0 ? ' on' : '') . '">Cały rok</a></nav>'
+        . '<form method="get" action="' . P . '" class="yearf"><input type="hidden" name="m" value="' . $m . '"><input type="hidden" name="t" value="' . e($tab) . '"><label class="sr" for="yy">Rok</label><select class="in" id="yy" name="y" data-autosubmit>' . $yo . '</select></form></div>'
+        . ($q !== '' ? '<div class="qnote">Wyniki wyszukiwania „' . e($q) . '” ze wszystkich miesięcy. <a class="link" href="' . $qs(['q' => null]) . '">Wyczyść</a></div>' : '');
     $tabs = '';
     foreach (['all' => 'Wszystkie', 'open' => 'Do zapłaty', 'late' => 'Po terminie', 'paid' => 'Opłacone', 'draft' => 'Szkice'] as $k => $l)
-        $tabs .= '<a href="' . P . '?t=' . $k . ($q !== '' ? '&q=' . urlencode($q) : '') . '"' . ($tab === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ' <span>' . $cnt[$k] . '</span></a>';
+        $tabs .= '<a href="' . $qs(['t' => $k, 'q' => $q !== '' ? $q : null]) . '"' . ($tab === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ' <span>' . $cnt[$k] . '</span></a>';
     $tr = '';
     foreach ($rows as $i) {
         [$w, $wc] = when_text($i);
@@ -408,9 +439,9 @@ function view_list(): never {
             . '<td class="c-st nw">' . state_chip($i) . '</td>'
             . '<td class="c-act r nw"><a class="link" href="' . $url . '">' . $act . '</a></td></tr>';
     }
-    $table = '<section class="card wide" aria-label="Lista faktur"><nav class="tabs" aria-label="Filtr faktur">' . $tabs . '</nav>'
+    $table = '<section class="card wide" aria-label="Lista faktur">' . $per . '<nav class="tabs" aria-label="Filtr faktur">' . $tabs . '</nav>'
         . ($tr ? '<div class="tw"><table class="list"><thead><tr><th>Numer</th><th>Klient</th><th>Termin</th><th class="r">Kwota brutto</th><th>Status</th><th><span class="sr">Akcje</span></th></tr></thead><tbody>' . $tr . '</tbody></table></div>'
-            : '<div class="empty">' . ($cnt['all'] ? 'Brak faktur w tym widoku.' : 'Tu pojawią się Twoje faktury. Zacznij od pierwszej.') . '</div>') . '</section>';
+            : '<div class="empty">' . ($cnt['all'] ? 'Brak faktur w tym widoku.' : ($all ? 'Brak faktur w tym okresie.' : 'Tu pojawią się Twoje faktury. Zacznij od pierwszej.')) . '</div>') . '</section>';
     $up = '';
     foreach (upcoming_reminders() as [$d, $k, $inv]) {
         $dl = $d === today() ? 'Dziś' : ($d === date('Y-m-d', strtotime('+1 day')) ? 'Jutro' : date('d.m', strtotime($d)));
@@ -421,9 +452,9 @@ function view_list(): never {
         . '<div class="sched">' . ($up ?: '<span class="mut">Nic nie czeka w kolejce. Przypomnienia pojawią się tu, gdy wyślesz fakturę.</span>') . '</div></div>'
         . ($lastPaid ? '<div class="dark-card"><span class="k">Ostatnia wpłata</span><span class="v">' . e(json_decode($lastPaid['buyer'], true)['name'] ?? '') . ' · ' . money((int)($lastPaid['paid_amount'] ?: $lastPaid['gross'])) . '</span><span class="s">Faktura ' . e($lastPaid['number']) . ', ' . e(pl_date($lastPaid['paid_at'])) . '</span></div>' : '')
         . '</aside>';
-    $acts = '<form class="search" role="search" method="get" action="' . P . '"><input type="hidden" name="t" value="' . e($tab) . '">' . icon('search') . '<label class="sr" for="q">Szukaj faktury</label><input id="q" type="search" name="q" value="' . e($q) . '" placeholder="Szukaj klienta lub numeru"></form>'
+    $acts = '<form class="search" role="search" method="get" action="' . P . '"><input type="hidden" name="t" value="' . e($tab) . '"><input type="hidden" name="y" value="' . $y . '"><input type="hidden" name="m" value="' . $m . '">' . icon('search') . '<label class="sr" for="q">Szukaj faktury</label><input id="q" type="search" name="q" value="' . e($q) . '" placeholder="Szukaj klienta lub numeru"></form>'
         . '<a class="btn" href="' . P . '?a=new">Nowa faktura ' . icon('plus') . '</a>';
-    page('Faktury', 'list', $kpi . '<div class="cols">' . $table . $side . '</div>', ucfirst(pl_month((int)date('n'))) . ' ' . date('Y'), $acts);
+    page('Faktury', 'list', $kpi . '<div class="cols">' . $table . $side . '</div>', ucfirst($periodTxt), $acts);
 }
 
 // ---------- formularz ----------
@@ -473,6 +504,7 @@ function view_form(?array $inv): never {
         . '<div class="f" style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--mut)">Termin płatności<div class="pills" id="pills">' . $pills . '</div></div>'
         . '<input type="hidden" name="term_days" id="term_days" value="' . $term . '">'
         . '<label class="f">Płatne do<input class="in" type="date" name="due_date" id="due_date" value="' . e($due) . '"></label>'
+        . '<label class="f">Miesiąc księgowy<select class="in" name="book_ym" id="book_ym">' . book_opts((string)($f['book_ym'] ?? ($inv['book_ym'] ?? substr($issue, 0, 7)))) . '</select></label>'
         . '<label class="f">Miejsce wystawienia<input class="in" name="place" value="' . e((string)($f['place'] ?? ($inv['place'] ?? setting('place')))) . '"></label></section>'
         . '<section class="card pad sec"><h2>Przypomnienia</h2><label class="check"><input type="checkbox" name="reminders" value="1"' . ((int)($f['reminders'] ?? ($inv['reminders'] ?? 1)) ? ' checked' : '') . '> Wyślij przypomnienia i wezwania automatycznie</label>'
         . '<span class="mut" style="font-size:13px">Według harmonogramu z ustawień. Zatrzymają się same, gdy oznaczysz wpłatę.</span></section>'
@@ -484,6 +516,16 @@ function view_form(?array $inv): never {
         . '<button class="btn" name="act" value="send">' . ($num ? 'Zapisz i wyślij' : 'Wystaw i wyślij') . ' ' . icon('arrow') . '</button></div>'
         . '</form>';
     page($inv ? ($num ? 'Faktura ' . $num : 'Szkic faktury') : 'Nowa faktura', $inv ? 'list' : 'new', $body, $inv ? 'Edycja' : 'Wystaw w minutę');
+}
+
+function book_opts(string $sel): string {
+    $o = ''; $base = strtotime(date('Y-m-01'));
+    $list = [];
+    for ($i = -6; $i <= 2; $i++) $list[] = date('Y-m', strtotime("$i months", $base));
+    if (!in_array($sel, $list, true)) $list[] = $sel;
+    sort($list);
+    foreach ($list as $ym) { [$y, $m] = explode('-', $ym); $o .= '<option value="' . $ym . '"' . ($ym === $sel ? ' selected' : '') . '>' . pl_month((int)$m) . ' ' . $y . '</option>'; }
+    return $o;
 }
 
 function item_row(string $n, array $it, callable $vat): string {
@@ -550,7 +592,8 @@ function view_invoice(array $inv): never {
         . '<label class="f">Numer KSeF faktury<input class="in" name="ksef" value="' . e((string)$inv['ksef']) . '" placeholder="po wysłaniu do KSeF"></label><button class="btn ghost sm">Zapisz</button></form></div>' : '';
     $danger = '';
     if ($inv['status'] === 'draft') $danger = $f('delete', 'Usuń szkic', 'link', '');
-    elseif ($inv['status'] === 'issued') $danger = '<details class="more"><summary>Anuluj fakturę</summary><span class="mut" style="font-size:13px;display:block;margin-bottom:10px">Faktura zostaje w historii z numerem, ale przestaje być do zapłaty. Wysłanej fakturę lepiej skorygować.</span>' . $f('cancel', 'Anuluj fakturę', 'btn danger') . '</details>';
+    elseif (can_delete($inv)) $danger = '<details class="more"><summary>Usuń fakturę</summary><span class="mut" style="font-size:13px;display:block;margin-bottom:10px">To ostatni numer w miesiącu, więc możesz go usunąć bez dziury w numeracji, np. po fakturze testowej. Jeśli klient już ją dostał, lepiej wystaw korektę.</span>' . $f('delete', 'Usuń fakturę ' . $inv['number'], 'btn danger') . '</details>';
+    if ($inv['status'] === 'issued') $danger .= '<details class="more"><summary>Anuluj fakturę</summary><span class="mut" style="font-size:13px;display:block;margin-bottom:10px">Faktura zostaje w historii z numerem, ale przestaje być do zapłaty. Wysłanej fakturę lepiej skorygować.</span>' . $f('cancel', 'Anuluj fakturę', 'btn danger') . '</details>';
     $body = '<div class="cols"><div class="wide"><div class="doc-wrap">' . invoice_doc($inv, P . '/assets/') . '</div></div>'
         . '<aside class="side">' . $decl . '<div class="card pad sec">' . $kv . '<div class="acts-col">' . $acts . '</div>' . $danger . '</div>' . $auto . $ksef
         . '<div class="card pad sec"><h2>Historia</h2><div class="hist">' . ($hist ?: '<span class="mut">Brak zdarzeń.</span>') . '</div></div></aside></div>';

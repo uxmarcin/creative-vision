@@ -32,8 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'declare')
     if ($inv['status'] === 'issued' && empty($inv['declared_at'])) {
         db()->prepare('UPDATE invoices SET declared_at = ?, updated = ? WHERE id = ?')->execute([now(), now(), $id]);
         log_event($id, 'declare', 'Klient zgłosił, że zapłacił');
-        [$s, $h, $tx] = admin_mail('Klient zgłosił wpłatę: ' . $inv['number'], 'Wpłata zgłoszona', ($inv['buyer']['name'] ?? 'Klient') . ' zapłacił fakturę ' . $inv['number'],
-            'Klient kliknął „Zapłaciłem” przy fakturze ' . e($inv['number']) . ' na kwotę ' . e(money((int)$inv['gross'])) . '. Przypomnienia są wstrzymane. Gdy przelew dotrze, potwierdź wpłatę w panelu.', CV_SITE . '/panel?a=view&id=' . $id);
+        [$s, $h, $tx] = admin_mail('Klient zgłosił wpłatę: ' . $inv['number'], 'Wpłata zgłoszona · ' . $inv['number'], ($inv['buyer']['name'] ?? 'Klient') . ' zgłasza',
+            'Klient kliknął „Zapłaciłem” przy fakturze ' . e($inv['number']) . ' na kwotę ' . e(money((int)$inv['gross'])) . '. Przypomnienia są wstrzymane. Gdy przelew dotrze, potwierdź wpłatę w panelu.', CV_SITE . '/panel?a=view&id=' . $id, 'wpłatę');
         send_mail([setting('mail_reply')], $s, $h, $tx, [], false);
     }
     header('Location: ' . $url . '?ok=1', true, 303); exit;

@@ -27,6 +27,8 @@
     }).catch(function () { nb.disabled = false; msg.textContent = 'Nie udało się połączyć. Wpisz dane ręcznie.'; });
   });
 
+  $$('[data-autosubmit]').forEach(function (el) { el.addEventListener('change', function () { el.form.submit(); }); });
+
   var form = $('#invform');
   if (!form) return;
 
@@ -70,7 +72,11 @@
   }
   function mark() { pills.forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-term') === term.value); }); }
   pills.forEach(function (b) { b.addEventListener('click', function () { term.value = b.getAttribute('data-term'); mark(); setDue(); }); });
-  issue.addEventListener('change', setDue);
+  issue.addEventListener('change', function () {
+    setDue();
+    var b = $('#book_ym'), ym = issue.value.slice(0, 7);
+    if (b && $$('option', b).some(function (o) { return o.value === ym; })) b.value = ym;
+  });
   due.addEventListener('change', function () {
     var a = new Date(issue.value + 'T12:00:00'), b = new Date(due.value + 'T12:00:00');
     if (!isNaN(a) && !isNaN(b)) { term.value = String(Math.max(0, Math.round((b - a) / 864e5))); mark(); }

@@ -68,6 +68,21 @@ textarea.in{height:auto;min-height:88px;padding:12px 14px;resize:vertical;line-h
 h2{margin:0;font-size:20px;font-weight:500}
 .hrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
 
+/* okres */
+.period{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.period .pl{display:flex;flex-direction:column;gap:2px;margin-right:auto;min-width:150px}
+.period .pl .k{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
+.period .pl b{font-size:18px;font-weight:500}
+.months{display:flex;flex-wrap:wrap;gap:6px}
+.months a{position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:38px;padding:0 6px;border:1px solid #DDDAD3;background:#fff;color:var(--mut);text-decoration:none;font-size:14px;font-variant-numeric:tabular-nums}
+.months a:hover{border-color:var(--ink);color:var(--ink)}
+.months a.has{color:var(--ink);font-weight:500}
+.months a.has::after{content:"";position:absolute;left:50%;bottom:5px;width:4px;height:4px;margin-left:-2px;background:var(--grad)}
+.months a.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.months a.yr{padding:0 12px;font-size:13px}
+.yearf select.in{height:38px;width:96px;padding:0 10px}
+.qnote{padding:12px 20px;border-bottom:1px solid var(--line);font-size:14px;color:var(--mut);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+
 /* lista */
 .tabs{display:flex;flex-wrap:wrap;gap:4px;padding:0 16px;border-bottom:1px solid var(--line)}
 .tabs a{display:inline-flex;align-items:center;gap:6px;padding:16px 10px 14px;text-decoration:none;color:var(--mut);font-size:15px;border-bottom:2px solid transparent;margin-bottom:-1px}
@@ -172,6 +187,11 @@ details.more[open] summary{margin-bottom:14px}
   .kpi{padding:16px;gap:4px}
   .kpi .v{font-size:22px}
   .kpi .t,.kpi .s{font-size:12px}
+  .period{padding:14px 12px;gap:10px}
+  .months{flex-wrap:nowrap;overflow-x:auto;width:100%;scrollbar-width:none;padding-bottom:2px}
+  .months a{flex:none;min-width:40px;height:40px}
+  .yearf{position:absolute;right:12px;margin-top:-2px}
+  .period{position:relative}
   .tabs{flex-wrap:nowrap;overflow-x:auto;padding:0 8px;scrollbar-width:none}
   .tabs a{white-space:nowrap;flex:none}
   .top .acts,.search{width:100%}

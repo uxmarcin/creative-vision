@@ -38,6 +38,11 @@ function migrate(PDO $pdo): void {
         notes TEXT, status TEXT NOT NULL DEFAULT "draft", token TEXT UNIQUE,
         sent_at TEXT, viewed_at TEXT, declared_at TEXT, paid_at TEXT, paid_amount INTEGER, paid_method TEXT,
         ksef TEXT, reminders INTEGER NOT NULL DEFAULT 1, created TEXT NOT NULL, updated TEXT NOT NULL)');
+    $cols = array_column($pdo->query('PRAGMA table_info(invoices)')->fetchAll(PDO::FETCH_ASSOC), 'name');
+    if (!in_array('book_ym', $cols, true)) {
+        $pdo->exec('ALTER TABLE invoices ADD COLUMN book_ym TEXT');
+        $pdo->exec('UPDATE invoices SET book_ym = substr(COALESCE(issue_date, created), 1, 7)');
+    }
     $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS inv_number ON invoices(number) WHERE number IS NOT NULL');
     $pdo->exec('CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY, invoice_id INTEGER NOT NULL, kind TEXT NOT NULL, msg TEXT, at TEXT NOT NULL)');
     $pdo->exec('CREATE TABLE IF NOT EXISTS reminders (invoice_id INTEGER NOT NULL, kind TEXT NOT NULL, sent_at TEXT NOT NULL, PRIMARY KEY (invoice_id, kind))');

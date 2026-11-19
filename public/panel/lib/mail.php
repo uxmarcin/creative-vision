@@ -2,68 +2,72 @@
 // Maile do klientów w stylu Creative Vision (ciemny box, białe logo, gradient, biały przycisk).
 declare(strict_types=1);
 
-const MF = "font-family:Jost,'Helvetica Neue',Arial,sans-serif;";
+const MF = "font-family:Jost,'Helvetica Neue',Helvetica,Arial,sans-serif;";
+const MM = "font-family:'IBM Plex Mono',Menlo,Consolas,'Courier New',monospace;";
 
-/** Wspólny szkielet maila. $rows: gotowe wiersze <tr>…</tr>. */
+/** Wspólny szkielet maila: czarny nagłówek z logo, gradient, biała treść. $rows: gotowe wiersze <tr>…</tr>. */
 function mail_layout(string $title, string $pre, string $rows): string {
     $img = CV_SITE . '/img/mail/';
     $phone = setting('seller_phone'); $mail = setting('seller_email');
     return '<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-        . '<meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"><title>' . e($title) . '</title>'
-        . '<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&display=swap" rel="stylesheet">'
-        . '<style>body{margin:0;padding:0;background:#000000}a{color:#ffffff}@media (max-width:620px){.w{width:100%!important}.p{padding-left:24px!important;padding-right:24px!important}.h{font-size:30px!important;line-height:36px!important}.b a{display:block!important}}</style>'
-        . '</head><body style="margin:0;padding:0;background:#000000">'
+        . '<meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>' . e($title) . '</title>'
+        . '<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">'
+        . '<style>body{margin:0;padding:0;background:#F1F1EF}a{color:#0B0B0B}'
+        . '@media screen and (-webkit-min-device-pixel-ratio:0){.gt{background:linear-gradient(90deg,#E9685F,#E03F3B 20%,#AC2069 40%,#88409F 60%,#3E63EF 80%,#51BAD4);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent!important}}'
+        . '@media (max-width:620px){.w{width:100%!important}.p{padding-left:24px!important;padding-right:24px!important}.h{font-size:34px!important;line-height:38px!important}.b a{display:block!important}.lab{display:block!important;width:auto!important;padding-bottom:0!important}.val{display:block!important;padding-top:4px!important;text-align:left!important;border-top:0!important}}</style>'
+        . '</head><body style="margin:0;padding:0;background:#F1F1EF">'
         . '<div style="display:none;max-height:0;overflow:hidden;opacity:0">' . e($pre) . '</div>'
-        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#000000" style="background:#000000"><tr><td align="center" style="padding:32px 12px">'
-        . '<table role="presentation" class="w" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#0B0B0B" style="width:600px;max-width:600px;background:#0B0B0B;border:1px solid #2A2A2A">'
-        . '<tr><td style="font-size:0;line-height:0"><img src="' . $img . 'gradient.png" width="600" height="3" alt="" style="display:block;width:100%;height:3px;border:0"></td></tr>'
-        . '<tr><td class="p" style="padding:36px 48px 0 48px"><a href="' . CV_SITE . '" style="text-decoration:none"><img src="' . $img . 'logo-white.png" width="190" alt="creative vision" style="display:block;width:190px;height:auto;border:0"></a></td></tr>'
+        . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F1F1EF" style="background:#F1F1EF"><tr><td align="center" style="padding:32px 12px">'
+        . '<table role="presentation" class="w" width="640" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" style="width:640px;max-width:640px;background:#FFFFFF">'
+        . '<tr><td class="p" bgcolor="#0B0B0B" style="background:#0B0B0B;padding:44px 48px"><a href="' . CV_SITE . '" style="text-decoration:none"><img src="' . $img . 'logo-white.png" width="230" alt="creative vision" style="display:block;width:230px;height:auto;border:0"></a></td></tr>'
+        . '<tr><td style="font-size:0;line-height:0"><img src="' . $img . 'gradient.png" width="640" height="4" alt="" style="display:block;width:100%;height:4px;border:0"></td></tr>'
         . $rows
-        . '<tr><td style="font-size:0;line-height:0;border-top:1px solid #2A2A2A">&nbsp;</td></tr>'
-        . '<tr><td class="p" style="padding:24px 48px 30px 48px;' . MF . 'font-size:14px;line-height:24px;color:#9A9A9A">'
-        . '<a href="tel:+48' . e(preg_replace('/\D/', '', $phone)) . '" style="color:#FFFFFF;text-decoration:none">' . e($phone) . '</a> &nbsp;·&nbsp; '
-        . '<a href="mailto:' . e($mail) . '" style="color:#FFFFFF;text-decoration:none">' . e($mail) . '</a> &nbsp;·&nbsp; '
-        . '<a href="' . CV_SITE . '" style="color:#FFFFFF;text-decoration:none">creative-vision.pl</a><br>'
+        . '<tr><td class="p" style="padding:0 48px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-top:1px solid #E6E4DF;font-size:0;line-height:0">&nbsp;</td></tr></table></td></tr>'
+        . '<tr><td class="p" style="padding:24px 48px 40px 48px;' . MF . 'font-size:14px;line-height:24px;color:#6B6B6B">'
+        . '<a href="tel:+48' . e(preg_replace('/\D/', '', $phone)) . '" style="color:#0B0B0B;text-decoration:none">' . e($phone) . '</a> &nbsp;·&nbsp; '
+        . '<a href="mailto:' . e($mail) . '" style="color:#0B0B0B;text-decoration:none">' . e($mail) . '</a> &nbsp;·&nbsp; '
+        . '<a href="' . CV_SITE . '" style="color:#0B0B0B;text-decoration:none">creative-vision.pl</a><br>'
         . 'Masz pytanie do faktury? Odpisz na tę wiadomość.</td></tr>'
         . '</table></td></tr></table></body></html>';
 }
 
-function m_kicker(string $t): string { return '<tr><td class="p" style="padding:44px 48px 0 48px;' . MF . 'font-size:12px;line-height:18px;letter-spacing:2px;text-transform:uppercase;color:#9A9A9A">' . e($t) . '</td></tr>'; }
-function m_h1(string $t): string { return '<tr><td class="p h" style="padding:14px 48px 0 48px;' . MF . 'font-size:36px;line-height:42px;font-weight:500;color:#FFFFFF">' . e($t) . '</td></tr>'; }
-function m_text(string $html, int $top = 26): string { return '<tr><td class="p" style="padding:' . $top . 'px 48px 0 48px;' . MF . 'font-size:17px;line-height:28px;color:#C9C9C9">' . $html . '</td></tr>'; }
+function m_kicker(string $t): string { return '<tr><td class="p" style="padding:52px 48px 0 48px;' . MM . 'font-size:13px;line-height:20px;letter-spacing:2px;text-transform:uppercase;color:#5F5F5F">' . e($t) . '</td></tr>'; }
+/** Nagłówek: pierwsza linia czarna, druga w gradiencie marki. */
+function m_h1(string $a, string $b = ''): string {
+    return '<tr><td class="p h" style="padding:18px 48px 0 48px;' . MF . 'font-size:46px;line-height:50px;font-weight:600;letter-spacing:-1px;color:#0B0B0B">' . e($a)
+        . ($b !== '' ? '<br><span class="gt" style="color:#AC2069">' . e($b) . '</span>' : '') . '</td></tr>';
+}
+function m_text(string $html, int $top = 30): string { return '<tr><td class="p" style="padding:' . $top . 'px 48px 0 48px;' . MF . 'font-size:18px;line-height:30px;color:#1F1F1F">' . $html . '</td></tr>'; }
 function m_button(string $href, string $label): string {
-    return '<tr><td class="p b" style="padding:34px 48px 0 48px"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#FFFFFF" style="background:#FFFFFF">'
-        . '<a href="' . e($href) . '" style="display:inline-block;padding:18px 34px;' . MF . 'font-size:13px;line-height:16px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0B0B0B;text-decoration:none;text-align:center">' . e($label) . ' &rarr;</a>'
+    return '<tr><td class="p b" style="padding:36px 48px 0 48px"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#0B0B0B" style="background:#0B0B0B">'
+        . '<a href="' . e($href) . '" style="display:inline-block;padding:19px 34px;' . MF . 'font-size:13px;line-height:16px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#FFFFFF;text-decoration:none;text-align:center">' . e($label) . ' &rarr;</a>'
         . '</td></tr></table></td></tr>';
 }
-/** Ramka z wierszami [etykieta, wartość, wyróżnij?]. */
-function m_box(array $rows, int $top = 34): string {
+/** Sekcja z tytułem i wierszami [etykieta, wartość, wyróżnij?] jak „Dane zgłoszenia”. */
+function m_rows(string $title, array $rows, int $top = 48): string {
     $h = '';
-    $n = count($rows);
-    foreach ($rows as $i => $r) {
-        $last = ($i === $n - 1);
+    foreach ($rows as $r) {
         $big = !empty($r[2]);
-        $pad = $i === 0 ? '22px 26px 0 26px' : ($big ? '14px 26px 22px 26px' : '12px 26px 0 26px');
-        if ($last && !$big) $pad = str_replace(' 0 26px', ' 22px 26px', $pad);
-        $border = $big ? 'border-top:1px solid #2A2A2A;' : '';
-        $h .= '<tr><td style="padding:' . $pad . ';' . $border . MF . 'font-size:15px;line-height:22px;color:#9A9A9A">' . e($r[0]) . '</td>'
-            . '<td align="right" style="padding:' . $pad . ';' . $border . MF . ($big ? 'font-size:22px;line-height:28px;font-weight:500;' : 'font-size:15px;line-height:22px;') . 'color:#FFFFFF;white-space:nowrap">' . e($r[1]) . '</td></tr>';
+        $h .= '<tr><td class="lab" width="34%" valign="top" style="width:34%;padding:20px 16px 20px 0;border-top:1px solid #E6E4DF;' . MM . 'font-size:13px;line-height:22px;letter-spacing:1.5px;text-transform:uppercase;color:#5F5F5F">' . e($r[0]) . '</td>'
+            . '<td class="val" valign="top" style="padding:' . ($big ? '16px' : '20px') . ' 0 20px 0;border-top:1px solid #E6E4DF;' . MF . ($big ? 'font-size:26px;line-height:30px;font-weight:600;' : 'font-size:18px;line-height:24px;') . 'color:#0B0B0B">' . e($r[1]) . '</td></tr>';
     }
-    return '<tr><td class="p" style="padding:' . $top . 'px 48px 0 48px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#141414" style="background:#141414;border:1px solid #2A2A2A">' . $h . '</table></td></tr>';
+    return '<tr><td class="p" style="padding:' . $top . 'px 48px 0 48px;' . MM . 'font-size:13px;line-height:20px;letter-spacing:2px;text-transform:uppercase;color:#5F5F5F">' . e($title) . '</td></tr>'
+        . '<tr><td class="p" style="padding:16px 48px 0 48px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom:1px solid #E6E4DF">' . $h . '</table></td></tr>';
 }
+function m_box(array $rows, int $top = 48): string { return m_rows('Szczegóły faktury', $rows, $top); }
 function m_transfer(array $inv): string {
     $s = seller();
     if (nrb_digits($s['bank_account']) === '') return '';
-    return '<tr><td class="p" style="padding:30px 48px 0 48px;' . MF . 'font-size:14px;line-height:24px;color:#9A9A9A">'
-        . 'Dane do przelewu' . ($s['bank_name'] !== '' ? ' · ' . e($s['bank_name']) : '') . '<br>'
-        . '<span style="color:#FFFFFF;font-size:16px;letter-spacing:.5px">' . e(nrb_fmt($s['bank_account'])) . '</span><br>'
-        . e($s['seller_name']) . ', ' . e($s['seller_addr1']) . ', ' . e($s['seller_addr2']) . '<br>'
-        . 'Tytuł: Faktura ' . e((string)$inv['number']) . '</td></tr>';
+    return m_rows('Dane do przelewu', [
+        ['Numer konta', nrb_fmt($s['bank_account'])],
+        ['Odbiorca', $s['seller_name'] . ', ' . $s['seller_addr1'] . ', ' . $s['seller_addr2']],
+        ['Tytuł', 'Faktura ' . $inv['number']],
+    ]);
 }
 function m_sign(): string {
-    return '<tr><td class="p" style="padding:36px 48px 44px 48px"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>'
-        . '<td width="64" valign="middle"><img src="' . CV_SITE . '/img/mail/marcin.jpg" width="64" height="64" alt="Marcin Bednarz" style="display:block;width:64px;height:64px;border:1px solid #2A2A2A"></td>'
-        . '<td valign="middle" style="padding-left:18px;' . MF . 'font-size:17px;line-height:24px;color:#FFFFFF;font-weight:500">Marcin Bednarz<br><span style="font-size:14px;line-height:22px;color:#9A9A9A;font-weight:400">Behavioral Designer / UX Specialist</span></td>'
+    return '<tr><td class="p" style="padding:44px 48px 44px 48px"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>'
+        . '<td width="64" valign="middle"><img src="' . CV_SITE . '/img/mail/marcin.jpg" width="64" height="64" alt="Marcin Bednarz" style="display:block;width:64px;height:64px;border:0"></td>'
+        . '<td valign="middle" style="padding-left:18px;' . MF . 'font-size:17px;line-height:24px;color:#0B0B0B;font-weight:500">Marcin Bednarz<br><span style="font-size:14px;line-height:22px;color:#6B6B6B;font-weight:400">Behavioral Designer / UX Specialist</span></td>'
         . '</tr></table></td></tr>';
 }
 
@@ -80,21 +84,21 @@ function invoice_mail(array $inv, string $kind): array {
         case 'new':
             $subj = 'Faktura ' . $num . ' od Creative Vision';
             $pre = 'Faktura ' . $num . ' na ' . $gross . ', termin ' . $due . '.';
-            $rows = m_kicker('Nowa faktura') . m_h1('Faktura ' . $num)
+            $rows = m_kicker('Nowa faktura · ' . $num) . m_h1('Faktura ' . $num . ' na:', $gross)
                 . m_text($hello . 'dziękujemy za współpracę. W załączniku przesyłamy fakturę ' . e($num) . '. Możesz ją też zobaczyć i pobrać online, razem z danymi do przelewu.')
                 . m_box($box) . m_button($url, 'Zobacz fakturę');
             break;
         case 'before':
             $subj = 'Przypomnienie: termin faktury ' . $num . ' mija ' . $due;
             $pre = 'Za ' . $left . ' ' . ($left === 1 ? 'dzień' : 'dni') . ' mija termin płatności faktury ' . $num . '.';
-            $rows = m_kicker('Przypomnienie') . m_h1('Za ' . $left . ' ' . ($left === 1 ? 'dzień' : 'dni') . ' mija termin płatności')
+            $rows = m_kicker('Przypomnienie · ' . $num) . m_h1('Termin płatności mija', 'za ' . $left . ' ' . ($left === 1 ? 'dzień' : 'dni'))
                 . m_text($hello . 'uprzejmie przypominamy, że ' . e($due) . ' mija termin płatności za fakturę ' . e($num) . '. Jeśli przelew już wyszedł, zignoruj tę wiadomość.')
                 . m_box($box) . m_button($url, 'Zobacz fakturę');
             break;
         case 'due':
             $subj = 'Dziś mija termin faktury ' . $num;
             $pre = 'Dziś mija termin płatności faktury ' . $num . ' na ' . $gross . '.';
-            $rows = m_kicker('Termin mija dziś') . m_h1('Dziś mija termin płatności')
+            $rows = m_kicker('Termin mija dziś · ' . $num) . m_h1('Termin płatności mija', 'dzisiaj')
                 . m_text($hello . 'dziś mija termin płatności za fakturę ' . e($num) . '. Jeśli przelew już wyszedł, zignoruj tę wiadomość. Dziękujemy.')
                 . m_box($box) . m_button($url, 'Zobacz fakturę');
             break;
@@ -102,7 +106,7 @@ function invoice_mail(array $inv, string $kind): array {
             $late = -$left;
             $subj = 'Wezwanie do zapłaty: faktura ' . $num;
             $pre = 'Faktura ' . $num . ' jest ' . $late . ' ' . ($late === 1 ? 'dzień' : 'dni') . ' po terminie.';
-            $rows = m_kicker('Wezwanie do zapłaty') . m_h1('Faktura ' . $num . ' czeka na wpłatę')
+            $rows = m_kicker('Wezwanie do zapłaty · ' . $num) . m_h1('Faktura ' . $num, 'czeka na wpłatę')
                 . m_text($hello . 'nie odnotowaliśmy jeszcze wpłaty za fakturę ' . e($num) . ', której termin minął ' . e($due) . '. Prosimy o uregulowanie należności w ciągu 7 dni, do ' . e($deadline7) . '.<br><br>Jeśli płatność już wyszła, zignoruj tę wiadomość. Jeśli coś się nie zgadza, po prostu odpisz, wyjaśnimy to od ręki.')
                 . m_box([['Faktura', $num], ['Termin płatności', $due], ['Dni po terminie', (string)$late], ['Do zapłaty', $gross, true]]) . m_button($url, 'Zobacz fakturę');
             break;
@@ -113,7 +117,7 @@ function invoice_mail(array $inv, string $kind): array {
             $eur = compensation_eur((int)$inv['gross']);
             $subj = 'Ostateczne wezwanie do zapłaty: faktura ' . $num;
             $pre = 'Ostateczne wezwanie do zapłaty faktury ' . $num . '.';
-            $rows = m_kicker('Ostateczne wezwanie do zapłaty') . m_h1('Prosimy o pilną wpłatę')
+            $rows = m_kicker('Ostateczne wezwanie do zapłaty · ' . $num) . m_h1('Prosimy o pilną', 'wpłatę')
                 . m_text($hello . 'mimo wcześniejszego przypomnienia nie otrzymaliśmy wpłaty za fakturę ' . e($num) . ' z terminem płatności ' . e($due) . '. Wzywamy do zapłaty należności w terminie 7 dni, do ' . e($deadline7) . '.<br><br>'
                     . 'Zgodnie z ustawą o przeciwdziałaniu nadmiernym opóźnieniom w transakcjach handlowych od dnia następującego po terminie płatności przysługują nam odsetki ustawowe za opóźnienie w transakcjach handlowych oraz rekompensata za koszty odzyskiwania należności w wysokości równowartości ' . $eur . ' euro.<br><br>'
                     . 'Zależy nam na dobrej współpracy, dlatego jeśli jest jakiś problem z płatnością, odpisz. Na pewno znajdziemy rozwiązanie. Brak wpłaty i kontaktu w tym terminie oznacza, że podejmiemy dalsze kroki w celu odzyskania należności.')
@@ -128,8 +132,8 @@ function invoice_mail(array $inv, string $kind): array {
 }
 
 /** Krótki mail dla nas (powiadomienie). */
-function admin_mail(string $subject, string $kicker, string $h1, string $body, ?string $link = null): array {
-    $rows = m_kicker($kicker) . m_h1($h1) . m_text($body) . ($link ? m_button($link, 'Otwórz w panelu') : '') . '<tr><td style="padding:0 0 40px 0"></td></tr>';
+function admin_mail(string $subject, string $kicker, string $h1, string $body, ?string $link = null, string $h1b = ''): array {
+    $rows = m_kicker($kicker) . m_h1($h1, $h1b) . m_text($body) . ($link ? m_button($link, 'Otwórz w panelu') : '') . '<tr><td style="padding:0 0 40px 0"></td></tr>';
     return [$subject, mail_layout($subject, $h1, $rows), html_to_text($rows) . ($link ? "\n\n" . $link : '')];
 }
 
