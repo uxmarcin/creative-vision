@@ -130,9 +130,9 @@ function &settings_cache(): array {
     if ($cache === null) {
         $cache = [];
         $plain = [];
-        foreach (db()->query('SELECT k, v FROM settings') as $r) { $v = (string)$r['v']; if (str_starts_with($v, 'enc1:')) $v = sec_dec($v); elseif ($v !== '' && is_secret_key((string)$r['k'])) $plain[] = $r['k']; $cache[$r['k']] = $v; }
+        foreach (db()->query('SELECT k, v FROM settings') as $r) { $v = (string)$r['v']; if (str_starts_with($v, 'enc1:') || str_starts_with($v, 'enc2:')) $v = sec_dec($v); elseif ($v !== '' && is_secret_key((string)$r['k'])) $plain[] = $r['k']; $cache[$r['k']] = $v; }
         // sekrety zapisane wcześniej jawnym tekstem: szyfrujemy przy pierwszym odczycie
-        foreach ($plain as $k) { $e = sec_enc($cache[$k]); if ($e !== '') db()->prepare('UPDATE settings SET v = ? WHERE k = ?')->execute([$e, $k]); }
+        foreach ($plain as $k) { try { $e = sec_enc($cache[$k]); if ($e !== '' && sec_dec($e) === $cache[$k]) db()->prepare('UPDATE settings SET v = ? WHERE k = ?')->execute([$e, $k]); } catch (Throwable $x) {} }
     }
     return $cache;
 }
@@ -148,13 +148,16 @@ function sec_key(): string {
     return $k = '';
 }
 function sec_enc(string $v): string {
-    $key = sec_key(); if ($key === '' || $v === '') return $v === '' ? '' : '';
-    $n = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-    return 'enc1:' . base64_encode($n . sodium_crypto_secretbox($v, $n, $key));
+    $key = sec_key(); if ($key === '' || $v === '') return '';
+    if (function_exists('sodium_crypto_secretbox')) { $n = random_bytes(24); return 'enc1:' . base64_encode($n . sodium_crypto_secretbox($v, $n, $key)); }
+    $n = random_bytes(12); $c = openssl_encrypt($v, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $n, $tag);
+    return $c === false ? '' : 'enc2:' . base64_encode($n . $tag . $c);
 }
 function sec_dec(string $v): string {
-    $key = sec_key(); $raw = base64_decode(substr($v, 5), true); if ($key === '' || $raw === false || strlen($raw) < 40) return '';
-    $p = sodium_crypto_secretbox_open(substr($raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), substr($raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), $key);
+    $key = sec_key(); $raw = base64_decode(substr($v, 5), true); if ($key === '' || $raw === false) return '';
+    if (str_starts_with($v, 'enc1:')) { if (!function_exists('sodium_crypto_secretbox_open') || strlen($raw) < 40) return ''; $p = sodium_crypto_secretbox_open(substr($raw, 24), substr($raw, 0, 24), $key); return $p === false ? '' : $p; }
+    if (strlen($raw) < 29) return '';
+    $p = openssl_decrypt(substr($raw, 28), 'aes-256-gcm', $key, OPENSSL_RAW_DATA, substr($raw, 0, 12), substr($raw, 12, 16));
     return $p === false ? '' : $p;
 }
 function setting(string $k): string {
