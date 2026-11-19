@@ -2,6 +2,8 @@
 // Maile do klientów w stylu Creative Vision (ciemny box, białe logo, gradient, biały przycisk).
 declare(strict_types=1);
 
+require_once __DIR__ . '/push.php';
+
 const MF = "font-family:Jost,'Helvetica Neue',Helvetica,Arial,sans-serif;";
 const MM = MF;
 
@@ -242,6 +244,7 @@ function send_invoice_mail(array $inv, string $kind): bool {
 function notify_seen(array $inv, string $what, string $ev = 'open'): void {
     $name = (string)($inv['buyer']['name'] ?? 'Klient');
     log_event((int)$inv['id'], $ev, $what);
+    if (function_exists('push_send')) { try { push_send($name . ' · ' . $inv['number'], $what, '/panel?a=view&id=' . $inv['id'], 'inv-' . $inv['id']); } catch (Throwable $e) {} }
     if (setting('notify_open') !== '1') return;
     [$s, $h, $t] = admin_mail($name . ': ' . mb_strtolower(mb_substr($what, 0, 1)) . mb_substr($what, 1) . ' (' . $inv['number'] . ')', 'Faktura ' . $inv['number'], $name, $what . ' · ' . date('d.m.Y H:i') . '. Kwota ' . e(money((int)$inv['gross'], $inv['currency'] ?? 'PLN')) . ', termin ' . e(pl_date($inv['due_date'])) . '.', CV_SITE . '/panel?a=view&id=' . $inv['id'], 'zobaczył wiadomość');
     send_mail([setting('mail_reply') ?: setting('seller_email')], $s, $h, $t, [], false);

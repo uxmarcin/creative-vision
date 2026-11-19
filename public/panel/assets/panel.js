@@ -82,6 +82,42 @@
     });
   }
 
+  // powiadomienia push
+  var canPush = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  var csrf = document.body.getAttribute('data-csrf');
+  var u8 = function (b) { var p = '='.repeat((4 - b.length % 4) % 4), r = atob((b + p).replace(/-/g, '+').replace(/_/g, '/')), o = new Uint8Array(r.length); for (var i = 0; i < r.length; i++) o[i] = r.charCodeAt(i); return o; };
+  var ab64 = function (buf) { return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+  var post = function (a, data) { var f = new FormData(); f.append('csrf', csrf); for (var k in data) f.append(k, data[k]); return fetch('/panel?a=' + a, { method: 'POST', body: f, credentials: 'same-origin' }).then(function (r) { return r.json(); }); };
+  var swReg = function () { return navigator.serviceWorker.register('/panel?a=sw', { scope: '/panel' }).then(function () { return navigator.serviceWorker.ready; }); };
+  var pushOn = function () {
+    return Notification.requestPermission().then(function (p) {
+      if (p !== 'granted') throw new Error('Nie zezwolono na powiadomienia. Zmienisz to w ustawieniach przeglądarki lub telefonu.');
+      return Promise.all([swReg(), fetch('/panel?a=push_key', { credentials: 'same-origin' }).then(function (r) { return r.json(); })]);
+    }).then(function (x) {
+      return x[0].pushManager.getSubscription().then(function (s) { return s || x[0].pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: u8(x[1].key) }); });
+    }).then(function (s) { var j = s.toJSON(); return post('push_sub', { endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth }); });
+  };
+  var st = $('#pushst'), bon = $('#pushon'), boff = $('#pushoff');
+  var showSt = function () {
+    if (!st) return;
+    if (!canPush) { st.textContent = /iPhone|iPad/.test(navigator.userAgent) ? 'Na iPhonie dodaj panel do ekranu początkowego i otwórz go z ikony.' : 'Ta przeglądarka nie obsługuje powiadomień.'; bon.hidden = true; return; }
+    navigator.serviceWorker.getRegistration('/panel').then(function (r) { return r ? r.pushManager.getSubscription() : null; }).then(function (s) {
+      bon.hidden = !!s; boff.hidden = !s; st.textContent = s ? 'Włączone na tym urządzeniu.' : (Notification.permission === 'denied' ? 'Zablokowane w ustawieniach przeglądarki.' : '');
+    });
+  };
+  var ask = $('#pushask');
+  var noAsk = function () { try { return localStorage.getItem('cv-push-no') === '1'; } catch (e) { return false; } };
+  if (ask && canPush && Notification.permission === 'default' && !noAsk()) setTimeout(function () { ask.hidden = false; }, 1500);
+  $$('[data-pushon], #pushon').forEach(function (b) { b.addEventListener('click', function () {
+    b.disabled = true;
+    pushOn().then(function () { if (ask) ask.hidden = true; if (st) showSt(); else b.textContent = 'Włączone'; }).catch(function (e) { alert(e.message); }).then(function () { b.disabled = false; });
+  }); });
+  $$('[data-pushno]').forEach(function (b) { b.addEventListener('click', function () { ask.hidden = true; try { localStorage.setItem('cv-push-no', '1'); } catch (e) {} }); });
+  if (boff) boff.addEventListener('click', function () {
+    navigator.serviceWorker.getRegistration('/panel').then(function (r) { return r && r.pushManager.getSubscription(); }).then(function (s) { if (!s) return; var ep = s.endpoint; return s.unsubscribe().then(function () { return post('push_unsub', { endpoint: ep }); }); }).then(showSt);
+  });
+  showSt();
+
   var dz = $('#drop');
   if (dz) {
     var di = $('#dropin', dz), go = function () { if (di.files.length) { dz.classList.add('busy'); $('label b', dz).textContent = 'Wgrywam ' + di.files.length + '…'; dz.submit(); } };

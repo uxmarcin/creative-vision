@@ -485,3 +485,12 @@ a.bookcard{text-decoration:none;color:var(--ink)}a.bookcard svg{width:18px;heigh
 .months a.has::after{bottom:3px}
 @media (max-width:900px){.months a{height:38px;padding:0 13px;min-width:0}}
 .auth .forgot{align-self:center;font-size:14px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--mut);text-decoration:underline;text-underline-offset:4px}
+/* prośba o powiadomienia */
+.pushask{position:fixed;right:24px;top:24px;z-index:60;display:flex;align-items:center;gap:14px;max-width:460px;padding:16px 12px 16px 20px;background:#fff;border:1px solid var(--line);box-shadow:0 18px 40px rgba(0,0,0,.14);animation:cvup .3s ease-out}
+.pushask[hidden]{display:none}
+.pushask::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--grad)}
+.pushask span{display:flex;flex-direction:column;gap:2px;font-size:14px;color:var(--mut)}
+.pushask b{font-weight:500;color:var(--ink);font-size:16px}
+.pushask .btn{height:42px;flex:none;text-transform:none;letter-spacing:0;font-size:15px;font-weight:500}
+.pushask .x{border:0;background:none;font-size:24px;line-height:1;cursor:pointer;color:var(--mut);padding:4px}
+@media (max-width:900px){.pushask{left:12px;right:12px;top:calc(64px + env(safe-area-inset-top));max-width:none}}

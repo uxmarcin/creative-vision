@@ -11,6 +11,7 @@ require_once __DIR__ . '/lib/smtp.php';
 require_once __DIR__ . '/lib/sms.php';
 require_once __DIR__ . '/lib/quotes.php';
 require_once __DIR__ . '/lib/books.php';
+require_once __DIR__ . '/lib/push.php';
 
 if (($_GET['a'] ?? '') === 'sw') { header('Content-Type: application/javascript; charset=utf-8'); header('Cache-Control: no-cache'); readfile(__DIR__ . '/sw.js'); exit; }
 security_headers();
@@ -110,6 +111,21 @@ if ($post) {
     $id = (int)($_POST['id'] ?? 0);
     switch ($a) {
         case 'quote_save': case 'quote_send': case 'quote_status': case 'quote_invoice': case 'quote_delete': quote_post($a);
+        case 'push_sub':
+            push_migrate(); header('Content-Type: application/json');
+            $ep = (string)($_POST['endpoint'] ?? '');
+            if (!preg_match('#^https://#', $ep) || ($_POST['p256dh'] ?? '') === '' || ($_POST['auth'] ?? '') === '') { echo '{"ok":false}'; exit; }
+            db()->prepare('INSERT INTO push_subs (endpoint, p256dh, auth, ua, created) VALUES (?,?,?,?,?) ON CONFLICT(endpoint) DO UPDATE SET p256dh = excluded.p256dh, auth = excluded.auth')
+                ->execute([$ep, (string)$_POST['p256dh'], (string)$_POST['auth'], mb_substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 200), now()]);
+            push_mail_check();
+            echo '{"ok":true}'; exit;
+        case 'push_unsub':
+            push_migrate(); db()->prepare('DELETE FROM push_subs WHERE endpoint = ?')->execute([(string)($_POST['endpoint'] ?? '')]);
+            header('Content-Type: application/json'); echo '{"ok":true}'; exit;
+        case 'push_test':
+            $n = push_send('Panel Creative Vision', 'Powiadomienia działają. Tak zobaczysz nowe maile i otwarte faktury.', '/panel', 'test');
+            flash($n ? 'Wysłaliśmy testowe powiadomienie na ' . $n . ' ' . plural($n, 'urządzenie', 'urządzenia', 'urządzeń') . '.' : '!Brak urządzeń z włączonymi powiadomieniami.');
+            redirect(P . '?a=settings#push');
         case 'books_upload': case 'cost_delete': case 'cost_edit': case 'books_ksef': case 'books_send': case 'books_settings': books_post($a);
         case 'save':
             $act = (string)($_POST['act'] ?? 'draft');
@@ -366,9 +382,11 @@ switch ($a) {
         header('Content-Disposition: ' . (isset($_GET['dl']) ? 'attachment' : 'inline') . '; filename="' . quote_pdf_name($q) . '"');
         echo quote_pdf($q); exit;
     case 'settings': view_settings();
+    case 'push_key': header('Content-Type: application/json'); echo json_encode(['key' => vapid()[0]]); exit;
     case 'ver': header('Content-Type: application/json'); echo json_encode(['v' => app_ver()]); exit;
     case 'unseen':
         header('Content-Type: application/json; charset=utf-8');
+        try { push_mail_check(); } catch (Throwable $e) {}
         $n = 0;
         foreach (['f', 'k'] as $ac) {
             mail_acc($ac); if (!inbox_enabled()) continue;
@@ -627,14 +645,14 @@ function page(string $title, string $active, string $body, string $kicker = '', 
     $sheet = '<dialog class="mdlg plus" id="plusdlg"><div class="sheet"><div class="hrow"><h2>Co tworzymy?</h2><button type="button" class="x" data-close aria-label="Zamknij">×</button></div>'
         . '<a class="btn" href="' . P . '?a=new">' . icon('list') . ' Nowa faktura</a><a class="btn ghost" href="' . P . '?a=quote_new">' . icon('quote') . ' Nowa wycena</a></div></dialog>';
     $v = substr((string)@md5_file(__DIR__ . '/assets/panel.js'), 0, 10);
-    echo head($title) . '<body data-ver="' . app_ver() . '" class="pg-' . e($active) . (!empty($GLOBALS['pgcls']) ? ' ' . $GLOBALS['pgcls'] : '') . '"><div class="app"><nav class="nav" aria-label="Menu panelu">'
+    echo head($title) . '<body data-ver="' . app_ver() . '" data-csrf="' . e(csrf_token()) . '" class="pg-' . e($active) . (!empty($GLOBALS['pgcls']) ? ' ' . $GLOBALS['pgcls'] : '') . '"><div class="app"><nav class="nav" aria-label="Menu panelu">'
         . '<a class="brand" href="' . P . '"><img src="' . P . '/assets/logo-white.svg" alt="creative vision"></a>'
         . '<div class="grp"><p class="lbl">Finanse</p>' . $links . '</div>'
         . '<div class="bot"><span>Przypomnienia wysyłamy sami, w dni robocze rano.</span><a class="set' . ($active === 'settings' ? ' on' : '') . '" href="' . P . '?a=settings" aria-label="Ustawienia">' . icon('cog') . '</a>'
         . '<form method="post" action="' . P . '?a=logout">' . csrf_field() . '<button class="link" style="color:#C9C9C9">Wyloguj</button></form></div></nav>'
         . '<main class="main" id="main">'
         . '<header class="top"><div>' . (!empty($GLOBALS['back']) ? '<a class="back" href="' . e($GLOBALS['back'][0]) . '">' . icon('back') . '<span>' . e($GLOBALS['back'][1]) . '</span></a>' : '') . ($kicker ? '<p class="k">' . e($kicker) . '</p>' : '') . '<h1>' . e($title) . '</h1></div>' . ($acts ? '<div class="acts">' . $acts . '</div>' : '') . '</header>'
-        . flash_html() . $body . '</main></div>' . $sheet . '<div class="upd" id="upd" hidden role="status"><span><b>Nowa wersja panelu</b>Mamy poprawki i nowe funkcje.</span><button type="button" class="btn" id="updbtn">Aktualizuj</button></div><script src="' . P . '/assets/panel.js?v=' . $v . '"></script></body></html>';
+        . flash_html() . $body . '</main></div>' . $sheet . '<div class="pushask" id="pushask" hidden><span><b>Powiadomienia o nowych mailach?</b>Damy znać, gdy przyjdzie mail albo klient otworzy fakturę.</span><button type="button" class="btn" data-pushon>Włącz</button><button type="button" class="x" data-pushno aria-label="Nie teraz">×</button></div><div class="upd" id="upd" hidden role="status"><span><b>Nowa wersja panelu</b>Mamy poprawki i nowe funkcje.</span><button type="button" class="btn" id="updbtn">Aktualizuj</button></div><script src="' . P . '/assets/panel.js?v=' . $v . '"></script></body></html>';
     exit;
 }
 
@@ -1040,6 +1058,11 @@ function view_settings(): never {
             . '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap"><button class="btn ghost">Zapisz pocztę kontakt@</button>' . ($has ? '<label class="check" style="font-size:13px"><input type="checkbox" name="imap_pass_clear" value="1"> Usuń zapisane hasło</label>' : '') . '</div></form>'
             . ($has ? '<form method="post" action="' . P . '?a=mail_check">' . csrf_field() . '<input type="hidden" name="acc" value="k"><button class="link">Sprawdź połączenie ze skrzynką</button></form>' : '') . '</section>';
             mail_acc('f'); return $h; })()
+        . (function () { push_migrate(); $n = (int)db()->query('SELECT COUNT(*) FROM push_subs')->fetchColumn();
+            return '<section class="card pad sec" id="push"><h2>Powiadomienia</h2><span class="mut" style="font-size:14px">Powiadomienia o nowych mailach w faktury@ i kontakt@ oraz o tym, że klient otworzył fakturę. Na iPhonie działają w aplikacji dodanej do ekranu początkowego (Udostępnij, Do ekranu początkowego), na Macu w Safari, Chrome albo w aplikacji z Docka. Włącz je osobno na każdym urządzeniu.</span>'
+            . '<div class="hrow" style="justify-content:flex-start;flex-wrap:wrap"><button type="button" class="btn" id="pushon">Włącz na tym urządzeniu</button><button type="button" class="btn ghost" id="pushoff" hidden>Wyłącz na tym urządzeniu</button><span class="mut" id="pushst" style="font-size:14px"></span></div>'
+            . '<span class="mut" style="font-size:14px">Urządzenia z powiadomieniami: ' . $n . '.</span>'
+            . ($n ? '<form method="post" action="' . P . '?a=push_test">' . csrf_field() . '<button class="link">Wyślij testowe powiadomienie</button></form>' : '') . '</section>'; })()
         . '<section class="card pad sec" id="sms"><h2>Przypomnienia SMS</h2>'
         . '<span class="mut" style="font-size:14px">SMS-y wysyłamy przez SMSAPI.pl. Załóż tam konto, w sekcji tokenów OAuth wygeneruj token z uprawnieniem do wysyłki SMS i wklej go tutaj. SMS idzie tylko do klientów z wpisanym telefonem.</span>'
         . '<form class="sec" method="post" action="' . P . '?a=sms_settings">' . csrf_field()

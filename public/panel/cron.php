@@ -8,6 +8,11 @@ require_once __DIR__ . '/lib/ksef.php';
 require_once __DIR__ . '/lib/books.php';
 
 header('Content-Type: application/json; charset=utf-8');
+if (isset($_GET['mail'])) {
+    require_once __DIR__ . '/lib/imap.php'; require_once __DIR__ . '/lib/mail.php';
+    $n = 0; try { $n = push_mail_check(); } catch (Throwable $e) {}
+    echo json_encode(['ok' => true, 'push' => $n]); exit;
+}
 header('X-Robots-Tag: noindex');
 header('Cache-Control: no-store');
 $r = run_reminders();
