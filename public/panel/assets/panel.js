@@ -34,6 +34,8 @@
     tr.addEventListener('click', function (e) { if (e.target.closest('a,button,input,form,label,.c-chk')) return; if (e.metaKey || e.ctrlKey) window.open(tr.getAttribute('data-href')); else location.href = tr.getAttribute('data-href'); });
   });
 
+  var mon = $('.months a.on'); if (mon && mon.parentNode.scrollWidth > mon.parentNode.clientWidth) mon.parentNode.scrollLeft = mon.offsetLeft - mon.parentNode.clientWidth / 2 + mon.clientWidth / 2;
+
   var bdg = document.getElementById('mailbdg');
   if (bdg && bdg.hasAttribute('data-poll')) {
     var last = parseInt(bdg.textContent || '0', 10) || 0, base = document.title;
