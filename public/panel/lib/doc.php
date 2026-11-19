@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @param string $asset  prefiks ścieżek do grafik: '/panel/assets/' w przeglądarce, ścieżka plikowa w PDF
  */
-function invoice_doc(array $inv, string $asset, bool $pdf = false): string {
+function invoice_doc(array $inv, string $asset, bool $pdf = false, bool $online = true): string {
     $s = seller(); $b = $inv['buyer']; $c = $inv['calc'];
     $num = $inv['number'] ?: 'Szkic';
     $term = (int)($inv['term_days'] ?? 0);
@@ -50,7 +50,7 @@ function invoice_doc(array $inv, string $asset, bool $pdf = false): string {
         . '<table class="sum"><tr><td>Razem netto</td><td class="r">' . money((int)$inv['net']) . '</td></tr>' . $vatRows
         . '<tr class="tot"><td>Razem brutto</td><td class="r">' . money((int)$inv['gross']) . '</td></tr></table>'
         . '<table class="pay"><tr>' . $payBox . '</tr></table><div class="grad"></div>'
-        . ($inv['status'] !== 'draft' && !empty($inv['token']) ? '<div class="online">Faktura online i dane do przelewu: <strong>' . e(str_replace('https://', '', pay_url($inv))) . '</strong></div>' : '')
+        . ($online && $inv['status'] !== 'draft' && !empty($inv['token']) ? '<table class="online"><tr><td class="ol">Fakturę, PDF i dane do przelewu masz też online.</td><td class="r"><a class="obtn" href="' . e(pay_url($inv)) . '">Zobacz fakturę online</a></td></tr></table>' : '')
         . (trim((string)$inv['notes']) !== '' ? '<div class="nt"><div class="g">Uwagi</div>' . nl2br(e((string)$inv['notes'])) . '</div>' : '')
         . ($ksef !== '' ? '<div class="nt"><div class="g">Numer KSeF</div>' . e($ksef) . '</div>' : '')
         . ($pdf ? '' : $foot)
@@ -77,7 +77,7 @@ function invoice_css(string $asset): string {
         . '.fv .its td{padding:10px 0 10px 8px;border-bottom:1px solid #E6E4DF}.fv .its td.lp{padding-left:0}.fv .its .ds{color:#5F5F5F;font-size:9.5pt}.fv .its strong{font-weight:500}'
         . '.fv .sum{width:46%;margin:14px 0 18px auto}.fv .sum td{padding:4px 0;color:#5F5F5F}.fv .sum td.r{color:#0B0B0B}.fv .sum .tot td{border-top:1px solid #0B0B0B;padding-top:9px;color:#0B0B0B;font-weight:500;font-size:11.5pt}'
         . '.fv .pay{background:#0B0B0B;color:#fff}.fv .pay td{padding:20px 22px}.fv .pay .pb-l{width:48%}.fv .lbl{color:#BDBDBD;font-size:9pt;margin-top:6px}.fv .lbl:first-child{margin-top:0}.fv .big{font-size:24pt;font-weight:500;line-height:1.15;margin:2px 0 6px}.fv .pay .sm{color:#BDBDBD;font-size:9pt}.fv .v{font-size:10.5pt}.fv .v.b{font-weight:500;letter-spacing:.02em}'
-        . '.fv .online{margin-top:12px;font-size:9.5pt;color:#5F5F5F}.fv .online strong{color:#0B0B0B;font-weight:500}'
+        . '.fv .online{margin-top:14px}.fv .online td{vertical-align:middle}.fv .online .ol{font-size:9.5pt;color:#5F5F5F}.fv .obtn{display:inline-block;padding:9px 16px;border:1px solid #0B0B0B;color:#0B0B0B;text-decoration:none;font-size:8.5pt;font-weight:500;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}.fv .obtn:hover{background:#0B0B0B;color:#fff}'
         . '.fv .nt{margin-top:14px;padding-top:10px;border-top:1px solid #E6E4DF;font-size:10pt}.fv .nt .g{font-size:9pt;margin-bottom:3px}'
         . '.fv .ft{margin-top:22px;border-top:1px solid #E6E4DF}.fv .ft td{padding-top:12px;font-size:9pt}.fv .ft .ty{font-size:11pt;font-weight:500;color:#0B0B0B;vertical-align:bottom}';
 }

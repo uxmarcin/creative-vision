@@ -142,7 +142,7 @@ $v = @filemtime(__DIR__ . '/assets/panel.css') ?: 1;
       <?php endif ?>
     </div>
   </section>
-  <div class="doc-wrap"><?= invoice_doc($inv, '/panel/assets/') ?></div>
+  <div class="doc-wrap"><?= invoice_doc($inv, '/panel/assets/', false, false) ?></div>
   <footer class="pfoot"><span><?= e($s['seller_name']) ?> · <a href="tel:+48<?= e(preg_replace('/\D/', '', $s['seller_phone'])) ?>"><?= e($s['seller_phone']) ?></a> · <a href="mailto:<?= e($s['seller_email']) ?>"><?= e($s['seller_email']) ?></a></span><a href="https://creative-vision.pl">creative-vision.pl</a></footer>
 </div>
 <script src="/panel/assets/panel.js?v=<?= @filemtime(__DIR__ . '/assets/panel.js') ?: 1 ?>"></script>
