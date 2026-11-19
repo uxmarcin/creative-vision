@@ -82,7 +82,7 @@ function quote_default_subject(array $q): string {
     return !empty($src['subject']) ? (preg_match('/^re:/i', (string)$src['subject']) ? $src['subject'] : 'Re: ' . $src['subject']) . ' · wycena ' . $num : 'Wycena ' . $num . ' od Creative Vision';
 }
 function quote_default_message(array $q): string {
-    return "Dzień dobry,\n\ndziękujemy za zapytanie. W załączniku przesyłamy wycenę " . $q['number'] . ". Jest ważna do " . pl_date($q['due_date']) . ".\n\nJeśli wszystko się zgadza, po prostu odpowiedz na tę wiadomość, a ustalimy termin startu. Chętnie też porozmawiamy online, jeśli coś trzeba doprecyzować.";
+    return "Dzień dobry,\n\ndziękujemy za zapytanie. W załączniku przesyłamy wycenę " . $q['number'] . ". Jest ważna do " . pl_date($q['due_date']) . ".\n\nJeśli wszystko się zgadza, prosimy o odpowiedź na tę wiadomość, a ustalimy termin startu. Chętnie też porozmawiamy online, jeśli coś trzeba doprecyzować.";
 }
 function send_quote_mail(array $q, array $over = []): bool {
     $b = $q['buyer']; $num = (string)$q['number']; $gross = money((int)$q['gross'], $q['currency'] ?? 'PLN');
