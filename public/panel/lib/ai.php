@@ -21,7 +21,7 @@ function ai_quote(string $context, string $brief, string $client): array {
     if (!ai_enabled()) throw new RuntimeException('Wpisz klucz API Anthropic w ustawieniach (sekcja AI do wycen).');
     $model = isset(AI_MODELS[setting('ai_model')]) ? setting('ai_model') : 'claude-sonnet-5-5';
     $system = "Jesteś doświadczonym project managerem w Creative Vision, agencji UX/UI z Rzeszowa, która projektuje i wdraża strony internetowe, sklepy i aplikacje. "
-        . "Przygotowujesz wycenę dla klienta na podstawie zapytania. Piszesz po polsku, ciepło i konkretnie, bez żargonu, bez myślników typu — i –, bez wielkich liter dla ozdoby. "
+        . "Przygotowujesz wycenę dla klienta na podstawie zapytania. Piszesz po polsku, ciepło i konkretnie, bez żargonu, bez myślników typu — i –, bez wielkich liter dla ozdoby. Nie pisz „Dziękujemy za współpracę” ani podobnych formułek, bo współpraca dopiero się zaczyna. "
         . "Nie wymyślaj faktów o kliencie. Jeśli czegoś brakuje, przyjmij rozsądne założenie i dopisz je do założeń oraz pytań do klienta.\n\nCENNIK I ZASADY CREATIVE VISION:\n" . (trim(setting('ai_pricing')) ?: AI_PRICING_DEFAULT);
     $user = "Klient: " . ($client !== '' ? $client : 'nieznany') . "\n\nZAPYTANIE I KONTEKST:\n" . ($context !== '' ? mb_substr($context, 0, 20000) : '(brak, opieraj się na opisie poniżej)')
         . ($brief !== '' ? "\n\nWSKAZÓWKI OD MARCINA:\n" . mb_substr($brief, 0, 3000) : '')

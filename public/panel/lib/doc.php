@@ -47,7 +47,8 @@ function invoice_doc(array $inv, string $asset, bool $pdf = false, bool $online 
         . '<div class="lbl">' . $L('Tytuł przelewu', 'Payment reference') . '</div><div class="v">' . ($bi ? 'Invoice ' : 'Faktura ') . e($num) . '</div></td>';
     $ksef = trim((string)($inv['ksef'] ?? ''));
     $taxLbl = $foreign ? 'VAT no.' : 'NIP';
-    $foot = '<table class="ft"><tr><td class="ty">' . e(setting('footer_note')) . ($bi ? '<span class="en"> Thank you.</span>' : '') . '</td><td class="r g">' . e($s['seller_name']) . ' · Projektujemy strony, sklepy i aplikacje · Rzeszów<br>creative-vision.pl</td></tr></table>';
+    $thanks = $Q ? '' : e(setting('footer_note')) . ($bi ? '<span class="en"> Thank you.</span>' : '');
+    $foot = '<table class="ft"><tr><td class="ty">' . $thanks . '</td><td class="r g">' . e($s['seller_name']) . ' · Projektujemy strony, sklepy i aplikacje · Rzeszów<br>creative-vision.pl</td></tr></table>';
     $css = invoice_css($asset);
     $h = '<div class="fv">'
         . '<div class="grad top"></div>'
@@ -81,7 +82,7 @@ function invoice_doc(array $inv, string $asset, bool $pdf = false, bool $online 
         . '@font-face{font-family:"Jost";font-weight:400;src:url("' . CV_ROOT . '/fonts/Jost-400.ttf") format("truetype")}'
         . '@font-face{font-family:"Jost";font-weight:500;src:url("' . CV_ROOT . '/fonts/Jost-500.ttf") format("truetype")}'
         . '@font-face{font-family:"Jost";font-weight:700;src:url("' . CV_ROOT . '/fonts/Jost-500.ttf") format("truetype")}'
-        . 'body{margin:0;font-family:Jost}' . $css . '.fv,.fv *{font-family:Jost !important}' . '.fv{padding:13mm 14mm 24mm;box-shadow:none;max-width:none;background:transparent}.fv .hd td{padding-bottom:12px}.fv .meta td{padding:10px 10px 10px 0}.fv .par td{padding:12px 16px 10px 0}.fv .its td{padding:8px 0 8px 16px}.fv .its th{padding-left:16px}.fv .its th.lp,.fv .its td.lp{padding-left:0}.fv .sum{margin:10px 0 12px auto}.fv .pay td{padding:15px 20px}.fv .online{margin-top:10px}.fv .nt{margin-top:10px;padding-top:8px}.pf{position:fixed;left:14mm;width:182mm;bottom:10mm;border-top:1px solid #E6E4DF;padding-top:3mm;font-family:Jost;color:#0B0B0B}.pf .l{font-size:11pt;font-weight:500}.pf .rr{position:absolute;right:0;top:3mm;text-align:right;font-size:9pt;color:#6B6B6B;line-height:1.35}</style></head><body>' . $h . '<div class="pf"><div class="l">' . e(setting('footer_note')) . (($inv['lang'] ?? 'pl') === 'pl-en' ? ' Thank you.' : '') . '</div><div class="rr">' . e($s['seller_name']) . ' · Projektujemy strony, sklepy i aplikacje · Rzeszów<br>creative-vision.pl</div></div></body></html>';
+        . 'body{margin:0;font-family:Jost}' . $css . '.fv,.fv *{font-family:Jost !important}' . '.fv{padding:13mm 14mm 24mm;box-shadow:none;max-width:none;background:transparent}.fv .hd td{padding-bottom:12px}.fv .meta td{padding:10px 10px 10px 0}.fv .par td{padding:12px 16px 10px 0}.fv .its td{padding:8px 0 8px 16px}.fv .its th{padding-left:16px}.fv .its th.lp,.fv .its td.lp{padding-left:0}.fv .sum{margin:10px 0 12px auto}.fv .pay td{padding:15px 20px}.fv .online{margin-top:10px}.fv .nt{margin-top:10px;padding-top:8px}.pf{position:fixed;left:14mm;width:182mm;bottom:10mm;border-top:1px solid #E6E4DF;padding-top:3mm;font-family:Jost;color:#0B0B0B}.pf .l{font-size:11pt;font-weight:500}.pf .rr{position:absolute;right:0;top:3mm;text-align:right;font-size:9pt;color:#6B6B6B;line-height:1.35}</style></head><body>' . $h . '<div class="pf"><div class="l">' . $thanks . '</div><div class="rr">' . e($s['seller_name']) . ' · Projektujemy strony, sklepy i aplikacje · Rzeszów<br>creative-vision.pl</div></div></body></html>';
 }
 
 function invoice_css(string $asset): string {
