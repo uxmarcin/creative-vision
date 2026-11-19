@@ -302,6 +302,17 @@ function view_books(): never {
             . '<td class="c-due nw">' . e(pl_date($i['issue_date'])) . '<span class="sub">' . (!empty($i['ksef']) ? 'KSeF' : 'bez KSeF') . '</span></td><td class="c-amt r amt">' . money((int)$i['gross'], $cu) . '</td><td class="c-st"></td><td class="c-act"></td></tr>';
     }
     $sumTxt = implode(' + ', array_map(fn($k, $v) => money($v, $k), array_keys($sum), $sum)) ?: money(0);
+    $plnS = 0; $fxS = 0; $netS = 0; $fxOk = true; $rts = []; $fxAmt = [];
+    foreach ($sales as $i) {
+        $cu = $i['currency'] ?? 'PLN';
+        if ($cu === 'PLN') { $plnS += (int)$i['gross']; $netS += (int)$i['net']; continue; }
+        $fxAmt[$cu] = ($fxAmt[$cu] ?? 0) + (int)$i['gross'];
+        if ($r = nbp_rate_month_end($cu, $ym)) { $fxS += (int)round((int)$i['gross'] * $r['rate']); $netS += (int)round((int)$i['net'] * $r['rate']); $rts[$cu] = number_format($r['rate'], 4, ',', '') . (!empty($r['live']) ? ', dziś' : ' z ' . date('d.m', strtotime($r['date']))); } else $fxOk = false;
+    }
+    $saleKpi = $fxAmt && $fxOk
+        ? '<span class="v">' . money_split($plnS + $fxS) . '</span><span class="fxb">' . ($plnS ? money($plnS) . ' + ' : '') . money($fxS) . ' <span class="fxr">(kurs ' . e(implode(', ', $rts)) . ')</span></span>'
+        : '<span class="v">' . money_split($plnS) . '</span>' . implode('', array_map(fn($k, $v) => '<span class="fxb">+ ' . money($v, $k) . '</span>', array_keys($fxAmt), $fxAmt));
+    $saleKpi .= '<span class="s">netto ' . money($netS) . ' · ' . count($sales) . ' ' . plural(count($sales), 'faktura', 'faktury', 'faktur') . '</span>';
     $sumHtml = $sum ? implode('', array_map(fn($k, $v) => '<span class="cur">' . cur_flag($k) . str_replace('zł', 'PLN', money($v, $k)) . '</span>', array_keys($sum), $sum)) : '<span class="cur">' . cur_flag('PLN') . str_replace('zł', 'PLN', money(0)) . '</span>';
     $ctr = '';
     foreach ($costs as $c) {
@@ -317,7 +328,7 @@ function view_books(): never {
         . '<label for="dropin">' . icon('clip') . '<b>Przeciągnij tu faktury zakupowe</b><span>albo kliknij, żeby wybrać pliki lub zrobić zdjęcie. PDF, JPG, PNG, XML.</span></label></form>';
     $body = $nav
         . '<section class="kpis"><div class="kpi dark"><span class="t">Paczka za ' . e(ym_label($ym)) . '</span><span class="v">' . count($sales) . ' + ' . count($costs) . '</span><span class="s">' . count($sales) . ' ' . plural(count($sales), 'faktura sprzedażowa', 'faktury sprzedażowe', 'faktur sprzedażowych') . ', ' . count($costs) . ' ' . plural(count($costs), 'zakupowa', 'zakupowe', 'zakupowych') . '</span></div><div class="kpis-r">'
-        . '<div class="kpi"><span class="t">Sprzedaż brutto</span><span class="v curs">' . $sumHtml . '</span><span class="s">wg miesiąca księgowego</span></div>'
+        . '<div class="kpi"><span class="t">Sprzedaż: ' . e(ym_label($ym)) . '</span>' . $saleKpi . '</div>'
         . '<div class="kpi"><span class="t">Księgowa</span><span class="v" style="font-size:20px">' . ($sent ? 'Wysłana ' . e(date('d.m', strtotime($sent))) : 'Jeszcze nie wysłana') . '</span><span class="s">' . (setting('acc_auto') === '1' && setting('acc_email') !== '' ? 'sama wyjdzie ' . (int)setting('acc_day') . '. dnia miesiąca' : 'wysyłka ręczna') . '</span></div></div></section>'
         . '<div class="cols"><div class="wide sec">'
         . '<section class="card"><div class="hrow pad" style="padding-bottom:12px"><h2>Zakupy</h2>' . (ksef_enabled() ? '<form method="post" action="' . P . '?a=books_ksef">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '"><button class="btn ghost sm" data-busy>' . icon('refresh') . ' Pobierz z KSeF</button></form>' : '') . '</div>'
