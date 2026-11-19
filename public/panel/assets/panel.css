@@ -750,3 +750,4 @@ body{background:#fff}
   .hf-i{position:relative}
 }
 @media (max-width:900px){.hf-i .hf-tx::after{content:"";position:absolute;inset:0}}
+@media (min-width:901px){.nav .grp a.n-new{display:none}}

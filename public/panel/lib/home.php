@@ -27,7 +27,7 @@ function view_home(): never {
     $qSentM = (int)db()->query("SELECT COUNT(*) FROM quotes WHERE substr(sent_at, 1, 7) = '" . $ym . "'")->fetchColumn();
     $qDone = (int)db()->query("SELECT COUNT(*) FROM quotes WHERE status IN ('accepted', 'invoiced')")->fetchColumn();
     $qAll = (int)db()->query("SELECT COUNT(*) FROM quotes WHERE status IN ('sent', 'accepted', 'invoiced', 'rejected', 'expired')")->fetchColumn();
-    $tNew = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE status = 'new' AND score >= 50 AND (deadline IS NULL OR deadline = '' OR deadline >= date('now'))")->fetchColumn();
+    $tNew = count(array_filter(db()->query("SELECT * FROM tenders WHERE status = 'new' AND score >= 50 AND src IN ('bzp','ted','bk') AND (deadline IS NULL OR deadline = '' OR deadline >= date('now'))")->fetchAll(), fn($t) => !tender_quote($t)));
     $unread = unseen_total();
 
     // ---------- lista „skup się dziś”: najważniejsze najpierw ----------

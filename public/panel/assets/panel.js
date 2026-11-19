@@ -332,6 +332,26 @@
     if (!isNaN(a) && !isNaN(b)) { term.value = String(Math.max(0, Math.round((b - a) / 864e5))); mark(); }
   });
 
+  // wzór z ostatniej faktury klienta: pozycje, waluta, język, termin i uwagi wpisują się same
+  $('#client_id').addEventListener('change', function () {
+    var c = clients.filter(function (x) { return String(x.id) === this.value; }, this)[0]; if (!c || !c.tpl) return;
+    var t; try { t = JSON.parse(c.tpl); } catch (e) { return; }
+    var rows = $$('[data-item]', box), empty = rows.every(function (r) { return !$('[name$="[name]"]', r).value.trim() && !$('[data-p]', r).value.trim(); });
+    if (!empty || !t.items || !t.items.length) return;
+    rows.slice(1).forEach(function (r) { r.remove(); });
+    t.items.forEach(function (it, i) {
+      if (i > 0) $('#additem').click();
+      var r = $$('[data-item]', box).pop(), set = function (sel, v) { var el = $(sel, r); if (el) el.value = v; };
+      set('[name$="[name]"]', it.name || ''); set('[name$="[desc]"]', it.desc || ''); set('[data-q]', String(it.qty || 1).replace('.', ',')); set('[name$="[unit]"]', it.unit || 'usł.');
+      set('[data-p]', (Number(it.price || 0) / 100).toFixed(2).replace('.', ',')); set('[data-v]', it.vat || '23');
+    });
+    if (t.currency && $('#currency')) $('#currency').value = t.currency;
+    if (t.lang && $('#lang')) $('#lang').value = t.lang;
+    var nt = $('[name=notes]', form); if (nt && !nt.value.trim() && t.notes) nt.value = t.notes;
+    if (t.term_days) { term.value = String(t.term_days); mark(); setDue(); }
+    recalc(); box.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+
   // potwierdzenie wysyłki
   form.addEventListener('submit', function (e) {
     var b = e.submitter; if (!b || b.value !== 'send') return;

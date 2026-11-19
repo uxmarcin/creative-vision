@@ -57,6 +57,21 @@ function migrate(PDO $pdo): void {
         $pdo->exec('ALTER TABLE clients ADD COLUMN no_mail INTEGER NOT NULL DEFAULT 0');
         $pdo->exec('UPDATE clients SET no_mail = 1 WHERE auto_paid = 1');
     }
+    if (!in_array('no_ksef', $ccols, true)) {
+        $pdo->exec('ALTER TABLE clients ADD COLUMN no_ksef INTEGER NOT NULL DEFAULT 0');
+        $pdo->exec('ALTER TABLE clients ADD COLUMN tpl TEXT');
+        // IngeniousIO: faktury nie idą do KSeF, a nowa stawka to 4250 USD
+        $pdo->exec("UPDATE clients SET no_ksef = 1 WHERE name LIKE '%ngenious%'");
+        $pdo->exec("UPDATE invoices SET ksef_state = 'skip' WHERE (ksef IS NULL OR ksef = '') AND client_id IN (SELECT id FROM clients WHERE no_ksef = 1)");
+        foreach ($pdo->query("SELECT id FROM clients WHERE name LIKE '%ngenious%'")->fetchAll() as $c) {
+            $l = $pdo->prepare("SELECT * FROM invoices WHERE client_id = ? AND status != 'draft' ORDER BY id DESC LIMIT 1"); $l->execute([$c['id']]); $l = $l->fetch();
+            if (!$l) continue;
+            $items = json_decode((string)$l['items'], true) ?: [];
+            foreach ($items as &$it) { $it['price'] = 425000; } unset($it);
+            if (count($items) > 1) $items = [$items[0]];
+            $pdo->prepare('UPDATE clients SET tpl = ? WHERE id = ?')->execute([json_encode(['items' => $items, 'currency' => $l['currency'] ?? 'PLN', 'lang' => $l['lang'] ?? 'pl', 'term_days' => (int)$l['term_days'], 'notes' => (string)$l['notes']], JSON_UNESCAPED_UNICODE), $c['id']]);
+        }
+    }
     if (!in_array('book_ym', $cols, true)) {
         $pdo->exec('ALTER TABLE invoices ADD COLUMN book_ym TEXT');
         $pdo->exec('UPDATE invoices SET book_ym = substr(COALESCE(issue_date, created), 1, 7)');
@@ -369,6 +384,9 @@ function app_ver(): string {
     foreach (array_merge([__DIR__ . '/../index.php', __DIR__ . '/../assets/panel.css', __DIR__ . '/../assets/panel.js'], glob(__DIR__ . '/*.php') ?: []) as $f) $h .= $f . @filesize($f) . @md5_file($f);
     return substr(md5($h), 0, 12);
 }
+function client_no_ksef(?int $cid): bool { if (!$cid) return false; $q = db()->prepare('SELECT no_ksef FROM clients WHERE id = ?'); $q->execute([$cid]); return (int)$q->fetchColumn() === 1; }
+/** Zapamiętuje ostatnią fakturę klienta jako wzór do kolejnej (pozycje, waluta, język, termin, uwagi). */
+function client_tpl_save(array $inv): void { if (empty($inv['client_id'])) return; db()->prepare('UPDATE clients SET tpl = ? WHERE id = ?')->execute([json_encode(['items' => is_array($inv['items']) ? $inv['items'] : (json_decode((string)$inv['items'], true) ?: []), 'currency' => $inv['currency'] ?? 'PLN', 'lang' => $inv['lang'] ?? 'pl', 'term_days' => (int)($inv['term_days'] ?? 14), 'notes' => (string)($inv['notes'] ?? '')], JSON_UNESCAPED_UNICODE), (int)$inv['client_id']]); }
 function client_no_mail(?int $cid): bool { if (!$cid) return false; $q = db()->prepare('SELECT no_mail FROM clients WHERE id = ?'); $q->execute([$cid]); return (int)$q->fetchColumn() === 1; }
 function quote_by_id(int $id): ?array {
     $s = db()->prepare('SELECT * FROM quotes WHERE id = ?'); $s->execute([$id]);

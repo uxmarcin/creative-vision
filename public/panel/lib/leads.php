@@ -440,6 +440,8 @@ function view_leads(): never {
         $inLead = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE lead_id IS NOT NULL AND src IN ('bzp','ted','bk')")->fetchColumn();
         $tiles = '';
         $lazy = 0; $pn = array_flip(BK_PROV);
+        foreach ($rows as &$t) $t['_q'] = tender_quote($t); unset($t);
+        usort($rows, fn($a, $b) => ((int)!empty($a['_q']) <=> (int)!empty($b['_q'])) ?: ((int)$b['score'] <=> (int)$a['score']));
         foreach ($rows as $t) {
             if (empty($t['excerpt'])) tender_summary($t, $t['src'] === 'bk' && trim((string)$t['body']) === '' && $lazy++ < 4);
             $left = $t['deadline'] ? days_between(today(), substr($t['deadline'], 0, 10)) : null;
@@ -447,13 +449,13 @@ function view_leads(): never {
             $vurl = P . '?a=tender&id=' . $t['id'];
             $ex = (string)($t['excerpt'] ?? ''); $bud = (string)($t['budget'] ?? '');
             $tiles .= '<article class="kcard tile" data-tile="' . $vurl . '"><div class="kc-h"><span class="sc' . ($t['score'] >= 50 ? ' hi' : '') . '" title="Dopasowanie do Creative Vision (0 do 100)">' . (int)$t['score'] . '</span><span class="kc-cat c-' . $t['cat'] . '">' . TENDER_CATS[$t['cat']] . '</span>'
-                . '<span class="kc-src" style="margin-left:auto" title="' . (['bk' => 'Baza Konkurencyjności', 'bzp' => 'Biuletyn Zamówień Publicznych', 'ted' => 'TED, zamówienia unijne'][$t['src']] ?? '') . '">' . (['bk' => 'BAZA', 'bzp' => 'BZP', 'ted' => 'TED'][$t['src']] ?? strtoupper($t['src'])) . '</span></div>'
+                . (!empty($t['_q']) ? '<span class="chip sent">Wycena wysłana</span>' : '') . '<span class="kc-src" style="margin-left:auto" title="' . (['bk' => 'Baza Konkurencyjności', 'bzp' => 'Biuletyn Zamówień Publicznych', 'ted' => 'TED, zamówienia unijne'][$t['src']] ?? '') . '">' . (['bk' => 'BAZA', 'bzp' => 'BZP', 'ted' => 'TED'][$t['src']] ?? strtoupper($t['src'])) . '</span></div>'
                 . '<a class="kc-t" href="' . $vurl . '">' . e(tender_title((string)$t['title'])) . '</a>'
                 . ($ex !== '' && $ex !== '-' ? '<span class="kc-x">' . e($ex) . '</span>' : '')
                 . '<span class="kc-b">' . e(trim(preg_replace('/\s+,/', ',', trim((string)$t['buyer']) . ($t['city'] ? ', ' . $t['city'] : '') . (isset($pn[$t['province']]) ? ' · ' . $pn[$t['province']] : '')))) . '</span>'
                 . '<div class="kc-m">' . ($bud !== '' ? '<span class="kc-bud">Budżet ' . e($bud) . '</span>' : '') . '<span class="kc-d' . ($left !== null && $left <= 3 ? ' late-t' : '') . '">' . e($dl) . '</span></div>'
                 . '<div class="kc-f kc-f2"><a class="btn sm" href="' . $vurl . '">' . icon('eye') . ' Zobacz</a>'
-                . '<form method="post" action="' . P . '?a=tender_quote">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="btn ghost sm">' . icon('spark') . ' Wyceń</button></form>'
+                . (!empty($t['_q']) ? '<a class="btn ghost sm" href="' . P . '?a=quote&id=' . (int)$t['_q']['id'] . '">' . icon('quote') . ' ' . e((string)$t['_q']['number']) . '</a>' : '<form method="post" action="' . P . '?a=tender_quote">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="btn ghost sm">' . icon('spark') . ' Wyceń</button></form>')
                 . imore([['target', 'Do ofert', ['post' => 'tender_lead', 'id' => $t['id']]], ['external', 'Ogłoszenie w serwisie', (string)$t['url'], ['blank' => true]], ['x', 'Ignoruj', ['post' => 'tender_hide', 'id' => $t['id']], ['danger' => true]]]) . '</div></article>';
         }
         $at = setting('tender_at');
@@ -584,3 +586,19 @@ function lead_reply_check(): int {
     mail_acc($cur);
     return $n;
 }
+
+/** Wyceny już wysłane: po powiązaniu przetarg → lead → wycena albo po tej samej nazwie zamawiającego. */
+function norm_org(string $n): string { $n = mb_strtolower($n); $n = preg_replace('/\b(sp\.?\s*z\s*o\.?\s*o\.?|spółka z ograniczoną odpowiedzialnością|s\.?a\.?)\b/u', '', $n) ?? $n; return trim(preg_replace('/[^\p{L}\p{N}]+/u', ' ', $n) ?? ''); }
+function quoted_index(): array {
+    static $ix = null; if ($ix !== null) return $ix;
+    $ix = ['t' => [], 'n' => []];
+    foreach (db()->query("SELECT id, number, buyer, src, status FROM quotes WHERE status IN ('sent', 'accepted', 'invoiced') OR sent_at IS NOT NULL")->fetchAll() as $q) {
+        $b = json_decode((string)$q['buyer'], true) ?: []; $src = json_decode((string)$q['src'], true) ?: [];
+        $nm = norm_org((string)($b['name'] ?? '')); if ($nm !== '') $ix['n'][$nm] = $q;
+        if (!empty($src['tender'])) $ix['t'][(int)$src['tender']] = $q;
+        if (!empty($src['lead']) && ($l = lead_by_id((int)$src['lead'])) && !empty($l['src']['tender'])) $ix['t'][(int)$l['src']['tender']] = $q;
+    }
+    return $ix;
+}
+function tender_quote(array $t): ?array { $ix = quoted_index(); return $ix['t'][(int)$t['id']] ?? ($ix['n'][norm_org((string)$t['buyer'])] ?? null); }
+

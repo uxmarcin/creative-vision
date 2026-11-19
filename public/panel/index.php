@@ -290,7 +290,8 @@ if ($post) {
             if ($id) db()->prepare('UPDATE clients SET nip=?, name=?, addr1=?, addr2=?, country=?, phone=?, email=?, cc=?, updated=? WHERE id=?')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['country'], $c['phone'], $c['email'], $c['cc'], now(), $id]);
             else db()->prepare('INSERT INTO clients (nip, name, addr1, addr2, country, phone, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?,?,?)')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['country'], $c['phone'], $c['email'], $c['cc'], now(), now()]);
             $cid = $id ?: (int)db()->lastInsertId();
-            db()->prepare('UPDATE clients SET no_remind = ?, auto_paid = ?, no_mail = ? WHERE id = ?')->execute([!empty($_POST['no_remind']) ? 1 : 0, !empty($_POST['auto_paid']) ? 1 : 0, !empty($_POST['no_mail']) ? 1 : 0, $cid]);
+            db()->prepare('UPDATE clients SET no_remind = ?, auto_paid = ?, no_mail = ?, no_ksef = ? WHERE id = ?')->execute([!empty($_POST['no_remind']) ? 1 : 0, !empty($_POST['auto_paid']) ? 1 : 0, !empty($_POST['no_mail']) ? 1 : 0, !empty($_POST['no_ksef']) ? 1 : 0, $cid]);
+            if (!empty($_POST['no_ksef'])) db()->prepare("UPDATE invoices SET ksef_state = 'skip' WHERE client_id = ? AND (ksef IS NULL OR ksef = '')")->execute([$cid]);
             if (!empty($_POST['no_remind'])) db()->prepare("UPDATE invoices SET reminders = 0 WHERE client_id = ? AND status = 'issued'")->execute([$cid]);
             flash('Klient zapisany.');
             redirect(P . '?a=clients');
@@ -571,6 +572,7 @@ function save_invoice(?int $id, array $p, string $act): array {
     $kmsg = '';
     if ($act !== 'draft') {
         $inv = invoice_by_id($id);
+        try { client_tpl_save($inv); } catch (Throwable $e) {}
         if (ksef_required($inv) && setting('ksef_auto') === '1') {
             $kr = ksef_try($inv);
             $kmsg = ' ' . $kr['msg'];
@@ -643,7 +645,7 @@ function can_edit(array $inv): bool { return $inv['status'] === 'draft' || ($inv
 
 /** Czy faktura powinna trafić do KSeF: jest token, faktura wystawiona w panelu i nie ma jeszcze numeru KSeF. */
 function ksef_required(array $inv): bool {
-    return ksef_enabled() && in_array($inv['status'], ['issued', 'paid'], true) && empty($inv['ksef']) && ($inv['ksef_state'] ?? '') !== 'accepted' && empty($inv['source']);
+    return ksef_enabled() && !client_no_ksef(isset($inv['client_id']) ? (int)$inv['client_id'] : null) && in_array($inv['status'], ['issued', 'paid'], true) && empty($inv['ksef']) && ($inv['ksef_state'] ?? '') !== 'accepted' && empty($inv['source']);
 }
 /** Wysyłka do KSeF z obsługą błędów. */
 function ksef_try(array $inv): array {
@@ -907,7 +909,7 @@ function view_form(?array $inv): never {
     $issue = $f['issue_date'] ?? ($inv['issue_date'] ?? today());
     $term = (int)($f['term_days'] ?? ($inv['term_days'] ?? setting('term_days')));
     $due = $f['due_date'] ?? ($inv['due_date'] ?? date('Y-m-d', strtotime($issue . " +$term days")));
-    $clients = db()->query('SELECT id, nip, name, addr1, addr2, country, phone, email, cc FROM clients ORDER BY name')->fetchAll();
+    $clients = db()->query('SELECT id, nip, name, addr1, addr2, country, phone, email, cc, tpl FROM clients ORDER BY name')->fetchAll();
     if (!$inv && !$f && ($cid = (int)($_GET['client'] ?? 0))) foreach ($clients as $c) if ((int)$c['id'] === $cid) $b = $c;
     $opts = '<option value="">Nowy klient</option>';
     foreach ($clients as $c) $opts .= '<option value="' . $c['id'] . '"' . ((int)($inv['client_id'] ?? ($b['id'] ?? 0)) === (int)$c['id'] ? ' selected' : '') . '>' . e($c['name']) . '</option>';
@@ -1066,6 +1068,7 @@ function view_invoice(array $inv): never {
         $ks = (string)($inv['ksef_state'] ?? '');
         $kbody = '';
         if (!empty($inv['ksef'])) $kbody .= '<div class="kv"><div><span>Status</span><span class="chip paid">Przyjęta</span></div><div><span>Numer KSeF</span></div><div><b style="font-weight:500;word-break:break-all">' . e((string)$inv['ksef']) . '</b></div></div>';
+        elseif ($ks === 'skip' || client_no_ksef(isset($inv['client_id']) ? (int)$inv['client_id'] : null)) $kbody .= '<div class="kv"><div><span>Status</span><span class="chip draft">Bez KSeF</span></div></div><span class="mut" style="font-size:13px">Faktur tego klienta nie wysyłamy do KSeF (ustawienie w karcie klienta).</span>';
         elseif ($ks === 'pending') $kbody .= '<div class="kv"><div><span>Status</span><span class="chip today">Przetwarzanie</span></div></div>' . $f('ksef_poll', 'Sprawdź numer KSeF', 'btn ghost sm');
         elseif ($ks === 'rejected' || $ks === 'error') $kbody .= '<div class="kv"><div><span>Status</span><span class="chip late">' . ($ks === 'rejected' ? 'Odrzucona' : 'Błąd wysyłki') . '</span></div></div><span class="late-t" style="font-size:13px">' . e((string)$inv['ksef_error']) . '</span>';
         if (empty($inv['ksef']) && $ks !== 'pending' && in_array($inv['status'], ['issued', 'paid'], true)) {
@@ -1119,6 +1122,7 @@ function view_clients(): never {
         . '<label class="f">Kopia do<input class="in" name="cc" value="' . $v('cc') . '"></label>'
         . '<label class="f">Telefon do SMS<input class="in" type="tel" name="phone" value="' . $v('phone') . '"></label>'
         . '<label class="check"><input type="checkbox" name="no_mail" value="1"' . (!empty($ec['no_mail']) ? ' checked' : '') . '> Nie wysyłaj temu klientowi faktur mailem</label>'
+        . '<label class="check"><input type="checkbox" name="no_ksef" value="1"' . (!empty($ec['no_ksef']) ? ' checked' : '') . '> Nie wysyłaj faktur tego klienta do KSeF</label>'
         . '<label class="check"><input type="checkbox" name="no_remind" value="1"' . (!empty($ec['no_remind']) ? ' checked' : '') . '> Nie wysyłaj temu klientowi przypomnień ani wezwań</label>'
         . '<label class="check"><input type="checkbox" name="auto_paid" value="1"' . (!empty($ec['auto_paid']) ? ' checked' : '') . '> Płaci sam ostatniego dnia miesiąca: oznaczaj faktury jako opłacone automatycznie</label>'
         . '<button class="btn">Zapisz klienta</button></form>'
