@@ -49,6 +49,7 @@ jobs:
             panel/data/sess_*
             panel/data/pdf-fonts/**
             panel/data/outbox/**
+            panel/data/costs/**
       - name: Zgłoś adresy do wyszukiwarek (IndexNow, Bing i partnerzy)
         if: github.event_name != 'schedule'
         run: |

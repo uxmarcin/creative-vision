@@ -68,6 +68,16 @@
     pd.addEventListener('click', function (e) { if (e.target === pd) pd.close(); });
   }
 
+  var dz = $('#drop');
+  if (dz) {
+    var di = $('#dropin', dz), go = function () { if (di.files.length) { dz.classList.add('busy'); $('label b', dz).textContent = 'Wgrywam ' + di.files.length + '…'; dz.submit(); } };
+    di.addEventListener('change', go);
+    ['dragenter', 'dragover'].forEach(function (t) { document.addEventListener(t, function (e) { e.preventDefault(); dz.classList.add('over'); }); });
+    ['dragleave', 'drop'].forEach(function (t) { document.addEventListener(t, function (e) { e.preventDefault(); if (t === 'dragleave' && e.relatedTarget) return; dz.classList.remove('over'); }); });
+    document.addEventListener('drop', function (e) { if (e.dataTransfer && e.dataTransfer.files.length) { di.files = e.dataTransfer.files; go(); } });
+  }
+  $$('[data-busy]').forEach(function (b) { b.form && b.form.addEventListener('submit', function () { b.classList.add('busy'); b.lastChild.textContent = ' Pobieram…'; }); });
+
   var dlg = $('#maildlg');
   if (dlg) {
     $$('[data-mail]').forEach(function (b) { b.addEventListener('click', function () { $('input[name=next]', dlg).value = b.getAttribute('data-mail'); dlg.showModal(); $('input[type=email]', dlg).focus(); }); });

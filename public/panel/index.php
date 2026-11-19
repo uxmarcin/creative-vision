@@ -10,6 +10,7 @@ require_once __DIR__ . '/lib/imap.php';
 require_once __DIR__ . '/lib/smtp.php';
 require_once __DIR__ . '/lib/sms.php';
 require_once __DIR__ . '/lib/quotes.php';
+require_once __DIR__ . '/lib/books.php';
 
 if (($_GET['a'] ?? '') === 'sw') { header('Content-Type: application/javascript; charset=utf-8'); header('Cache-Control: no-cache'); readfile(__DIR__ . '/sw.js'); exit; }
 security_headers();
@@ -71,6 +72,7 @@ if ($post) {
     $id = (int)($_POST['id'] ?? 0);
     switch ($a) {
         case 'quote_save': case 'quote_send': case 'quote_status': case 'quote_invoice': case 'quote_delete': quote_post($a);
+        case 'books_upload': case 'cost_delete': case 'cost_edit': case 'books_ksef': case 'books_send': case 'books_settings': books_post($a);
         case 'save':
             $act = (string)($_POST['act'] ?? 'draft');
             [$id, $err] = save_invoice($id ?: null, $_POST, $act);
@@ -304,6 +306,18 @@ switch ($a) {
     case 'view': view_invoice(must_invoice((int)($_GET['id'] ?? 0)));
     case 'clients': view_clients();
     case 'quotes': view_quotes();
+    case 'books': view_books();
+    case 'cost': $c = cost_by_id((int)($_GET['id'] ?? 0)); if (!$c) redirect(P . '?a=books'); view_cost($c);
+    case 'cost_file':
+        $c = cost_by_id((int)($_GET['id'] ?? 0)); if (!$c || !is_file(COST_DIR . '/' . $c['path'])) { http_response_code(404); exit; }
+        header('Content-Type: ' . $c['mime']); header('X-Content-Type-Options: nosniff');
+        header('Content-Disposition: ' . (isset($_GET['dl']) || $c['mime'] === 'application/xml' ? 'attachment' : 'inline') . "; filename*=UTF-8''" . rawurlencode((string)$c['fname']));
+        readfile(COST_DIR . '/' . $c['path']); exit;
+    case 'books_zip':
+        $ym = preg_match('/^\d{4}-\d{2}$/', (string)($_GET['ym'] ?? '')) ? (string)$_GET['ym'] : prev_ym();
+        try { $zf = books_zip($ym); } catch (Throwable $e) { flash('!' . $e->getMessage()); redirect(P . '?a=books&ym=' . $ym); }
+        header('Content-Type: application/zip'); header('Content-Disposition: attachment; filename="' . books_zip_name($ym) . '"'); header('Content-Length: ' . filesize($zf));
+        readfile($zf); @unlink($zf); exit;
     case 'quote_new': view_quote_form(null);
     case 'quote_edit': case 'quote':
         $q = quote_by_id((int)($_GET['id'] ?? 0)); if (!$q) { flash('!Nie ma takiej wyceny.'); redirect(P . '?a=quotes'); }
@@ -544,6 +558,7 @@ function icon(string $n): string {
         'mail' => '<path d="M3 5h18v14H3z"/><path d="m3 6 9 7 9-7"/>',
         'back' => '<path d="M15 5l-7 7 7 7"/>',
         'quote' => '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h5"/>',
+        'books' => '<path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/>',
         'clip' => '<path d="M21 11.5 12.5 20a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/>',
     ][$n] ?? '';
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square" aria-hidden="true">' . $p . '</svg>';
@@ -567,7 +582,7 @@ function flash_html(): string {
 
 function page(string $title, string $active, string $body, string $kicker = '', string $acts = ''): never {
     $accs = mail_accounts(); $un = unseen_total(); $poll = $accs['f']['on'] || $accs['k']['on'];
-    $nav = [['inbox', 'Poczta <b class="bdg" id="mailbdg"' . ($poll ? ' data-poll' : '') . ($un > 0 ? '>' . $un : ' hidden>') . '</b>', 'mail', P . '?a=inbox'], ['list', 'Faktury', 'list', P], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['quotes', 'Wyceny', 'quote', P . '?a=quotes'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
+    $nav = [['inbox', 'Poczta <b class="bdg" id="mailbdg"' . ($poll ? ' data-poll' : '') . ($un > 0 ? '>' . $un : ' hidden>') . '</b>', 'mail', P . '?a=inbox'], ['list', 'Faktury', 'list', P], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['quotes', 'Wyceny', 'quote', P . '?a=quotes'], ['books', 'Księgowość', 'books', P . '?a=books'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
     $links = '';
     foreach ($nav as [$k, $l, $i, $h]) $links .= '<a href="' . $h . '" class="n-' . $k . ($active === $k ? ' on" aria-current="page' : '') . '" title="' . strip_tags($l) . '"' . ($k === 'new' ? ' data-plus' : '') . '>' . icon($i) . '<span class="tx">' . $l . '</span></a>';
     $sheet = '<dialog class="mdlg plus" id="plusdlg"><div class="sheet"><div class="hrow"><h2>Co tworzymy?</h2><button type="button" class="x" data-close aria-label="Zamknij">×</button></div>'
@@ -697,7 +712,9 @@ function view_list(): never {
         $up .= '<div class="it"><span class="d">' . $dl . '</span><div><b' . (in_array($k, ['w1', 'w2'], true) ? ' class="late-t"' : '') . '>' . e(reminder_label($k)) . '</b><small>' . e(($inv['buyer']['name'] ?? '') . ' · ' . $inv['number']) . '</small></div></div>';
     }
     $lastPaid = db()->query("SELECT * FROM invoices WHERE status = 'paid' ORDER BY paid_at DESC LIMIT 1")->fetch();
-    $side = '<aside class="side" aria-label="Automatyczne wiadomości"><div class="card pad sec"><div class="hrow"><h2>Wyślemy sami</h2><a class="link" href="' . P . '?a=settings#auto">Ustawienia</a></div>'
+    $pym = prev_ym(); $psent = setting('acc_sent_' . $pym);
+    $books = '<a class="card pad sec bookcard" href="' . P . '?a=books&ym=' . $pym . '"><div class="hrow"><h2>Dla księgowej</h2>' . icon('arrow') . '</div><span class="mut" style="font-size:14px">' . ($psent ? 'Paczka za ' . e(ym_label($pym)) . ' wysłana ' . e(date('d.m', strtotime($psent))) . '.' : 'Paczka za ' . e(ym_label($pym)) . ': sprzedaż, zakupy z KSeF i wgrane faktury.') . '</span></a>';
+    $side = '<aside class="side" aria-label="Automatyczne wiadomości">' . $books . '<div class="card pad sec"><div class="hrow"><h2>Wyślemy sami</h2><a class="link" href="' . P . '?a=settings#auto">Ustawienia</a></div>'
         . '<div class="sched">' . ($up ?: '<span class="mut">Nic nie czeka w kolejce. Przypomnienia pojawią się tu, gdy wyślesz fakturę.</span>') . '</div></div>'
         . ($lastPaid ? '<div class="dark-card"><span class="k">Ostatnia wpłata</span><span class="v">' . e(json_decode($lastPaid['buyer'], true)['name'] ?? '') . ' · ' . money((int)($lastPaid['paid_amount'] ?: $lastPaid['gross']), $lastPaid['currency'] ?? 'PLN') . '</span><span class="s">Faktura ' . e($lastPaid['number']) . ', ' . e(pl_date($lastPaid['paid_at'])) . '</span></div>' : '')
         . '</aside>';

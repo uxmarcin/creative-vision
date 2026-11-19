@@ -112,6 +112,7 @@ const DEFAULTS = [
     'footer_note' => 'Dziękujemy za współpracę.',
     'k_imap_user' => 'kontakt@creative-vision.pl',
     'quote_days' => '14',
+    'acc_auto' => '1', 'acc_day' => '5',
 ];
 
 /** Skrzynki pocztowe: f = faktury@, k = kontakt@. Ustawienia skrzynki k mają przedrostek k_. */
