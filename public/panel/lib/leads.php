@@ -74,7 +74,7 @@ function tenders_fetch(int $days = 2): array {
     curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode($body), CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 30, CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: application/json']]);
     $res = json_decode((string)curl_exec($ch), true); curl_close($ch);
     if (is_array($res) && isset($res['notices'])) foreach ($res['notices'] as $n) {
-        $pick = fn($v) => is_array($v) ? (string)($v['pol'][0] ?? ($v['pol'] ?? (reset($v) ?: ''))) : (string)$v;
+        $pick = function ($v) { if (is_array($v)) { $v = $v['pol'] ?? (reset($v) ?: ''); while (is_array($v)) $v = reset($v) ?: ''; } return (string)$v; };
         $title = $n['notice-title'] ?? []; $title = is_array($title) ? (string)($title['pol'] ?? ($title['eng'] ?? reset($title))) : (string)$title;
         $place = (array)($n['place-of-performance'] ?? []); $prov = '';
         foreach ($place as $p) if (preg_match('/^PL(\d{2})/', (string)$p, $m)) { $prov = 'PL' . $m[1]; break; }
