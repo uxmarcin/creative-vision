@@ -252,6 +252,9 @@
     var em = ($('#email') || {}).value || '';
     if (b.getAttribute('data-confirm').indexOf('{email}') !== -1 && !em.trim()) { var el = $('#email'); if (el) { el.setCustomValidity('Podaj e-mail klienta, żeby wysłać.'); el.reportValidity(); } return; }
     $('#cfq', cdlg).textContent = b.getAttribute('data-confirm').replace('{email}', em.trim());
+    var del = /^(Usun|Usuń|Skasow)/i.test(b.getAttribute('data-confirm'));
+    $('#cfs', cdlg).textContent = b.getAttribute('data-csub') || (del ? 'Tego nie da się cofnąć.' : 'Klient dostanie maila z PDF w załączniku.');
+    $('[data-cyes]', cdlg).textContent = b.getAttribute('data-cyes-l') || (del ? 'Tak, usuń' : 'Tak, wyślij');
     cfBtn = b; cdlg.showModal();
   }, true);
   $('[data-cyes]', cdlg).addEventListener('click', function () { cdlg.close(); if (!cfBtn) return; cfBtn.dataset.ok = '1'; if (cfBtn.form && cfBtn.form.requestSubmit) cfBtn.form.requestSubmit(cfBtn); else cfBtn.click(); });

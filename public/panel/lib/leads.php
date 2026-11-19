@@ -237,8 +237,8 @@ function leads_post(string $a): never {
             db()->prepare('UPDATE leads SET next_at = ?, next_note = ?, updated = ? WHERE id = ?')->execute([$d, trim((string)($_POST['next_note'] ?? '')), now(), $id]);
             redirect(P . '?a=lead&id=' . $id);
         case 'lead_delete':
-            db()->prepare('DELETE FROM leads WHERE id = ?')->execute([$id]); db()->prepare("UPDATE tenders SET lead_id = NULL, status = 'new' WHERE lead_id = ?")->execute([$id]);
-            flash('Szansa usunięta.'); redirect(P . '?a=leads');
+            db()->prepare('DELETE FROM leads WHERE id = ?')->execute([$id]); db()->prepare("UPDATE tenders SET lead_id = NULL, status = CASE WHEN src IN ('useme','freelancer') THEN 'hidden' ELSE 'new' END WHERE lead_id = ?")->execute([$id]);
+            flash('Usunięte z ofert.'); redirect(P . '?a=leads');
         case 'lead_from_mail':
             mail_acc((string)($_POST['acc'] ?? 'f'));
             $inq = inquiry_from_mail((int)($_POST['uid'] ?? 0)); mail_acc('f');
@@ -342,7 +342,7 @@ function view_leads(): never {
                 . ($l['next_at'] ? '<span class="kc-d' . ($late ? ' late-t' : '') . '">' . ($late ? 'Dziś: ' : e(date('d.m', strtotime($l['next_at']))) . ': ') . e($l['next_note'] ?: 'kontakt') . '</span>' : '')
                 . '<div class="kc-f"><div class="ias">' . ia('eye', !empty($srcT = json_decode((string)$l['src'], true)['tender'] ?? null) ? 'Podgląd ogłoszenia' : 'Otwórz szansę', !empty($srcT) ? P . '?a=tender&id=' . (int)$srcT : $url)
                 . ($l['website'] !== '' && $l['website'] !== null ? ia('external', $l['source'] === 'przetarg' ? 'Ogłoszenie w serwisie' : 'Strona firmy', preg_match('#^https?://#', (string)$l['website']) ? (string)$l['website'] : 'https://' . $l['website'], ['blank' => true]) : '')
-                . ($l['quote_id'] ? ia('quote', 'Wycena', P . '?a=quote&id=' . (int)$l['quote_id']) : ia('spark', 'Przygotuj wycenę', P . '?a=quote_new&lead=' . $l['id'] . (ai_enabled() ? '&ai=1' : ''))) . '</div>'
+                . ($l['quote_id'] ? ia('quote', 'Wycena', P . '?a=quote&id=' . (int)$l['quote_id']) : ia('spark', 'Przygotuj wycenę', P . '?a=quote_new&lead=' . $l['id'] . (ai_enabled() ? '&ai=1' : ''))) . ia('trash', 'Usuń', '', ['post' => 'lead_delete', 'id' => $l['id'], 'confirm' => 'Usunąć „' . ($l['company'] ?: $l['name'] ?: 'tę szansę') . '” z ofert?']) . '</div>'
                 . '<label class="kc-mv"><span class="sr">Przenieś do</span><select data-move>' . $opts($st) . '</select></label></div></article>';
             $cnt[$st]++; $sum[$st] += (int)$l['value'];
         }
