@@ -153,39 +153,65 @@ function mime_h(string $s): string { return '=?UTF-8?B?' . base64_encode($s) . '
  * Wysyła mail. $to: lista adresów, $attach: [nazwa => treść]. Zwraca true, gdy przekazano do wysyłki.
  * W trybie lokalnym (CV_PANEL_DEV=1) zapisuje .eml do data/outbox zamiast wysyłać.
  */
-function send_mail(array $to, string $subject, string $html, string $text, array $attach = [], bool $copy = true): bool {
+function mail_last_error(?string $e = null): string { static $last = ''; if ($e !== null) $last = $e; return $last; }
+
+/**
+ * Wysyła mail. $to: lista adresów, $attach: [nazwa => treść]. $extra: dodatkowe nagłówki (np. In-Reply-To).
+ * Gdy skrzynka faktury@ jest podłączona, idzie przez jej SMTP i trafia do folderu Wysłane.
+ * W trybie lokalnym (CV_PANEL_DEV=1) zapisuje .eml do data/outbox zamiast wysyłać.
+ */
+function send_mail(array $to, string $subject, string $html, string $text, array $attach = [], bool $copy = true, array $extra = []): bool {
+    require_once __DIR__ . '/smtp.php';
     $to = array_values(array_unique(array_filter(array_map('trim', $to), fn($a) => filter_var($a, FILTER_VALIDATE_EMAIL))));
-    if (!$to) return false;
-    $from = setting('mail_from') ?: setting('seller_email');
-    $reply = setting('mail_reply') ?: $from;
+    if (!$to) { mail_last_error('Brak poprawnego adresu odbiorcy.'); return false; }
+    $smtp = smtp_enabled();
+    $from = $smtp ? setting('imap_user') : (setting('mail_from') ?: setting('seller_email'));
+    $reply = $smtp ? $from : (setting('mail_reply') ?: $from);
     $name = setting('seller_name');
     $b1 = 'cvm' . bin2hex(random_bytes(8)); $b2 = 'cva' . bin2hex(random_bytes(8));
     $h = [];
     $h[] = 'From: ' . mime_h($name) . ' <' . $from . '>';
     $h[] = 'Reply-To: ' . $reply;
-    if ($copy && setting('mail_copy') === '1' && !in_array($reply, $to, true)) $h[] = 'Bcc: ' . $reply;
+    $bcc = (!$smtp && $copy && setting('mail_copy') === '1' && !in_array($reply, $to, true)) ? [$reply] : [];
+    if ($bcc) $h[] = 'Bcc: ' . implode(', ', $bcc);
     $h[] = 'MIME-Version: 1.0';
     $h[] = 'Date: ' . date(DATE_RFC2822);
     $h[] = 'Message-ID: <' . bin2hex(random_bytes(12)) . '@creative-vision.pl>';
+    foreach ($extra as $k => $v) if ($v !== '') $h[] = $k . ': ' . preg_replace('/[\r\n]+/', ' ', $v);
     $alt = "--$b2\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($text))
         . "--$b2\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($html)) . "--$b2--\r\n";
     if ($attach) {
         $h[] = "Content-Type: multipart/mixed; boundary=\"$b1\"";
         $body = "--$b1\r\nContent-Type: multipart/alternative; boundary=\"$b2\"\r\n\r\n" . $alt;
         foreach ($attach as $fn => $data) {
-            $body .= "--$b1\r\nContent-Type: application/pdf; name=\"$fn\"\r\nContent-Disposition: attachment; filename=\"$fn\"\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($data));
+            $ct = str_ends_with(strtolower($fn), '.pdf') ? 'application/pdf' : 'application/octet-stream';
+            $body .= "--$b1\r\nContent-Type: $ct; name=\"" . mime_h($fn) . "\"\r\nContent-Disposition: attachment; filename=\"" . mime_h($fn) . "\"\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($data));
         }
         $body .= "--$b1--\r\n";
     } else {
         $h[] = "Content-Type: multipart/alternative; boundary=\"$b2\"";
         $body = $alt;
     }
-    if (getenv('CV_PANEL_DEV') === '1') {
+    $full = 'To: ' . implode(', ', $to) . "\r\nSubject: " . mime_h($subject) . "\r\n" . implode("\r\n", array_filter($h, fn($x) => !str_starts_with($x, 'Bcc:'))) . "\r\n\r\n" . $body;
+    if (getenv('CV_PANEL_DEV') === '1' && !$smtp) {
         $dir = CV_DATA . '/outbox'; if (!is_dir($dir)) mkdir($dir, 0700, true);
-        file_put_contents($dir . '/' . date('His') . '-' . bin2hex(random_bytes(3)) . '.eml', 'To: ' . implode(', ', $to) . "\r\nSubject: " . mime_h($subject) . "\r\n" . implode("\r\n", $h) . "\r\n\r\n" . $body);
+        file_put_contents($dir . '/' . date('His') . '-' . bin2hex(random_bytes(3)) . '.eml', $full);
         return true;
     }
-    return @mail(implode(', ', $to), mime_h($subject), $body, implode("\r\n", $h));
+    if ($smtp) {
+        try { smtp_send($from, array_merge($to, $bcc), $full); }
+        catch (Throwable $e) { mail_last_error($e->getMessage()); return false; }
+        try {
+            require_once __DIR__ . '/imap.php';
+            $im = imap_open_box(); $sent = setting('imap_sent') ?: ($im->special('\\Sent') ?? 'INBOX.Sent');
+            if (setting('imap_sent') === '') set_setting('imap_sent', $sent);
+            $im->append($sent, $full);
+        } catch (Throwable $e) { /* kopia w Wysłanych nie jest konieczna */ }
+        return true;
+    }
+    $ok = @mail(implode(', ', $to), mime_h($subject), $body, implode("\r\n", $h));
+    if (!$ok) mail_last_error('Serwer nie przyjął wiadomości do wysyłki.');
+    return $ok;
 }
 
 /** Wysyła mail do klienta w sprawie faktury i zapisuje w historii. */

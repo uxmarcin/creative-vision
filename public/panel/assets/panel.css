@@ -235,3 +235,13 @@ details.more[open] summary{margin-bottom:14px}
 .kpi .fx{font-size:15px;font-weight:500;margin-top:-4px}.kpi.dark .fx{color:#fff}
 .list tr[data-href]{cursor:pointer}
 .mdlg{border:0;padding:0;width:min(92vw,460px);background:#fff;color:var(--ink)}.mdlg::backdrop{background:rgba(11,11,11,.55)}.mdlg form{padding:28px;position:relative}.mdlg form::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--grad)}.mdlg .x{border:0;background:none;font-size:26px;line-height:1;cursor:pointer;color:var(--mut)}.mdlg .btn{width:100%}
+.nav .bdg{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;margin-left:6px;background:#fff;color:#0B0B0B;font-size:11px;font-weight:600}
+.list.mails td{padding-top:14px;padding-bottom:14px}
+.list.mails tr.unseen td:first-child{box-shadow:inset 3px 0 0 #3E63EF}
+.list.mails .mlink{text-decoration:none;color:var(--ink)}
+.list.mails svg{width:14px;height:14px;vertical-align:-2px}
+.mhead{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px}
+.mframe{width:100%;min-height:560px;border:0;background:#fff}
+.mtext{white-space:normal;font-size:15px;line-height:1.6;word-break:break-word}
+.btn.sm svg{width:14px;height:14px}
+@media (max-width:900px){.list.mails tr.row{grid-template-columns:1fr auto}.list.mails td.c-num{grid-column:1/-1}.mframe{min-height:420px}}
