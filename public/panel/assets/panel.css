@@ -798,3 +798,7 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 .kpi.dark .tx{grid-column:2;grid-row:1/4;margin:0;padding:0 0 0 56px;border-top:0;border-left:1px solid #262626}
 .kpis:has(.tx){grid-template-columns:1fr 1fr}
 }
+
+.kpi .v.curs{display:flex;flex-direction:column;gap:6px}
+.kpi .curs .cur{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.kpi .curs .flag{flex:none;width:20px;height:20px;border-radius:50%}

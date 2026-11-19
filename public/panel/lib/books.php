@@ -124,6 +124,17 @@ function books_zip(string $ym, ?array $sales = null, ?array $costs = null): stri
 }
 function books_zip_name(string $ym): string { return 'Creative_Vision_dokumenty_' . $ym . '.zip'; }
 
+/** Okrągła flaga waluty (20 px). */
+function cur_flag(string $cu): string {
+    $in = match ($cu) {
+        'PLN' => '<rect width="20" height="10" fill="#fff"/><rect y="10" width="20" height="10" fill="#DC143C"/>',
+        'USD' => '<rect width="20" height="20" fill="#fff"/>' . implode('', array_map(fn($i) => '<rect y="' . ($i * 20 / 7) . '" width="20" height="' . (20 / 13) . '" fill="#B22234"/>', range(0, 6))) . '<rect width="10" height="' . (140 / 13) . '" fill="#3C3B6E"/>',
+        'EUR' => '<rect width="20" height="20" fill="#003399"/>' . implode('', array_map(fn($a) => '<circle cx="' . round(10 + 5.6 * sin(deg2rad($a)), 2) . '" cy="' . round(10 - 5.6 * cos(deg2rad($a)), 2) . '" r=".9" fill="#FFCC00"/>', range(0, 330, 30))),
+        'GBP' => '<rect width="20" height="20" fill="#012169"/><path d="M0 0l20 20M20 0L0 20" stroke="#fff" stroke-width="4"/><path d="M10 0v20M0 10h20" stroke="#fff" stroke-width="6"/><path d="M10 0v20M0 10h20" stroke="#C8102E" stroke-width="3.5"/>',
+        default => '<rect width="20" height="20" fill="#E6E4DF"/>',
+    };
+    return '<svg class="flag" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><clipPath id="fc' . $cu . '"><circle cx="10" cy="10" r="10"/></clipPath><g clip-path="url(#fc' . $cu . ')">' . $in . '</g><circle cx="10" cy="10" r="9.75" fill="none" stroke="rgba(0,0,0,.12)" stroke-width=".5"/></svg>';
+}
 /** Netto faktury w złotych (waluta po kursie NBP z dnia roboczego przed wystawieniem). */
 function inv_net_pln(array $i): ?int {
     $cu = $i['currency'] ?? 'PLN'; if ($cu === 'PLN') return (int)$i['net'];
@@ -291,6 +302,7 @@ function view_books(): never {
             . '<td class="c-due nw">' . e(pl_date($i['issue_date'])) . '<span class="sub">' . (!empty($i['ksef']) ? 'KSeF' : 'bez KSeF') . '</span></td><td class="c-amt r amt">' . money((int)$i['gross'], $cu) . '</td><td class="c-st"></td><td class="c-act"></td></tr>';
     }
     $sumTxt = implode(' + ', array_map(fn($k, $v) => money($v, $k), array_keys($sum), $sum)) ?: money(0);
+    $sumHtml = $sum ? implode('', array_map(fn($k, $v) => '<span class="cur">' . cur_flag($k) . str_replace('zł', 'PLN', money($v, $k)) . '</span>', array_keys($sum), $sum)) : '<span class="cur">' . cur_flag('PLN') . str_replace('zł', 'PLN', money(0)) . '</span>';
     $ctr = '';
     foreach ($costs as $c) {
         $url = P . '?a=cost&id=' . $c['id'];
@@ -305,7 +317,7 @@ function view_books(): never {
         . '<label for="dropin">' . icon('clip') . '<b>Przeciągnij tu faktury zakupowe</b><span>albo kliknij, żeby wybrać pliki lub zrobić zdjęcie. PDF, JPG, PNG, XML.</span></label></form>';
     $body = $nav
         . '<section class="kpis"><div class="kpi dark"><span class="t">Paczka za ' . e(ym_label($ym)) . '</span><span class="v">' . count($sales) . ' + ' . count($costs) . '</span><span class="s">' . count($sales) . ' ' . plural(count($sales), 'faktura sprzedażowa', 'faktury sprzedażowe', 'faktur sprzedażowych') . ', ' . count($costs) . ' ' . plural(count($costs), 'zakupowa', 'zakupowe', 'zakupowych') . '</span></div><div class="kpis-r">'
-        . '<div class="kpi"><span class="t">Sprzedaż brutto</span><span class="v">' . $sumTxt . '</span><span class="s">wg miesiąca księgowego</span></div>'
+        . '<div class="kpi"><span class="t">Sprzedaż brutto</span><span class="v curs">' . $sumHtml . '</span><span class="s">wg miesiąca księgowego</span></div>'
         . '<div class="kpi"><span class="t">Księgowa</span><span class="v" style="font-size:20px">' . ($sent ? 'Wysłana ' . e(date('d.m', strtotime($sent))) : 'Jeszcze nie wysłana') . '</span><span class="s">' . (setting('acc_auto') === '1' && setting('acc_email') !== '' ? 'sama wyjdzie ' . (int)setting('acc_day') . '. dnia miesiąca' : 'wysyłka ręczna') . '</span></div></div></section>'
         . '<div class="cols"><div class="wide sec">'
         . '<section class="card"><div class="hrow pad" style="padding-bottom:12px"><h2>Zakupy</h2>' . (ksef_enabled() ? '<form method="post" action="' . P . '?a=books_ksef">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '"><button class="btn ghost sm" data-busy>' . icon('refresh') . ' Pobierz z KSeF</button></form>' : '') . '</div>'
