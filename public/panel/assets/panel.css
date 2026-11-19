@@ -245,3 +245,4 @@ details.more[open] summary{margin-bottom:14px}
 .mtext{white-space:normal;font-size:15px;line-height:1.6;word-break:break-word}
 .btn.sm svg{width:14px;height:14px}
 @media (max-width:900px){.list.mails tr.row{grid-template-columns:1fr auto}.list.mails td.c-num{grid-column:1/-1}.mframe{min-height:420px}}
+[data-refresh].busy svg{animation:cvspin .8s linear infinite}@keyframes cvspin{to{transform:rotate(360deg)}}

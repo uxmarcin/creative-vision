@@ -468,6 +468,7 @@ function icon(string $n): string {
         'search' => '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
         'arrow' => '<path d="M5 12h14M13 6l6 6-6 6"/>',
         'out' => '<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h11"/>',
+        'refresh' => '<path d="M20 11a8 8 0 0 0-14.9-3.9M4 5v4h4M4 13a8 8 0 0 0 14.9 3.9M20 19v-4h-4"/>',
         'mail' => '<path d="M3 5h18v14H3z"/><path d="m3 6 9 7 9-7"/>',
         'clip' => '<path d="M21 11.5 12.5 20a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/>',
     ][$n] ?? '';
@@ -946,7 +947,7 @@ function view_inbox(): never {
     foreach (mail_boxes() as $k => $l) $tabs .= '<a href="' . P . '?a=inbox&box=' . urlencode($k) . '"' . ($k === $box ? ' class="on"' : '') . '>' . $l . ($k === 'INBOX' && (int)setting('imap_unseen') ? ' <span>' . (int)setting('imap_unseen') . '</span>' : '') . '</a>';
     $pages = $total > $per ? '<div class="hrow pad" style="justify-content:flex-end;gap:16px">' . ($pg > 1 ? '<a class="link" href="' . P . '?a=inbox&box=' . urlencode($box) . '&p=' . ($pg - 1) . '">Nowsze</a>' : '') . '<span class="mut" style="font-size:13px">' . (($pg - 1) * $per + 1) . '–' . min($total, $pg * $per) . ' z ' . $total . '</span>' . ($pg * $per < $total ? '<a class="link" href="' . P . '?a=inbox&box=' . urlencode($box) . '&p=' . ($pg + 1) . '">Starsze</a>' : '') . '</div>' : '';
     $body = '<section class="card"><nav class="tabs">' . $tabs . '</nav>' . ($tr ? '<div class="tw"><table class="list mails"><tbody>' . $tr . '</tbody></table></div>' : '<div class="empty">Brak wiadomości.</div>') . $pages . '</section>';
-    page('Poczta', 'inbox', $body, setting('imap_user'), '<a class="btn" href="' . P . '?a=compose">Napisz ' . icon('plus') . '</a>');
+    page('Poczta', 'inbox', $body, setting('imap_user'), '<a class="btn ghost" href="' . P . '?a=inbox&box=' . urlencode($box) . '" data-refresh>' . icon('refresh') . ' Odbierz</a><a class="btn" href="' . P . '?a=compose">Napisz ' . icon('plus') . '</a>');
 }
 function view_mail(): never {
     if (!inbox_enabled()) inbox_off();
