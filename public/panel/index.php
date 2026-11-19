@@ -178,6 +178,14 @@ if ($post) {
             flash($n ? 'Wysłaliśmy testowe powiadomienie na ' . $n . ' ' . plural($n, 'urządzenie', 'urządzenia', 'urządzeń') . '.' : '!Brak urządzeń z włączonymi powiadomieniami.');
             redirect(P . '?a=settings#push');
         case 'books_upload': case 'cost_delete': case 'cost_edit': case 'books_ksef': case 'books_send': case 'books_tax': case 'books_settings': books_post($a);
+        case 'duplicate':
+            $src = must_invoice($id); $t = today(); $term = (int)($src['term_days'] ?? 7);
+            $f = ['client_id' => $src['client_id'], 'buyer' => json_encode($src['buyer'], JSON_UNESCAPED_UNICODE), 'issue_date' => $t, 'sale_date' => $t, 'due_date' => date('Y-m-d', strtotime($t . " +$term days")), 'term_days' => $term,
+                'place' => $src['place'], 'items' => json_encode($src['items'], JSON_UNESCAPED_UNICODE), 'book_ym' => substr($t, 0, 7), 'currency' => $src['currency'] ?? 'PLN', 'lang' => $src['lang'] ?? 'pl', 'recurring' => (int)($src['recurring'] ?? 0),
+                'net' => $src['net'], 'vat' => $src['vat'], 'gross' => $src['gross'], 'notes' => $src['notes'], 'reminders' => (int)$src['reminders'], 'proforma' => 0, 'created' => now(), 'updated' => now()];
+            db()->prepare('INSERT INTO invoices (' . implode(', ', array_keys($f)) . ') VALUES (:' . implode(', :', array_keys($f)) . ')')->execute($f);
+            $nid = (int)db()->lastInsertId(); log_event($nid, 'create', 'Szkic na podstawie ' . ($src['number'] ?: 'szkicu'));
+            flash('Gotowy szkic na podstawie ' . ($src['number'] ?: 'faktury') . '. Sprawdź daty i kwoty, potem wystaw.'); redirect(P . '?a=edit&id=' . $nid);
         case 'proforma_convert':
             $inv = must_invoice($id); if ($inv['status'] !== 'draft') redirect(P . '?a=view&id=' . $id);
             db()->prepare('UPDATE invoices SET proforma = 0, updated = ? WHERE id = ?')->execute([now(), $id]); log_event($id, 'edit', 'Proforma zamieniona na szkic faktury');
@@ -913,6 +921,7 @@ function view_list(): never {
                 $i['status'] !== 'draft' ? ['external', 'Faktura online', pay_url($i), ['blank' => true]] : null,
                 in_array(inv_state($i), ['due', 'today', 'late'], true) ? ['banknote', 'Oznacz jako opłaconą', ['post' => 'paid', 'id' => $i['id'], 'extra' => '<input type="hidden" name="paid_date" value="' . today() . '">']] : null,
                 can_edit($i) ? ['pencil', 'Edytuj', P . '?a=edit&id=' . $i['id']] : null,
+                $i['status'] !== 'draft' ? ['refresh', 'Wystaw ponownie', ['post' => 'duplicate', 'id' => $i['id']]] : null,
                 ['copy', 'Nowa faktura dla tego klienta', P . '?a=new' . (!empty($i['client_id']) ? '&client=' . $i['client_id'] : '')],
             ]))) . '</div></td></tr>';
     }
@@ -1074,6 +1083,7 @@ function view_invoice(array $inv): never {
         $tools = '<div class="ias tb">' . ia('eye', 'Podgląd PDF', P . '?a=pdf&id=' . $id, ['blank' => true]) . ia('download', 'Pobierz PDF', P . '?a=pdf&id=' . $id . '&dl=1')
             . ia('link', 'Kopiuj link dla klienta', '', ['data' => ' data-copy="' . e(pay_url($inv)) . '"'])
             . (can_edit($inv) ? ia('pencil', 'Edytuj', P . '?a=edit&id=' . $id) : '')
+            . ia('refresh', 'Wystaw ponownie', '', ['post' => 'duplicate', 'id' => $id])
             . imore([['external', 'Faktura online (jak widzi klient)', pay_url($inv), ['blank' => true]], ['copy', 'Nowa faktura dla tego klienta', P . '?a=new' . (!empty($inv['client_id']) ? '&client=' . $inv['client_id'] : '')]]) . '</div>';
     }
     if ($inv['status'] === 'paid') $acts .= $f('unpaid', 'Cofnij oznaczenie wpłaty');
