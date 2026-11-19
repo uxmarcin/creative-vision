@@ -177,7 +177,7 @@ if ($post) {
             $n = push_send('Panel Creative Vision', 'Powiadomienia działają. Tak zobaczysz nowe maile i otwarte faktury.', '/panel', 'test');
             flash($n ? 'Wysłaliśmy testowe powiadomienie na ' . $n . ' ' . plural($n, 'urządzenie', 'urządzenia', 'urządzeń') . '.' : '!Brak urządzeń z włączonymi powiadomieniami.');
             redirect(P . '?a=settings#push');
-        case 'books_upload': case 'cost_delete': case 'cost_edit': case 'books_ksef': case 'books_send': case 'books_tax': case 'books_settings': books_post($a);
+        case 'books_upload': case 'cost_delete': case 'cost_edit': case 'books_ksef': case 'books_send': case 'books_att': case 'books_tax': case 'books_settings': books_post($a);
         case 'duplicate':
             $src = must_invoice($id); $t = today(); $term = (int)($src['term_days'] ?? 7);
             $f = ['client_id' => $src['client_id'], 'buyer' => json_encode($src['buyer'], JSON_UNESCAPED_UNICODE), 'issue_date' => $t, 'sale_date' => $t, 'due_date' => date('Y-m-d', strtotime($t . " +$term days")), 'term_days' => $term,
@@ -453,6 +453,11 @@ switch ($a) {
     case 'tender': view_tender((int)($_GET['id'] ?? 0));
     case 'lead': $l = lead_by_id((int)($_GET['id'] ?? 0)); if (!$l) redirect(P . '?a=leads'); view_lead($l);
     case 'cost': $c = cost_by_id((int)($_GET['id'] ?? 0)); if (!$c) redirect(P . '?a=books'); view_cost($c);
+    case 'books_att_file':
+        $ym = preg_match('/^\d{4}-\d{2}$/', (string)($_GET['ym'] ?? '')) ? (string)$_GET['ym'] : ''; $a = $ym ? books_att($ym, (string)($_GET['k'] ?? '')) : null;
+        if (!$a) { http_response_code(404); exit; }
+        header('Content-Type: ' . $a['mime']); header('X-Content-Type-Options: nosniff'); header("Content-Disposition: inline; filename*=UTF-8''" . rawurlencode((string)$a['fname']));
+        readfile(COST_DIR . '/' . $a['path']); exit;
     case 'cost_file':
         $c = cost_by_id((int)($_GET['id'] ?? 0)); if (!$c || !is_file(COST_DIR . '/' . $c['path'])) { http_response_code(404); exit; }
         header('Content-Type: ' . $c['mime']); header('X-Content-Type-Options: nosniff');

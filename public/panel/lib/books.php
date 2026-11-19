@@ -110,7 +110,7 @@ function ksef_download_xml(string $ksef, string $tok): string {
 }
 
 /** Paczka ZIP za miesiąc: sprzedaż (PDF, XML z KSeF), zakupy, zestawienie CSV. Zwraca ścieżkę do pliku tymczasowego. */
-function books_zip(string $ym, ?array $sales = null, ?array $costs = null): string {
+function books_zip(string $ym, ?array $sales = null, ?array $costs = null, ?array $att = null): string {
     require_once __DIR__ . '/doc.php';
     $tmp = tempnam(sys_get_temp_dir(), 'cvz'); $z = new ZipArchive();
     if ($z->open($tmp, ZipArchive::OVERWRITE) !== true) throw new RuntimeException('Nie mogę przygotować paczki ZIP.');
@@ -131,6 +131,8 @@ function books_zip(string $ym, ?array $sales = null, ?array $costs = null): stri
         if (is_file(COST_DIR . '/' . $c['path'])) $z->addFile(COST_DIR . '/' . $c['path'], $f);
         $csv[] = implode(';', ['zakup', (string)$c['number'], (string)$c['issue_date'], str_replace(';', ',', (string)$c['seller']), (string)$c['nip'], '', '', $c['gross'] !== null ? $num((int)$c['gross']) : '', (string)$c['currency'], '', '', '', (string)$c['ksef'], $f]);
     }
+    $kinds = books_att_kinds($ym);
+    foreach ($att ?? array_keys($kinds) as $k) if (isset($kinds[$k]) && ($a = books_att($ym, $k))) $z->addFile(COST_DIR . '/' . $a['path'], $uniq('Potwierdzenia/' . $kinds[$k][3] . '_' . $ym . '.' . pathinfo($a['path'], PATHINFO_EXTENSION)));
     $z->addFromString('Zestawienie_' . $ym . '.csv', implode("\r\n", $csv) . "\r\n");
     $z->close();
     return $tmp;
@@ -182,6 +184,23 @@ function books_tax_html(string $ym): string {
         . '<label>ZUS społeczny miesięcznie<input class="in" name="zus_social" inputmode="decimal" placeholder="0,00" value="' . ($t['zus'] ? number_format($t['zus'] / 100, 2, ',', '') : '') . '"></label><button class="btn sm">Zapisz</button></form></details>'
         . '<span class="tx-n">Szacunek. Ryczałt liczony od przychodu netto, po odjęciu ZUS społecznego i połowy składki zdrowotnej. Ostateczną kwotę potwierdza księgowa.</span></div>';
 }
+/** Potwierdzenia przelewów dołączane do paczki. */
+function books_att_kinds(string $ym): array {
+    $fx = array_values(array_unique(array_map(fn($i) => preg_replace('/,?\s*(Inc|LLC|Ltd|GmbH)\.?$/i', '', (string)($i['buyer']['name'] ?? 'klienta')), array_filter(sales_of($ym), fn($i) => ($i['currency'] ?? 'PLN') !== 'PLN'))));
+    $k = [];
+    if ($fx) $k['bank'] = ['Potwierdzenie przelewu od ' . implode(', ', $fx), 'Księgowa sprawdza na nim kurs z dnia wpływu.', true, 'Potwierdzenie_przelewu_' . safe_name(implode('_', $fx))];
+    $k['zus'] = ['Potwierdzenie przelewu do ZUS', 'Opcjonalnie, jeśli księgowa ma je mieć w paczce.', false, 'Potwierdzenie_ZUS'];
+    return $k;
+}
+function books_att(string $ym, string $k): ?array { $j = json_decode(setting('acc_att_' . $ym . '_' . $k), true); return is_array($j) && !empty($j['path']) && is_file(COST_DIR . '/' . $j['path']) ? $j : null; }
+/** Brakujące wymagane potwierdzenia (etykiety). */
+function books_att_missing(string $ym): array { $m = []; foreach (books_att_kinds($ym) as $k => $d) if ($d[2] && !books_att($ym, $k)) $m[] = $d[0]; return $m; }
+/** Potwierdzenia dodane po wysłaniu paczki. */
+function books_new_att(string $ym): array {
+    if (setting('acc_sent_' . $ym) === '') return [];
+    $sent = (array)(json_decode(setting('acc_ids_' . $ym), true)['a'] ?? []);
+    return array_values(array_filter(array_keys(books_att_kinds($ym)), fn($k) => books_att($ym, $k) && !in_array($k, $sent, true)));
+}
 /** Dokumenty, które poszły już do księgowej: ['s' => [id faktur], 'c' => [id kosztów]]. */
 function books_sent_ids(string $ym): array {
     $j = json_decode(setting('acc_ids_' . $ym), true);
@@ -205,9 +224,11 @@ function books_send(string $ym): array {
         if ($left) return [false, 'KSeF jeszcze nie oddał ' . $left . ' ' . plural($left, 'faktury', 'faktur', 'faktur') . ' (limit pobrań). Spróbuj za minutę, żeby paczka była kompletna.', 'busy'];
     }
     $sup = setting('acc_sent_' . $ym) !== '';
-    if ($sup) { $prevIds = books_sent_ids($ym); [$sales, $costs] = books_new($ym); if (!$sales && !$costs) return [false, 'Księgowa ma już wszystkie dokumenty za ' . ym_label($ym) . '.']; }
-    else { $sales = sales_of($ym); $costs = costs_of($ym); }
-    $zip = books_zip($ym, $sales, $costs); $data = (string)file_get_contents($zip); @unlink($zip);
+    if ($miss = books_att_missing($ym)) return [false, 'Dodaj ' . mb_strtolower(implode(', ', $miss)) . '. Księgowa sprawdza na nim kurs z dnia wpływu, bez tego paczka nie wyjdzie.'];
+    if ($sup) { $prevIds = books_sent_ids($ym); [$sales, $costs] = books_new($ym); $att = books_new_att($ym); if (!$sales && !$costs && !$att) return [false, 'Księgowa ma już wszystkie dokumenty za ' . ym_label($ym) . '.']; }
+    else { $sales = sales_of($ym); $costs = costs_of($ym); $att = array_values(array_filter(array_keys(books_att_kinds($ym)), fn($k) => books_att($ym, $k))); }
+    $kinds = books_att_kinds($ym); $attRows = array_map(fn($k) => [$kinds[$k][0], 'w załączniku'], $att);
+    $zip = books_zip($ym, $sales, $costs, $att); $data = (string)file_get_contents($zip); @unlink($zip);
     if (strlen($data) > 20 * 1048576) return [false, 'Paczka ma ponad 20 MB, za dużo na maila. Pobierz ją i wyślij przez dysk.'];
     $label = ym_label($ym);
     $sum = 0; $byCur = []; $plnAll = 0; $plnOk = true;
@@ -222,16 +243,16 @@ function books_send(string $ym): array {
     $subj = ($sup ? 'Uzupełnienie dokumentów Creative Vision za ' : 'Dokumenty Creative Vision za ') . $label;
     $rows = m_kicker('Dokumenty za ' . $label) . m_h1($sup ? 'Uzupełnienie paczki' : 'Paczka dla księgowej', ucfirst($label))
         . m_text('Dzień dobry,<br><br>' . ($sup ? 'dosyłam dokumenty za ' . e($label) . ', które doszły już po wysłaniu paczki. W załączniku są tylko te nowe faktury i ich zestawienie w pliku CSV.' : 'w załączniku przesyłam dokumenty za ' . e($label) . ': faktury sprzedażowe w PDF (i XML z KSeF, jeśli mają numer KSeF), faktury zakupowe oraz zestawienie w pliku CSV.') . (trim(setting('acc_note')) !== '' ? '<br><br>' . nl2br(e(setting('acc_note'))) : ''))
-        . m_rows('W paczce', [['Faktury sprzedażowe', (string)count($sales)], ['Faktury zakupowe', (string)count($costs)], ...$saleRows])
+        . m_rows('W paczce', [['Faktury sprzedażowe', (string)count($sales)], ['Faktury zakupowe', (string)count($costs)], ...$attRows, ...$saleRows])
         . m_sign();
     $ok = send_mail([$to], $subj, mail_layout($subj, 'Dokumenty za ' . $label . ': ' . count($sales) . ' sprzedaży, ' . count($costs) . ' zakupów.', $rows), html_to_text($rows), [($sup ? str_replace('.zip', '_uzupelnienie.zip', books_zip_name($ym)) : books_zip_name($ym)) => $data], true);
     if ($ok) {
-        $ids = $sup ? $prevIds : ['s' => [], 'c' => []];
+        $ids = $sup ? $prevIds : ['s' => [], 'c' => []]; $prevA = $sup ? (array)(json_decode(setting('acc_ids_' . $ym), true)['a'] ?? []) : [];
         foreach ($sales as $i) $ids['s'][] = (int)$i['id']; foreach ($costs as $c) $ids['c'][] = (int)$c['id'];
-        set_setting('acc_ids_' . $ym, json_encode(['s' => array_values(array_unique($ids['s'])), 'c' => array_values(array_unique($ids['c']))]));
+        set_setting('acc_ids_' . $ym, json_encode(['s' => array_values(array_unique($ids['s'])), 'c' => array_values(array_unique($ids['c'])), 'a' => array_values(array_unique(array_merge($prevA, $att)))]));
         if ($sup) set_setting('acc_sup_' . $ym, now()); else set_setting('acc_sent_' . $ym, now());
     }
-    $n = count($sales) + count($costs);
+    $n = count($sales) + count($costs) + count($att);
     return [$ok, $ok ? ($sup ? 'Dosłane do ' . $to . ': ' . $n . ' ' . plural($n, 'nowy dokument', 'nowe dokumenty', 'nowych dokumentów') . ' za ' . $label . '.' : 'Paczka za ' . $label . ' wysłana do ' . $to . '.') : 'Nie udało się wysłać: ' . mail_last_error()];
 }
 
@@ -279,6 +300,17 @@ function books_post(string $a): never {
             $r = (string)($_POST['tax_rate'] ?? '12'); if (in_array($r, ['2', '3', '5.5', '8.5', '10', '12', '14', '15', '17'], true)) set_setting('tax_rate', $r);
             set_setting('zus_social', (string)max(0, (int)round((float)str_replace([' ', ','], ['', '.'], (string)($_POST['zus_social'] ?? '0')) * 100)));
             flash('Zapisane. Podatek przeliczony.'); redirect($back);
+        case 'books_att':
+            $k = (string)($_POST['k'] ?? ''); $kinds = books_att_kinds($ym); if (!isset($kinds[$k])) redirect($back);
+            if (!empty($_POST['del'])) { if ($a = books_att($ym, $k)) @unlink(COST_DIR . '/' . $a['path']); set_setting('acc_att_' . $ym . '_' . $k, ''); flash('Usunięto: ' . $kinds[$k][0] . '.'); redirect($back); }
+            $f = $_FILES['file'] ?? null;
+            if (!$f || ($f['error'] ?? 4) !== UPLOAD_ERR_OK) { flash('!Plik nie dotarł (za duży?).'); redirect($back); }
+            $ext = strtolower(pathinfo((string)$f['name'], PATHINFO_EXTENSION)); if (!in_array($ext, ['pdf', 'jpg', 'jpeg', 'png', 'heic', 'webp'], true)) { flash('!Dodaj PDF albo zdjęcie.'); redirect($back); }
+            if ($old = books_att($ym, $k)) @unlink(COST_DIR . '/' . $old['path']);
+            $dir = COST_DIR . '/' . $ym; if (!is_dir($dir)) mkdir($dir, 0700, true);
+            $path = $ym . '/att-' . $k . '-' . bin2hex(random_bytes(8)) . '.' . $ext; move_uploaded_file($f['tmp_name'], COST_DIR . '/' . $path);
+            set_setting('acc_att_' . $ym . '_' . $k, json_encode(['path' => $path, 'fname' => safe_name((string)$f['name']), 'mime' => COST_TYPES[$ext], 'at' => now()]));
+            flash('Dodano: ' . $kinds[$k][0] . '.'); redirect($back);
         case 'books_send':
             [$ok, $msg] = books_send($ym); flash(($ok ? '' : '!') . $msg); redirect($back);
         case 'books_settings':
@@ -356,10 +388,21 @@ function view_books(): never {
         . ($str ? '<div class="tw"><table class="list"><tbody>' . $str . '</tbody></table></div>' : '<div class="empty" style="padding-top:8px">Brak faktur sprzedażowych w tym miesiącu księgowym.</div>') . '</section>'
         . '</div><aside class="side">'
         . '<section class="card pad sec"><h2>Dla księgowej</h2><span class="mut" style="font-size:14px">Jeden ZIP: sprzedaż w PDF i XML z KSeF, zakupy i zestawienie CSV.</span>'
+        . (function () use ($ym) {
+            $o = '<div class="att-l">';
+            foreach (books_att_kinds($ym) as $k => [$lbl, $hint, $req]) {
+                $a = books_att($ym, $k);
+                $o .= '<div class="att' . ($a ? ' has' : ($req ? ' req' : '')) . '"><div class="att-h"><b>' . e($lbl) . '</b><span class="att-c">' . ($a ? icon('check') . ' Dodane' : ($req ? 'Wymagane' : 'Opcjonalne')) . '</span></div>'
+                    . ($a ? '<div class="att-f"><a href="' . P . '?a=books_att_file&ym=' . $ym . '&k=' . $k . '" target="_blank" rel="noopener">' . icon('clip') . ' ' . e($a['fname']) . '</a><form method="post" action="' . P . '?a=books_att">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '"><input type="hidden" name="k" value="' . $k . '"><input type="hidden" name="del" value="1"><button class="link" style="color:var(--red)">Usuń</button></form></div>'
+                        : '<span class="att-s">' . e($hint) . '</span><form method="post" action="' . P . '?a=books_att" enctype="multipart/form-data">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '"><input type="hidden" name="k" value="' . $k . '"><label class="btn ghost sm att-up">' . icon('clip') . ' Dodaj plik<input type="file" name="file" accept="application/pdf,image/*" hidden onchange="this.form.submit()"></label></form>')
+                    . '</div>';
+            }
+            return $o . '</div>';
+        })()
         . '<a class="btn ghost" href="' . P . '?a=books_zip&ym=' . $ym . '">Pobierz paczkę ZIP</a>'
         . (function () use ($ym, $sent) {
-            if (!$sent) return '<form method="post" action="' . P . '?a=books_send">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '"><button class="btn" style="width:100%"' . (setting('acc_email') === '' ? ' disabled' : '') . '>Wyślij do księgowej ' . icon('arrow') . '</button></form>';
-            [$ns, $nc] = books_new($ym); $n = count($ns) + count($nc); $sup = setting('acc_sup_' . $ym);
+            if (!$sent) return '<form method="post" action="' . P . '?a=books_send">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '"><button class="btn" style="width:100%"' . (setting('acc_email') === '' || books_att_missing($ym) ? ' disabled title="Najpierw dodaj wymagane potwierdzenie"' : '') . '>Wyślij do księgowej ' . icon('arrow') . '</button></form>';
+            [$ns, $nc] = books_new($ym); $na = books_new_att($ym); $n = count($ns) + count($nc) + count($na); $sup = setting('acc_sup_' . $ym);
             return ($n ? '<form method="post" action="' . P . '?a=books_send">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '"><button class="btn" style="width:100%">Doślij ' . $n . ' ' . plural($n, 'nowy dokument', 'nowe dokumenty', 'nowych dokumentów') . ' ' . icon('arrow') . '</button></form><span class="mut" style="font-size:13px">Doszły po wysłaniu paczki: ' . e(implode(', ', array_merge(array_map(fn($i) => (string)$i['number'], $ns), array_map(fn($c) => trim((string)($c['number'] ?: $c['fname'])), $nc)))) . '</span>' : '')
                 . '<span class="ok-t" style="font-size:14px">' . icon('check') . ' Wysłana ' . e(date('d.m.Y H:i', strtotime($sent))) . ' do ' . e(setting('acc_email')) . ($sup ? ', uzupełnienie ' . e(date('d.m H:i', strtotime($sup))) : '') . '</span>'
                 . ($n ? '' : '<span class="mut" style="font-size:13px">Jeśli dojdzie jeszcze jakaś faktura za ten miesiąc, pojawi się tu przycisk, żeby ją dosłać.</span>');

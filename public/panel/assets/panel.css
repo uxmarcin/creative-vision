@@ -948,3 +948,20 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 @media(max-width:1100px){.period{flex-wrap:nowrap}.period .months{flex-basis:auto;order:1}.period .yearf{order:2}}
 @media(max-width:900px){.period{display:flex;flex-wrap:wrap}.period .months{flex-basis:100%;order:2}.period .yearf{order:1;margin-left:auto}}
 .months a{flex:1 1 0;min-width:46px}.months a.yr{flex:0 0 auto}
+
+/* potwierdzenia przelewów w paczce dla księgowej */
+.att-l{display:flex;flex-direction:column;gap:10px}
+.att{display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid var(--line)}
+.att.req{border-color:#E8B4B0;background:#FFF8F7}
+.att.has{background:#F4F4F5}
+.att-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;font-size:14px}.att-h b{font-weight:500}
+.att-c{flex:none;display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:2px 8px;background:#fff;border:1px solid var(--line);color:var(--mut)}
+.att.req .att-c{color:var(--red);border-color:#E8B4B0}.att.has .att-c{color:var(--green);border-color:transparent}
+.att-c svg.ic{width:14px;height:14px}
+.att-s{font-size:13px;color:var(--mut)}
+.att-f{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}.att-f a{display:inline-flex;align-items:center;gap:6px;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.att-f form{margin:0}.att-up{cursor:pointer;align-self:flex-start}
+.att{background:#fff;align-items:stretch}.att.has{background:#F4F4F5}.att.req{background:#FFF8F7}
+.att form{display:block;margin:0;padding:0;background:none;border:0}
+.att-f{justify-content:flex-start}.att-f a{flex:1}
+.att .att-up{display:inline-flex;width:auto}
