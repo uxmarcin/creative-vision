@@ -154,7 +154,7 @@ function view_jobs_tab(string $tabs): string {
             . '<b class="kc-t">' . e((string)$t['title']) . '</b>' . ($t['excerpt'] ? '<span class="kc-x">' . e((string)$t['excerpt']) . '</span>' : '')
             . '<span class="kc-b"><b>' . e((string)($t['budget'] ?: 'Budżet do negocjacji')) . '</b>' . ($t['buyer'] && $t['src'] === 'useme' ? ' · ' . e((string)$t['buyer']) : '') . '</span>'
             . '<span class="kc-d' . ((int)$t['offers'] > 100 ? ' mut' : '') . '">' . e($meta) . '</span>'
-            . '<div class="kc-f"><form method="post" action="' . P . '?a=tender_lead">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="btn sm">' . icon('target') . ' Do lejka</button></form><div class="ias">'
+            . '<div class="kc-f"><form method="post" action="' . P . '?a=tender_lead">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="btn sm">' . icon('target') . ' Do ofert</button></form><div class="ias">'
             . ia('eye', 'Podgląd zlecenia', P . '?a=tender&id=' . $t['id']) . ia('external', 'Zlecenie na giełdzie', (string)$t['url'], ['blank' => true]) . ia('x', 'Pomiń', '', ['post' => 'tender_hide', 'id' => $t['id']]) . '</div></div></article>';
     }
     $at = setting('jobs_at');
@@ -172,7 +172,7 @@ function view_job(array $t, string $body): never {
     $id = (int)$t['id']; $c = $t['cat'] ?: 'other'; $left = days_between(today(), substr((string)$t['deadline'], 0, 10));
     $f = fn($a, $l, $cl = 'btn') => '<form method="post" action="' . P . '?a=' . $a . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '"><button class="' . $cl . '" style="width:100%">' . $l . '</button></form>';
     $site = $t['src'] === 'useme' ? 'Useme' : 'Freelancer.com';
-    $acts = ($t['lead_id'] ? '<a class="btn" href="' . P . '?a=lead&id=' . $t['lead_id'] . '">Szansa w lejku ' . icon('arrow') . '</a>' . (ai_enabled() ? '<a class="btn ghost" href="' . P . '?a=quote_new&lead=' . $t['lead_id'] . '&ai=1">' . icon('spark') . ' Przygotuj wycenę z AI</a>' : '') : $f('tender_lead', icon('target') . ' Do lejka'))
+    $acts = ($t['lead_id'] ? '<a class="btn" href="' . P . '?a=lead&id=' . $t['lead_id'] . '">Szansa w ofertach ' . icon('arrow') . '</a>' . (ai_enabled() ? '<a class="btn ghost" href="' . P . '?a=quote_new&lead=' . $t['lead_id'] . '&ai=1">' . icon('spark') . ' Przygotuj wycenę z AI</a>' : '') : $f('tender_lead', icon('target') . ' Do ofert'))
         . '<a class="btn ghost" href="' . e($t['url']) . '" target="_blank" rel="noopener">Złóż ofertę na ' . $site . ' ↗</a>';
     $kv = '<div class="kv"><div><span>Budżet</span><span>' . e((string)($t['budget'] ?: 'Do negocjacji')) . '</span></div><div><span>Ofert</span><span>' . (int)$t['offers'] . '</span></div>'
         . ($t['src'] === 'useme' && $t['buyer'] ? '<div><span>Zleceniodawca</span><span>' . e((string)$t['buyer']) . '</span></div>' : '')

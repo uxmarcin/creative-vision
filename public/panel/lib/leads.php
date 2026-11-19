@@ -156,7 +156,7 @@ function run_lead_reminders(): int {
     $s = db()->prepare("SELECT * FROM leads WHERE next_at IS NOT NULL AND next_at <= ? AND stage NOT IN ('won', 'lost') ORDER BY next_at"); $s->execute([today()]);
     $rows = $s->fetchAll(); if (!$rows || !function_exists('push_send')) return 0;
     $first = $rows[0];
-    push_send(count($rows) === 1 ? 'Dziś: ' . ($first['company'] ?: $first['name']) : 'Dziś ' . count($rows) . ' follow-upy w lejku', (string)($first['next_note'] ?: 'Zaplanowany kontakt') . (count($rows) > 1 ? ' i więcej' : ''), '/panel?a=lead&id=' . $first['id'], 'leads');
+    push_send(count($rows) === 1 ? 'Dziś: ' . ($first['company'] ?: $first['name']) : 'Dziś ' . count($rows) . ' follow-upy w ofertach', (string)($first['next_note'] ?: 'Zaplanowany kontakt') . (count($rows) > 1 ? ' i więcej' : ''), '/panel?a=lead&id=' . $first['id'], 'leads');
     return count($rows);
 }
 
@@ -245,7 +245,7 @@ function leads_post(string $a): never {
             if (!$inq) redirect(P . '?a=leads');
             $id = lead_save(['name' => $inq['from'], 'email' => $inq['email'], 'company' => '', 'source' => 'mail', 'stage' => 'new', 'next_at' => today(), 'next_note' => 'Odpowiedzieć na zapytanie',
                 'notes' => trim(($inq['subject'] !== '' ? $inq['subject'] . "\n\n" : '') . mb_substr($inq['text'], 0, 3000)), 'src' => array_diff_key($inq, ['text' => 1])]);
-            flash('Zapytanie dodane do lejka.'); redirect(P . '?a=lead&id=' . $id);
+            flash('Zapytanie dodane do ofert.'); redirect(P . '?a=lead&id=' . $id);
         case 'tender_lead':
             $t = db()->prepare('SELECT * FROM tenders WHERE id = ?'); $t->execute([$id]); $t = $t->fetch();
             if (!$t) redirect(P . '?a=leads&t=tenders');
@@ -254,12 +254,12 @@ function leads_post(string $a): never {
                 $lid = lead_save(['name' => (string)$t['buyer'], 'company' => '', 'source' => 'gielda', 'stage' => 'new', 'next_at' => today(), 'next_note' => 'Złożyć ofertę na ' . ($t['src'] === 'useme' ? 'Useme' : 'Freelancer.com') . ' (dziś, zanim zbierze się dużo ofert)',
                     'website' => $t['url'], 'notes' => $t['title'] . "\n" . ($t['budget'] ? 'Budżet: ' . $t['budget'] . "\n" : '') . $t['url'], 'src' => ['tender' => (int)$t['id'], 'job' => 1], 'score' => (int)$t['score']]);
                 db()->prepare("UPDATE tenders SET status = 'saved', lead_id = ? WHERE id = ?")->execute([$lid, $id]);
-                flash('Zlecenie dodane do lejka.'); redirect(P . '?a=lead&id=' . $lid);
+                flash('Zlecenie dodane do ofert.'); redirect(P . '?a=lead&id=' . $lid);
             }
             $lid = lead_save(['name' => '', 'company' => $t['buyer'], 'source' => 'przetarg', 'stage' => 'new', 'next_at' => $t['deadline'] ? date('Y-m-d', strtotime(substr($t['deadline'], 0, 10) . ' -3 days')) : today(),
                 'next_note' => 'Przygotować ofertę do przetargu' . ($t['deadline'] ? ' (termin ' . date('d.m H:i', strtotime($t['deadline'])) . ')' : ''), 'website' => $t['url'], 'notes' => $t['title'] . "\n" . $t['ref'] . ' · ' . $t['city'] . "\n" . $t['url'], 'src' => ['tender' => (int)$t['id']], 'score' => (int)$t['score']]);
             db()->prepare("UPDATE tenders SET status = 'saved', lead_id = ? WHERE id = ?")->execute([$lid, $id]);
-            flash('Przetarg dodany do lejka.'); redirect(P . '?a=lead&id=' . $lid);
+            flash('Przetarg dodany do ofert.'); redirect(P . '?a=lead&id=' . $lid);
         case 'lead_move':
             header('Content-Type: application/json');
             $st = (string)($_POST['st'] ?? '');
@@ -317,7 +317,7 @@ function view_leads(): never {
     $tabs = '';
     $newT = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE status = 'new' AND src IN ('bzp','ted') AND (deadline IS NULL OR deadline = '' OR deadline >= date('now'))")->fetchColumn();
     $newJ = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE status = 'new' AND src IN ('useme','freelancer') AND deadline >= date('now') AND created >= datetime('now', '-1 day')")->fetchColumn();
-    foreach (['pipe' => 'Lejek', 'jobs' => 'Zlecenia', 'tenders' => 'Przetargi', 'scan' => 'Skaner stron'] as $k => $l) $tabs .= '<a href="' . P . '?a=leads&t=' . $k . '"' . ($tab === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ($k === 'tenders' && $newT ? ' <span>' . $newT . '</span>' : '') . ($k === 'jobs' && $newJ ? ' <span>' . $newJ . '</span>' : '') . '</a>';
+    foreach (['pipe' => 'Oferty', 'jobs' => 'Zlecenia', 'tenders' => 'Przetargi', 'scan' => 'Skaner stron'] as $k => $l) $tabs .= '<a href="' . P . '?a=leads&t=' . $k . '"' . ($tab === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ($k === 'tenders' && $newT ? ' <span>' . $newT . '</span>' : '') . ($k === 'jobs' && $newJ ? ' <span>' . $newJ . '</span>' : '') . '</a>';
     $body = '';
     if ($tab === 'pipe') {
         $st = (string)($_GET['s'] ?? 'open');
@@ -326,7 +326,7 @@ function view_leads(): never {
         $val = array_sum(array_map(fn($l) => (int)$l['value'], $open));
         $due = array_filter($open, fn($l) => $l['next_at'] && $l['next_at'] <= today());
         $wonM = array_filter($all, fn($l) => $l['stage'] === 'won' && substr((string)$l['updated'], 0, 7) === date('Y-m'));
-        $body .= '<section class="kpis"><div class="kpi dark"><span class="t">Otwarte szanse</span><span class="v">' . money($val) . '</span><span class="s">' . count($open) . ' ' . plural(count($open), 'szansa', 'szanse', 'szans') . ' w lejku, wartość netto</span></div><div class="kpis-r">'
+        $body .= '<section class="kpis"><div class="kpi dark"><span class="t">Otwarte szanse</span><span class="v">' . money($val) . '</span><span class="s">' . count($open) . ' ' . plural(count($open), 'szansa', 'szanse', 'szans') . ' w ofertach, wartość netto</span></div><div class="kpis-r">'
             . '<div class="kpi"><span class="t">Na dziś</span><span class="v' . ($due ? ' red' : '') . '">' . count($due) . '</span><span class="s">' . plural(count($due), 'follow-up', 'follow-upy', 'follow-upów') . ' do zrobienia</span></div>'
             . '<div class="kpi"><span class="t">Wygrane w tym miesiącu</span><span class="v">' . count($wonM) . '</span><span class="s">' . money(array_sum(array_map(fn($l) => (int)$l['value'], $wonM))) . '</span></div></div></section>';
         $by = array_fill_keys(array_keys(LEAD_STAGES), ''); $cnt = array_fill_keys(array_keys(LEAD_STAGES), 0); $sum = array_fill_keys(array_keys(LEAD_STAGES), 0);
@@ -368,10 +368,10 @@ function view_leads(): never {
             $tiles .= '<article class="kcard tile"><div class="kc-h"><span class="sc' . ($t['score'] >= 50 ? ' hi' : '') . '">' . (int)$t['score'] . '</span><span class="kc-cat c-' . $t['cat'] . '">' . TENDER_CATS[$t['cat']] . '</span><span class="kc-src" style="margin-left:auto">' . strtoupper($t['src']) . ($t['province'] ? ' · ' . e($t['province']) : '') . '</span></div>'
                 . '<b class="kc-t">' . e(tender_title((string)$t['title'])) . '</b><span class="kc-b">' . e(trim($t['buyer'] . ($t['city'] ? ', ' . $t['city'] : ''))) . '</span>'
                 . '<span class="kc-d' . ($left !== null && $left <= 3 ? ' late-t' : '') . '">' . e($dl) . '</span>'
-                . '<div class="kc-f">' . $f('tender_lead', icon('target') . ' Do lejka', 'btn sm') . '<div class="ias">' . ia('eye', 'Podgląd ogłoszenia', P . '?a=tender&id=' . $t['id']) . ia('external', 'Ogłoszenie w serwisie', (string)$t['url'], ['blank' => true]) . ia('x', 'Pomiń', '', ['post' => 'tender_hide', 'id' => $t['id']]) . '</div>' . '</div></article>';
+                . '<div class="kc-f">' . $f('tender_lead', icon('target') . ' Do ofert', 'btn sm') . '<div class="ias">' . ia('eye', 'Podgląd ogłoszenia', P . '?a=tender&id=' . $t['id']) . ia('external', 'Ogłoszenie w serwisie', (string)$t['url'], ['blank' => true]) . ia('x', 'Pomiń', '', ['post' => 'tender_hide', 'id' => $t['id']]) . '</div>' . '</div></article>';
         }
         $at = setting('tender_at');
-        $body .= '<section class="card"><nav class="tabs">' . $tabs . '</nav><div class="hrow pad" style="flex-wrap:wrap"><span class="mut" style="font-size:14px">Przetargi z BZP i TED na strony, portale, sklepy, aplikacje i grafikę, od najlepiej dopasowanych. Te, które bierzemy, dodaj do lejka' . ($inLead ? ' (już w lejku: ' . $inLead . ')' : '') . '. Sprawdzamy codziennie rano' . ($at ? ', ostatnio ' . e(date('d.m H:i', strtotime($at))) : '') . '.</span>'
+        $body .= '<section class="card"><nav class="tabs">' . $tabs . '</nav><div class="hrow pad" style="flex-wrap:wrap"><span class="mut" style="font-size:14px">Przetargi z BZP i TED na strony, portale, sklepy, aplikacje i grafikę, od najlepiej dopasowanych. Te, które bierzemy, dodaj do ofert' . ($inLead ? ' (już w ofertach: ' . $inLead . ')' : '') . '. Sprawdzamy codziennie rano' . ($at ? ', ostatnio ' . e(date('d.m H:i', strtotime($at))) : '') . '.</span>'
             . '<form method="post" action="' . P . '?a=tenders_fetch">' . csrf_field() . '<input type="hidden" name="days" value="7"><button class="btn ghost sm" data-busy>' . icon('refresh') . ' Sprawdź teraz</button></form></div>'
             . ($all ? '<nav class="tabs sub" aria-label="Rodzaj przetargu">' . $ctabs . '</nav>' : '') . '</section>'
             . ($tiles ? '<div class="ktiles">' . $tiles . '</div>' : '<section class="card"><div class="empty">Brak nowych przetargów. Kliknij „Sprawdź teraz” albo poszerz słowa kluczowe.</div></section>')
@@ -390,7 +390,7 @@ function view_leads(): never {
                 . '<td class="c-due nw">' . (isset($au['psi']) && $au['psi'] !== null ? 'PageSpeed ' . (int)$au['psi'] : '') . '<span class="sub">' . (!empty($au['https']) ? 'HTTPS' : 'bez HTTPS') . ' · ' . (!empty($au['viewport']) ? 'mobile' : 'bez mobile') . '</span></td><td class="c-amt r amt">' . e(count($au['points'] ?? []) . ' uwag') . '</td><td class="c-st nw">' . lead_chip($l['stage']) . '</td><td class="c-act"></td></tr>'; }
         $body .= '<section class="card"><nav class="tabs">' . $tabs . '</nav><form class="pad sec" method="post" action="' . P . '?a=scan">' . csrf_field()
             . '<label class="f">Adresy stron firm, które chcesz sprawdzić (po jednym w linii, najwyżej kilka naraz)<textarea class="in" name="domains" rows="4" placeholder="firma-z-rzeszowa.pl&#10;innafirma.pl"></textarea></label>'
-            . '<div class="hrow" style="flex-wrap:wrap"><span class="mut" style="font-size:14px">Sprawdzimy HTTPS, wersję mobilną, szybkość (PageSpeed), aktualność i dane kontaktowe. Każda strona trafi do lejka z oceną potencjału.</span><button class="btn" data-busy>' . icon('search') . ' Skanuj</button></div></form>'
+            . '<div class="hrow" style="flex-wrap:wrap"><span class="mut" style="font-size:14px">Sprawdzimy HTTPS, wersję mobilną, szybkość (PageSpeed), aktualność i dane kontaktowe. Każda strona trafi do ofert z oceną potencjału.</span><button class="btn" data-busy>' . icon('search') . ' Skanuj</button></div></form>'
             . ($tr ? '<div class="tw"><table class="list"><tbody>' . $tr . '</tbody></table></div>' : '') . '</section>';
     }
     page('Szanse', 'leads', $body, 'Nowi klienci dla Creative Vision', '<a class="btn" href="' . P . '?a=lead_new">Nowa szansa ' . icon('plus') . '</a>');
@@ -406,7 +406,7 @@ function view_lead(?array $l): never {
         . '<label class="f">Źródło<select class="in" name="source">' . $opt(LEAD_SOURCES, (string)($l['source'] ?? 'reczne')) . '</select></label><label class="f">Etap<select class="in" name="stage">' . $opt(LEAD_STAGES, (string)($l['stage'] ?? 'new')) . '</select></label>'
         . '<label class="f">Następny krok, kiedy<input class="in" type="date" name="next_at" value="' . $v('next_at') . '"></label><label class="f">Co zrobić<input class="in" name="next_note" value="' . $v('next_note') . '" placeholder="np. zadzwonić z propozycją"></label></div>'
         . '<label class="f">Notatki<textarea class="in" name="notes" rows="6">' . $v('notes') . '</textarea></label><button class="btn">Zapisz szansę</button></form>';
-    if (!$l) { $GLOBALS['back'] = [P . '?a=leads', 'Szanse']; page('Nowa szansa', 'leads', '<section class="card pad sec" style="max-width:860px">' . $form . '</section>', 'Lejek sprzedaży'); }
+    if (!$l) { $GLOBALS['back'] = [P . '?a=leads', 'Szanse']; page('Nowa szansa', 'leads', '<section class="card pad sec" style="max-width:860px">' . $form . '</section>', 'Oferty'); }
     $id = (int)$l['id'];
     $f = fn($a, $label, $cls = 'btn ghost', $extra = '') => '<form method="post" action="' . P . '?a=' . $a . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '">' . $extra . '<button class="' . $cls . '">' . $label . '</button></form>';
     $stages = ''; foreach (LEAD_STAGES as $k => $x) if ($k !== $l['stage']) $stages .= $f('lead_stage', $x, 'btn ghost sm', '<input type="hidden" name="stage" value="' . $k . '">');
@@ -445,7 +445,7 @@ function view_tender(int $id): never {
     if (job_is($t)) view_job($t, $body);
     $left = $t['deadline'] ? days_between(today(), substr($t['deadline'], 0, 10)) : null;
     $f = fn($a, $l, $c = 'btn') => '<form method="post" action="' . P . '?a=' . $a . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="' . $c . '" style="width:100%">' . $l . '</button></form>';
-    $acts = ($t['lead_id'] ? '<a class="btn" href="' . P . '?a=lead&id=' . $t['lead_id'] . '">Szansa w lejku ' . icon('arrow') . '</a>' . (ai_enabled() ? '<a class="btn ghost" href="' . P . '?a=quote_new&lead=' . $t['lead_id'] . '&ai=1">' . icon('spark') . ' Przygotuj wycenę z AI</a>' : '') : $f('tender_lead', icon('target') . ' Do lejka'))
+    $acts = ($t['lead_id'] ? '<a class="btn" href="' . P . '?a=lead&id=' . $t['lead_id'] . '">Szansa w ofertach ' . icon('arrow') . '</a>' . (ai_enabled() ? '<a class="btn ghost" href="' . P . '?a=quote_new&lead=' . $t['lead_id'] . '&ai=1">' . icon('spark') . ' Przygotuj wycenę z AI</a>' : '') : $f('tender_lead', icon('target') . ' Do ofert'))
         . '<a class="btn ghost" href="' . e($t['url']) . '" target="_blank" rel="noopener">Otwórz ogłoszenie ' . strtoupper($t['src']) . ' ↗</a>';
     $kv = '<div class="kv"><div><span>Zamawiający</span><span>' . e($t['buyer']) . '</span></div><div><span>Miejscowość</span><span>' . e($t['city'] . ($t['province'] ? ' · ' . $t['province'] : '')) . '</span></div>'
         . (!empty($t['nip']) ? '<div><span>NIP</span><span>' . e($t['nip']) . '</span></div>' : '') . '<div><span>Numer</span><span>' . e($t['ref']) . '</span></div><div><span>Opublikowano</span><span>' . e(pl_date($t['published'])) . '</span></div><div><span>CPV</span><span style="text-align:right">' . e(mb_strimwidth((string)$t['cpv'], 0, 160, '…')) . '</span></div></div>';

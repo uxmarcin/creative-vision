@@ -313,7 +313,7 @@ function view_quote(array $q): never {
     $autodl = !empty($_GET['dl']) ? '<a id="autodl" hidden href="' . P . '?a=quote_pdf&id=' . (int)$q['id'] . '&dl=1"></a>' : '';
     $tools = '<div class="ias tb">' . ia('eye', 'Podgląd PDF', P . '?a=quote_pdf&id=' . $id, ['blank' => true]) . ia('download', 'Pobierz PDF', P . '?a=quote_pdf&id=' . $id . '&dl=1')
         . ($q['status'] !== 'invoiced' ? ia('pencil', 'Edytuj', P . '?a=quote_edit&id=' . $id) : '')
-        . (!empty($q['src']['lead']) ? ia('target', 'Szansa w lejku', P . '?a=lead&id=' . (int)$q['src']['lead']) : '')
+        . (!empty($q['src']['lead']) ? ia('target', 'Szansa w ofertach', P . '?a=lead&id=' . (int)$q['src']['lead']) : '')
         . imore(array_values(array_filter([
             $q['status'] !== 'invoiced' && $q['status'] !== 'accepted' ? ['check', 'Klient zaakceptował', ['post' => 'quote_status', 'id' => $id, 'extra' => '<input type="hidden" name="st" value="accepted">']] : null,
             $q['status'] !== 'invoiced' && $q['status'] !== 'rejected' ? ['x', 'Klient odrzucił', ['post' => 'quote_status', 'id' => $id, 'extra' => '<input type="hidden" name="st" value="rejected">']] : null,
@@ -352,7 +352,7 @@ function quote_from_mail_box(int $uid): string {
     foreach ($s->fetchAll() as $r) $ex .= '<a class="link" href="' . P . '?a=quote&id=' . $r['id'] . '">Wycena ' . e($r['number']) . '</a>';
     return '<section class="card pad sec"><h2>Zapytanie od klienta?</h2><span class="mut" style="font-size:14px">Zrób z tej wiadomości wycenę. Dane nadawcy wpiszemy same, a wycenę wyślesz jako odpowiedź.</span>'
         . '<a class="btn" href="' . P . '?a=quote_new&uid=' . $uid . aq() . '">' . icon('quote') . ' Utwórz wycenę</a>'
-        . '<form method="post" action="' . P . '?a=lead_from_mail">' . csrf_field() . acc_field() . '<input type="hidden" name="uid" value="' . $uid . '"><button class="btn ghost" style="width:100%">' . icon('target') . ' Dodaj do lejka</button></form>' . $ex . '</section>';
+        . '<form method="post" action="' . P . '?a=lead_from_mail">' . csrf_field() . acc_field() . '<input type="hidden" name="uid" value="' . $uid . '"><button class="btn ghost" style="width:100%">' . icon('target') . ' Dodaj do ofert</button></form>' . $ex . '</section>';
 }
 
 /** Karta „Przygotuj z AI” w formularzu wyceny. */
