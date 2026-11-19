@@ -78,7 +78,7 @@ function invoice_doc(array $inv, string $asset, bool $pdf = false, bool $online 
         . '</div>';
     if (!$pdf) return '<style>' . $css . '</style>' . $h;
     return '<!doctype html><html lang="pl"><head><meta charset="utf-8"><title>' . ($Q ? 'Wycena ' : 'Faktura ') . e($num) . '</title><style>'
-        . '@page{margin:0}'
+        . '@page{margin:14mm 0 0}@page :first{margin-top:0}'
         . '@font-face{font-family:"Jost";font-weight:400;src:url("' . CV_ROOT . '/fonts/Jost-400.ttf") format("truetype")}'
         . '@font-face{font-family:"Jost";font-weight:500;src:url("' . CV_ROOT . '/fonts/Jost-500.ttf") format("truetype")}'
         . '@font-face{font-family:"Jost";font-weight:700;src:url("' . CV_ROOT . '/fonts/Jost-500.ttf") format("truetype")}'

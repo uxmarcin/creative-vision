@@ -13,3 +13,12 @@ var tk=0;function tick(){tk=0;onCh();onPr();onFd()}
 addEventListener('scroll',function(){if(!tk){tk=1;requestAnimationFrame(tick)}},{passive:true});addEventListener('resize',tick);tick();
 })();
 (function(){if(matchMedia('(hover:none)').matches||matchMedia('(prefers-reduced-motion: reduce)').matches)return;document.querySelectorAll('.gg3-tilt').forEach(function(f){var s=f.closest('section')||f;s.addEventListener('pointermove',function(e){var b=f.getBoundingClientRect(),x=(e.clientX-(b.left+b.width/2))/b.width,y=(e.clientY-(b.top+b.height/2))/b.height;f.style.setProperty('--ry',(x*9).toFixed(2)+'deg');f.style.setProperty('--rx',(-y*7).toFixed(2)+'deg')});s.addEventListener('pointerleave',function(){f.style.removeProperty('--ry');f.style.removeProperty('--rx')})})})();
+(function(){var d=document;if(!d.querySelector('.gg3'))return;
+function add(){if(d.querySelector('.gg-live'))return;var l=d.querySelector('.cv-ih .lead');if(!l)return;
+var a=d.createElement('a');a.className='gg-live';a.href='https://upbycwwllq.cfolks.pl/';a.target='_blank';a.rel='noopener nofollow';
+a.innerHTML='Zobacz nowy sklep na żywo<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>';
+var n=d.createElement('p');n.className='gg-live-n';n.textContent='Wersja przed startem, na serwerze testowym. Wkrótce pod adresem goldengun.pl.';
+l.after(a,n)}
+add();addEventListener('load',add);setTimeout(add,1500);setTimeout(add,4000);
+new MutationObserver(add).observe(d.body,{childList:true,subtree:true});})();
+
