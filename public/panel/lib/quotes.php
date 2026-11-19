@@ -239,6 +239,7 @@ function view_quote_form(?array $q): never {
     if (!$q && !$f && ($cid = (int)($_GET['client'] ?? 0))) foreach ($clients as $c) if ((int)$c['id'] === $cid) { $b = $c; $cidSel = $cid; }
     if (!$q && !$f && ($lid = (int)($_GET['lead'] ?? 0)) && function_exists('lead_by_id') && ($ld = lead_by_id($lid))) {
         $b = array_merge($b, ['name' => $ld['company'] ?: $ld['name'], 'email' => $ld['email'], 'phone' => $ld['phone']]);
+        if (!empty($ld['src']['tender']) && function_exists('tender_contact')) foreach (tender_contact((int)$ld['src']['tender']) as $k => $v) if (trim((string)($b[$k] ?? '')) === '') $b[$k] = $v;
         foreach ($clients as $c) if ($ld['email'] !== '' && strcasecmp((string)$c['email'], $ld['email']) === 0) { $b = $c; $cidSel = (int)$c['id']; }
         $src = array_merge($ld['src'] ?: [], ['lead' => $lid]); $ldNotes = trim($ld['notes'] . "\n" . $ld['next_note'] . (!empty($ld['audit']['points']) ? "\nAudyt strony " . $ld['website'] . ': ' . implode(' ', $ld['audit']['points']) : '') . (!empty($ld['src']['tender']) && function_exists('tender_body') ? "\n\nTREŚĆ OGŁOSZENIA PRZETARGOWEGO:\n" . tender_body((int)$ld['src']['tender']) : ''));
     }

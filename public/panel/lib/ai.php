@@ -40,7 +40,7 @@ function ai_quote(string $context, string $brief, string $client): array {
         'questions' => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'Pytania do klienta, które doprecyzują wycenę'],
         'client' => ['type' => 'object', 'description' => 'Dane klienta lub zamawiającego wyczytane z zapytania albo ogłoszenia. Tylko to, co jest w tekście, nic nie zgaduj.', 'properties' => [
             'name' => ['type' => 'string', 'description' => 'Pełna nazwa firmy lub instytucji'], 'nip' => ['type' => 'string'], 'addr1' => ['type' => 'string', 'description' => 'Ulica i numer'],
-            'addr2' => ['type' => 'string', 'description' => 'Kod pocztowy i miasto'], 'email' => ['type' => 'string', 'description' => 'E-mail do kontaktu lub składania ofert'], 'phone' => ['type' => 'string']]],
+            'addr2' => ['type' => 'string', 'description' => 'Kod pocztowy i miasto'], 'email' => ['type' => 'string', 'description' => 'E-mail do kontaktu lub składania ofert. W ogłoszeniu BZP to zwykle pole „Adres poczty elektronicznej” zamawiającego. Zawsze go przepisz, jeśli jest w tekście.'], 'phone' => ['type' => 'string']]],
         'message' => ['type' => 'string', 'description' => 'Ciepła, konkretna wiadomość mailowa do klienta, do której dołączymy wycenę w PDF. Zacznij od „Dzień dobry,”, nawiąż do zapytania, w 2 do 3 akapitach opisz proponowane podejście i co klient dostaje, wspomnij termin i ważność wyceny, zaproponuj krótką rozmowę online. Bez podpisu (podpis dodajemy sami), bez myślników — i –.'],
         'submit' => ['type' => 'string', 'description' => 'Gdzie i jak złożyć ofertę: platforma lub adres (link), e-mail, termin, wymagane dokumenty i wadium, jeśli są w tekście. Puste, gdy nie dotyczy.']]]];
     $body = ['model' => $model, 'max_tokens' => 3000, 'system' => $system, 'messages' => [['role' => 'user', 'content' => $user]], 'tools' => [$tool], 'tool_choice' => ['type' => 'auto']];
@@ -51,13 +51,20 @@ function ai_quote(string $context, string $brief, string $client): array {
     if ($res === false) throw new RuntimeException('Brak połączenia z API Anthropic: ' . $err);
     $j = json_decode((string)$res, true);
     if ($code >= 400) throw new RuntimeException('API Anthropic: ' . ($j['error']['message'] ?? ('błąd ' . $code)));
-    if ($r = ai_parse($j, $model)) return $r;
+    if ($r = ai_parse($j, $model)) return ai_fill_mail($r, $context . "\n" . $brief);
     foreach ((array)($j['content'] ?? []) as $c) if (($c['type'] ?? '') === 'text' && preg_match('/\{.*\}/s', (string)$c['text'], $m) && is_array($in = json_decode($m[0], true)) && !empty($in['items'])) {
-        $j['content'] = [['type' => 'tool_use', 'input' => $in]]; return ai_parse($j, $model);
+        $j['content'] = [['type' => 'tool_use', 'input' => $in]]; $r = ai_parse($j, $model); return $r ? ai_fill_mail($r, $context . "\n" . $brief) : null;
     }
     throw new RuntimeException('AI nie zwróciło wyceny. Spróbuj jeszcze raz.');
 }
 
+/** Gdy AI nie podało e-maila, bierzemy pierwszy adres z treści zapytania lub ogłoszenia (bez naszych i systemowych). */
+function ai_fill_mail(array $r, string $text): array {
+    if (trim((string)($r['client']['email'] ?? '')) !== '') return $r;
+    if (preg_match('/(?:poczty elektronicznej|e-?mail)[^:\n]*:\s*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/iu', $text, $m)) { $r['client']['email'] = strtolower($m[1]); return $r; }
+    if (preg_match_all('/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/', $text, $m)) foreach ($m[0] as $x) if (!preg_match('/creative-vision|ezamowienia|europa\.eu|uzp\.gov|noreply|no-reply/i', $x)) { $r['client']['email'] = strtolower($x); break; }
+    return $r;
+}
 function ai_parse(array $j, string $model): ?array {
     foreach ((array)($j['content'] ?? []) as $c) if (($c['type'] ?? '') === 'tool_use' && is_array($c['input'] ?? null)) {
         $in = $c['input'];

@@ -76,6 +76,17 @@ function html_text(string $h, int $max = 15000): string {
     $t = preg_replace("/[ \t\x{00A0}]+/u", ' ', $t) ?? ''; $t = preg_replace("/\n\s*\n+/", "\n", $t) ?? '';
     return mb_substr(trim($t), 0, $max);
 }
+/** Dane zamawiającego wyczytane z treści ogłoszenia (BZP i TED): e-mail, adres, NIP, telefon. */
+function tender_contact(int $id): array {
+    $q = db()->prepare('SELECT * FROM tenders WHERE id = ?'); $q->execute([$id]); $t = $q->fetch(); if (!$t) return [];
+    $b = tender_body($id); $g = function (string $re) use ($b): string { return preg_match($re, $b, $m) ? trim($m[1], " \t.,;:") : ''; };
+    $mail = $g('/(?:poczty elektronicznej|e-?mail)[^:\n]*:\s*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/iu');
+    if ($mail === '' && preg_match_all('/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/', $b, $m)) foreach ($m[0] as $x) if (!preg_match('/creative-vision|ezamowienia|europa\.eu|uzp\.gov/i', $x)) { $mail = $x; break; }
+    $street = $g('/Ulica[^:\n]*:\s*([^\n]+)/u'); $city = $g('/Miejscowo\x{15B}\x{107}[^:\n]*:\s*([^\n]+)/u') ?: (string)$t['city']; $zip = $g('/Kod pocztowy[^:\n]*:\s*(\d{2}-\d{3})/u');
+    $nip = preg_replace('/\D/', '', (string)$t['nip']); if (strlen($nip) !== 10) $nip = preg_replace('/\D/', '', $g('/NIP[^:\n]*:?\s*([\d -]{10,13})/u'));
+    return array_filter(['name' => (string)$t['buyer'], 'email' => strtolower($mail), 'addr1' => $street, 'addr2' => trim($zip . ' ' . $city), 'nip' => strlen($nip) === 10 ? $nip : '',
+        'phone' => $g('/(?:Numer telefonu|Telefon)[^:\n]*:\s*(\+?[\d ()-]{7,20})/u')]);
+}
 /** Treść ogłoszenia: z bazy, a gdy jej nie ma, pobieramy ją z BZP albo TED i zapisujemy. */
 function tender_body(int $id): string {
     leads_migrate();
