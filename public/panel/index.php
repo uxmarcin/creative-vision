@@ -12,6 +12,7 @@ require_once __DIR__ . '/lib/sms.php';
 require_once __DIR__ . '/lib/quotes.php';
 require_once __DIR__ . '/lib/books.php';
 require_once __DIR__ . '/lib/push.php';
+require_once __DIR__ . '/lib/leads.php';
 
 if (($_GET['a'] ?? '') === 'sw') { header('Content-Type: application/javascript; charset=utf-8'); header('Cache-Control: no-cache'); readfile(__DIR__ . '/sw.js'); exit; }
 security_headers();
@@ -111,6 +112,7 @@ if ($post) {
     $id = (int)($_POST['id'] ?? 0);
     switch ($a) {
         case 'quote_save': case 'quote_send': case 'quote_status': case 'quote_invoice': case 'quote_delete': quote_post($a);
+        case 'lead_save': case 'lead_stage': case 'lead_next': case 'lead_delete': case 'lead_from_mail': case 'tender_lead': case 'tender_hide': case 'tenders_fetch': case 'tender_settings': case 'scan': case 'lead_rescan': leads_post($a);
         case 'push_sub':
             push_migrate(); header('Content-Type: application/json');
             $ep = (string)($_POST['endpoint'] ?? '');
@@ -361,6 +363,9 @@ switch ($a) {
     case 'clients': view_clients();
     case 'quotes': view_quotes();
     case 'books': view_books();
+    case 'leads': view_leads();
+    case 'lead_new': view_lead(null);
+    case 'lead': $l = lead_by_id((int)($_GET['id'] ?? 0)); if (!$l) redirect(P . '?a=leads'); view_lead($l);
     case 'cost': $c = cost_by_id((int)($_GET['id'] ?? 0)); if (!$c) redirect(P . '?a=books'); view_cost($c);
     case 'cost_file':
         $c = cost_by_id((int)($_GET['id'] ?? 0)); if (!$c || !is_file(COST_DIR . '/' . $c['path'])) { http_response_code(404); exit; }
@@ -616,6 +621,7 @@ function icon(string $n): string {
         'back' => '<path d="M15 5l-7 7 7 7"/>',
         'quote' => '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h5"/>',
         'books' => '<path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/>',
+        'target' => '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
         'clip' => '<path d="M21 11.5 12.5 20a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/>',
     ][$n] ?? '';
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="square" aria-hidden="true">' . $p . '</svg>';
@@ -639,16 +645,16 @@ function flash_html(): string {
 
 function page(string $title, string $active, string $body, string $kicker = '', string $acts = ''): never {
     $accs = mail_accounts(); $un = unseen_total(); $poll = $accs['f']['on'] || $accs['k']['on'];
-    $nav = [['inbox', 'Poczta <b class="bdg" id="mailbdg"' . ($poll ? ' data-poll' : '') . ($un > 0 ? '>' . $un : ' hidden>') . '</b>', 'mail', P . '?a=inbox'], ['list', 'Faktury', 'list', P], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['quotes', 'Wyceny', 'quote', P . '?a=quotes'], ['books', 'Księgowość', 'books', P . '?a=books'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
+    $nav = [['inbox', 'Poczta <b class="bdg" id="mailbdg"' . ($poll ? ' data-poll' : '') . ($un > 0 ? '>' . $un : ' hidden>') . '</b>', 'mail', P . '?a=inbox'], ['list', 'Faktury', 'list', P], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['leads', 'Szanse', 'target', P . '?a=leads'], ['quotes', 'Wyceny', 'quote', P . '?a=quotes'], ['books', 'Księgowość', 'books', P . '?a=books'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
     $links = '';
     foreach ($nav as [$k, $l, $i, $h]) $links .= '<a href="' . $h . '" class="n-' . $k . ($active === $k ? ' on" aria-current="page' : '') . '" title="' . strip_tags($l) . '"' . ($k === 'new' ? ' data-plus' : '') . '>' . icon($i) . '<span class="tx">' . $l . '</span></a>';
     $sheet = '<dialog class="mdlg plus" id="plusdlg"><div class="sheet"><div class="hrow"><h2>Co tworzymy?</h2><button type="button" class="x" data-close aria-label="Zamknij">×</button></div>'
-        . '<a class="btn" href="' . P . '?a=new">' . icon('list') . ' Nowa faktura</a><a class="btn ghost" href="' . P . '?a=quote_new">' . icon('quote') . ' Nowa wycena</a></div></dialog>';
+        . '<a class="btn" href="' . P . '?a=new">' . icon('list') . ' Nowa faktura</a><a class="btn ghost" href="' . P . '?a=quote_new">' . icon('quote') . ' Nowa wycena</a><a class="btn ghost" href="' . P . '?a=lead_new">' . icon('target') . ' Nowa szansa</a></div></dialog>';
     $v = substr((string)@md5_file(__DIR__ . '/assets/panel.js'), 0, 10);
     echo head($title) . '<body data-ver="' . app_ver() . '" data-csrf="' . e(csrf_token()) . '" class="pg-' . e($active) . (!empty($GLOBALS['pgcls']) ? ' ' . $GLOBALS['pgcls'] : '') . '"><div class="app"><nav class="nav" aria-label="Menu panelu">'
         . '<a class="brand" href="' . P . '"><img src="' . P . '/assets/logo-white.svg" alt="creative vision"></a>'
         . '<div class="grp"><p class="lbl">Finanse</p>' . $links . '</div>'
-        . '<div class="bot"><span>Przypomnienia wysyłamy sami, w dni robocze rano.</span><a class="set' . ($active === 'settings' ? ' on' : '') . '" href="' . P . '?a=settings" aria-label="Ustawienia">' . icon('cog') . '</a>'
+        . '<div class="bot"><span>Przypomnienia wysyłamy sami, w dni robocze rano.</span><a class="set' . ($active === 'clients' ? ' on' : '') . '" href="' . P . '?a=clients" aria-label="Klienci">' . icon('users') . '</a><a class="set' . ($active === 'settings' ? ' on' : '') . '" href="' . P . '?a=settings" aria-label="Ustawienia">' . icon('cog') . '</a>'
         . '<form method="post" action="' . P . '?a=logout">' . csrf_field() . '<button class="link" style="color:#C9C9C9">Wyloguj</button></form></div></nav>'
         . '<main class="main" id="main">'
         . '<header class="top"><div>' . (!empty($GLOBALS['back']) ? '<a class="back" href="' . e($GLOBALS['back'][0]) . '">' . icon('back') . '<span>' . e($GLOBALS['back'][1]) . '</span></a>' : '') . ($kicker ? '<p class="k">' . e($kicker) . '</p>' : '') . '<h1>' . e($title) . '</h1></div>' . ($acts ? '<div class="acts">' . $acts . '</div>' : '') . '</header>'
@@ -1211,7 +1217,7 @@ function size_fmt(int $b): string { return $b >= 1048576 ? round($b / 1048576, 1
 function view_compose(): never {
     if (!inbox_enabled()) inbox_off();
     $inv = isset($_GET['inv']) ? invoice_by_id((int)$_GET['inv']) : null;
-    $to = $inv ? (string)($inv['buyer']['email'] ?? '') : '';
+    $to = $inv ? (string)($inv['buyer']['email'] ?? '') : (filter_var((string)($_GET['to'] ?? ''), FILTER_VALIDATE_EMAIL) ? (string)$_GET['to'] : '');
     $body = '<section class="card pad sec" style="max-width:760px"><form class="inl" method="post" action="' . P . '?a=mail_send">' . csrf_field() . acc_field()
         . '<label class="f">Do<input class="in" name="to" value="' . e($to) . '" required placeholder="adres@firma.pl"></label>'
         . '<label class="f">Temat<input class="in" name="subject" value="' . e($inv ? 'Faktura ' . $inv['number'] : '') . '" required></label>'

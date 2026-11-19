@@ -59,9 +59,10 @@ function save_quote(?int $id, array $p, string $act): array {
     } else {
         $ym = substr($issue, 0, 7); [$seq, $num] = next_quote_number($ym);
         $src = json_decode((string)($p['src'] ?? ''), true);
-        $f += ['number' => $num, 'seq' => $seq, 'ym' => $ym, 'status' => 'draft', 'src' => is_array($src) ? json_encode(array_intersect_key($src, array_flip(['acc', 'uid', 'from', 'email', 'subject', 'date', 'msgid'])), JSON_UNESCAPED_UNICODE) : null, 'created' => now()];
+        $f += ['number' => $num, 'seq' => $seq, 'ym' => $ym, 'status' => 'draft', 'src' => is_array($src) ? json_encode(array_intersect_key($src, array_flip(['acc', 'uid', 'from', 'email', 'subject', 'date', 'msgid', 'lead'])), JSON_UNESCAPED_UNICODE) : null, 'created' => now()];
         $pdo->prepare('INSERT INTO quotes (' . implode(', ', array_keys($f)) . ') VALUES (:' . implode(', :', array_keys($f)) . ')')->execute($f);
         $id = (int)$pdo->lastInsertId();
+        if (is_array($src) && !empty($src['lead'])) $pdo->prepare("UPDATE leads SET quote_id = ?, stage = CASE WHEN stage IN ('new', 'contact') THEN 'offer' ELSE stage END, value = COALESCE(value, ?), updated = ? WHERE id = ?")->execute([$id, $c['net'], now(), (int)$src['lead']]);
     }
     $pdo->commit();
     if ($act === 'send') {
@@ -112,6 +113,7 @@ function quote_to_invoice(array $q): int {
     $pdo->prepare('INSERT INTO invoices (' . implode(', ', array_keys($f)) . ') VALUES (:' . implode(', :', array_keys($f)) . ')')->execute($f);
     $id = (int)$pdo->lastInsertId();
     $pdo->prepare("UPDATE quotes SET status = 'invoiced', invoice_id = ?, updated = ? WHERE id = ?")->execute([$id, now(), $q['id']]);
+    if (!empty($q['src']['lead'])) $pdo->prepare("UPDATE leads SET stage = 'won', updated = ? WHERE id = ?")->execute([now(), (int)$q['src']['lead']]);
     $pdo->commit();
     log_event($id, 'create', 'Faktura z wyceny ' . $q['number']);
     return $id;
@@ -211,6 +213,11 @@ function view_quote_form(?array $q): never {
         foreach ($clients as $c) if ($c['email'] !== '' && strcasecmp((string)$c['email'], $inq['email']) === 0) { $b = $c; $cidSel = (int)$c['id']; }
     }
     if (!$q && !$f && ($cid = (int)($_GET['client'] ?? 0))) foreach ($clients as $c) if ((int)$c['id'] === $cid) { $b = $c; $cidSel = $cid; }
+    if (!$q && !$f && ($lid = (int)($_GET['lead'] ?? 0)) && function_exists('lead_by_id') && ($ld = lead_by_id($lid))) {
+        $b = array_merge($b, ['name' => $ld['company'] ?: $ld['name'], 'email' => $ld['email'], 'phone' => $ld['phone']]);
+        foreach ($clients as $c) if ($ld['email'] !== '' && strcasecmp((string)$c['email'], $ld['email']) === 0) { $b = $c; $cidSel = (int)$c['id']; }
+        $src = array_merge($ld['src'] ?: [], ['lead' => $lid]);
+    }
     $opts = '<option value="">Nowy klient</option>';
     foreach ($clients as $c) $opts .= '<option value="' . $c['id'] . '"' . ($cidSel === (int)$c['id'] ? ' selected' : '') . '>' . e($c['name']) . '</option>';
     $vat = fn($sel) => implode('', array_map(fn($k, $l) => '<option value="' . $k . '"' . ((string)$sel === (string)$k ? ' selected' : '') . '>' . $l . '</option>', array_keys(vat_rates()), vat_rates()));
@@ -225,7 +232,7 @@ function view_quote_form(?array $q): never {
     $pills = ''; foreach ([7, 14, 30] as $d) $pills .= '<button type="button" data-term="' . $d . '"' . ($vdays === $d ? ' class="on"' : '') . '>' . $d . ' dni</button>';
     $v = fn($k) => e((string)($b[$k] ?? ''));
     $cur = (string)($f['currency'] ?? ($q['currency'] ?? 'PLN'));
-    $inqCard = $src ? '<section class="card pad sec inq"><h2>Zapytanie</h2><div class="kv"><div><span>Od</span><span>' . e(trim(($src['from'] ?? '') . ' ' . ($src['email'] ?? ''))) . '</span></div>' . (!empty($src['date']) ? '<div><span>Data</span><span>' . e(date('d.m.Y H:i', strtotime((string)$src['date']))) . '</span></div>' : '') . '</div>'
+    $inqCard = (!empty($src['email']) || !empty($src['subject'])) ? '<section class="card pad sec inq"><h2>Zapytanie</h2><div class="kv"><div><span>Od</span><span>' . e(trim(($src['from'] ?? '') . ' ' . ($src['email'] ?? ''))) . '</span></div>' . (!empty($src['date']) ? '<div><span>Data</span><span>' . e(date('d.m.Y H:i', strtotime((string)$src['date']))) . '</span></div>' : '') . '</div>'
         . (!empty($src['subject']) ? '<b style="font-weight:500">' . e((string)$src['subject']) . '</b>' : '') . (!empty($inq['text']) ? '<div class="mtext inq-t">' . nl2br(e($inq['text'])) . '</div>' : '') . '</section>' : '';
     $srcJson = $src ? json_encode(array_diff_key($src, ['text' => 1]), JSON_UNESCAPED_UNICODE) : '';
     $body = '<form class="sec" method="post" action="' . P . '?a=quote_save" id="invform" autocomplete="off">' . csrf_field() . '<input type="hidden" name="id" value="' . ($q['id'] ?? '') . '"><input type="hidden" name="src" value="' . e((string)$srcJson) . '">'
@@ -308,5 +315,6 @@ function quote_from_mail_box(int $uid): string {
     $ex = '';
     foreach ($s->fetchAll() as $r) $ex .= '<a class="link" href="' . P . '?a=quote&id=' . $r['id'] . '">Wycena ' . e($r['number']) . '</a>';
     return '<section class="card pad sec"><h2>Zapytanie od klienta?</h2><span class="mut" style="font-size:14px">Zrób z tej wiadomości wycenę. Dane nadawcy wpiszemy same, a wycenę wyślesz jako odpowiedź.</span>'
-        . '<a class="btn" href="' . P . '?a=quote_new&uid=' . $uid . aq() . '">' . icon('quote') . ' Utwórz wycenę</a>' . $ex . '</section>';
+        . '<a class="btn" href="' . P . '?a=quote_new&uid=' . $uid . aq() . '">' . icon('quote') . ' Utwórz wycenę</a>'
+        . '<form method="post" action="' . P . '?a=lead_from_mail">' . csrf_field() . acc_field() . '<input type="hidden" name="uid" value="' . $uid . '"><button class="btn ghost" style="width:100%">' . icon('target') . ' Dodaj do lejka</button></form>' . $ex . '</section>';
 }
