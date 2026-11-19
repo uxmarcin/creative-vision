@@ -58,6 +58,9 @@ ErrorDocument 404 /404.html
   <FilesMatch "\.html$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
+  <If "%{REQUEST_URI} =~ m#^/fonts/.+\.woff2$#">
+    Header set Access-Control-Allow-Origin "*"
+  </If>
   <If "%{REQUEST_URI} =~ m#^/(js|fonts)/#">
     Header set Cache-Control "public, max-age=31536000, immutable"
   </If>
