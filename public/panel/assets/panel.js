@@ -471,8 +471,7 @@ document.addEventListener('click', function (e) { var t = e.target.closest('[dat
       + '<path d="' + line + 'L' + W + ' ' + H + 'L0 ' + H + 'Z" fill="url(#' + gid + ')"/>'
       + '<path class="ln" d="' + line + '" fill="none" stroke="' + col + '" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>'
       + '<line class="cx" y1="0" y2="' + H + '" stroke="#8C8C8C" stroke-width="1" vector-effect="non-scaling-stroke" opacity="0"/>';
-    const ln = svg.querySelector('.ln'), L = ln.getTotalLength(); ln.style.strokeDasharray = L; ln.style.strokeDashoffset = L;
-    ln.getBoundingClientRect(); ln.style.transition = 'stroke-dashoffset .8s ease'; ln.style.strokeDashoffset = 0;
+    svg.style.clipPath = 'inset(0 100% 0 0)'; svg.getBoundingClientRect(); svg.style.transition = 'clip-path .8s ease'; svg.style.clipPath = 'inset(-10px -10px -10px -10px)';
     const last = rs[rs.length - 1], ch = last - rs[0], pc = ch / rs[0] * 100;
     box.querySelector('.fxc-v').textContent = nf(last) + ' PLN';
     box.querySelectorAll('.fxe').forEach(e => { const c = Math.round(+e.dataset.amt * last); e.textContent = '≈ ' + (c / 100).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + '\u00a0zł'; });
