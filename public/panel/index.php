@@ -737,7 +737,7 @@ function state_chip(array $inv): string {
     $st = inv_state($inv);
     if ($st === 'due' || $st === 'today' || $st === 'late') if (!empty($inv['declared_at'])) return '<span class="chip decl">Klient zgłosił wpłatę</span>';
     $l = ['draft' => 'Szkic', 'due' => 'Czeka na wpłatę', 'today' => 'Termin dziś', 'late' => 'Po terminie', 'paid' => 'Opłacona', 'cancelled' => 'Anulowana'][$st];
-    return '<span class="chip ' . $st . '">' . $l . '</span>';
+    return '<span class="chip ' . $st . ($st === 'due' && !empty($inv['sent_at']) ? ' sent' : '') . '">' . ($st === 'due' && !empty($inv['sent_at']) ? 'Wysłana, czeka na wpłatę' : $l) . '</span>';
 }
 function when_text(array $inv): array {
     $st = inv_state($inv);

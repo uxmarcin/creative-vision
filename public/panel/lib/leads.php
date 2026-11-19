@@ -31,7 +31,7 @@ function leads_migrate(): void {
     db()->exec("UPDATE tenders SET status = 'review' WHERE status = 'saved'");
 }
 function lead_by_id(int $id): ?array { leads_migrate(); $s = db()->prepare('SELECT * FROM leads WHERE id = ?'); $s->execute([$id]); $r = $s->fetch(); if (!$r) return null; foreach (['name', 'company', 'email', 'phone', 'website', 'next_note', 'notes', 'source', 'stage'] as $k) $r[$k] = (string)($r[$k] ?? ''); $r['audit'] = json_decode((string)$r['audit'], true) ?: []; $r['src'] = json_decode((string)$r['src'], true) ?: []; return $r; }
-function lead_chip(string $st): string { $c = ['new' => 'draft', 'contact' => 'due', 'offer' => 'decl', 'nego' => 'today', 'won' => 'paid', 'lost' => 'cancelled'][$st] ?? 'due'; return '<span class="chip ' . $c . '">' . (LEAD_STAGES[$st] ?? $st) . '</span>'; }
+function lead_chip(string $st): string { $c = ['new' => 'draft', 'contact' => 'due', 'offer' => 'sent', 'nego' => 'today', 'won' => 'paid', 'lost' => 'cancelled'][$st] ?? 'due'; return '<span class="chip ' . $c . '">' . (LEAD_STAGES[$st] ?? $st) . '</span>'; }
 function lead_save(array $f, ?int $id = null): int {
     leads_migrate(); $f['updated'] = now();
     foreach (['audit', 'src'] as $k) if (isset($f[$k]) && is_array($f[$k])) $f[$k] = json_encode($f[$k], JSON_UNESCAPED_UNICODE);

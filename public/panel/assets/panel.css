@@ -589,3 +589,4 @@ ul.pts{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;fon
 .kcard .ia{width:32px;height:32px}.kcard .ia svg{width:17px;height:17px}
 .list td.c-act{width:1%}
 @media (max-width:900px){.ia{width:40px;height:40px}.ias.tb .ia{width:46px;height:46px}.imenu-l{min-width:220px}}
+.chip.sent{background:var(--ink);color:#fff;border:0}

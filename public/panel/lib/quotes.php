@@ -14,7 +14,7 @@ function quote_labels(): array {
 }
 function quote_chip(array $q): string {
     $st = quote_state($q);
-    $cls = ['draft' => 'draft', 'sent' => 'due', 'accepted' => 'decl', 'rejected' => 'cancelled', 'invoiced' => 'paid', 'expired' => 'late'][$st] ?? 'due';
+    $cls = ['draft' => 'draft', 'sent' => 'sent', 'accepted' => 'decl', 'rejected' => 'cancelled', 'invoiced' => 'paid', 'expired' => 'late'][$st] ?? 'due';
     return '<span class="chip ' . $cls . '">' . quote_labels()[$st] . '</span>';
 }
 
