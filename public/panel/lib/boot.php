@@ -514,7 +514,7 @@ function fx_ticker(string $cur): string {
     $flag = ['USD' => '🇺🇸', 'EUR' => '🇪🇺', 'GBP' => '🇬🇧'][$cur] ?? '';
     [$a, $b] = explode(',', number_format($last, 4, ',', ''));
     return '<div class="kpi fxt ' . ($up ? 'up' : 'dn') . '" title="Średni kurs NBP z ' . e(pl_date($h[count($h) - 1][0])) . '"><span class="t">' . e($cur) . '/PLN <span class="fxt-s">NBP</span></span>'
-        . '<span class="v">' . $a . '<span class="gr">,' . $b . '</span></span>'
+        . '<span class="v">' . $a . ',' . $b . ' <span class="gr" style="font-size:.55em">zł</span></span>'
         . '<span class="fxt-r"><span class="fxt-p">' . ($up ? '↑' : '↓') . ' ' . number_format(abs($ch), 2, ',', '') . '%</span><span class="fxt-m">1 mies.</span></span>'
         . '<svg class="fxt-g" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true"><path d="' . $line . ' L120,36 L0,36 Z" class="a"/><path d="' . $line . '" class="l"/></svg></div>';
 }
