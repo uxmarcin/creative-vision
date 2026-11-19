@@ -30,6 +30,10 @@
 
   $$('[data-autosubmit]').forEach(function (el) { el.addEventListener('change', function () { el.form.submit(); }); });
 
+  $$('tr[data-href]').forEach(function (tr) {
+    tr.addEventListener('click', function (e) { if (e.target.closest('a,button,input,form')) return; if (e.metaKey || e.ctrlKey) window.open(tr.getAttribute('data-href')); else location.href = tr.getAttribute('data-href'); });
+  });
+
   var form = $('#invform');
   if (!form) return;
 

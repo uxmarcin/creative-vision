@@ -482,13 +482,13 @@ function view_list(): never {
         [$w, $wc] = when_text($i);
         $first = $i['calc']['items'][0]['name'] ?? '';
         $url = P . '?a=view&id=' . $i['id'];
-        $act = match (inv_state($i)) { 'draft' => 'Dokończ', 'late' => 'Przypomnij', 'paid', 'cancelled' => 'Podgląd', default => empty($i['sent_at']) ? 'Wyślij' : 'Podgląd' };
-        $tr .= '<tr class="row"><td class="c-num nw"><a class="num" href="' . $url . '">' . e($i['number'] ?: 'Szkic') . '</a></td>'
+        $act = match (inv_state($i)) { 'draft' => 'Dokończ', 'late' => 'Przypomnij', 'paid', 'cancelled' => '', default => empty($i['sent_at']) ? 'Wyślij' : '' };
+        $tr .= '<tr class="row" data-href="' . $url . '"><td class="c-num nw"><a class="num" href="' . $url . '">' . e($i['number'] ?: 'Szkic') . '</a></td>'
             . '<td class="c-cli"><span>' . e($i['buyer']['name'] ?? 'Bez nabywcy') . '</span><span class="sub">' . e(mb_strimwidth($first, 0, 60, '…')) . '</span></td>'
             . '<td class="c-due nw">' . e(pl_date($i['due_date'])) . '<span class="sub ' . $wc . '">' . e($w) . '</span></td>'
             . '<td class="c-amt r amt">' . money((int)$i['gross'], $i['currency'] ?? 'PLN') . '</td>'
             . '<td class="c-st nw">' . state_chip($i) . '</td>'
-            . '<td class="c-act r nw"><a class="link" href="' . $url . '">' . $act . '</a></td></tr>';
+            . '<td class="c-act r nw">' . ($act !== '' ? '<a class="link" href="' . $url . '">' . $act . '</a>' : '') . '</td></tr>';
     }
     $table = '<section class="card wide" aria-label="Lista faktur">' . $per . '<nav class="tabs" aria-label="Filtr faktur">' . $tabs . '</nav>'
         . ($tr ? '<div class="tw"><table class="list"><thead><tr><th>Numer</th><th>Klient</th><th>Termin</th><th class="r">Kwota brutto</th><th>Status</th><th><span class="sr">Akcje</span></th></tr></thead><tbody>' . $tr . '</tbody></table></div>'
