@@ -918,3 +918,10 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 .fxt-g .l{fill:none;stroke-width:1.75;vector-effect:non-scaling-stroke;stroke-linejoin:round}
 .fxt.up .fxt-g .l{stroke:var(--green)}.fxt.dn .fxt-g .l{stroke:var(--red)}
 .fxt-g .a{opacity:.1}.fxt.up .fxt-g .a{fill:var(--green)}.fxt.dn .fxt-g .a{fill:var(--red)}
+
+/* zacięte ładowanie: karta z wyjściem */
+.slowc{position:fixed;left:50%;bottom:24px;z-index:300;transform:translate(-50%,16px);opacity:0;pointer-events:none;display:flex;align-items:center;gap:16px;width:min(560px,calc(100vw - 32px));padding:16px 18px;background:#fff;border:1px solid var(--line);box-shadow:0 12px 40px rgba(0,0,0,.14);transition:opacity .2s,transform .2s}
+.slowc.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.slowc-t{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;font-size:14px}.slowc-t b{font-weight:500}.slowc-t span{color:var(--mut);font-size:13px}
+.slowc-a{display:flex;gap:8px;flex:none}
+@media(max-width:900px){.slowc{bottom:96px;flex-direction:column;align-items:stretch}.slowc-a .btn{flex:1}}

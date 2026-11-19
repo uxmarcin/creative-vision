@@ -467,10 +467,10 @@ switch ($a) {
         echo quote_pdf($q); exit;
     case 'settings': view_settings();
     case 'push_key': header('Content-Type: application/json'); echo json_encode(['key' => vapid()[0]]); exit;
-    case 'fx': header('Content-Type: application/json'); header('Cache-Control: no-store'); $o = [];
+    case 'fx': session_write_close(); header('Content-Type: application/json'); header('Cache-Control: no-store'); $o = [];
         foreach (array_slice(array_unique(array_filter(explode(',', strtoupper((string)($_GET['c'] ?? ''))), fn($c) => preg_match('/^[A-Z]{3}$/', $c))), 0, 5) as $c) if ($r = nbp_rate($c)) $o[$c] = ['rate' => $r['rate'], 'date' => $r['date']];
         echo json_encode($o); exit;
-    case 'fx_hist': header('Content-Type: application/json'); header('Cache-Control: no-store');
+    case 'fx_hist': session_write_close(); header('Content-Type: application/json'); header('Cache-Control: no-store');
         $c = strtoupper((string)($_GET['c'] ?? 'USD')); $d = in_array((int)($_GET['d'] ?? 30), [7, 30, 180, 365], true) ? (int)$_GET['d'] : 30;
         echo json_encode(preg_match('/^[A-Z]{3}$/', $c) ? nbp_hist($c, $d) : []); exit;
     case 'ver': header('Content-Type: application/json'); echo json_encode(['v' => app_ver()]); exit;

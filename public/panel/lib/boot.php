@@ -407,10 +407,10 @@ function client_logo(?int $cid): ?string {
     $q = db()->prepare('SELECT id, website, email, logo, logo_at FROM clients WHERE id = ?'); $q->execute([$cid]); $c = $q->fetch();
     if (!$c) return $mem[$cid] = null;
     if (!empty($c['logo'])) return $mem[$cid] = $c['logo'];
-    $dom = client_domain($c); if ($dom === '' || time() - (int)$c['logo_at'] < 7 * 86400 || $fetched >= 2) return $mem[$cid] = null;
+    $dom = client_domain($c); if ($dom === '' || time() - (int)$c['logo_at'] < 7 * 86400 || $fetched >= 1) return $mem[$cid] = null;
     $fetched++; $logo = null;
     foreach (['https://' . $dom . '/apple-touch-icon.png', 'https://www.google.com/s2/favicons?domain=' . rawurlencode($dom) . '&sz=128'] as $u) {
-        $ch = curl_init($u); curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_MAXREDIRS => 3, CURLOPT_TIMEOUT => 4, CURLOPT_CONNECTTIMEOUT => 3, CURLOPT_PROTOCOLS => CURLPROTO_HTTPS, CURLOPT_USERAGENT => 'Mozilla/5.0']);
+        $ch = curl_init($u); curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_MAXREDIRS => 3, CURLOPT_TIMEOUT => 3, CURLOPT_CONNECTTIMEOUT => 2, CURLOPT_PROTOCOLS => CURLPROTO_HTTPS, CURLOPT_USERAGENT => 'Mozilla/5.0']);
         $b = curl_exec($ch); $ct = (string)curl_getinfo($ch, CURLINFO_CONTENT_TYPE); $code = curl_getinfo($ch, CURLINFO_HTTP_CODE); curl_close($ch);
         if ($code === 200 && is_string($b) && strlen($b) > 200 && strlen($b) < 300000 && ($inf = @getimagesizefromstring($b)) && $inf[0] >= 32 && in_array($inf['mime'], ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/x-icon', 'image/vnd.microsoft.icon'], true)) { $logo = 'data:' . $inf['mime'] . ';base64,' . base64_encode($b); break; }
     }

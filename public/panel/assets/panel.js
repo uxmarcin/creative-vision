@@ -416,8 +416,19 @@ document.addEventListener('click', function (e) { var t = e.target.closest('[dat
   var bar = document.createElement('div'); bar.className = 'navload'; document.body.appendChild(bar);
   var t = null;
   var safety = null;
-  var start = function () { clearTimeout(t); clearTimeout(safety); t = setTimeout(function () { document.documentElement.classList.add('loading'); bar.classList.remove('done'); bar.classList.add('on'); }, 120); safety = setTimeout(function () { stop(); }, 15000); };
-  var stop = function () { clearTimeout(t); document.documentElement.classList.remove('loading'); if (bar.classList.contains('on')) { bar.classList.add('done'); setTimeout(function () { bar.classList.remove('on', 'done'); }, 500); } };
+  var slow = null, card = null;
+  var showSlow = function () {
+    if (!card) {
+      card = document.createElement('div'); card.className = 'slowc'; card.setAttribute('role', 'status');
+      card.innerHTML = '<span class="slowc-t"><b>Ładuje się dłużej niż zwykle</b><span>Serwer odpowiada wolno. Możesz poczekać, odświeżyć albo zostać na tej stronie.</span></span><span class="slowc-a"><button type="button" class="btn sm" data-r>Odśwież</button><button type="button" class="btn ghost sm" data-s>Zostań tutaj</button></span>';
+      card.querySelector('[data-r]').onclick = function () { location.reload(); };
+      card.querySelector('[data-s]').onclick = function () { try { window.stop(); } catch (x) {} stop(); };
+      document.body.appendChild(card);
+    }
+    card.classList.add('on');
+  };
+  var start = function () { clearTimeout(t); clearTimeout(safety); clearTimeout(slow); t = setTimeout(function () { document.documentElement.classList.add('loading'); bar.classList.remove('done'); bar.classList.add('on'); }, 120); slow = setTimeout(showSlow, 6000); safety = setTimeout(function () { document.documentElement.classList.remove('loading'); }, 15000); };
+  var stop = function () { clearTimeout(t); clearTimeout(slow); clearTimeout(safety); if (card) card.classList.remove('on'); document.documentElement.classList.remove('loading'); if (bar.classList.contains('on')) { bar.classList.add('done'); setTimeout(function () { bar.classList.remove('on', 'done'); }, 500); } };
   document.addEventListener('click', function (e) {
     var a = e.target.closest('a[href]'); if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
     var h = a.getAttribute('href'); if (!h || h.charAt(0) === '#' || a.target === '_blank' || a.hasAttribute('download') || /^(mailto|tel|otpauth|javascript):/i.test(h)) return;
