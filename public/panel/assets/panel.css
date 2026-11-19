@@ -965,3 +965,4 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 .att form{display:block;margin:0;padding:0;background:none;border:0}
 .att-f{justify-content:flex-start}.att-f a{flex:1}
 .att .att-up{display:inline-flex;width:auto}
+.att-warn{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:var(--red);line-height:1.5}.att-warn svg.ic{flex:none;margin-top:2px}
