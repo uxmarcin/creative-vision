@@ -1,4 +1,4 @@
-name: Sprawdzenie panelu faktur
+name: Sprawdzenie panelu faktur (css)
 on:
   workflow_dispatch:
   push:
@@ -14,6 +14,9 @@ jobs:
           for u in panel panel/ panel/data/ panel/data/index.html panel/data/panel.sqlite panel/lib/boot.php panel/lib/setup-hash.php panel/vendor/dompdf/VERSION panel/fonts/Jost-400.ttf panel/assets/panel.css panel/cron.php f/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa probe-5e112c68767bc552.php; do
             echo "$(curl -s -o /dev/null -w '%{http_code}' https://creative-vision.pl/$u) $u"
           done
-          curl -s https://creative-vision.pl/panel | grep -o '<h1>[^<]*' || true
+          curl -s https://creative-vision.pl/panel | grep -o '<h1>[^<]*\|panel.css[^"]*' || true
+          curl -sI "https://creative-vision.pl/panel/assets/panel.css" | head -12
+          curl -s "https://creative-vision.pl/panel/assets/panel.css" | head -c 300; echo
+          curl -s "https://creative-vision.pl/panel/assets/panel.css" | wc -c
           curl -s https://creative-vision.pl/panel/cron.php; echo
           curl -sI https://creative-vision.pl/panel | grep -i -E 'content-security|x-robots|set-cookie' || true
