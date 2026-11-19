@@ -802,3 +802,14 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 .kpi .v.curs{display:flex;flex-direction:column;gap:6px}
 .kpi .curs .cur{display:flex;align-items:center;gap:10px;white-space:nowrap}
 .kpi .curs .flag{flex:none;width:20px;height:20px;border-radius:50%}
+
+.kpi .v .gr{color:#8C8C8C;font-weight:400}
+.kpi.dark .v .gr{color:#6E6E6E}
+.kpi .fxb{font-size:14px;color:#BDBDBD;line-height:1.5}.kpi .fxr{color:#7A7A7A}
+.kpi .t .live{display:inline-flex;align-items:center;gap:6px;margin-left:8px;font-size:12px;color:#7A7A7A;vertical-align:middle}
+.kpi .t .live i{width:6px;height:6px;border-radius:50%;background:#51BAD4;animation:livep 2.4s ease-in-out infinite}
+@keyframes livep{0%,100%{opacity:.35}50%{opacity:1}}
+.livetot{transition:filter .6s ease}
+.livetot.tick{animation:tickg 1.4s ease}
+@keyframes tickg{0%{filter:none}25%{filter:drop-shadow(0 0 10px rgba(81,186,212,.55))}100%{filter:none}}
+@media(prefers-reduced-motion:reduce){.kpi .t .live i,.livetot.tick{animation:none}}

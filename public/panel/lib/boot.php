@@ -457,6 +457,8 @@ function nbp_rate(string $cur): ?array {
 /** Kwota w groszach po kursie NBP albo null. */
 function to_pln(int $cents, string $cur): ?int { $r = nbp_rate($cur); return $r ? (int)round($cents * $r['rate']) : null; }
 /** Podpowiedź pod kwotą w walucie: „≈ 17 680,00 zł · kurs NBP 4,1600 z 19.11”. */
+/** Kwota w zł z groszami w osobnym, jaśniejszym spanie. */
+function money_split(int $c): string { $m = money($c); return preg_replace('/,(\d{2})(.*)$/u', '<span class="gr">,$1$2</span>', $m, 1); }
 function pln_hint(int $cents, ?string $cur, bool $short = false): string {
     $cur = $cur ?: 'PLN'; if ($cur === 'PLN') return ''; $r = nbp_rate($cur); if (!$r) return '';
     return '<span class="sub fxp" title="Średni kurs NBP (tabela A) z ' . pl_date($r['date']) . ', tylko do podglądu w panelu">≈ ' . money((int)round($cents * $r['rate'])) . ($short ? '' : ' · NBP ' . number_format($r['rate'], 4, ',', '') . ' z ' . date('d.m', strtotime($r['date']))) . '</span>';

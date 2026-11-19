@@ -428,3 +428,26 @@ document.addEventListener('click', function (e) { var t = e.target.closest('[dat
   addEventListener('pageshow', stop); addEventListener('pagehide', function () { clearTimeout(t); });
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') stop(); });
 })();
+
+/* Do zapłaty: suma w zł przelicza się sama po nowym kursie NBP */
+(() => {
+  const el = document.querySelector('.livetot'); if (!el) return;
+  const pln = +el.dataset.pln, fx = JSON.parse(el.dataset.fx || '{}'); let cur = +el.dataset.tot;
+  const fmt = c => { const s = (c / 100).toFixed(2).split('.'); return s[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + '<span class="gr">,' + s[1] + '\u00a0zł</span>'; };
+  const anim = to => {
+    const from = cur, t0 = performance.now(), d = 900; cur = to; el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick');
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { el.innerHTML = fmt(to); return; }
+    const step = t => { const k = Math.min(1, (t - t0) / d), e = 1 - Math.pow(1 - k, 3); el.innerHTML = fmt(Math.round(from + (to - from) * e)); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  };
+  const poll = async () => {
+    if (document.hidden) return;
+    try {
+      const r = await fetch(location.pathname + '?a=fx&c=' + Object.keys(fx).join(','), {credentials: 'same-origin', cache: 'no-store'}); if (!r.ok) return;
+      const j = await r.json(); let t = pln; for (const k in fx) { if (!j[k]) return; t += Math.round(fx[k] * j[k].rate); }
+      if (t !== cur) anim(t);
+      const fr = el.parentNode.querySelector('.fxr'); if (fr) fr.textContent = '· kurs NBP ' + Object.keys(fx).map(k => j[k].rate.toFixed(4).replace('.', ',') + ' z ' + j[k].date.slice(8, 10) + '.' + j[k].date.slice(5, 7)).join(', ');
+    } catch (e) {}
+  };
+  setInterval(poll, 60000); document.addEventListener('visibilitychange', poll);
+})();
