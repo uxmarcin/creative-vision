@@ -358,7 +358,7 @@ function icon(string $n): string {
 }
 
 function head(string $title): string {
-    $v = @filemtime(__DIR__ . '/assets/panel.css') ?: 1;
+    $v = substr((string)@md5_file(__DIR__ . '/assets/panel.css'), 0, 10);
     return '<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
         . '<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0B0B0B"><title>' . e($title) . ' · Faktury Creative Vision</title>'
         . '<link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="' . P . '/assets/panel.css?v=' . $v . '"></head>';
@@ -374,7 +374,7 @@ function page(string $title, string $active, string $body, string $kicker = '', 
     $nav = [['list', 'Faktury', 'list', P], ['new', 'Nowa faktura', 'plus', P . '?a=new'], ['clients', 'Klienci', 'users', P . '?a=clients'], ['settings', 'Ustawienia', 'cog', P . '?a=settings']];
     $links = '';
     foreach ($nav as [$k, $l, $i, $h]) $links .= '<a href="' . $h . '"' . ($active === $k ? ' class="on" aria-current="page"' : '') . ' title="' . $l . '">' . icon($i) . '<span class="tx">' . $l . '</span></a>';
-    $v = @filemtime(__DIR__ . '/assets/panel.js') ?: 1;
+    $v = substr((string)@md5_file(__DIR__ . '/assets/panel.js'), 0, 10);
     echo head($title) . '<body><div class="app"><nav class="nav" aria-label="Menu panelu">'
         . '<a class="brand" href="' . P . '"><img src="' . P . '/assets/logo-white.svg" alt="creative vision"></a>'
         . '<div class="grp"><p class="lbl">Finanse</p>' . $links . '</div>'

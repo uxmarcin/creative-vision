@@ -60,7 +60,7 @@ $qr = ($acc !== '' && $gross > 0 && $gross <= 999999 && $st !== 'paid')
     ? nip_digits($s['seller_nip']) . '|PL|' . $acc . '|' . sprintf('%06d', $gross) . '|' . mb_substr($s['seller_name'], 0, 20) . '|' . mb_substr('Faktura ' . $num, 0, 32) . '|||'
     : '';
 $copy = fn($v, $label) => '<button type="button" class="cp" data-copy="' . e($v) . '" aria-label="Kopiuj ' . e($label) . '">Kopiuj</button>';
-$v = @filemtime(__DIR__ . '/assets/panel.css') ?: 1;
+$v = substr((string)@md5_file(__DIR__ . '/assets/panel.css'), 0, 10);
 ?><!doctype html>
 <html lang="pl">
 <head>
@@ -145,7 +145,7 @@ $v = @filemtime(__DIR__ . '/assets/panel.css') ?: 1;
   <div class="doc-wrap"><?= invoice_doc($inv, '/panel/assets/', false, false) ?></div>
   <footer class="pfoot"><span><?= e($s['seller_name']) ?> · <a href="tel:+48<?= e(preg_replace('/\D/', '', $s['seller_phone'])) ?>"><?= e($s['seller_phone']) ?></a> · <a href="mailto:<?= e($s['seller_email']) ?>"><?= e($s['seller_email']) ?></a></span><a href="https://creative-vision.pl">creative-vision.pl</a></footer>
 </div>
-<script src="/panel/assets/panel.js?v=<?= @filemtime(__DIR__ . '/assets/panel.js') ?: 1 ?>"></script>
+<script src="/panel/assets/panel.js?v=<?= substr((string)@md5_file(__DIR__ . '/assets/panel.js'), 0, 10) ?>"></script>
 <?php if ($qr): ?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>(function(){var el=document.getElementById('qr');if(!el||!window.QRCode)return;new QRCode(el,{text:el.getAttribute('data-qr'),width:264,height:264,correctLevel:QRCode.CorrectLevel.M});})();</script>
