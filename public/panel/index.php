@@ -377,6 +377,7 @@ switch ($a) {
     case 'books': view_books();
     case 'leads': view_leads();
     case 'lead_new': view_lead(null);
+    case 'tender': view_tender((int)($_GET['id'] ?? 0));
     case 'lead': $l = lead_by_id((int)($_GET['id'] ?? 0)); if (!$l) redirect(P . '?a=leads'); view_lead($l);
     case 'cost': $c = cost_by_id((int)($_GET['id'] ?? 0)); if (!$c) redirect(P . '?a=books'); view_cost($c);
     case 'cost_file':

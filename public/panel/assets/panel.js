@@ -204,10 +204,12 @@
         if (!j.ok) throw new Error(j.error || 'Nie udało się.');
         fillItems(j.items);
         var nt = $('[name=notes]'); if (nt && j.notes) nt.value = j.notes;
+        if (j.client) ['name', 'nip', 'addr1', 'addr2', 'email', 'phone'].forEach(function (k) { var el = $('#' + k); if (el && j.client[k] && (!el.value.trim() || (k === 'name' && el.value.length < 4))) el.value = j.client[k]; });
         var pd = $('[name=pay_days]'); if (pd && j.pay_days != null) pd.value = j.pay_days;
         var pill = $('#pills button[data-term="' + j.valid_days + '"]'); if (pill) pill.click();
         var sum = j.items.reduce(function (a, it) { return a + it.price * (it.qty || 1); }, 0);
         aiout.innerHTML = '<b>Propozycja: ' + j.items.length + ' pozycji, ' + pl(sum).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + ' zł netto</b>' + (j.summary ? '<p>' + esc(j.summary) + '</p>' : '')
+          + (j.submit ? '<span class="mut">Gdzie złożyć ofertę:</span><p>' + esc(j.submit) + '</p>' : '')
           + (j.questions && j.questions.length ? '<span class="mut">Warto dopytać klienta:</span><ul>' + j.questions.map(function (q) { return '<li>' + esc(q) + '</li>'; }).join('') + '</ul>' : '') + '<span class="mut" style="font-size:13px">Sprawdź pozycje i ceny poniżej, popraw co trzeba i zapisz.</span>';
         aiout.hidden = false; aist.textContent = 'Gotowe. Możesz poprawić wskazówki i przygotować jeszcze raz.';
         $('#items').scrollIntoView({ behavior: 'smooth', block: 'start' });

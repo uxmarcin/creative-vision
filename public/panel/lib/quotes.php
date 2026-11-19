@@ -62,7 +62,7 @@ function save_quote(?int $id, array $p, string $act): array {
         $f += ['number' => $num, 'seq' => $seq, 'ym' => $ym, 'status' => 'draft', 'src' => is_array($src) ? json_encode(array_intersect_key($src, array_flip(['acc', 'uid', 'from', 'email', 'subject', 'date', 'msgid', 'lead'])), JSON_UNESCAPED_UNICODE) : null, 'created' => now()];
         $pdo->prepare('INSERT INTO quotes (' . implode(', ', array_keys($f)) . ') VALUES (:' . implode(', :', array_keys($f)) . ')')->execute($f);
         $id = (int)$pdo->lastInsertId();
-        if (is_array($src) && !empty($src['lead'])) $pdo->prepare("UPDATE leads SET quote_id = ?, stage = CASE WHEN stage IN ('new', 'contact') THEN 'offer' ELSE stage END, value = COALESCE(value, ?), updated = ? WHERE id = ?")->execute([$id, $c['net'], now(), (int)$src['lead']]);
+        if (is_array($src) && !empty($src['lead'])) $pdo->prepare("UPDATE leads SET quote_id = ?, stage = CASE WHEN stage = 'new' THEN 'contact' ELSE stage END, value = COALESCE(value, ?), updated = ? WHERE id = ?")->execute([$id, $c['net'], now(), (int)$src['lead']]);
     }
     $pdo->commit();
     if ($act === 'send') {
@@ -97,6 +97,7 @@ function send_quote_mail(array $q): bool {
     $ok = send_mail($to, $subj, $html, $text, [quote_pdf_name($q) => quote_pdf($q)], true, ['In-Reply-To' => (string)($src['msgid'] ?? ''), 'References' => (string)($src['msgid'] ?? '')]);
     mail_acc($cur);
     if ($ok) db()->prepare("UPDATE quotes SET sent_at = ?, status = CASE WHEN status = 'draft' THEN 'sent' ELSE status END, updated = ? WHERE id = ?")->execute([now(), now(), $q['id']]);
+    if ($ok && !empty($src['lead'])) db()->prepare("UPDATE leads SET stage = 'offer', updated = ? WHERE id = ? AND stage IN ('new', 'contact')")->execute([now(), (int)$src['lead']]);
     return $ok;
 }
 
@@ -216,7 +217,7 @@ function view_quote_form(?array $q): never {
     if (!$q && !$f && ($lid = (int)($_GET['lead'] ?? 0)) && function_exists('lead_by_id') && ($ld = lead_by_id($lid))) {
         $b = array_merge($b, ['name' => $ld['company'] ?: $ld['name'], 'email' => $ld['email'], 'phone' => $ld['phone']]);
         foreach ($clients as $c) if ($ld['email'] !== '' && strcasecmp((string)$c['email'], $ld['email']) === 0) { $b = $c; $cidSel = (int)$c['id']; }
-        $src = array_merge($ld['src'] ?: [], ['lead' => $lid]); $ldNotes = trim($ld['notes'] . "\n" . $ld['next_note'] . (!empty($ld['audit']['points']) ? "\nAudyt strony " . $ld['website'] . ': ' . implode(' ', $ld['audit']['points']) : ''));
+        $src = array_merge($ld['src'] ?: [], ['lead' => $lid]); $ldNotes = trim($ld['notes'] . "\n" . $ld['next_note'] . (!empty($ld['audit']['points']) ? "\nAudyt strony " . $ld['website'] . ': ' . implode(' ', $ld['audit']['points']) : '') . (!empty($ld['src']['tender']) && function_exists('tender_body') ? "\n\nTREŚĆ OGŁOSZENIA PRZETARGOWEGO:\n" . tender_body((int)$ld['src']['tender']) : ''));
     }
     $opts = '<option value="">Nowy klient</option>';
     foreach ($clients as $c) $opts .= '<option value="' . $c['id'] . '"' . ($cidSel === (int)$c['id'] ? ' selected' : '') . '>' . e($c['name']) . '</option>';

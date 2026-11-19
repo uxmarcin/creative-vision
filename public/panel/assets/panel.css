@@ -562,3 +562,4 @@ ul.pts{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;fon
 .kc-cat.c-www{background:#E8EDFE;color:#2342B5}.kc-cat.c-shop{background:#E6F4EC;color:var(--green)}.kc-cat.c-app{background:#F3E8F6;color:#7A2E8E}.kc-cat.c-design{background:#FFF4D6;color:#7A5300}
 .kcard.tile .kc-h{justify-content:flex-start}
 .tabs.sub{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.tabs.sub a{white-space:nowrap;flex:none}
+.tbody{font-size:14px;line-height:1.6;max-height:70vh;overflow:auto}

@@ -23,9 +23,9 @@ function ai_quote(string $context, string $brief, string $client): array {
     $system = "Jesteś doświadczonym project managerem w Creative Vision, agencji UX/UI z Rzeszowa, która projektuje i wdraża strony internetowe, sklepy i aplikacje. "
         . "Przygotowujesz wycenę dla klienta na podstawie zapytania. Piszesz po polsku, ciepło i konkretnie, bez żargonu, bez myślników typu — i –, bez wielkich liter dla ozdoby. "
         . "Nie wymyślaj faktów o kliencie. Jeśli czegoś brakuje, przyjmij rozsądne założenie i dopisz je do założeń oraz pytań do klienta.\n\nCENNIK I ZASADY CREATIVE VISION:\n" . (trim(setting('ai_pricing')) ?: AI_PRICING_DEFAULT);
-    $user = "Klient: " . ($client !== '' ? $client : 'nieznany') . "\n\nZAPYTANIE I KONTEKST:\n" . ($context !== '' ? mb_substr($context, 0, 12000) : '(brak, opieraj się na opisie poniżej)')
+    $user = "Klient: " . ($client !== '' ? $client : 'nieznany') . "\n\nZAPYTANIE I KONTEKST:\n" . ($context !== '' ? mb_substr($context, 0, 20000) : '(brak, opieraj się na opisie poniżej)')
         . ($brief !== '' ? "\n\nWSKAZÓWKI OD MARCINA:\n" . mb_substr($brief, 0, 3000) : '')
-        . "\n\nPrzygotuj wycenę i zapisz ją, wywołując narzędzie zapisz_wycene (zawsze użyj narzędzia, nie odpowiadaj samym tekstem). Pozycje mają być etapami prac z liczbą godzin w opisie (np. „ok. 16 h”) i ceną netto za pozycję. Ilość 1, jednostka usł., chyba że opieka miesięczna (jednostka mies.).";
+        . "\n\nPrzygotuj wycenę i zapisz ją, wywołując narzędzie zapisz_wycene (zawsze użyj narzędzia, nie odpowiadaj samym tekstem). Pozycje mają być etapami prac z liczbą godzin w opisie (np. „ok. 16 h”) i ceną netto za pozycję. Ilość 1, jednostka usł., chyba że opieka miesięczna (jednostka mies.). Wypisz też dane klienta z tekstu (nazwa, NIP, adres, e-mail, telefon) i, jeśli to przetarg, gdzie i jak złożyć ofertę.";
     $tool = ['name' => 'zapisz_wycene', 'description' => 'Zapisuje gotową wycenę w panelu.', 'input_schema' => ['type' => 'object', 'required' => ['items', 'notes', 'summary'], 'properties' => [
         'items' => ['type' => 'array', 'minItems' => 1, 'maxItems' => 12, 'items' => ['type' => 'object', 'required' => ['name', 'price_net'], 'properties' => [
             'name' => ['type' => 'string', 'description' => 'Krótka nazwa etapu lub usługi'],
@@ -37,7 +37,11 @@ function ai_quote(string $context, string $brief, string $client): array {
         'valid_days' => ['type' => 'integer', 'description' => 'Ważność wyceny w dniach, zwykle 14'],
         'pay_days' => ['type' => 'integer', 'description' => 'Termin płatności faktury w dniach, zwykle 7'],
         'summary' => ['type' => 'string', 'description' => 'Dla Marcina: przyjęte założenia i skąd taka cena, 2 do 4 zdań'],
-        'questions' => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'Pytania do klienta, które doprecyzują wycenę']]]];
+        'questions' => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'Pytania do klienta, które doprecyzują wycenę'],
+        'client' => ['type' => 'object', 'description' => 'Dane klienta lub zamawiającego wyczytane z zapytania albo ogłoszenia. Tylko to, co jest w tekście, nic nie zgaduj.', 'properties' => [
+            'name' => ['type' => 'string', 'description' => 'Pełna nazwa firmy lub instytucji'], 'nip' => ['type' => 'string'], 'addr1' => ['type' => 'string', 'description' => 'Ulica i numer'],
+            'addr2' => ['type' => 'string', 'description' => 'Kod pocztowy i miasto'], 'email' => ['type' => 'string', 'description' => 'E-mail do kontaktu lub składania ofert'], 'phone' => ['type' => 'string']]],
+        'submit' => ['type' => 'string', 'description' => 'Gdzie i jak złożyć ofertę: platforma lub adres (link), e-mail, termin, wymagane dokumenty i wadium, jeśli są w tekście. Puste, gdy nie dotyczy.']]]];
     $body = ['model' => $model, 'max_tokens' => 3000, 'system' => $system, 'messages' => [['role' => 'user', 'content' => $user]], 'tools' => [$tool], 'tool_choice' => ['type' => 'auto']];
     $ch = curl_init(getenv('CV_AI_URL') ?: 'https://api.anthropic.com/v1/messages');
     curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode($body, JSON_UNESCAPED_UNICODE), CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 120, CURLOPT_CONNECTTIMEOUT => 10,
@@ -60,7 +64,8 @@ function ai_parse(array $j, string $model): ?array {
         foreach ((array)($in['items'] ?? []) as $it) $items[] = ['name' => mb_substr((string)($it['name'] ?? ''), 0, 200), 'desc' => mb_substr((string)($it['desc'] ?? ''), 0, 800),
             'qty' => (float)($it['qty'] ?? 1) ?: 1, 'unit' => (string)($it['unit'] ?? 'usł.') ?: 'usł.', 'price' => round((float)($it['price_net'] ?? 0), 2), 'vat' => in_array((string)($it['vat'] ?? '23'), ['23', '8', '0', 'zw', 'np'], true) ? (string)($it['vat'] ?? '23') : '23'];
         return ['items' => $items, 'notes' => (string)($in['notes'] ?? ''), 'valid_days' => max(1, min(60, (int)($in['valid_days'] ?? 14))), 'pay_days' => max(0, min(60, (int)($in['pay_days'] ?? 7))),
-            'summary' => (string)($in['summary'] ?? ''), 'questions' => array_values(array_map('strval', (array)($in['questions'] ?? []))), 'model' => $model];
+            'summary' => (string)($in['summary'] ?? ''), 'questions' => array_values(array_map('strval', (array)($in['questions'] ?? []))), 'model' => $model,
+            'client' => array_map(fn($v) => mb_substr(trim((string)$v), 0, 200), array_intersect_key(is_array($in['client'] ?? null) ? $in['client'] : [], array_flip(['name', 'nip', 'addr1', 'addr2', 'email', 'phone']))), 'submit' => (string)($in['submit'] ?? '')];
     }
     return null;
 }
