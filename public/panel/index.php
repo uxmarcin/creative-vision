@@ -177,7 +177,7 @@ if ($post) {
             $n = push_send('Panel Creative Vision', 'Powiadomienia działają. Tak zobaczysz nowe maile i otwarte faktury.', '/panel', 'test');
             flash($n ? 'Wysłaliśmy testowe powiadomienie na ' . $n . ' ' . plural($n, 'urządzenie', 'urządzenia', 'urządzeń') . '.' : '!Brak urządzeń z włączonymi powiadomieniami.');
             redirect(P . '?a=settings#push');
-        case 'books_upload': case 'cost_delete': case 'cost_edit': case 'books_ksef': case 'books_send': case 'books_settings': books_post($a);
+        case 'books_upload': case 'cost_delete': case 'cost_edit': case 'books_ksef': case 'books_send': case 'books_tax': case 'books_settings': books_post($a);
         case 'save':
             $act = (string)($_POST['act'] ?? 'draft');
             [$id, $err] = save_invoice($id ?: null, $_POST, $act);

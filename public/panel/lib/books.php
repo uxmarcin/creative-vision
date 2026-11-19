@@ -124,6 +124,40 @@ function books_zip(string $ym, ?array $sales = null, ?array $costs = null): stri
 }
 function books_zip_name(string $ym): string { return 'Creative_Vision_dokumenty_' . $ym . '.zip'; }
 
+/** Netto faktury w złotych (waluta po kursie NBP z dnia roboczego przed wystawieniem). */
+function inv_net_pln(array $i): ?int {
+    $cu = $i['currency'] ?? 'PLN'; if ($cu === 'PLN') return (int)$i['net'];
+    $r = nbp_rate_before((string)$cu, (string)$i['issue_date']); return $r ? (int)round((int)$i['net'] * $r['rate']) : null;
+}
+/** Szacunek ryczałtu i składek za miesiąc. Kwoty w groszach. */
+function books_tax(string $ym): array {
+    $rate = (float)str_replace(',', '.', setting('tax_rate') ?: '12'); $zus = (int)setting('zus_social');
+    $rev = 0; $ok = true; foreach (sales_of($ym) as $i) { $v = inv_net_pln($i); if ($v === null) $ok = false; else $rev += $v; }
+    $ytd = 0; $y = substr($ym, 0, 4);
+    for ($m = 1; $m <= (int)substr($ym, 5, 2); $m++) foreach (sales_of(sprintf('%s-%02d', $y, $m)) as $i) $ytd += (int)inv_net_pln($i);
+    // składka zdrowotna na ryczałcie 2026: 60% / 100% / 180% przeciętnego wynagrodzenia (9 228,64 zł)
+    [$health, $tier] = $ytd <= 6000000 ? [49835, 'przychód w roku do 60 tys. zł'] : ($ytd <= 30000000 ? [83058, 'przychód w roku 60 do 300 tys. zł'] : [149504, 'przychód w roku ponad 300 tys. zł']);
+    $base = max(0, $rev - $zus - intdiv($health, 2)); $base = (int)round($base / 100) * 100;
+    $tax = (int)round($base * $rate / 100 / 100) * 100;
+    $pay = $tax + $health + $zus;
+    return ['rate' => $rate, 'rev' => $rev, 'ok' => $ok, 'ytd' => $ytd, 'health' => $health, 'tier' => $tier, 'zus' => $zus, 'base' => $base, 'tax' => $tax, 'pay' => $pay, 'left' => max(0, $rev - $pay), 'due' => date('Y-m-20', strtotime($ym . '-01 +1 month'))];
+}
+function books_tax_html(string $ym): string {
+    $t = books_tax($ym); $rs = rtrim(rtrim(number_format($t['rate'], 2, ',', ''), '0'), ',');
+    if ($t['rev'] <= 0) return '<div class="tx"><span class="tx-k">Szacowany podatek</span><span class="tx-e">Brak sprzedaży w tym miesiącu, więc ryczałtu nie ma. Składka zdrowotna ' . money($t['health']) . ' i tak do zapłaty.</span></div>';
+    $seg = [['tax', 'Ryczałt ' . $rs . '%', $t['tax'], 'od ' . money($t['base']) . ' po odliczeniu składek'], ['hl', 'Składka zdrowotna', $t['health'], $t['tier']]];
+    if ($t['zus']) $seg[] = ['zus', 'ZUS społeczny', $t['zus'], 'z ustawień'];
+    $bar = ''; $rows = '';
+    foreach ($seg as [$c, $l, $v, $s]) { $bar .= '<i class="' . $c . '" style="flex:' . max(1, $v) . '"></i>'; $rows .= '<li><span class="d ' . $c . '"></span><span class="l">' . e($l) . '<small>' . e($s) . '</small></span><b>' . money($v) . '</b></li>'; }
+    $bar .= '<i class="lf" style="flex:' . max(1, $t['left']) . '"></i>';
+    $rows .= '<li class="sum"><span class="d lf"></span><span class="l">Zostaje z przychodu<small>z ' . money($t['rev']) . ' netto' . ($t['ok'] ? '' : ', część faktur czeka na kurs NBP') . '</small></span><b>' . money($t['left']) . '</b></li>';
+    return '<div class="tx"><div class="tx-h"><span class="tx-k">Szacowany podatek i składki</span><span class="tx-v">' . money($t['pay']) . '</span><span class="tx-s">do zapłaty do ' . e(date('d.m.Y', strtotime($t['due']))) . '</span></div>'
+        . '<div class="tx-bar" aria-hidden="true">' . $bar . '</div><ul class="tx-l">' . $rows . '</ul>'
+        . '<details class="tx-ed"><summary>Stawka ' . $rs . '%' . ($t['zus'] ? ', ZUS ' . money($t['zus']) : '') . ' · zmień</summary><form method="post" action="' . P . '?a=books_tax">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '">'
+        . '<label>Stawka ryczałtu<select class="in" name="tax_rate">' . implode('', array_map(fn($r) => '<option value="' . $r . '"' . ((string)$r === (string)$t['rate'] || (float)$r === $t['rate'] ? ' selected' : '') . '>' . str_replace('.', ',', $r) . '%</option>', ['2', '3', '5.5', '8.5', '10', '12', '14', '15', '17'])) . '</select></label>'
+        . '<label>ZUS społeczny miesięcznie<input class="in" name="zus_social" inputmode="decimal" placeholder="0,00" value="' . ($t['zus'] ? number_format($t['zus'] / 100, 2, ',', '') : '') . '"></label><button class="btn sm">Zapisz</button></form></details>'
+        . '<span class="tx-n">Szacunek. Ryczałt liczony od przychodu netto, po odjęciu ZUS społecznego i połowy składki zdrowotnej. Ostateczną kwotę potwierdza księgowa.</span></div>';
+}
 /** Dokumenty, które poszły już do księgowej: ['s' => [id faktur], 'c' => [id kosztów]]. */
 function books_sent_ids(string $ym): array {
     $j = json_decode(setting('acc_ids_' . $ym), true);
@@ -217,6 +251,10 @@ function books_post(string $a): never {
             try { [$new, $all, $left] = ksef_fetch_costs($ym); flash($all ? 'KSeF: ' . $all . ' ' . plural($all, 'faktura zakupowa', 'faktury zakupowe', 'faktur zakupowych') . ' za ' . ym_label($ym) . ', pobrane teraz: ' . $new . '.' . ($left ? ' Jeszcze ' . $left . ' czeka, bo KSeF ogranicza liczbę pobrań na minutę. Kliknij „Pobierz z KSeF” ponownie za minutę.' : ' Wszystkie są w panelu.') : 'W KSeF nie ma faktur zakupowych za ' . ym_label($ym) . '.'); }
             catch (Throwable $e) { flash('!' . $e->getMessage()); }
             redirect($back);
+        case 'books_tax':
+            $r = (string)($_POST['tax_rate'] ?? '12'); if (in_array($r, ['2', '3', '5.5', '8.5', '10', '12', '14', '15', '17'], true)) set_setting('tax_rate', $r);
+            set_setting('zus_social', (string)max(0, (int)round((float)str_replace([' ', ','], ['', '.'], (string)($_POST['zus_social'] ?? '0')) * 100)));
+            flash('Zapisane. Podatek przeliczony.'); redirect($back);
         case 'books_send':
             [$ok, $msg] = books_send($ym); flash(($ok ? '' : '!') . $msg); redirect($back);
         case 'books_settings':
@@ -266,7 +304,7 @@ function view_books(): never {
         . '<input type="file" name="files[]" id="dropin" multiple accept="application/pdf,image/*,.pdf,.jpg,.jpeg,.png,.heic,.xml">'
         . '<label for="dropin">' . icon('clip') . '<b>Przeciągnij tu faktury zakupowe</b><span>albo kliknij, żeby wybrać pliki lub zrobić zdjęcie. PDF, JPG, PNG, XML.</span></label></form>';
     $body = $nav
-        . '<section class="kpis"><div class="kpi dark"><span class="t">Paczka za ' . e(ym_label($ym)) . '</span><span class="v">' . count($sales) . ' + ' . count($costs) . '</span><span class="s">' . count($sales) . ' ' . plural(count($sales), 'faktura sprzedażowa', 'faktury sprzedażowe', 'faktur sprzedażowych') . ', ' . count($costs) . ' ' . plural(count($costs), 'zakupowa', 'zakupowe', 'zakupowych') . '</span></div><div class="kpis-r">'
+        . '<section class="kpis"><div class="kpi dark"><span class="t">Paczka za ' . e(ym_label($ym)) . '</span><span class="v">' . count($sales) . ' + ' . count($costs) . '</span><span class="s">' . count($sales) . ' ' . plural(count($sales), 'faktura sprzedażowa', 'faktury sprzedażowe', 'faktur sprzedażowych') . ', ' . count($costs) . ' ' . plural(count($costs), 'zakupowa', 'zakupowe', 'zakupowych') . '</span>' . books_tax_html($ym) . '</div><div class="kpis-r">'
         . '<div class="kpi"><span class="t">Sprzedaż brutto</span><span class="v">' . $sumTxt . '</span><span class="s">wg miesiąca księgowego</span></div>'
         . '<div class="kpi"><span class="t">Księgowa</span><span class="v" style="font-size:20px">' . ($sent ? 'Wysłana ' . e(date('d.m', strtotime($sent))) : 'Jeszcze nie wysłana') . '</span><span class="s">' . (setting('acc_auto') === '1' && setting('acc_email') !== '' ? 'sama wyjdzie ' . (int)setting('acc_day') . '. dnia miesiąca' : 'wysyłka ręczna') . '</span></div></div></section>'
         . '<div class="cols"><div class="wide sec">'
