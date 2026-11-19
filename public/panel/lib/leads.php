@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 const LEAD_STAGES = ['new' => 'Nowe', 'contact' => 'W kontakcie', 'offer' => 'Wycena wysłana', 'nego' => 'Negocjacje', 'won' => 'Wygrane', 'lost' => 'Przegrane'];
-const LEAD_SOURCES = ['reczne' => 'Dodana ręcznie', 'mail' => 'Zapytanie mailowe', 'przetarg' => 'Przetarg', 'gielda' => 'Giełda zleceń', 'skaner' => 'Skaner stron', 'polecenie' => 'Polecenie'];
+const LEAD_SOURCES = ['reczne' => 'Dodana ręcznie', 'mail' => 'Zapytanie mailowe', 'przetarg' => 'Przetarg', 'gielda' => 'Giełda zleceń', 'zapytanie' => 'Zapytanie ofertowe UE', 'skaner' => 'Skaner stron', 'polecenie' => 'Polecenie'];
 const TENDER_CATS = ['www' => 'Strony i portale', 'shop' => 'Sklepy', 'app' => 'Aplikacje i systemy', 'design' => 'Grafika i marketing', 'other' => 'Inne'];
 /** Rodzaj przetargu po tytule i kodach CPV. */
 function tender_title(string $t): string { return preg_match('/^Polska\s*[–-]\s*[^–]{3,120}\s*[–-]\s*(.+)$/u', $t, $m) ? trim($m[1]) : $t; }
@@ -94,6 +94,7 @@ function tender_body(int $id): string {
     if (trim((string)$t['body']) !== '') return (string)$t['body'];
     $body = '';
     if (job_is($t)) $body = job_body_fetch($t);
+    elseif ($t['src'] === 'bk') $body = bk_body((string)$t['ref']);
     elseif ($t['src'] === 'bzp' && $t['published']) {
         $r = http_get('https://ezamowienia.gov.pl/mo-board/api/v1/notice?NoticeType=ContractNotice&NoticeNumber=' . rawurlencode($t['ref']) . '&PublicationDateFrom=' . $t['published'] . 'T00:00:00&PublicationDateTo=' . $t['published'] . 'T23:59:59&PageSize=5', 30);
         foreach ((array)json_decode($r['body'], true) as $x) if (is_array($x) && ($x['noticeNumber'] ?? '') === $t['ref']) { $body = html_text((string)($x['htmlBody'] ?? '')); break; }
@@ -137,8 +138,50 @@ function tenders_fetch(int $days = 2): array {
             'url' => 'https://ted.europa.eu/pl/notice/-/detail/' . ($n['publication-number'] ?? '')];
         if ($t['ref'] !== 'TED ' && (!$t['deadline'] || substr($t['deadline'], 0, 10) >= date('Y-m-d')) && tender_store($t)) $new[] = $t;
     } else $err[] = 'TED';
+    try { [$bn, $be] = bk_fetch(); $new = array_merge($new, $bn); $err = array_merge($err, $be); } catch (Throwable $e) { $err[] = 'Baza Konkurencyjności'; }
     set_setting('tender_at', now());
     return [$new, $err];
+}
+const BK_URL = 'https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl';
+const BK_PROV = ['dolnośląskie' => 'PL02', 'kujawsko-pomorskie' => 'PL04', 'lubelskie' => 'PL06', 'lubuskie' => 'PL08', 'łódzkie' => 'PL10', 'małopolskie' => 'PL12', 'mazowieckie' => 'PL14', 'opolskie' => 'PL16',
+    'podkarpackie' => 'PL18', 'podlaskie' => 'PL20', 'pomorskie' => 'PL22', 'śląskie' => 'PL24', 'świętokrzyskie' => 'PL26', 'warmińsko-mazurskie' => 'PL28', 'wielkopolskie' => 'PL30', 'zachodniopomorskie' => 'PL32'];
+function bk_get(string $path): ?array {
+    $r = http_get(BK_URL . $path, 25, ['Content-type: application/json; charset=utf-8', 'Accept: application/json']);
+    $j = json_decode($r['body'], true); return is_array($j) && ($j['status'] ?? '') === 'OK' ? $j['data'] : null;
+}
+/** Zapytania ofertowe z Bazy Konkurencyjności (firmy z dotacjami UE): zawsze z e-mailem osoby do kontaktu. */
+function bk_fetch(): array {
+    $new = []; $err = []; $seen = [];
+    $qs = [];
+    foreach (['72413000-8', '72400000-4', '72212000-4', '72200000-7', '72000000-5', '48000000-8', '79342000-3', '79822500-7', '72415000-2', '72420000-0'] as $c) $qs[] = ['cpvItem%5B0%5D=' . $c, $c];
+    foreach (['strony internetowej', 'sklepu internetowego', 'serwisu internetowego', 'aplikacji mobilnej', 'aplikacji webowej', 'platformy internetowej', 'UX'] as $q) $qs[] = ['query=' . rawurlencode($q), ''];
+    foreach ($qs as [$q, $cpv]) {
+        $d = bk_get('/api/announcements/search?page=1&limit=50&sort=default&status%5B0%5D=PUBLISHED&' . $q);
+        if ($d === null) { $err[] = 'Baza Konkurencyjności'; continue; }
+        foreach ((array)($d['advertisements'] ?? []) as $a) {
+            $id = (int)($a['id'] ?? 0); if (!$id || isset($seen[$id])) continue; $seen[$id] = 1;
+            $dl = substr((string)($a['submission_deadline'] ?? ''), 0, 16); if ($dl !== '' && $dl < date('Y-m-d H:i')) continue;
+            $place = (string)($a['fulfillment_place'] ?? ''); $voiv = trim((string)(explode(',', $place)[1] ?? ''));
+            $t = ['src' => 'bk', 'ref' => 'BK ' . $id, 'title' => trim(preg_replace('/\s+/u', ' ', (string)$a['title'])), 'buyer' => (string)($a['advertiser_name'] ?? ''), 'city' => trim((string)explode(',', $place)[0]),
+                'province' => BK_PROV[mb_strtolower($voiv)] ?? '', 'cpv' => $cpv, 'deadline' => $dl, 'published' => (string)($a['publication_date'] ?? ''), 'url' => BK_URL . '/ogloszenia/' . $id];
+            if (tender_store($t)) $new[] = $t;
+        }
+        usleep(300000);
+    }
+    return [$new, array_unique($err)];
+}
+/** Treść zapytania z Bazy Konkurencyjności: opis zamówień, kody CPV i osoby do kontaktu (e-mail, telefon). */
+function bk_body(string $ref): string {
+    $d = bk_get('/api/announcements/' . (int)substr($ref, 3) . '/compact'); $a = $d['advertisement'] ?? null; if (!$a) return '';
+    $ad = $a['advertiser_address_details'] ?? []; $ad_a = $ad['address'] ?? [];
+    $o = (string)$a['title'] . "\n\nZAMAWIAJĄCY\nNazwa: " . ($ad['name'] ?? '') . "\nNIP: " . ($ad['identification_number'] ?? '') . "\nUlica: " . trim(($ad_a['street'] ?? '') . ' ' . ($ad_a['number_description'] ?? '')) . "\nKod pocztowy: " . ($ad_a['postcode'] ?? '') . "\nMiejscowość: " . ($ad_a['locality'] ?? '');
+    foreach ((array)($a['contact_persons'] ?? []) as $i => $p) $o .= "\n\nOSOBA DO KONTAKTU\n" . trim(($p['forename'] ?? '') . ' ' . ($p['surname'] ?? '')) . "\nAdres poczty elektronicznej: " . ($p['email'] ?? '') . (!empty($p['phone_number']) ? "\nNumer telefonu: " . $p['phone_number'] : '');
+    foreach ((array)($a['orders'] ?? []) as $n => $or) {
+        $o .= "\n\nCZĘŚĆ " . ($n + 1) . ': ' . ($or['title'] ?? '');
+        foreach ((array)($or['order_items'] ?? []) as $it) { $o .= "\n" . trim((string)($it['description'] ?? '')); $c = array_map(fn($x) => $x['code'] . ' ' . $x['name'], (array)($it['cpv_items'] ?? [])); if ($c) $o .= "\nCPV: " . implode('; ', $c); }
+    }
+    $o .= "\n\nTermin składania ofert: " . ($a['submission_deadline'] ?? '');
+    return mb_substr(trim($o), 0, 15000);
 }
 /** Raz dziennie: nowe przetargi i powiadomienie o najlepszych. */
 function run_tenders(): int {
@@ -256,8 +299,8 @@ function leads_post(string $a): never {
                 db()->prepare("UPDATE tenders SET status = 'saved', lead_id = ? WHERE id = ?")->execute([$lid, $id]);
                 flash('Zlecenie dodane do ofert.'); redirect(P . '?a=lead&id=' . $lid);
             }
-            $lid = lead_save(['name' => '', 'company' => $t['buyer'], 'source' => 'przetarg', 'stage' => 'new', 'next_at' => $t['deadline'] ? date('Y-m-d', strtotime(substr($t['deadline'], 0, 10) . ' -3 days')) : today(),
-                'next_note' => 'Przygotować ofertę do przetargu' . ($t['deadline'] ? ' (termin ' . date('d.m H:i', strtotime($t['deadline'])) . ')' : ''), 'website' => $t['url'], 'notes' => $t['title'] . "\n" . $t['ref'] . ' · ' . $t['city'] . "\n" . $t['url'], 'src' => ['tender' => (int)$t['id']], 'score' => (int)$t['score']]);
+            $lid = lead_save(['name' => '', 'company' => $t['buyer'], 'source' => $t['src'] === 'bk' ? 'zapytanie' : 'przetarg', 'stage' => 'new', 'next_at' => $t['deadline'] ? date('Y-m-d', strtotime(substr($t['deadline'], 0, 10) . ' -3 days')) : today(),
+                'next_note' => 'Przygotować ofertę do przetargu' . ($t['deadline'] ? ' (termin ' . date('d.m H:i', strtotime($t['deadline'])) . ')' : ''), 'website' => $t['url'], 'notes' => $t['title'] . "\n" . $t['ref'] . ' · ' . $t['city'] . "\n" . $t['url'], 'src' => ['tender' => (int)$t['id']] + ($t['src'] === 'bk' ? ['bk' => 1] : []), 'score' => (int)$t['score']]);
             db()->prepare("UPDATE tenders SET status = 'saved', lead_id = ? WHERE id = ?")->execute([$lid, $id]);
             flash('Przetarg dodany do ofert.'); redirect(P . '?a=lead&id=' . $lid);
         case 'lead_move':
@@ -315,7 +358,7 @@ function view_leads(): never {
     leads_migrate();
     $tab = (string)($_GET['t'] ?? 'pipe'); if (!in_array($tab, ['pipe', 'tenders', 'scan'], true)) $tab = 'pipe'; jobs_migrate();
     $tabs = '';
-    $newT = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE status = 'new' AND src IN ('bzp','ted') AND (deadline IS NULL OR deadline = '' OR deadline >= date('now'))")->fetchColumn();
+    $newT = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE status = 'new' AND src IN ('bzp','ted','bk') AND (deadline IS NULL OR deadline = '' OR deadline >= date('now'))")->fetchColumn();
     $newJ = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE status = 'new' AND src IN ('useme','freelancer') AND deadline >= date('now') AND created >= datetime('now', '-1 day')")->fetchColumn();
     foreach (['pipe' => 'Oferty', 'tenders' => 'Przetargi', 'scan' => 'Skaner stron'] as $k => $l) $tabs .= '<a href="' . P . '?a=leads&t=' . $k . '"' . ($tab === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ($k === 'tenders' && $newT ? ' <span>' . $newT . '</span>' : '') . ($k === 'jobs' && $newJ ? ' <span>' . $newJ . '</span>' : '') . '</a>';
     $body = '';
@@ -352,26 +395,26 @@ function view_leads(): never {
         $body .= '<section class="card"><nav class="tabs">' . $tabs . '</nav><div class="pad" style="padding-top:14px;padding-bottom:14px"><span class="mut" style="font-size:14px">Przeciągnij kartę do innej kolumny (na telefonie przytrzymaj kartę albo wybierz etap z listy na karcie).</span></div></section>'
             . ($all ? '<div class="kboard" id="kboard" data-move-url="lead_move">' . $board . '</div>' : '<section class="card"><div class="empty">Pusto. Dodaj szansę, zapisz przetarg albo przeskanuj strony firm.</div></section>');
     } elseif ($tab === 'tenders') {
-        $all = db()->query("SELECT * FROM tenders WHERE status = 'new' AND src IN ('bzp','ted') AND (deadline IS NULL OR deadline = '' OR deadline >= date('now')) ORDER BY score DESC, deadline LIMIT 300")->fetchAll();
+        $all = db()->query("SELECT * FROM tenders WHERE status = 'new' AND src IN ('bzp','ted','bk') AND (deadline IS NULL OR deadline = '' OR deadline >= date('now')) ORDER BY score DESC, deadline LIMIT 300")->fetchAll();
         $cat = (string)($_GET['c'] ?? 'all'); if ($cat !== 'all' && !isset(TENDER_CATS[$cat])) $cat = 'all';
         $cc = array_fill_keys(array_keys(TENDER_CATS), 0);
         foreach ($all as &$t) { $t['cat'] = tender_cat((string)$t['title'], (string)$t['cpv']); $cc[$t['cat']]++; } unset($t);
         $rows = $cat === 'all' ? $all : array_values(array_filter($all, fn($t) => $t['cat'] === $cat));
         $ctabs = '<a href="' . P . '?a=leads&t=tenders"' . ($cat === 'all' ? ' class="on" aria-current="true"' : '') . '>Wszystkie <span>' . count($all) . '</span></a>';
         foreach (TENDER_CATS as $k => $l) if ($cc[$k] || $cat === $k) $ctabs .= '<a href="' . P . '?a=leads&t=tenders&c=' . $k . '"' . ($cat === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ' <span>' . $cc[$k] . '</span></a>';
-        $inLead = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE lead_id IS NOT NULL AND src IN ('bzp','ted')")->fetchColumn();
+        $inLead = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE lead_id IS NOT NULL AND src IN ('bzp','ted','bk')")->fetchColumn();
         $tiles = '';
         foreach ($rows as $t) {
             $left = $t['deadline'] ? days_between(today(), substr($t['deadline'], 0, 10)) : null;
             $dl = $t['deadline'] ? ($left === 0 ? 'Oferty dziś do ' . date('H:i', strtotime($t['deadline'])) : 'Oferty do ' . date('d.m H:i', strtotime($t['deadline'])) . ' · za ' . $left . ' ' . plural((int)$left, 'dzień', 'dni', 'dni')) : 'Bez terminu';
             $f = fn($a, $l, $c = 'btn ghost sm') => '<form method="post" action="' . P . '?a=' . $a . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="' . $c . '">' . $l . '</button></form>';
-            $tiles .= '<article class="kcard tile"><div class="kc-h"><span class="sc' . ($t['score'] >= 50 ? ' hi' : '') . '">' . (int)$t['score'] . '</span><span class="kc-cat c-' . $t['cat'] . '">' . TENDER_CATS[$t['cat']] . '</span><span class="kc-src" style="margin-left:auto">' . strtoupper($t['src']) . ($t['province'] ? ' · ' . e($t['province']) : '') . '</span></div>'
+            $tiles .= '<article class="kcard tile"><div class="kc-h"><span class="sc' . ($t['score'] >= 50 ? ' hi' : '') . '">' . (int)$t['score'] . '</span><span class="kc-cat c-' . $t['cat'] . '">' . TENDER_CATS[$t['cat']] . '</span><span class="kc-src" style="margin-left:auto">' . (['bk' => 'BAZA KONKUR.', 'bzp' => 'BZP', 'ted' => 'TED'][$t['src']] ?? strtoupper($t['src'])) . ($t['province'] ? ' · ' . e($t['province']) : '') . '</span></div>'
                 . '<b class="kc-t">' . e(tender_title((string)$t['title'])) . '</b><span class="kc-b">' . e(trim($t['buyer'] . ($t['city'] ? ', ' . $t['city'] : ''))) . '</span>'
                 . '<span class="kc-d' . ($left !== null && $left <= 3 ? ' late-t' : '') . '">' . e($dl) . '</span>'
                 . '<div class="kc-f">' . $f('tender_lead', icon('target') . ' Do ofert', 'btn sm') . '<div class="ias">' . ia('eye', 'Podgląd ogłoszenia', P . '?a=tender&id=' . $t['id']) . ia('external', 'Ogłoszenie w serwisie', (string)$t['url'], ['blank' => true]) . ia('x', 'Pomiń', '', ['post' => 'tender_hide', 'id' => $t['id']]) . '</div>' . '</div></article>';
         }
         $at = setting('tender_at');
-        $body .= '<section class="card"><nav class="tabs">' . $tabs . '</nav><div class="hrow pad" style="flex-wrap:wrap"><span class="mut" style="font-size:14px">Przetargi z BZP i TED na strony, portale, sklepy, aplikacje i grafikę, od najlepiej dopasowanych. Te, które bierzemy, dodaj do ofert' . ($inLead ? ' (już w ofertach: ' . $inLead . ')' : '') . '. Sprawdzamy codziennie rano' . ($at ? ', ostatnio ' . e(date('d.m H:i', strtotime($at))) : '') . '.</span>'
+        $body .= '<section class="card"><nav class="tabs">' . $tabs . '</nav><div class="hrow pad" style="flex-wrap:wrap"><span class="mut" style="font-size:14px">Przetargi z BZP i TED oraz zapytania ofertowe firm z Bazy Konkurencyjności (zawsze z e-mailem do kontaktu) na strony, portale, sklepy, aplikacje i grafikę, od najlepiej dopasowanych. Te, które bierzemy, dodaj do ofert' . ($inLead ? ' (już w ofertach: ' . $inLead . ')' : '') . '. Sprawdzamy codziennie rano' . ($at ? ', ostatnio ' . e(date('d.m H:i', strtotime($at))) : '') . '.</span>'
             . '<form method="post" action="' . P . '?a=tenders_fetch">' . csrf_field() . '<input type="hidden" name="days" value="7"><button class="btn ghost sm" data-busy>' . icon('refresh') . ' Sprawdź teraz</button></form></div>'
             . ($all ? '<nav class="tabs sub" aria-label="Rodzaj przetargu">' . $ctabs . '</nav>' : '') . '</section>'
             . ($tiles ? '<div class="ktiles">' . $tiles . '</div>' : '<section class="card"><div class="empty">Brak nowych przetargów. Kliknij „Sprawdź teraz” albo poszerz słowa kluczowe.</div></section>')
@@ -446,7 +489,7 @@ function view_tender(int $id): never {
     $left = $t['deadline'] ? days_between(today(), substr($t['deadline'], 0, 10)) : null;
     $f = fn($a, $l, $c = 'btn') => '<form method="post" action="' . P . '?a=' . $a . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="' . $c . '" style="width:100%">' . $l . '</button></form>';
     $acts = ($t['lead_id'] ? '<a class="btn" href="' . P . '?a=lead&id=' . $t['lead_id'] . '">Szansa w ofertach ' . icon('arrow') . '</a>' . (ai_enabled() ? '<a class="btn ghost" href="' . P . '?a=quote_new&lead=' . $t['lead_id'] . '&ai=1">' . icon('spark') . ' Przygotuj wycenę z AI</a>' : '') : $f('tender_lead', icon('target') . ' Do ofert'))
-        . '<a class="btn ghost" href="' . e($t['url']) . '" target="_blank" rel="noopener">Otwórz ogłoszenie ' . strtoupper($t['src']) . ' ↗</a>';
+        . '<a class="btn ghost" href="' . e($t['url']) . '" target="_blank" rel="noopener">Otwórz ogłoszenie ' . (['bk' => 'BAZA KONKUR.', 'bzp' => 'BZP', 'ted' => 'TED'][$t['src']] ?? strtoupper($t['src'])) . ' ↗</a>';
     $kv = '<div class="kv"><div><span>Zamawiający</span><span>' . e($t['buyer']) . '</span></div><div><span>Miejscowość</span><span>' . e($t['city'] . ($t['province'] ? ' · ' . $t['province'] : '')) . '</span></div>'
         . (!empty($t['nip']) ? '<div><span>NIP</span><span>' . e($t['nip']) . '</span></div>' : '') . '<div><span>Numer</span><span>' . e($t['ref']) . '</span></div><div><span>Opublikowano</span><span>' . e(pl_date($t['published'])) . '</span></div><div><span>CPV</span><span style="text-align:right">' . e(mb_strimwidth((string)$t['cpv'], 0, 160, '…')) . '</span></div></div>';
     $hero = '<div class="ihero"><span class="ik">' . e(TENDER_CATS[tender_cat((string)$t['title'], (string)$t['cpv'])]) . ' · dopasowanie ' . (int)$t['score'] . '/100</span><span class="iv" style="font-size:22px;line-height:1.3">' . e(tender_title((string)$t['title'])) . '</span>'

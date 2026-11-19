@@ -368,7 +368,7 @@ function quote_ai_card(?array $src, ?array $inq, string $leadNotes): string {
 
 /** Wycena do przetargu: składana na platformie, nie wysyłamy jej mailem. */
 function quote_is_tender(?array $src): bool {
-    if (!$src || !empty($src['job'])) return false;
+    if (!$src || !empty($src['job']) || !empty($src['bk'])) return false;
     if (!empty($src['tender'])) return true;
     if (!empty($src['lead']) && function_exists('lead_by_id') && ($l = lead_by_id((int)$src['lead']))) return $l['source'] === 'przetarg' || !empty($l['src']['tender']);
     return false;
