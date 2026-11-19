@@ -12,6 +12,7 @@ function leads_migrate(): void {
         stage TEXT NOT NULL DEFAULT \'new\', value INTEGER, next_at TEXT, next_note TEXT, notes TEXT, score INTEGER, audit TEXT, src TEXT, quote_id INTEGER, created TEXT NOT NULL, updated TEXT NOT NULL)');
     db()->exec('CREATE TABLE IF NOT EXISTS tenders (id INTEGER PRIMARY KEY, src TEXT NOT NULL, ref TEXT UNIQUE NOT NULL, title TEXT, buyer TEXT, city TEXT, province TEXT, cpv TEXT,
         deadline TEXT, published TEXT, url TEXT, score INTEGER, status TEXT NOT NULL DEFAULT \'new\', lead_id INTEGER, created TEXT NOT NULL)');
+    db()->exec("UPDATE tenders SET city = '' WHERE city = 'Array'");
 }
 function lead_by_id(int $id): ?array { leads_migrate(); $s = db()->prepare('SELECT * FROM leads WHERE id = ?'); $s->execute([$id]); $r = $s->fetch(); if (!$r) return null; foreach (['name', 'company', 'email', 'phone', 'website', 'next_note', 'notes', 'source', 'stage'] as $k) $r[$k] = (string)($r[$k] ?? ''); $r['audit'] = json_decode((string)$r['audit'], true) ?: []; $r['src'] = json_decode((string)$r['src'], true) ?: []; return $r; }
 function lead_chip(string $st): string { $c = ['new' => 'draft', 'contact' => 'due', 'offer' => 'decl', 'won' => 'paid', 'lost' => 'cancelled'][$st] ?? 'due'; return '<span class="chip ' . $c . '">' . (LEAD_STAGES[$st] ?? $st) . '</span>'; }
