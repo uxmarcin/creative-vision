@@ -101,14 +101,14 @@ function books_zip(string $ym): string {
     require_once __DIR__ . '/doc.php';
     $tmp = tempnam(sys_get_temp_dir(), 'cvz'); $z = new ZipArchive();
     if ($z->open($tmp, ZipArchive::OVERWRITE) !== true) throw new RuntimeException('Nie mogę przygotować paczki ZIP.');
-    $csv = ["\xEF\xBB\xBF" . 'Rodzaj;Numer;Data wystawienia;Kontrahent;NIP;Netto;VAT;Brutto;Waluta;Numer KSeF;Plik'];
+    $csv = ["\xEF\xBB\xBF" . 'Rodzaj;Numer;Data wystawienia;Kontrahent;NIP;Netto;VAT;Brutto;Waluta;Kurs NBP;Data kursu;Brutto PLN;Numer KSeF;Plik'];
     $num = fn(int $c) => number_format($c / 100, 2, ',', '');
     $used = [];
     $uniq = function (string $n) use (&$used): string { $b = $n; $i = 2; while (isset($used[$n])) { $n = preg_replace('/(\.\w+)$/', ' (' . $i++ . ')$1', $b); } $used[$n] = 1; return $n; };
     foreach (sales_of($ym) as $inv) {
         $f = $uniq('Sprzedaz/' . invoice_pdf_name($inv)); $z->addFromString($f, invoice_pdf($inv));
         if (!empty($inv['ksef'])) $z->addFromString($uniq('Sprzedaz/' . str_replace('.pdf', '.xml', invoice_pdf_name($inv))), ksef_xml($inv));
-        $csv[] = implode(';', ['sprzedaż', $inv['number'], $inv['issue_date'], str_replace(';', ',', (string)($inv['buyer']['name'] ?? '')), (string)($inv['buyer']['nip'] ?? ''), $num((int)$inv['net']), $num((int)$inv['vat']), $num((int)$inv['gross']), $inv['currency'] ?? 'PLN', (string)$inv['ksef'], $f]);
+        $csv[] = implode(';', ['sprzedaż', $inv['number'], $inv['issue_date'], str_replace(';', ',', (string)($inv['buyer']['name'] ?? '')), (string)($inv['buyer']['nip'] ?? ''), $num((int)$inv['net']), $num((int)$inv['vat']), $num((int)$inv['gross']), $inv['currency'] ?? 'PLN', ...(($inv['currency'] ?? 'PLN') !== 'PLN' && ($r = nbp_rate_before((string)$inv['currency'], (string)$inv['issue_date'])) ? [number_format($r['rate'], 4, ',', ''), $r['date'], $num((int)round((int)$inv['gross'] * $r['rate']))] : ['', '', ($inv['currency'] ?? 'PLN') === 'PLN' ? $num((int)$inv['gross']) : '']), (string)$inv['ksef'], $f]);
     }
     foreach (costs_of($ym) as $c) {
         $ext = pathinfo((string)$c['path'], PATHINFO_EXTENSION);
@@ -116,7 +116,7 @@ function books_zip(string $ym): string {
         if (!str_ends_with(strtolower($nm), '.' . $ext)) $nm .= '.' . $ext;
         $f = $uniq('Zakupy/' . $nm);
         if (is_file(COST_DIR . '/' . $c['path'])) $z->addFile(COST_DIR . '/' . $c['path'], $f);
-        $csv[] = implode(';', ['zakup', (string)$c['number'], (string)$c['issue_date'], str_replace(';', ',', (string)$c['seller']), (string)$c['nip'], '', '', $c['gross'] !== null ? $num((int)$c['gross']) : '', (string)$c['currency'], (string)$c['ksef'], $f]);
+        $csv[] = implode(';', ['zakup', (string)$c['number'], (string)$c['issue_date'], str_replace(';', ',', (string)$c['seller']), (string)$c['nip'], '', '', $c['gross'] !== null ? $num((int)$c['gross']) : '', (string)$c['currency'], '', '', '', (string)$c['ksef'], $f]);
     }
     $z->addFromString('Zestawienie_' . $ym . '.csv', implode("\r\n", $csv) . "\r\n");
     $z->close();
@@ -136,11 +136,19 @@ function books_send(string $ym): array {
     $zip = books_zip($ym); $data = (string)file_get_contents($zip); @unlink($zip);
     if (strlen($data) > 20 * 1048576) return [false, 'Paczka ma ponad 20 MB, za dużo na maila. Pobierz ją i wyślij przez dysk.'];
     $label = ym_label($ym);
-    $sum = 0; foreach ($sales as $i) if (($i['currency'] ?? 'PLN') === 'PLN') $sum += (int)$i['gross'];
+    $sum = 0; $byCur = []; $plnAll = 0; $plnOk = true;
+    foreach ($sales as $i) {
+        $cu = $i['currency'] ?? 'PLN'; $byCur[$cu] = ($byCur[$cu] ?? 0) + (int)$i['gross'];
+        if ($cu === 'PLN') { $sum += (int)$i['gross']; $plnAll += (int)$i['gross']; }
+        elseif ($r = nbp_rate_before($cu, (string)$i['issue_date'])) $plnAll += (int)round((int)$i['gross'] * $r['rate']); else $plnOk = false;
+    }
+    $saleRows = [];
+    foreach ($byCur ?: ['PLN' => 0] as $cu => $v) $saleRows[] = ['Sprzedaż brutto' . (count($byCur) > 1 ? ' (' . $cu . ')' : ''), money($v, $cu), count($byCur) <= 1];
+    if (array_diff(array_keys($byCur), ['PLN'])) { foreach ($saleRows as &$sr) $sr[2] = false; unset($sr); $saleRows[] = ['Razem w złotych (kurs NBP z dnia roboczego przed wystawieniem)', ($plnOk ? '' : 'ok. ') . money($plnAll), true]; }
     $subj = 'Dokumenty Creative Vision za ' . $label;
     $rows = m_kicker('Dokumenty za ' . $label) . m_h1('Paczka dla księgowej', ucfirst($label))
         . m_text('Dzień dobry,<br><br>w załączniku przesyłam dokumenty za ' . e($label) . ': faktury sprzedażowe w PDF (i XML z KSeF, jeśli mają numer KSeF), faktury zakupowe oraz zestawienie w pliku CSV.' . (trim(setting('acc_note')) !== '' ? '<br><br>' . nl2br(e(setting('acc_note'))) : ''))
-        . m_rows('W paczce', [['Faktury sprzedażowe', (string)count($sales)], ['Faktury zakupowe', (string)count($costs)], ['Sprzedaż brutto (PLN)', money($sum), true]])
+        . m_rows('W paczce', [['Faktury sprzedażowe', (string)count($sales)], ['Faktury zakupowe', (string)count($costs)], ...$saleRows])
         . m_sign();
     $ok = send_mail([$to], $subj, mail_layout($subj, 'Dokumenty za ' . $label . ': ' . count($sales) . ' sprzedaży, ' . count($costs) . ' zakupów.', $rows), html_to_text($rows), [books_zip_name($ym) => $data], true);
     if ($ok) set_setting('acc_sent_' . $ym, now());
