@@ -39,7 +39,7 @@ function migrate(PDO $pdo): void {
         sent_at TEXT, viewed_at TEXT, declared_at TEXT, paid_at TEXT, paid_amount INTEGER, paid_method TEXT,
         ksef TEXT, reminders INTEGER NOT NULL DEFAULT 1, created TEXT NOT NULL, updated TEXT NOT NULL)');
     $cols = array_column($pdo->query('PRAGMA table_info(invoices)')->fetchAll(PDO::FETCH_ASSOC), 'name');
-    foreach (['currency' => "TEXT NOT NULL DEFAULT 'PLN'", 'lang' => "TEXT NOT NULL DEFAULT 'pl'", 'recurring' => 'INTEGER NOT NULL DEFAULT 0', 'source' => 'TEXT', 'ksef_state' => 'TEXT', 'ksef_session' => 'TEXT', 'ksef_ref' => 'TEXT', 'ksef_hash' => 'TEXT', 'ksef_error' => 'TEXT', 'ksef_at' => 'TEXT', 'ksef_env' => 'TEXT', 'opened_at' => 'TEXT'] as $c => $def)
+    foreach (['proforma' => 'INTEGER NOT NULL DEFAULT 0', 'currency' => "TEXT NOT NULL DEFAULT 'PLN'", 'lang' => "TEXT NOT NULL DEFAULT 'pl'", 'recurring' => 'INTEGER NOT NULL DEFAULT 0', 'source' => 'TEXT', 'ksef_state' => 'TEXT', 'ksef_session' => 'TEXT', 'ksef_ref' => 'TEXT', 'ksef_hash' => 'TEXT', 'ksef_error' => 'TEXT', 'ksef_at' => 'TEXT', 'ksef_env' => 'TEXT', 'opened_at' => 'TEXT'] as $c => $def)
         if (!in_array($c, $cols, true)) $pdo->exec("ALTER TABLE invoices ADD COLUMN $c $def");
     $ccols = array_column($pdo->query('PRAGMA table_info(clients)')->fetchAll(PDO::FETCH_ASSOC), 'name');
     if (!in_array('country', $ccols, true)) $pdo->exec('ALTER TABLE clients ADD COLUMN country TEXT');
@@ -405,7 +405,7 @@ function pay_url(array $inv): string { return CV_SITE . '/f/' . $inv['token']; }
 
 /** Stan faktury do wyświetlania: due / soon / today / late / paid / draft */
 function inv_state(array $inv): string {
-    if ($inv['status'] === 'draft') return 'draft';
+    if ($inv['status'] === 'draft') return !empty($inv['proforma']) ? 'proforma' : 'draft';
     if ($inv['status'] === 'paid') return 'paid';
     if ($inv['status'] === 'cancelled') return 'cancelled';
     $d = days_between(today(), (string)$inv['due_date']);

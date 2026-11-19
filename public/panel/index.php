@@ -178,6 +178,10 @@ if ($post) {
             flash($n ? 'Wysłaliśmy testowe powiadomienie na ' . $n . ' ' . plural($n, 'urządzenie', 'urządzenia', 'urządzeń') . '.' : '!Brak urządzeń z włączonymi powiadomieniami.');
             redirect(P . '?a=settings#push');
         case 'books_upload': case 'cost_delete': case 'cost_edit': case 'books_ksef': case 'books_send': case 'books_tax': case 'books_settings': books_post($a);
+        case 'proforma_convert':
+            $inv = must_invoice($id); if ($inv['status'] !== 'draft') redirect(P . '?a=view&id=' . $id);
+            db()->prepare('UPDATE invoices SET proforma = 0, updated = ? WHERE id = ?')->execute([now(), $id]); log_event($id, 'edit', 'Proforma zamieniona na szkic faktury');
+            flash('Proforma jest teraz szkicem faktury. Sprawdź dane i wystaw.'); redirect(P . '?a=edit&id=' . $id);
         case 'save':
             $act = (string)($_POST['act'] ?? 'draft');
             [$id, $err] = save_invoice($id ?: null, $_POST, $act);
@@ -524,6 +528,7 @@ function next_number(string $ym): array {
 /** Zapis faktury z formularza. $act: draft | issue | send. Zwraca [id, błąd]. */
 function save_invoice(?int $id, array $p, string $act): array {
     $old = $id ? invoice_by_id($id) : null;
+    $pf = $act === 'proforma' ? 1 : ($act === 'draft' ? (int)($old['proforma'] ?? 0) : 0); if ($act === 'proforma') $act = 'draft';
     if ($old && !can_edit($old)) return [$id, 'Tej faktury nie można już edytować.'];
     $buyer = client_from($p);
     $items = [];
@@ -560,7 +565,7 @@ function save_invoice(?int $id, array $p, string $act): array {
         'currency' => isset(currencies()[(string)($p['currency'] ?? '')]) ? (string)$p['currency'] : 'PLN',
         'lang' => ($p['lang'] ?? '') === 'pl-en' ? 'pl-en' : 'pl',
         'recurring' => !empty($p['recurring']) ? 1 : 0,
-        'net' => $c['net'], 'vat' => $c['vat'], 'gross' => $c['gross'], 'notes' => trim((string)($p['notes'] ?? '')), 'reminders' => !empty($p['reminders']) ? 1 : 0, 'updated' => now(),
+        'net' => $c['net'], 'vat' => $c['vat'], 'gross' => $c['gross'], 'notes' => trim((string)($p['notes'] ?? '')), 'reminders' => !empty($p['reminders']) ? 1 : 0, 'proforma' => $pf, 'updated' => now(),
     ];
     if ($old) {
         $set = implode(', ', array_map(fn($k) => "$k = :$k", array_keys($f)));
@@ -570,7 +575,7 @@ function save_invoice(?int $id, array $p, string $act): array {
         $f['created'] = now();
         $pdo->prepare('INSERT INTO invoices (' . implode(', ', array_keys($f)) . ') VALUES (:' . implode(', :', array_keys($f)) . ')')->execute($f);
         $id = (int)$pdo->lastInsertId();
-        log_event($id, 'create', 'Utworzono szkic');
+        log_event($id, 'create', $pf ? 'Utworzono proformę (prognoza, bez KSeF i księgowej)' : 'Utworzono szkic');
     }
     if ($act !== 'draft' && (!$old || $old['status'] === 'draft')) {
         $ym = substr($issue, 0, 7);
@@ -804,12 +809,13 @@ function plural(int $n, string $one, string $few, string $many): string {
 function state_chip(array $inv): string {
     $st = inv_state($inv);
     if ($st === 'due' || $st === 'today' || $st === 'late') if (!empty($inv['declared_at'])) return '<span class="chip decl">Klient zgłosił wpłatę</span>';
-    $l = ['draft' => 'Szkic', 'due' => 'Czeka na wpłatę', 'today' => 'Termin dziś', 'late' => 'Po terminie', 'paid' => 'Opłacona', 'cancelled' => 'Anulowana'][$st];
+    $l = ['proforma' => 'Proforma', 'draft' => 'Szkic', 'due' => 'Czeka na wpłatę', 'today' => 'Termin dziś', 'late' => 'Po terminie', 'paid' => 'Opłacona', 'cancelled' => 'Anulowana'][$st];
     return '<span class="chip ' . $st . ($st === 'due' && !empty($inv['sent_at']) ? ' sent' : '') . '">' . ($st === 'due' && !empty($inv['sent_at']) ? 'Wysłana, czeka na wpłatę' : $l) . '</span>';
 }
 function when_text(array $inv): array {
     $st = inv_state($inv);
     if ($st === 'paid') return ['Zapłacona ' . pl_date($inv['paid_at']), 'ok-t'];
+    if ($st === 'proforma') return ['prognoza, poza księgami', 'mut'];
     if ($st === 'draft' || $st === 'cancelled') return ['', 'mut'];
     $d = days_between(today(), (string)$inv['due_date']);
     if ($d > 0) return ['za ' . $d . ' ' . plural($d, 'dzień', 'dni', 'dni'), 'mut'];
@@ -827,7 +833,7 @@ function view_list(): never {
     $all = array_map('hydrate', db()->query('SELECT * FROM invoices ORDER BY COALESCE(issue_date, created) DESC, id DESC')->fetchAll());
     $bym = fn($i) => (string)($i['book_ym'] ?: substr((string)($i['issue_date'] ?: $i['created']), 0, 7));
     $inPeriod = fn($i) => str_starts_with($bym($i), $period);
-    $cnt = ['all' => 0, 'open' => 0, 'late' => 0, 'paid' => 0, 'draft' => 0];
+    $cnt = ['all' => 0, 'open' => 0, 'late' => 0, 'paid' => 0, 'proforma' => 0, 'draft' => 0]; $salePf = 0;
     $fxOpen = []; $fxLate = []; $fxSale = []; $saleFxPln = 0; $saleFxNet = 0; $saleFxOk = true; $saleRates = []; $open = 0; $openN = 0; $late = 0; $lateN = 0; $sale = 0; $saleNet = 0; $saleN = 0; $days = []; $months = []; $years = [(int)date('Y') => 1, $y => 1];
     foreach ($all as $i) {
         $st = inv_state($i); $b = $bym($i);
@@ -843,12 +849,13 @@ function view_list(): never {
         if ($st === 'late') $cnt['late']++;
         if ($st === 'paid') $cnt['paid']++;
         if ($st === 'draft') $cnt['draft']++;
+        if ($st === 'proforma') { $cnt['proforma']++; if ($inPeriod($i)) $salePf += ($i['currency'] ?? 'PLN') === 'PLN' ? (int)$i['gross'] : (int)to_pln((int)$i['gross'], (string)$i['currency']); }
         if ($inPeriod($i) && !in_array($st, ['draft', 'cancelled'], true)) { if ($pln) { $sale += (int)$i['gross']; $saleNet += (int)$i['net']; } else { $fxSale[$cu] = ($fxSale[$cu] ?? 0) + (int)$i['gross']; if ($r = nbp_rate_month_end($cu, substr($b, 0, 7))) { $saleFxPln += (int)round((int)$i['gross'] * $r['rate']); $saleFxNet += (int)round((int)$i['net'] * $r['rate']); $saleRates[$cu . $r['date']] = number_format($r['rate'], 4, ',', '') . (!empty($r['live']) ? ', dziś' : ' z ' . date('d.m', strtotime($r['date']))); } else $saleFxOk = false; } $saleN++; }
     }
     $rows = array_filter($all, function ($i) use ($tab, $q, $inPeriod) {
         if ($q === '' && !$inPeriod($i)) return false;
         $st = inv_state($i);
-        $ok = match ($tab) { 'open' => in_array($st, ['due', 'today', 'late'], true), 'late' => $st === 'late', 'paid' => $st === 'paid', 'draft' => $st === 'draft', default => true };
+        $ok = match ($tab) { 'open' => in_array($st, ['due', 'today', 'late'], true), 'late' => $st === 'late', 'paid' => $st === 'paid', 'proforma' => $st === 'proforma', 'draft' => $st === 'draft', default => true };
         if ($ok && $q !== '') $ok = mb_stripos(($i['number'] ?? '') . ' ' . ($i['buyer']['name'] ?? '') . ' ' . ($i['buyer']['nip'] ?? ''), $q) !== false;
         return $ok;
     });
@@ -871,7 +878,7 @@ function view_list(): never {
         . '</div><div class="kpis-r">'
         . '<div class="kpi"><span class="t">Sprzedaż: ' . e($periodTxt) . '</span>' . ($fxSale && $saleFxOk
             ? '<span class="v">' . money_split($sale + $saleFxPln) . '</span><span class="fxb">' . ($sale ? money($sale) . ' + ' : '') . money($saleFxPln) . ' <span class="fxr">(kurs ' . e(implode(', ', $saleRates)) . ')</span></span>'
-            : '<span class="v">' . money($sale) . '</span>' . $fx($fxSale)) . '<span class="s">netto ' . money($saleNet + ($saleFxOk ? $saleFxNet : 0)) . ' · ' . $saleN . ' ' . plural($saleN, 'faktura', 'faktury', 'faktur') . '</span></div>'
+            : '<span class="v">' . money($sale) . '</span>' . $fx($fxSale)) . '<span class="s">' . ($salePf ? 'w tym proforma ' . money($salePf) . ' · ' : '') . 'netto ' . money($saleNet + ($saleFxOk ? $saleFxNet : 0)) . ' · ' . $saleN . ' ' . plural($saleN, 'faktura', 'faktury', 'faktur') . '</span></div>'
         . '<div class="kpi"><span class="t">Średni czas zapłaty</span><span class="v">' . ($avg === null ? '–' : $avg . ' ' . plural($avg, 'dzień', 'dni', 'dni')) . '</span><span class="s">od wystawienia do wpłaty</span></div></div></section>';
     $qs = fn(array $o) => P . '?' . http_build_query(array_merge(['y' => $y, 'm' => $m, 't' => $tab], $o));
     $mp = '';
@@ -883,15 +890,15 @@ function view_list(): never {
         . '<form method="get" action="' . P . '" class="yearf"><input type="hidden" name="m" value="' . $m . '"><input type="hidden" name="t" value="' . e($tab) . '"><label class="sr" for="yy">Rok</label><select class="in" id="yy" name="y" data-autosubmit>' . $yo . '</select></form></div>'
         . ($q !== '' ? '<div class="qnote">Wyniki wyszukiwania „' . e($q) . '” ze wszystkich miesięcy. <a class="link" href="' . $qs(['q' => null]) . '">Wyczyść</a></div>' : '');
     $tabs = '';
-    foreach (['all' => 'Wszystkie', 'open' => 'Do zapłaty', 'late' => 'Po terminie', 'paid' => 'Opłacone', 'draft' => 'Szkice'] as $k => $l)
-        if ($k !== 'draft' || $cnt['draft'] || $tab === 'draft') $tabs .= '<a href="' . $qs(['t' => $k, 'q' => $q !== '' ? $q : null]) . '"' . ($tab === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ' <span>' . $cnt[$k] . '</span></a>';
+    foreach (['all' => 'Wszystkie', 'open' => 'Do zapłaty', 'late' => 'Po terminie', 'paid' => 'Opłacone', 'proforma' => 'Proformy', 'draft' => 'Szkice'] as $k => $l)
+        if (!in_array($k, ['draft', 'proforma'], true) || $cnt[$k] || $tab === $k) $tabs .= '<a href="' . $qs(['t' => $k, 'q' => $q !== '' ? $q : null]) . '"' . ($tab === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ' <span>' . $cnt[$k] . '</span></a>';
     $tr = '';
     foreach ($rows as $i) {
         [$w, $wc] = when_text($i);
         $first = $i['calc']['items'][0]['name'] ?? '';
         $url = P . '?a=view&id=' . $i['id'];
-        $act = match (inv_state($i)) { 'draft' => 'Dokończ', 'late' => 'Przypomnij', 'paid', 'cancelled' => '', default => empty($i['sent_at']) ? 'Wyślij' : '' };
-        $tr .= '<tr class="row" data-href="' . $url . '"><td class="c-num nw"><a class="num" href="' . $url . '">' . e($i['number'] ?: 'Szkic') . '</a></td>'
+        $act = match (inv_state($i)) { 'proforma' => '', 'draft' => 'Dokończ', 'late' => 'Przypomnij', 'paid', 'cancelled' => '', default => empty($i['sent_at']) ? 'Wyślij' : '' };
+        $tr .= '<tr class="row" data-href="' . $url . '"><td class="c-num nw"><a class="num" href="' . $url . '">' . e($i['number'] ?: (!empty($i['proforma']) ? 'Proforma' : 'Szkic')) . '</a></td>'
             . '<td class="c-cli"><span>' . e($i['buyer']['name'] ?? 'Bez nabywcy') . '</span><span class="sub">' . e(mb_strimwidth($first, 0, 60, '…')) . '</span></td>'
             . '<td class="c-due nw">' . e(pl_date($i['due_date'])) . '<span class="sub ' . $wc . '">' . e($w) . '</span></td>'
             . '<td class="c-amt r amt">' . money((int)$i['gross'], $i['currency'] ?? 'PLN') . pln_hint((int)$i['gross'], $i['currency'] ?? 'PLN', true) . '</td>'
@@ -988,11 +995,12 @@ function view_form(?array $inv): never {
         . '</aside></div>'
         . '<div class="bar"><span class="note">Wyślemy z ' . e(setting('mail_from')) . ', z PDF w załączniku i linkiem do faktury online.</span>'
         . '<a class="btn ghost" href="' . ($inv ? P . '?a=view&id=' . $inv['id'] : P) . '">Anuluj</a>'
+        . (!$num ? '<button class="btn ghost" name="act" value="proforma" formnovalidate>' . (!empty($inv['proforma']) ? 'Zapisz proformę' : 'Zapisz jako proformę') . '</button>' : '')
         . '<button class="btn ghost" name="act" value="issue">' . ($num ? 'Zapisz' : 'Wystaw i zapisz') . '</button>'
         . '<button class="btn" name="act" value="send" data-confirm="Wysłać fakturę do {email}?">' . ($num ? 'Zapisz i wyślij' : 'Wystaw i wyślij') . ' ' . icon('arrow') . '</button></div>'
         . '</form>';
     $GLOBALS['back'] = $inv ? [P . '?a=view&id=' . $inv['id'], $num ? 'Faktura ' . $num : 'Szkic'] : [P, 'Faktury'];
-    page($inv ? ($num ? 'Faktura ' . $num : 'Szkic faktury') : 'Nowa faktura', $inv ? 'list' : 'new', $body, $inv ? 'Edycja' : 'Wystaw w minutę');
+    page($inv ? ($num ? 'Faktura ' . $num : (!empty($inv['proforma']) ? 'Proforma' : 'Szkic faktury')) : 'Nowa faktura', $inv ? 'list' : 'new', $body, $inv ? 'Edycja' : 'Wystaw w minutę');
 }
 
 function book_opts(string $sel): string {
@@ -1026,7 +1034,10 @@ function view_invoice(array $inv): never {
     foreach ($ev->fetchAll() as $e) $hist .= '<div class="it"><span class="d">' . date('d.m H:i', strtotime($e['at'])) . '</span><span' . ($e['kind'] === 'error' ? ' class="late-t"' : '') . '>' . e($e['msg']) . '</span></div>';
     $f = fn($action, $label, $cls = 'btn ghost', $extra = '', $conf = '') => '<form method="post" action="' . P . '?a=' . $action . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '">' . $extra . '<button class="' . $cls . '"' . ($conf !== '' ? ' data-confirm="' . e($conf) . '"' : '') . '>' . $label . '</button></form>';
     $acts = '';
-    if ($inv['status'] === 'draft') {
+    if (!empty($inv['proforma']) && $inv['status'] === 'draft') {
+        $acts .= '<span class="pf-note">' . icon('eye') . ' Proforma: prognoza sprzedaży. Liczy się do statystyk, ale nie idzie do KSeF ani do księgowej i nie ma numeru.</span>'
+            . $f('proforma_convert', 'Zamień na fakturę ' . icon('arrow'), 'btn');
+    } elseif ($inv['status'] === 'draft') {
         $acts .= '<a class="btn" href="' . P . '?a=edit&id=' . $id . '">Dokończ i wystaw ' . icon('arrow') . '</a>';
     } elseif ($inv['status'] === 'issued') {
         $noMail = !filter_var(trim((string)($inv['buyer']['email'] ?? '')), FILTER_VALIDATE_EMAIL);
@@ -1107,7 +1118,7 @@ function view_invoice(array $inv): never {
         $ksef = '<div class="card pad sec" id="ksef"><h2>KSeF</h2>' . $kbody . '</div>';
     }
     $danger = '';
-    if ($inv['status'] === 'draft') $danger = $f('delete', 'Usuń szkic', 'link', '');
+    if ($inv['status'] === 'draft') $danger = $f('delete', !empty($inv['proforma']) ? 'Usuń proformę' : 'Usuń szkic', 'link', '');
     elseif (can_delete($inv)) $danger = '<details class="more"><summary>Usuń fakturę</summary><span class="mut" style="font-size:13px;display:block;margin-bottom:10px">To ostatni numer w miesiącu, więc możesz go usunąć bez dziury w numeracji, np. po fakturze testowej. Jeśli klient już ją dostał, lepiej wystaw korektę.</span>' . $f('delete', 'Usuń fakturę ' . $inv['number'], 'btn danger') . '</details>';
     if ($inv['status'] === 'issued') $danger .= '<details class="more"><summary>Anuluj fakturę</summary><span class="mut" style="font-size:13px;display:block;margin-bottom:10px">Faktura zostaje w historii z numerem, ale przestaje być do zapłaty. Wysłanej fakturę lepiej skorygować.</span>' . $f('cancel', 'Anuluj fakturę', 'btn danger') . '</details>';
     $GLOBALS['pgcls'] = 'pg-inv';
@@ -1115,7 +1126,7 @@ function view_invoice(array $inv): never {
         . '<aside class="side">' . $decl . '<div class="card pad sec">' . $kv . $tools . '<div class="acts-col">' . $acts . '</div>' . $danger . '</div>' . $auto . $ksef
         . '<div class="card pad sec"><h2>Historia</h2><div class="hist">' . ($hist ?: '<span class="mut">Brak zdarzeń.</span>') . '</div></div></aside></div>';
     $GLOBALS['back'] = [P, 'Faktury'];
-    page($inv['number'] ? 'Faktura ' . $inv['number'] : 'Szkic faktury', 'list', $body, $inv['buyer']['name'] ?? '', '<a class="btn ghost" href="' . P . '">Wszystkie faktury</a>');
+    page($inv['number'] ? 'Faktura ' . $inv['number'] : (!empty($inv['proforma']) ? 'Proforma' : 'Szkic faktury'), 'list', $body, $inv['buyer']['name'] ?? '', '<a class="btn ghost" href="' . P . '">Wszystkie faktury</a>');
 }
 
 // ---------- klienci ----------

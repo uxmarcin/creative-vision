@@ -855,3 +855,6 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 /* gradient równo z krawędzią boksu (na ramce, bez szczeliny) */
 .kpi.dark::after,.hk.dark::after,.sc.hi::after{left:-1px;right:-1px;bottom:-1px}
 .pushask::before,.aicard::before{left:-1px;right:-1px;top:-1px}
+
+.chip.proforma{background:#F1EEFB;color:#5B3FA8}
+.pf-note{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:var(--mut);line-height:1.5}
