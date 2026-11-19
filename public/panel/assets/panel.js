@@ -377,3 +377,8 @@
 })();
 
 document.addEventListener('click', function (e) { var t = e.target.closest('[data-tile]'); if (!t || e.target.closest('a,button,input,form,select,label,details')) return; if (window.getSelection && String(window.getSelection()).length) return; if (e.metaKey || e.ctrlKey) window.open(t.getAttribute('data-tile')); else location.href = t.getAttribute('data-tile'); });
+// iOS: stały dolny pasek wewnątrz przyklejonego nagłówka potrafi „pływać” w połowie ekranu przy przewijaniu. Przenosimy go bezpośrednio do body.
+(function () {
+  var g = document.querySelector('.nav .grp'); if (!g || !matchMedia('(max-width:900px)').matches) return;
+  var w = document.createElement('div'); w.className = 'nav navb'; w.appendChild(g); document.body.appendChild(w);
+})();
