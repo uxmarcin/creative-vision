@@ -436,3 +436,29 @@ function interest(int $cents, string $due, string $on): int {
 }
 /** Rekompensata za koszty odzyskiwania należności (art. 10 ustawy o przeciwdziałaniu nadmiernym opóźnieniom): 40/70/100 euro. */
 function compensation_eur(int $cents): int { return $cents < 500000 ? 40 : ($cents < 5000000 ? 70 : 100); }
+
+// ---------- kursy NBP (tabela A, średni kurs) do podglądu kwot w złotych, tylko w panelu ----------
+/** Zwraca ['rate' => float, 'date' => 'Y-m-d'] albo null. Kurs pobieramy z api.nbp.pl najwyżej co 2 godziny. */
+function nbp_rate(string $cur): ?array {
+    $cur = strtoupper($cur); if ($cur === 'PLN' || !preg_match('/^[A-Z]{3}$/', $cur)) return null;
+    static $mem = []; if (isset($mem[$cur])) return $mem[$cur];
+    $c = json_decode(setting('nbp_' . $cur), true) ?: [];
+    if ((empty($c['rate']) && time() - (int)($c['fail'] ?? 0) > 1800) || (!empty($c['rate']) && time() - (int)($c['at'] ?? 0) > 7200)) {
+        $ch = curl_init('https://api.nbp.pl/api/exchangerates/rates/a/' . strtolower($cur) . '/?format=json');
+        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 4, CURLOPT_CONNECTTIMEOUT => 3, CURLOPT_HTTPHEADER => ['Accept: application/json']]);
+        $j = json_decode((string)curl_exec($ch), true); curl_close($ch);
+        $r = $j['rates'][0] ?? null;
+        if (!empty($r['mid'])) { $c = ['rate' => (float)$r['mid'], 'date' => (string)$r['effectiveDate'], 'at' => time()]; set_setting('nbp_' . $cur, json_encode($c)); }
+        elseif (!empty($c['rate'])) { $c['at'] = time() - 6000; set_setting('nbp_' . $cur, json_encode($c)); }
+        else set_setting('nbp_' . $cur, json_encode(['fail' => time()]));
+    }
+    return $mem[$cur] = (!empty($c['rate']) ? ['rate' => (float)$c['rate'], 'date' => (string)$c['date']] : null);
+}
+/** Kwota w groszach po kursie NBP albo null. */
+function to_pln(int $cents, string $cur): ?int { $r = nbp_rate($cur); return $r ? (int)round($cents * $r['rate']) : null; }
+/** Podpowiedź pod kwotą w walucie: „≈ 17 680,00 zł · kurs NBP 4,1600 z 19.11”. */
+function pln_hint(int $cents, ?string $cur, bool $short = false): string {
+    $cur = $cur ?: 'PLN'; if ($cur === 'PLN') return ''; $r = nbp_rate($cur); if (!$r) return '';
+    return '<span class="sub fxp" title="Średni kurs NBP (tabela A) z ' . pl_date($r['date']) . ', tylko do podglądu w panelu">≈ ' . money((int)round($cents * $r['rate'])) . ($short ? '' : ' · NBP ' . number_format($r['rate'], 4, ',', '') . ' z ' . date('d.m', strtotime($r['date']))) . '</span>';
+}
+

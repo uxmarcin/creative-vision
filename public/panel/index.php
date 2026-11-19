@@ -846,7 +846,7 @@ function view_list(): never {
         return $ok;
     });
     $avg = $days ? (int)round(array_sum($days) / count($days)) : null;
-    $fx = function (array $a): string { $o = ''; foreach ($a as $k => $v) $o .= '<span class="fx">+ ' . money($v, $k) . '</span>'; return $o; };
+    $fx = function (array $a): string { $o = ''; foreach ($a as $k => $v) { $p = to_pln($v, $k); $o .= '<span class="fx">+ ' . money($v, $k) . ($p !== null ? ' (≈ ' . money($p) . ')' : '') . '</span>'; } return $o; };
     $kpi = '<section class="kpis" aria-label="Podsumowanie">'
         . '<div class="kpi dark"><span class="t">Do zapłaty</span><span class="v">' . money($open) . '</span>' . $fx($fxOpen) . '<span class="s">' . ($openN ? $openN . ' ' . plural($openN, 'faktura czeka', 'faktury czekają', 'faktur czeka') . ' na wpłatę' : 'Wszystko opłacone') . '</span></div><div class="kpis-r">'
         . '<div class="kpi"><span class="t">Po terminie</span><span class="v' . ($late ? ' red' : '') . '">' . money($late) . '</span>' . $fx($fxLate) . '<span class="s">' . ($lateN ? $lateN . ' ' . plural($lateN, 'faktura', 'faktury', 'faktur') . ', wezwania idą same' : 'Nikt nie zalega') . '</span></div>'
@@ -873,7 +873,7 @@ function view_list(): never {
         $tr .= '<tr class="row" data-href="' . $url . '"><td class="c-num nw"><a class="num" href="' . $url . '">' . e($i['number'] ?: 'Szkic') . '</a></td>'
             . '<td class="c-cli"><span>' . e($i['buyer']['name'] ?? 'Bez nabywcy') . '</span><span class="sub">' . e(mb_strimwidth($first, 0, 60, '…')) . '</span></td>'
             . '<td class="c-due nw">' . e(pl_date($i['due_date'])) . '<span class="sub ' . $wc . '">' . e($w) . '</span></td>'
-            . '<td class="c-amt r amt">' . money((int)$i['gross'], $i['currency'] ?? 'PLN') . '</td>'
+            . '<td class="c-amt r amt">' . money((int)$i['gross'], $i['currency'] ?? 'PLN') . pln_hint((int)$i['gross'], $i['currency'] ?? 'PLN', true) . '</td>'
             . '<td class="c-st nw">' . state_chip($i) . '</td>'
             . '<td class="c-act r nw"><div class="ias">' . ia('eye', 'Podgląd faktury', $url)
             . ($i['status'] !== 'draft' ? ia('download', 'Pobierz PDF', P . '?a=pdf&id=' . $i['id'] . '&dl=1') : ia('pencil', 'Dokończ szkic', P . '?a=edit&id=' . $i['id']))
@@ -1042,7 +1042,7 @@ function view_invoice(array $inv): never {
     }
     if ($inv['status'] === 'paid') $acts .= $f('unpaid', 'Cofnij oznaczenie wpłaty');
     [$wt, $wc] = when_text($inv);
-    $kv = '<div class="ihero"><span class="ik">' . e($inv['buyer']['name'] ?? 'Bez nabywcy') . '</span><span class="iv">' . money((int)$inv['gross'], $inv['currency'] ?? 'PLN') . '</span>'
+    $kv = '<div class="ihero"><span class="ik">' . e($inv['buyer']['name'] ?? 'Bez nabywcy') . '</span><span class="iv">' . money((int)$inv['gross'], $inv['currency'] ?? 'PLN') . '</span>' . pln_hint((int)$inv['gross'], $inv['currency'] ?? 'PLN')
         . '<span class="is">' . state_chip($inv) . ($wt !== '' && $st !== 'today' ? '<span class="' . $wc . '">' . e($wt) . '</span>' : '') . '</span></div>'
         . '<div class="kv">'
         . '<div><span>Termin</span><span>' . e(pl_date($inv['due_date'])) . '</span></div>'

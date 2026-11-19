@@ -6,17 +6,18 @@ function view_home(): never {
     if (function_exists('leads_migrate')) leads_migrate();
     $today = today(); $ym = date('Y-m'); $prevYm = date('Y-m', strtotime('first day of last month'));
     $inv = array_map('hydrate', db()->query("SELECT * FROM invoices WHERE status != 'cancelled' ORDER BY id DESC")->fetchAll());
-    $open = 0; $late = []; $soon = []; $drafts = 0; $ksefBad = []; $byMonth = []; $paidM = 0; $lastPaid = null;
+    $open = 0; $openFx = false; $late = []; $soon = []; $drafts = 0; $ksefBad = []; $byMonth = []; $paidM = 0; $lastPaid = null;
     foreach ($inv as $i) {
         $st = inv_state($i); $pln = ($i['currency'] ?? 'PLN') === 'PLN';
         if ($st === 'draft') { $drafts++; continue; }
         $bym = (string)($i['book_ym'] ?: substr((string)($i['issue_date'] ?: $i['created']), 0, 7));
-        if ($pln) $byMonth[$bym] = ($byMonth[$bym] ?? 0) + (int)$i['net'];
-        if (in_array($st, ['due', 'today', 'late'], true) && $pln) $open += (int)$i['gross'];
+        $netPln = $pln ? (int)$i['net'] : to_pln((int)$i['net'], (string)$i['currency']);
+        if ($netPln !== null) $byMonth[$bym] = ($byMonth[$bym] ?? 0) + $netPln;
+        if (in_array($st, ['due', 'today', 'late'], true)) { if ($pln) $open += (int)$i['gross']; else { $p = to_pln((int)$i['gross'], (string)$i['currency']); if ($p !== null) { $open += $p; $openFx = true; } } }
         if ($st === 'late') $late[] = $i;
         if (in_array($st, ['due', 'today'], true) && days_between($today, (string)$i['due_date']) <= 7) $soon[] = $i;
         if (in_array((string)($i['ksef_state'] ?? ''), ['rejected', 'error'], true) && empty($i['ksef'])) $ksefBad[] = $i;
-        if ($st === 'paid') { if (substr((string)$i['paid_at'], 0, 7) === $ym && $pln) $paidM += (int)$i['gross']; if (!$lastPaid || (string)$i['paid_at'] > (string)$lastPaid['paid_at']) $lastPaid = $i; }
+        if ($st === 'paid') { if (substr((string)$i['paid_at'], 0, 7) === $ym) $paidM += $pln ? (int)$i['gross'] : (int)to_pln((int)$i['gross'], (string)$i['currency']); if (!$lastPaid || (string)$i['paid_at'] > (string)$lastPaid['paid_at']) $lastPaid = $i; }
     }
     $leads = db()->query("SELECT * FROM leads WHERE stage NOT IN ('won', 'lost') ORDER BY next_at IS NULL, next_at")->fetchAll();
     $pipe = array_sum(array_map(fn($l) => (int)$l['value'], $leads));
@@ -61,7 +62,7 @@ function view_home(): never {
         . ($todo ? '<ul class="hf-l">' . $focus . '</ul>' . ($more ? '<p class="hf-more mut">I jeszcze ' . $more . ' mniej pilnych.</p>' : '') : '<div class="hf-empty">' . icon('check') . '<b>Na dziś nic pilnego.</b><span>Dobry moment, żeby przejrzeć przetargi albo napisać do klienta, który dawno się nie odzywał.</span><a class="btn sm" href="' . P . '?a=leads&t=tenders">Przejrzyj przetargi</a></div>') . '</section>';
     $kpi = fn($t, $v, $s, $href, $cls = '') => '<a class="card hk' . $cls . '" href="' . $href . '"><span class="hk-t">' . $t . '</span><span class="hk-v">' . $v . '</span><span class="hk-s">' . $s . '</span></a>';
     $kpis = '<div class="hks">'
-        . $kpi('Do zapłaty od klientów', money($open), count($late) ? '<span class="red">' . count($late) . ' po terminie</span>' : 'Nikt nie zalega', P . '?a=list&t=open', ' dark')
+        . $kpi('Do zapłaty od klientów', money($open), (count($late) ? '<span class="red">' . count($late) . ' po terminie</span>' : 'Nikt nie zalega') . ($openFx ? ' · faktury w walutach po kursie NBP' : ''), P . '?a=list&t=open', ' dark')
         . $kpi('Wpłynęło w ' . mb_strtolower(pl_month((int)date('n'), true)), money($paidM), $lastPaid ? 'Ostatnio: ' . e(mb_strimwidth((string)($lastPaid['buyer']['name'] ?? ''), 0, 26, '…')) : 'Jeszcze nic', P . '?a=list&t=paid')
         . $kpi('Otwarte leady', money($pipe), count($leads) . ' ' . plural(count($leads), 'lead', 'leady', 'leadów') . (count($due) ? ' · <span class="red">' . count($due) . ' na dziś</span>' : ''), P . '?a=leads')
         . $kpi('Wyceny w tym miesiącu', (string)$qSentM, $qAll ? (int)round($qDone / $qAll * 100) . '% wszystkich przyjętych' : 'wysłane do klientów', P . '?a=quotes')
