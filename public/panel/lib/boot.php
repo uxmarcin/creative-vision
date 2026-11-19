@@ -57,6 +57,11 @@ function migrate(PDO $pdo): void {
         $pdo->exec('ALTER TABLE clients ADD COLUMN no_mail INTEGER NOT NULL DEFAULT 0');
         $pdo->exec('UPDATE clients SET no_mail = 1 WHERE auto_paid = 1');
     }
+    if (!in_array('website', $ccols, true)) {
+        $pdo->exec('ALTER TABLE clients ADD COLUMN website TEXT'); $pdo->exec('ALTER TABLE clients ADD COLUMN logo TEXT'); $pdo->exec('ALTER TABLE clients ADD COLUMN logo_at INTEGER');
+        $pdo->exec("UPDATE clients SET website = 'ingenious.build' WHERE name LIKE '%ngenious%'");
+        $pdo->exec("UPDATE clients SET website = '4clubbers.com.pl' WHERE name LIKE '%4Clubbers%'");
+    }
     if (!in_array('no_ksef', $ccols, true)) {
         $pdo->exec('ALTER TABLE clients ADD COLUMN no_ksef INTEGER NOT NULL DEFAULT 0');
         $pdo->exec('ALTER TABLE clients ADD COLUMN tpl TEXT');
@@ -387,6 +392,30 @@ function app_ver(): string {
 function client_no_ksef(?int $cid): bool { if (!$cid) return false; $q = db()->prepare('SELECT no_ksef FROM clients WHERE id = ?'); $q->execute([$cid]); return (int)$q->fetchColumn() === 1; }
 /** Zapamiętuje ostatnią fakturę klienta jako wzór do kolejnej (pozycje, waluta, język, termin, uwagi). */
 function client_tpl_save(array $inv): void { if (empty($inv['client_id'])) return; db()->prepare('UPDATE clients SET tpl = ? WHERE id = ?')->execute([json_encode(['items' => is_array($inv['items']) ? $inv['items'] : (json_decode((string)$inv['items'], true) ?: []), 'currency' => $inv['currency'] ?? 'PLN', 'lang' => $inv['lang'] ?? 'pl', 'term_days' => (int)($inv['term_days'] ?? 14), 'notes' => (string)($inv['notes'] ?? '')], JSON_UNESCAPED_UNICODE), (int)$inv['client_id']]); }
+/** Domena firmy klienta: pole strony albo domena z firmowego e-maila. */
+function client_domain(array $c): string {
+    $w = strtolower(trim((string)($c['website'] ?? '')));
+    if ($w !== '') return preg_replace('~^(https?://)?(www\.)?([^/\s?#]+).*$~', '$3', $w);
+    $d = strtolower((string)substr(strrchr((string)($c['email'] ?? ''), '@') ?: '', 1));
+    return $d && !preg_match('/^(gmail|googlemail|wp|o2|onet|op|interia|poczta\.onet|vp|tlen|gazeta|outlook|hotmail|live|icloud|me|yahoo|proton|protonmail|int)\./', $d) ? $d : '';
+}
+/** Logo klienta (data URI) pobrane z jego strony; najwyżej 2 nowe pobrania na żądanie, ponowna próba po tygodniu. */
+function client_logo(?int $cid): ?string {
+    static $mem = [], $fetched = 0;
+    if (!$cid) return null; if (array_key_exists($cid, $mem)) return $mem[$cid];
+    $q = db()->prepare('SELECT id, website, email, logo, logo_at FROM clients WHERE id = ?'); $q->execute([$cid]); $c = $q->fetch();
+    if (!$c) return $mem[$cid] = null;
+    if (!empty($c['logo'])) return $mem[$cid] = $c['logo'];
+    $dom = client_domain($c); if ($dom === '' || time() - (int)$c['logo_at'] < 7 * 86400 || $fetched >= 2) return $mem[$cid] = null;
+    $fetched++; $logo = null;
+    foreach (['https://' . $dom . '/apple-touch-icon.png', 'https://www.google.com/s2/favicons?domain=' . rawurlencode($dom) . '&sz=128'] as $u) {
+        $ch = curl_init($u); curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_MAXREDIRS => 3, CURLOPT_TIMEOUT => 4, CURLOPT_CONNECTTIMEOUT => 3, CURLOPT_PROTOCOLS => CURLPROTO_HTTPS, CURLOPT_USERAGENT => 'Mozilla/5.0']);
+        $b = curl_exec($ch); $ct = (string)curl_getinfo($ch, CURLINFO_CONTENT_TYPE); $code = curl_getinfo($ch, CURLINFO_HTTP_CODE); curl_close($ch);
+        if ($code === 200 && is_string($b) && strlen($b) > 200 && strlen($b) < 300000 && ($inf = @getimagesizefromstring($b)) && $inf[0] >= 32 && in_array($inf['mime'], ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/x-icon', 'image/vnd.microsoft.icon'], true)) { $logo = 'data:' . $inf['mime'] . ';base64,' . base64_encode($b); break; }
+    }
+    db()->prepare('UPDATE clients SET logo = ?, logo_at = ? WHERE id = ?')->execute([$logo, time(), $cid]);
+    return $mem[$cid] = $logo;
+}
 function client_no_mail(?int $cid): bool { if (!$cid) return false; $q = db()->prepare('SELECT no_mail FROM clients WHERE id = ?'); $q->execute([$cid]); return (int)$q->fetchColumn() === 1; }
 function quote_by_id(int $id): ?array {
     $s = db()->prepare('SELECT * FROM quotes WHERE id = ?'); $s->execute([$id]);

@@ -299,6 +299,8 @@ if ($post) {
             if ($id) db()->prepare('UPDATE clients SET nip=?, name=?, addr1=?, addr2=?, country=?, phone=?, email=?, cc=?, updated=? WHERE id=?')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['country'], $c['phone'], $c['email'], $c['cc'], now(), $id]);
             else db()->prepare('INSERT INTO clients (nip, name, addr1, addr2, country, phone, email, cc, created, updated) VALUES (?,?,?,?,?,?,?,?,?,?)')->execute([$c['nip'], $c['name'], $c['addr1'], $c['addr2'], $c['country'], $c['phone'], $c['email'], $c['cc'], now(), now()]);
             $cid = $id ?: (int)db()->lastInsertId();
+            $web = mb_substr(trim((string)($_POST['website'] ?? '')), 0, 200); $oldWeb = $id ? (string)db()->query('SELECT website FROM clients WHERE id = ' . (int)$id)->fetchColumn() : '';
+            if (isset($_POST['website'])) db()->prepare('UPDATE clients SET website = ?' . ($web !== $oldWeb ? ', logo = NULL, logo_at = NULL' : '') . ' WHERE id = ?')->execute([$web, $cid]);
             db()->prepare('UPDATE clients SET no_remind = ?, auto_paid = ?, no_mail = ?, no_ksef = ? WHERE id = ?')->execute([!empty($_POST['no_remind']) ? 1 : 0, !empty($_POST['auto_paid']) ? 1 : 0, !empty($_POST['no_mail']) ? 1 : 0, !empty($_POST['no_ksef']) ? 1 : 0, $cid]);
             if (!empty($_POST['no_ksef'])) db()->prepare("UPDATE invoices SET ksef_state = 'skip' WHERE client_id = ? AND (ksef IS NULL OR ksef = '')")->execute([$cid]);
             if (!empty($_POST['no_remind'])) db()->prepare("UPDATE invoices SET reminders = 0 WHERE client_id = ? AND status = 'issued'")->execute([$cid]);
@@ -1162,6 +1164,7 @@ function view_clients(): never {
         . '<label class="f">E-mail do faktur<input class="in" type="email" name="email" value="' . $v('email') . '"></label>'
         . '<label class="f">Kopia do<input class="in" name="cc" value="' . $v('cc') . '"></label>'
         . '<label class="f">Telefon do SMS<input class="in" type="tel" name="phone" value="' . $v('phone') . '"></label>'
+        . '<label class="f">Strona firmy (do logo)<input class="in" name="website" value="' . $v('website') . '" placeholder="np. firma.pl"></label>'
         . '<label class="check"><input type="checkbox" name="no_mail" value="1"' . (!empty($ec['no_mail']) ? ' checked' : '') . '> Nie wysyłaj temu klientowi faktur mailem</label>'
         . '<label class="check"><input type="checkbox" name="no_ksef" value="1"' . (!empty($ec['no_ksef']) ? ' checked' : '') . '> Nie wysyłaj faktur tego klienta do KSeF</label>'
         . '<label class="check"><input type="checkbox" name="no_remind" value="1"' . (!empty($ec['no_remind']) ? ' checked' : '') . '> Nie wysyłaj temu klientowi przypomnień ani wezwań</label>'
