@@ -375,3 +375,5 @@
   });
   addEventListener('pageshow', function () { clearInterval(tick); if (ov) ov.classList.remove('on'); });
 })();
+
+document.addEventListener('click', function (e) { var t = e.target.closest('[data-tile]'); if (!t || e.target.closest('a,button,input,form,select,label,details')) return; if (window.getSelection && String(window.getSelection()).length) return; if (e.metaKey || e.ctrlKey) window.open(t.getAttribute('data-tile')); else location.href = t.getAttribute('data-tile'); });

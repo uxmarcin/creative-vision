@@ -620,3 +620,5 @@ ul.pts{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;fon
 .so-n{font-size:12.5px;color:var(--mut);margin-top:6px}
 @media (prefers-reduced-motion:reduce){.so-ic svg,.so-bar i{animation:none}}
 .sendov .so-s{display:block;border:0!important;background:none!important;padding:0!important;height:auto!important;width:auto}
+
+.kcard.tile[data-tile]{cursor:pointer;transition:border-color .2s,box-shadow .2s}.kcard.tile[data-tile]:hover{border-color:#CFCBC3;box-shadow:0 6px 18px rgba(11,11,11,.06)}.kcard.tile a.kc-t:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}

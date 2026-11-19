@@ -152,8 +152,8 @@ function view_jobs_tab(string $tabs): string {
         $c = $t['cat'] ?: 'other'; $fresh = substr((string)$t['created'], 0, 10) === $today;
         $left = days_between($today, substr((string)$t['deadline'], 0, 10));
         $meta = ($fresh ? 'Nowe, znalezione ' . date('H:i', strtotime($t['created'])) : 'Znalezione ' . date('d.m', strtotime($t['created']))) . ' · ofert: ' . (int)$t['offers'] . ' · znika za ' . $left . ' ' . plural($left, 'dzień', 'dni', 'dni');
-        $tiles .= '<article class="kcard tile"><div class="kc-h"><span class="sc' . ($t['score'] >= 60 ? ' hi' : '') . '">' . (int)$t['score'] . '</span><span class="kc-cat c-' . $c . '">' . e(TENDER_CATS[$c] ?? 'Inne') . '</span><span class="kc-src" style="margin-left:auto">' . ($t['src'] === 'useme' ? 'USEME' : 'FREELANCER') . '</span></div>'
-            . '<b class="kc-t">' . e((string)$t['title']) . '</b>' . ($t['excerpt'] ? '<span class="kc-x">' . e((string)$t['excerpt']) . '</span>' : '')
+        $tiles .= '<article class="kcard tile" data-tile="' . P . '?a=tender&id=' . $t['id'] . '"><div class="kc-h"><span class="sc' . ($t['score'] >= 60 ? ' hi' : '') . '">' . (int)$t['score'] . '</span><span class="kc-cat c-' . $c . '">' . e(TENDER_CATS[$c] ?? 'Inne') . '</span><span class="kc-src" style="margin-left:auto">' . ($t['src'] === 'useme' ? 'USEME' : 'FREELANCER') . '</span></div>'
+            . '<a class="kc-t" href="' . P . '?a=tender&id=' . $t['id'] . '">' . e((string)$t['title']) . '</a>' . ($t['excerpt'] ? '<span class="kc-x">' . e((string)$t['excerpt']) . '</span>' : '')
             . '<span class="kc-b"><b>' . e((string)($t['budget'] ?: 'Budżet do negocjacji')) . '</b>' . ($t['buyer'] && $t['src'] === 'useme' ? ' · ' . e((string)$t['buyer']) : '') . '</span>'
             . '<span class="kc-d' . ((int)$t['offers'] > 100 ? ' mut' : '') . '">' . e($meta) . '</span>'
             . '<div class="kc-f"><form method="post" action="' . P . '?a=tender_lead">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="btn sm">' . icon('target') . ' Do ofert</button></form><div class="ias">'
