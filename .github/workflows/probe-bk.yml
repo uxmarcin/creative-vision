@@ -1,0 +1,14 @@
+name: probe-bk
+on: workflow_dispatch
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          UA="Mozilla/5.0 (Macintosh) Chrome/130"
+          for u in "https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl/" "https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl/api/announcements/search?page=1&limit=5" "https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl/ogloszenia/szukaj?q=strona%20internetowa" "https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl/api/v1/announcements?limit=3"; do
+            echo "=== $u"; curl -sSL -A "$UA" -o o -w "%{http_code} %{content_type} %{size_download}\n" "$u"; head -c 700 o | tr -s '\n' ' '; echo
+            grep -oE '(src|href)="[^"]*\.js[^"]*"' o | head -5; grep -oE '"/api[^"]*"|/api/[a-zA-Z0-9/_-]+' o | sort -u | head -20
+          done
+          js=$(curl -sSL -A "$UA" https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl/ | grep -oE 'src="[^"]*\.js"' | sed 's/src="//;s/"//' | head -3)
+          for j in $js; do case $j in http*) u=$j;; *) u="https://bazakonkurencyjnosci.funduszeeuropejskie.gov.pl$j";; esac; echo "JS $u"; curl -sSL "$u" | grep -oE '"/?api/[a-zA-Z0-9/_{}.-]+"' | sort -u | head -40; done
