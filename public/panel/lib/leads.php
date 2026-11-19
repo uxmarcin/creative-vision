@@ -535,3 +535,41 @@ function view_tender(int $id): never {
     page($t['src'] === 'bk' ? 'Zapytanie ofertowe' : 'Przetarg', 'leads', $body, $t['buyer']);
 }
 require_once __DIR__ . '/jobs.php';
+
+/** Gdy klient odpisze na wysłaną wycenę (z adresu, na który poszła), karta przechodzi do kolumny Odpowiedź. Sprawdzane co 5 minut w obu skrzynkach. */
+function lead_reply_check(): int {
+    leads_migrate();
+    if (time() - (int)setting('reply_chk_at') < 50) return 0;
+    set_setting('reply_chk_at', (string)time());
+    $map = [];
+    foreach (db()->query("SELECT q.buyer, q.src, q.number FROM quotes q WHERE q.sent_at IS NOT NULL AND q.status = 'sent'")->fetchAll() as $q) {
+        $src = json_decode((string)$q['src'], true) ?: []; $lid = (int)($src['lead'] ?? 0); if (!$lid) continue;
+        $b = json_decode((string)$q['buyer'], true) ?: [];
+        foreach (array_merge([(string)($b['email'] ?? '')], preg_split('/[\s,;]+/', (string)($b['cc'] ?? '')) ?: []) as $em) { $em = strtolower(trim($em)); if ($em !== '') $map[$em][$lid] = (string)$q['number']; }
+    }
+    foreach (db()->query("SELECT id, email FROM leads WHERE stage = 'offer' AND email IS NOT NULL AND email != ''")->fetchAll() as $l) $map[strtolower(trim((string)$l['email']))][(int)$l['id']] = '';
+    $n = 0; $cur = mail_acc();
+    foreach (['f', 'k'] as $ac) {
+        mail_acc($ac); if (!inbox_enabled()) continue;
+        try {
+            $im = imap_open_box(); $im->select('INBOX');
+            $all = $im->uids('ALL'); $max = max(array_merge([0], $all)); $last = (int)setting('reply_uid_' . $ac);
+            set_setting('reply_uid_' . $ac, (string)$max);
+            if ($last === 0 || !$map) continue;
+            $new = array_values(array_filter($all, fn($u) => $u > $last)); if (!$new) continue;
+            foreach ($im->headers(array_slice($new, -30)) as $m) {
+                [, $from] = mail_addr((string)($m['h']['from'] ?? '')); $from = strtolower($from);
+                if ($from === '' || str_ends_with($from, '@creative-vision.pl') || empty($map[$from])) continue;
+                $subj = mime_hdr_decode((string)($m['h']['subject'] ?? ''));
+                foreach ($map[$from] as $lid => $num) {
+                    $s = db()->prepare("UPDATE leads SET stage = 'nego', next_at = ?, next_note = ?, updated = ? WHERE id = ? AND stage = 'offer'");
+                    $s->execute([today(), 'Klient odpisał' . ($num ? ' na wycenę ' . $num : '') . ': ' . mb_strimwidth($subj, 0, 90, '…'), now(), $lid]);
+                    if ($s->rowCount()) { $n++; $l = lead_by_id($lid); if ($l && function_exists('push_send')) push_send('Klient odpisał na wycenę', ($l['company'] ?: $l['name']) . ': ' . mb_strimwidth($subj, 0, 80, '…'), '/panel?a=lead&id=' . $lid, 'reply-' . $lid); }
+                }
+            }
+            unset($im);
+        } catch (Throwable $e) { /* następnym razem */ }
+    }
+    mail_acc($cur);
+    return $n;
+}
