@@ -61,6 +61,16 @@ if ($post) {
             if ($err) { flash('!' . $err); $_SESSION['form'] = $_POST; redirect(P . '?a=' . ($id ? 'edit&id=' . $id : 'new')); }
             unset($_SESSION['form']);
             redirect(P . '?a=view&id=' . $id);
+        case 'preview_mail':
+            $inv = must_invoice($id);
+            $kind = in_array($_POST['kind'] ?? '', ['new', 'manual', 'w1', 'w2'], true) ? (string)$_POST['kind'] : 'manual';
+            $to = trim((string)($_POST['to'] ?? '')) ?: (setting('imap_user') ?: setting('mail_reply'));
+            [$sj, $h, $t] = invoice_mail($inv, $kind);
+            $att = in_array($kind, ['new', 'w1', 'w2'], true) ? [invoice_pdf_name($inv) => invoice_pdf($inv)] : [];
+            $ok = send_mail([$to], '[Podgląd] ' . $sj, $h, $t, $att, false);
+            if ($ok) log_event($id, 'preview', 'Podgląd maila („' . $sj . '”) wysłany na ' . $to);
+            flash($ok ? 'Podgląd wysłany na ' . $to . '. Klient nic nie dostał.' : '!Nie udało się wysłać podglądu: ' . mail_last_error());
+            redirect(P . '?a=view&id=' . $id);
         case 'set_email':
             $inv = must_invoice($id);
             $em = trim((string)($_POST['email'] ?? ''));
@@ -747,6 +757,13 @@ function view_invoice(array $inv): never {
         $acts .= '<details class="more"><summary>Oznacz jako opłaconą</summary><form class="inl" method="post" action="' . P . '?a=paid">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '">'
             . '<label class="f">Data wpłaty<input class="in" type="date" name="paid_date" value="' . today() . '"></label>'
             . '<label class="f">Kwota<input class="in" name="paid_amount" value="' . money((int)$inv['gross'], false) . '" inputmode="decimal"></label><button class="btn">Zapisz wpłatę</button></form></details>';
+    }
+    if (in_array($inv['status'], ['issued', 'paid'], true)) {
+        $kinds = ['manual' => 'Przypomnienie (jakie pójdzie dziś)', 'new' => 'Mail z fakturą', 'w1' => 'Wezwanie do zapłaty', 'w2' => 'Ostateczne wezwanie'];
+        $acts .= '<details class="more"><summary>Wyślij podgląd do mnie</summary><form class="inl" method="post" action="' . P . '?a=preview_mail">' . csrf_field() . '<input type="hidden" name="id" value="' . $id . '">'
+            . '<label class="f">Który mail<select class="in" name="kind">' . implode('', array_map(fn($k, $l) => '<option value="' . $k . '">' . $l . '</option>', array_keys($kinds), $kinds)) . '</select></label>'
+            . '<label class="f">Na adres<input class="in" type="email" name="to" value="' . e(setting('imap_user') ?: setting('mail_reply')) . '"></label>'
+            . '<button class="btn ghost sm">Wyślij podgląd</button><span class="mut" style="font-size:13px">Klient nic nie dostanie. W temacie będzie dopisek [Podgląd].</span></form></details>';
     }
     if ($inv['status'] !== 'draft') {
         $acts .= '<a class="btn ghost" href="' . P . '?a=pdf&id=' . $id . '&dl=1">Pobierz PDF</a>';
