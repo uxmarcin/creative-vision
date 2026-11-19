@@ -1,5 +1,5 @@
 // Service worker panelu: dane zawsze z sieci (nic poufnego w pamięci), statyczne pliki z pamięci, a bez internetu ekran offline.
-const V = 'cvpanel-2';
+const V = 'cvpanel-3';
 const STATIC = ['/panel/offline.htm', '/panel/assets/logo-white.svg', '/panel/assets/icon-192.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(STATIC)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x => x !== V).map(x => caches.delete(x)))).then(() => self.clients.claim())); });

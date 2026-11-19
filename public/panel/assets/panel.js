@@ -411,3 +411,20 @@ document.addEventListener('click', function (e) { var t = e.target.closest('[dat
   };
   fit(); addEventListener('resize', fit); addEventListener('load', fit);
 })();
+// pasek ładowania: od razu widać, że aplikacja przechodzi dalej, zamiast pustego ekranu
+(function () {
+  var bar = document.createElement('div'); bar.className = 'navload'; document.body.appendChild(bar);
+  var t = null;
+  var safety = null;
+  var start = function () { clearTimeout(t); clearTimeout(safety); t = setTimeout(function () { document.documentElement.classList.add('loading'); bar.classList.remove('done'); bar.classList.add('on'); }, 120); safety = setTimeout(function () { stop(); }, 15000); };
+  var stop = function () { clearTimeout(t); document.documentElement.classList.remove('loading'); if (bar.classList.contains('on')) { bar.classList.add('done'); setTimeout(function () { bar.classList.remove('on', 'done'); }, 500); } };
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href]'); if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+    var h = a.getAttribute('href'); if (!h || h.charAt(0) === '#' || a.target === '_blank' || a.hasAttribute('download') || /^(mailto|tel|otpauth|javascript):/i.test(h)) return;
+    try { var u = new URL(a.href); if (u.origin !== location.origin || /[?&](dl=1|a=(pdf|quote_pdf|cost_file|books_zip|mail_att))/.test(u.search)) return; } catch (x) { return; }
+    start();
+  }, false);
+  document.addEventListener('submit', function (e) { if (!e.defaultPrevented && !e.target.closest('.sendov')) setTimeout(function () { if (!document.querySelector('.sendov.on')) start(); }, 0); });
+  addEventListener('pageshow', stop); addEventListener('pagehide', function () { clearTimeout(t); });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') stop(); });
+})();

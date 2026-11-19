@@ -761,3 +761,10 @@ body{background:#fff}
 .accseg .sw-e{font-size:12.5px;opacity:.65}
 @media (max-width:900px){.accseg{display:grid;grid-template-columns:1fr 1fr;width:100%}.accseg a{min-width:0}}
 .fxp{display:block;font-size:12.5px;color:var(--mut);font-weight:400;margin-top:2px;white-space:nowrap}.ihero .fxp{font-size:14px;margin-top:4px}
+#boot{display:none!important}
+/* pasek ładowania przy przechodzeniu między ekranami */
+.navload{position:fixed;left:0;top:0;height:3px;width:0;z-index:200;background:var(--grad);transition:width 8s cubic-bezier(.1,.6,.2,1),opacity .3s;pointer-events:none}
+.navload.on{width:88%}
+.navload.done{width:100%;opacity:0;transition:width .2s,opacity .3s .2s}
+html.loading .main{opacity:.55;transition:opacity .25s .15s}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.18s}
