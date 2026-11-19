@@ -41,6 +41,14 @@ jobs:
           protocol: ftps
           local-dir: ./public/
           server-dir: ./public_html/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            panel/data/*.sqlite*
+            panel/data/sess_*
+            panel/data/pdf-fonts/**
+            panel/data/outbox/**
       - name: Zgłoś adresy do wyszukiwarek (IndexNow, Bing i partnerzy)
         if: github.event_name != 'schedule'
         run: |
@@ -55,6 +63,3 @@ jobs:
           except Exception as e:
               print("IndexNow nie odpowiedział:", e)
           PY
-      - name: Sonda hostingu (jednorazowa)
-        if: github.event_name != 'schedule'
-        run: curl -sS https://creative-vision.pl/probe-5e112c68767bc552.php || true

@@ -17,6 +17,12 @@ ErrorDocument 404 /404.html
   RewriteCond %{HTTP_HOST} ^(?:www\.)?(creative-vision\.pl)$ [NC]
   RewriteRule ^ https://creative-vision.pl%{REQUEST_URI} [L,R=301]
 
+  # Panel faktur: dane i kod tylko dla PHP, czyste adresy panelu i strony klienta
+  RewriteRule ^panel/(data|lib|vendor|fonts)(/|$) - [F,L]
+  RewriteRule ^panel/?$ /panel/index.php [L]
+  RewriteRule ^panel/(index|f|cron)\.php$ - [L]
+  RewriteRule ^f/([A-Za-z0-9]{24,64})$ /panel/f.php?t=$1 [L,QSA]
+
   # Zmiana nazw podstron (2026-10): stałe przekierowania
   RewriteRule ^uslugi/sklep-prestashop/?$ /uslugi/sklepy-internetowe [L,R=301]
   RewriteRule ^agencja-prestashop/?$ /agencja-ecommerce [L,R=301]

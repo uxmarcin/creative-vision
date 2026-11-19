@@ -1,2 +1,5 @@
 node_modules/
 .DS_Store
+public/panel/data/*
+!public/panel/data/.htaccess
+!public/panel/data/index.html

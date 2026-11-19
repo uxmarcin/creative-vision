@@ -1,5 +1,8 @@
 <?php // Lokalny podgląd: php -S 127.0.0.1:8090 -t public tools/router.php
 $p = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+if (preg_match('#^/panel/(data|lib|vendor|fonts)(/|$)#', $p)) { http_response_code(403); exit('Forbidden'); }
+if ($p === '/panel' || $p === '/panel/') { $_SERVER['SCRIPT_NAME'] = '/panel/index.php'; chdir(__DIR__ . '/../public/panel'); require __DIR__ . '/../public/panel/index.php'; return true; }
+if (preg_match('#^/f/([A-Za-z0-9]{24,64})$#', $p, $m)) { $_GET['t'] = $m[1]; chdir(__DIR__ . '/../public/panel'); require __DIR__ . '/../public/panel/f.php'; return true; }
 if ($p !== '/' && is_file(__DIR__ . '/../public' . $p)) return false;
 $f = __DIR__ . '/../public' . ($p === '/' ? '/index.html' : rtrim($p, '/') . '.html');
 if (is_file($f)) { header('Content-Type: text/html; charset=utf-8'); readfile($f); return true; }
