@@ -318,7 +318,7 @@ function books_post(string $a): never {
             set_setting('acc_auto', !empty($_POST['acc_auto']) ? '1' : '0');
             set_setting('acc_day', (string)max(1, min(28, (int)($_POST['acc_day'] ?? 5))));
             set_setting('acc_note', trim(mb_substr((string)($_POST['acc_note'] ?? ''), 0, 1000)));
-            flash('Ustawienia wysyłki do księgowej zapisane.'); redirect($back);
+            flash('Ustawienia księgowej zapisane.'); redirect(($_POST['from'] ?? '') === 'settings' ? P . '?a=settings#acc' : $back);
     }
     redirect($back);
 }
@@ -401,20 +401,26 @@ function view_books(): never {
         })()
         . '<a class="btn ghost" href="' . P . '?a=books_zip&ym=' . $ym . '">Pobierz paczkę ZIP</a>'
         . (function () use ($ym, $sent) {
+            if (!$sent && setting('acc_email') === '') return '<span class="mut" style="font-size:14px">Żeby wysłać paczkę, wpisz e-mail księgowej w <a href="' . P . '?a=settings#acc">Ustawieniach</a>.</span>';
             if (!$sent) return '<form method="post" action="' . P . '?a=books_send">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '"><button class="btn" style="width:100%"' . (setting('acc_email') === '' || books_att_missing($ym) ? ' disabled title="Najpierw dodaj wymagane potwierdzenie"' : '') . '>Wyślij do księgowej ' . icon('arrow') . '</button></form>';
             [$ns, $nc] = books_new($ym); $na = books_new_att($ym); $n = count($ns) + count($nc) + count($na); $sup = setting('acc_sup_' . $ym);
             return ($n ? '<form method="post" action="' . P . '?a=books_send">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '"><button class="btn" style="width:100%">Doślij ' . $n . ' ' . plural($n, 'nowy dokument', 'nowe dokumenty', 'nowych dokumentów') . ' ' . icon('arrow') . '</button></form><span class="mut" style="font-size:13px">Doszły po wysłaniu paczki: ' . e(implode(', ', array_merge(array_map(fn($i) => (string)$i['number'], $ns), array_map(fn($c) => trim((string)($c['number'] ?: $c['fname'])), $nc)))) . '</span>' : '')
                 . '<span class="ok-t" style="font-size:14px">' . icon('check') . ' Wysłana ' . e(date('d.m.Y H:i', strtotime($sent))) . ' do ' . e(setting('acc_email')) . ($sup ? ', uzupełnienie ' . e(date('d.m H:i', strtotime($sup))) : '') . '</span>'
                 . ($n ? '' : '<span class="mut" style="font-size:13px">Jeśli dojdzie jeszcze jakaś faktura za ten miesiąc, pojawi się tu przycisk, żeby ją dosłać.</span>');
         })() . '</section>'
-        . '<section class="card pad sec" id="acc"><h2>Wysyłka co miesiąc</h2><form class="inl" method="post" action="' . P . '?a=books_settings">' . csrf_field() . '<input type="hidden" name="ym" value="' . $ym . '">'
+        . '</aside></div>';
+    page('Księgowość', 'books', $body, 'Miesiąc księgowy: ' . ym_label($ym));
+}
+
+/** Ustawienia księgowej (w Ustawieniach). */
+function books_settings_section(): string {
+    $ym = prev_ym();
+    return '<section class="card pad sec" id="acc"><h2>Księgowa</h2><form class="inl" method="post" action="' . P . '?a=books_settings">' . csrf_field() . '<input type="hidden" name="from" value="settings"><input type="hidden" name="ym" value="' . $ym . '">'
         . '<label class="f">E-mail księgowej<input class="in" type="email" name="acc_email" value="' . e(setting('acc_email')) . '" placeholder="biuro@ksiegowa.pl"></label>'
         . '<label class="check"><input type="checkbox" name="acc_auto" value="1"' . (setting('acc_auto') === '1' ? ' checked' : '') . '> Wysyłaj paczkę za poprzedni miesiąc automatycznie</label>'
         . '<label class="f">Którego dnia miesiąca<input class="in" type="number" name="acc_day" min="1" max="28" value="' . e(setting('acc_day')) . '"></label>'
         . '<label class="f">Dopisek w mailu (opcjonalnie)<textarea class="in" name="acc_note" rows="3" placeholder="np. Proszę o potwierdzenie odbioru.">' . e(setting('acc_note')) . '</textarea></label>'
-        . '<button class="btn ghost">Zapisz</button><span class="mut" style="font-size:13px">Przed wysyłką pobierzemy jeszcze faktury zakupowe z KSeF. Wysyłamy w dni robocze rano.</span></form></section>'
-        . '</aside></div>';
-    page('Księgowość', 'books', $body, 'Miesiąc księgowy: ' . ym_label($ym));
+        . '<button class="btn ghost">Zapisz</button><span class="mut" style="font-size:13px">Przed wysyłką pobierzemy jeszcze faktury zakupowe z KSeF. Wysyłamy w dni robocze rano.</span></form></section>';
 }
 
 function view_cost(array $c): never {
