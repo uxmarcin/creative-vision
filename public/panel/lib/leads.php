@@ -88,6 +88,24 @@ function tender_contact(int $id): array {
     return array_filter(['name' => (string)$t['buyer'], 'email' => strtolower($mail), 'addr1' => $street, 'addr2' => trim($zip . ' ' . $city), 'nip' => strlen($nip) === 10 ? $nip : '',
         'phone' => $g('/(?:Numer telefonu|Telefon)[^:\n]*:\s*(\+?[\d ()-]{7,20})/u')]);
 }
+/** Krótki opis (o czym to jest) i budżet wyczytane z treści ogłoszenia. Zapisywane w kolumnach excerpt i budget. */
+function tender_summary(array &$t, bool $fetch = false): void {
+    if (!empty($t['excerpt']) || (string)($t['excerpt'] ?? '') === '-') return;
+    $b = (string)($t['body'] ?? '');
+    if ($b === '' && $fetch) $b = tender_body((int)$t['id']);
+    if ($b === '') return;
+    $x = '';
+    foreach (['/Krótki opis przedmiotu zamówienia\s*:?\s*(.{40,600}?)(?:\n\d+\.\d|\n[A-ZĄĆĘŁŃÓŚŹŻ ]{6,}\n|$)/su', '/CZĘŚĆ 1:[^\n]*\n(?:Szacunkowa wartość[^\n]*\n)?([^\n]{40,600})/u', '/(Przedmiotem zamówienia jest.{20,500}?[.;])/su'] as $re)
+        if (preg_match($re, $b, $m)) { $x = trim(preg_replace('/\s+/u', ' ', $m[1])); break; }
+    $x = $x !== '' ? mb_strimwidth($x, 0, 230, '…') : '-';
+    $bud = '';
+    if (preg_match('/(?:szacunkow\w* wartoś\w*|wartoś\w* zamówienia|budżet\w*|kwot\w*[^.\n]{0,60}?przeznacz\w*)[^0-9\n]{0,80}?(\d[\d  .]{2,}(?:,\d{2})?)\s*(zł|PLN|złotych|EUR|euro)/iu', $b, $m)) {
+        $v = (float)str_replace([' ', ' ', '.', ','], ['', '', '', '.'], $m[1]);
+        if ($v >= 500) $bud = number_format($v, 0, ',', ' ') . (preg_match('/EUR|euro/i', $m[2]) ? ' EUR' : ' zł') . (preg_match('/brutto/i', mb_substr($b, max(0, mb_strpos($b, $m[0]) ?: 0), 300)) ? ' brutto' : '');
+    }
+    $t['excerpt'] = $x; $t['budget'] = $bud;
+    db()->prepare('UPDATE tenders SET excerpt = ?, budget = ? WHERE id = ?')->execute([$x, $bud, $t['id']]);
+}
 /** Treść ogłoszenia: z bazy, a gdy jej nie ma, pobieramy ją z BZP albo TED i zapisujemy. */
 function tender_body(int $id): string {
     leads_migrate();
@@ -166,7 +184,7 @@ function bk_fetch(): array {
             $t = ['src' => 'bk', 'ref' => 'BK ' . $id, 'title' => trim(preg_replace('/\s+/u', ' ', (string)$a['title'])), 'buyer' => (string)($a['advertiser_name'] ?? ''), 'city' => trim((string)explode(',', $place)[0]),
                 'province' => BK_PROV[mb_strtolower($voiv)] ?? '', 'cpv' => $cpv, 'deadline' => $dl, 'published' => (string)($a['publication_date'] ?? ''), 'url' => BK_URL . '/ogloszenia/' . $id];
             if (tender_cat($t['title'], $cpv) === 'other' && !preg_match('/stron|sklep|aplikac|platform|portal|serwis|system|oprogramow|ux|ui|www|internet|e-commerce|wzornicz/iu', $t['title'])) continue;
-            if (tender_store($t)) $new[] = $t;
+            if (tender_store($t)) { $new[] = $t; $b = bk_body($t['ref']); if ($b !== '') db()->prepare('UPDATE tenders SET body = ? WHERE ref = ?')->execute([$b, $t['ref']]); }
         }
         usleep(300000);
     }
@@ -179,7 +197,7 @@ function bk_body(string $ref): string {
     $o = (string)$a['title'] . "\n\nZAMAWIAJĄCY\nNazwa: " . ($ad['name'] ?? '') . "\nNIP: " . ($ad['identification_number'] ?? '') . "\nUlica: " . trim(($ad_a['street'] ?? '') . ' ' . ($ad_a['number_description'] ?? '')) . "\nKod pocztowy: " . ($ad_a['postcode'] ?? '') . "\nMiejscowość: " . ($ad_a['locality'] ?? '');
     foreach ((array)($a['contact_persons'] ?? []) as $i => $p) $o .= "\n\nOSOBA DO KONTAKTU\n" . trim(($p['forename'] ?? '') . ' ' . ($p['surname'] ?? '')) . "\nAdres poczty elektronicznej: " . ($p['email'] ?? '') . (!empty($p['phone_number']) ? "\nNumer telefonu: " . $p['phone_number'] : '');
     foreach ((array)($a['orders'] ?? []) as $n => $or) {
-        $o .= "\n\nCZĘŚĆ " . ($n + 1) . ': ' . ($or['title'] ?? '');
+        $o .= "\n\nCZĘŚĆ " . ($n + 1) . ': ' . ($or['title'] ?? '') . (!empty($or['estimated_value']) ? "\nSzacunkowa wartość: " . number_format((float)$or['estimated_value'], 2, ',', ' ') . ' zł' : '');
         foreach ((array)($or['order_items'] ?? []) as $it) { $o .= "\n" . trim((string)($it['description'] ?? '')); $c = array_map(fn($x) => $x['code'] . ' ' . $x['name'], (array)($it['cpv_items'] ?? [])); if ($c) $o .= "\nCPV: " . implode('; ', $c); }
     }
     $o .= "\n\nTermin składania ofert: " . ($a['submission_deadline'] ?? '');
@@ -291,20 +309,21 @@ function leads_post(string $a): never {
             $id = lead_save(['name' => $inq['from'], 'email' => $inq['email'], 'company' => '', 'source' => 'mail', 'stage' => 'new', 'next_at' => today(), 'next_note' => 'Odpowiedzieć na zapytanie',
                 'notes' => trim(($inq['subject'] !== '' ? $inq['subject'] . "\n\n" : '') . mb_substr($inq['text'], 0, 3000)), 'src' => array_diff_key($inq, ['text' => 1])]);
             flash('Zapytanie dodane do ofert.'); redirect(P . '?a=lead&id=' . $id);
-        case 'tender_lead':
+        case 'tender_lead': case 'tender_quote':
             $t = db()->prepare('SELECT * FROM tenders WHERE id = ?'); $t->execute([$id]); $t = $t->fetch();
             if (!$t) redirect(P . '?a=leads&t=tenders');
-            if ($t['lead_id']) redirect(P . '?a=lead&id=' . $t['lead_id']);
+            $go = fn($lid) => redirect($a === 'tender_quote' ? P . '?a=quote_new&lead=' . $lid . '&ai=1' : P . '?a=lead&id=' . $lid);
+            if ($t['lead_id']) $go((int)$t['lead_id']);
             if (job_is($t)) {
                 $lid = lead_save(['name' => (string)$t['buyer'], 'company' => '', 'source' => 'gielda', 'stage' => 'new', 'next_at' => today(), 'next_note' => 'Złożyć ofertę na ' . ($t['src'] === 'useme' ? 'Useme' : 'Freelancer.com') . ' (dziś, zanim zbierze się dużo ofert)',
                     'website' => $t['url'], 'notes' => $t['title'] . "\n" . ($t['budget'] ? 'Budżet: ' . $t['budget'] . "\n" : '') . $t['url'], 'src' => ['tender' => (int)$t['id'], 'job' => 1], 'score' => (int)$t['score']]);
                 db()->prepare("UPDATE tenders SET status = 'saved', lead_id = ? WHERE id = ?")->execute([$lid, $id]);
-                flash('Zlecenie dodane do ofert.'); redirect(P . '?a=lead&id=' . $lid);
+                flash('Zlecenie dodane do ofert.'); $go($lid);
             }
             $lid = lead_save(['name' => '', 'company' => $t['buyer'], 'source' => $t['src'] === 'bk' ? 'zapytanie' : 'przetarg', 'stage' => 'new', 'next_at' => $t['deadline'] ? date('Y-m-d', strtotime(substr($t['deadline'], 0, 10) . ' -3 days')) : today(),
                 'next_note' => 'Przygotować ofertę do przetargu' . ($t['deadline'] ? ' (termin ' . date('d.m H:i', strtotime($t['deadline'])) . ')' : ''), 'website' => $t['url'], 'notes' => $t['title'] . "\n" . $t['ref'] . ' · ' . $t['city'] . "\n" . $t['url'], 'src' => ['tender' => (int)$t['id']] + ($t['src'] === 'bk' ? ['bk' => 1] : []), 'score' => (int)$t['score']]);
             db()->prepare("UPDATE tenders SET status = 'saved', lead_id = ? WHERE id = ?")->execute([$lid, $id]);
-            flash('Przetarg dodany do ofert.'); redirect(P . '?a=lead&id=' . $lid);
+            flash($t['src'] === 'bk' ? 'Zapytanie dodane do ofert.' : 'Przetarg dodany do ofert.'); $go($lid);
         case 'lead_move':
             header('Content-Type: application/json');
             $st = (string)($_POST['st'] ?? '');
@@ -406,14 +425,22 @@ function view_leads(): never {
         foreach (TENDER_CATS as $k => $l) if ($cc[$k] || $cat === $k) $ctabs .= '<a href="' . P . '?a=leads&t=tenders&c=' . $k . '"' . ($cat === $k ? ' class="on" aria-current="true"' : '') . '>' . $l . ' <span>' . $cc[$k] . '</span></a>';
         $inLead = (int)db()->query("SELECT COUNT(*) FROM tenders WHERE lead_id IS NOT NULL AND src IN ('bzp','ted','bk')")->fetchColumn();
         $tiles = '';
+        $lazy = 0; $pn = array_flip(BK_PROV);
         foreach ($rows as $t) {
+            if (empty($t['excerpt'])) tender_summary($t, $t['src'] === 'bk' && trim((string)$t['body']) === '' && $lazy++ < 4);
             $left = $t['deadline'] ? days_between(today(), substr($t['deadline'], 0, 10)) : null;
             $dl = $t['deadline'] ? ($left === 0 ? 'Oferty dziś do ' . date('H:i', strtotime($t['deadline'])) : 'Oferty do ' . date('d.m H:i', strtotime($t['deadline'])) . ' · za ' . $left . ' ' . plural((int)$left, 'dzień', 'dni', 'dni')) : 'Bez terminu';
-            $f = fn($a, $l, $c = 'btn ghost sm') => '<form method="post" action="' . P . '?a=' . $a . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="' . $c . '">' . $l . '</button></form>';
-            $tiles .= '<article class="kcard tile" data-tile="' . P . '?a=tender&id=' . $t['id'] . '"><div class="kc-h"><span class="sc' . ($t['score'] >= 50 ? ' hi' : '') . '">' . (int)$t['score'] . '</span><span class="kc-cat c-' . $t['cat'] . '">' . TENDER_CATS[$t['cat']] . '</span><span class="kc-src" style="margin-left:auto">' . (['bk' => 'BAZA KONKUR.', 'bzp' => 'BZP', 'ted' => 'TED'][$t['src']] ?? strtoupper($t['src'])) . ($t['province'] ? ' · ' . e($t['province']) : '') . '</span></div>'
-                . '<a class="kc-t" href="' . P . '?a=tender&id=' . $t['id'] . '">' . e(tender_title((string)$t['title'])) . '</a><span class="kc-b">' . e(trim($t['buyer'] . ($t['city'] ? ', ' . $t['city'] : ''))) . '</span>'
-                . '<span class="kc-d' . ($left !== null && $left <= 3 ? ' late-t' : '') . '">' . e($dl) . '</span>'
-                . '<div class="kc-f">' . $f('tender_lead', icon('target') . ' Do ofert', 'btn sm') . '<div class="ias">' . ia('eye', 'Podgląd ogłoszenia', P . '?a=tender&id=' . $t['id']) . ia('external', 'Ogłoszenie w serwisie', (string)$t['url'], ['blank' => true]) . ia('x', 'Pomiń', '', ['post' => 'tender_hide', 'id' => $t['id']]) . '</div>' . '</div></article>';
+            $vurl = P . '?a=tender&id=' . $t['id'];
+            $ex = (string)($t['excerpt'] ?? ''); $bud = (string)($t['budget'] ?? '');
+            $tiles .= '<article class="kcard tile" data-tile="' . $vurl . '"><div class="kc-h"><span class="sc' . ($t['score'] >= 50 ? ' hi' : '') . '" title="Dopasowanie do Creative Vision (0 do 100)">' . (int)$t['score'] . '</span><span class="kc-cat c-' . $t['cat'] . '">' . TENDER_CATS[$t['cat']] . '</span>'
+                . '<span class="kc-src" style="margin-left:auto" title="' . (['bk' => 'Baza Konkurencyjności', 'bzp' => 'Biuletyn Zamówień Publicznych', 'ted' => 'TED, zamówienia unijne'][$t['src']] ?? '') . '">' . (['bk' => 'BAZA', 'bzp' => 'BZP', 'ted' => 'TED'][$t['src']] ?? strtoupper($t['src'])) . '</span></div>'
+                . '<a class="kc-t" href="' . $vurl . '">' . e(tender_title((string)$t['title'])) . '</a>'
+                . ($ex !== '' && $ex !== '-' ? '<span class="kc-x">' . e($ex) . '</span>' : '')
+                . '<span class="kc-b">' . e(trim(preg_replace('/\s+,/', ',', trim((string)$t['buyer']) . ($t['city'] ? ', ' . $t['city'] : '') . (isset($pn[$t['province']]) ? ' · ' . $pn[$t['province']] : '')))) . '</span>'
+                . '<div class="kc-m">' . ($bud !== '' ? '<span class="kc-bud">Budżet ' . e($bud) . '</span>' : '') . '<span class="kc-d' . ($left !== null && $left <= 3 ? ' late-t' : '') . '">' . e($dl) . '</span></div>'
+                . '<div class="kc-f kc-f2"><a class="btn sm" href="' . $vurl . '">' . icon('eye') . ' Zobacz</a>'
+                . '<form method="post" action="' . P . '?a=tender_quote">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="btn ghost sm">' . icon('spark') . ' Wyceń</button></form>'
+                . imore([['target', 'Do ofert', ['post' => 'tender_lead', 'id' => $t['id']]], ['external', 'Ogłoszenie w serwisie', (string)$t['url'], ['blank' => true]], ['x', 'Ignoruj', ['post' => 'tender_hide', 'id' => $t['id']], ['danger' => true]]]) . '</div></article>';
         }
         $at = setting('tender_at');
         $body .= '<section class="card"><nav class="tabs">' . $tabs . '</nav><div class="hrow pad" style="flex-wrap:wrap"><span class="mut" style="font-size:14px">Przetargi z BZP i TED oraz zapytania ofertowe firm z Bazy Konkurencyjności (zawsze z e-mailem do kontaktu) na strony, portale, sklepy, aplikacje i grafikę, od najlepiej dopasowanych. Te, które bierzemy, dodaj do ofert' . ($inLead ? ' (już w ofertach: ' . $inLead . ')' : '') . '. Sprawdzamy codziennie rano' . ($at ? ', ostatnio ' . e(date('d.m H:i', strtotime($at))) : '') . '.</span>'
@@ -490,15 +517,18 @@ function view_tender(int $id): never {
     if (job_is($t)) view_job($t, $body);
     $left = $t['deadline'] ? days_between(today(), substr($t['deadline'], 0, 10)) : null;
     $f = fn($a, $l, $c = 'btn') => '<form method="post" action="' . P . '?a=' . $a . '">' . csrf_field() . '<input type="hidden" name="id" value="' . $t['id'] . '"><button class="' . $c . '" style="width:100%">' . $l . '</button></form>';
-    $acts = ($t['lead_id'] ? '<a class="btn" href="' . P . '?a=lead&id=' . $t['lead_id'] . '">Szansa w ofertach ' . icon('arrow') . '</a>' . (ai_enabled() ? '<a class="btn ghost" href="' . P . '?a=quote_new&lead=' . $t['lead_id'] . '&ai=1">' . icon('spark') . ' Przygotuj wycenę z AI</a>' : '') : $f('tender_lead', icon('target') . ' Do ofert'))
-        . '<a class="btn ghost" href="' . e($t['url']) . '" target="_blank" rel="noopener">Otwórz ogłoszenie ' . (['bk' => 'BAZA KONKUR.', 'bzp' => 'BZP', 'ted' => 'TED'][$t['src']] ?? strtoupper($t['src'])) . ' ↗</a>';
-    $kv = '<div class="kv"><div><span>Zamawiający</span><span>' . e($t['buyer']) . '</span></div><div><span>Miejscowość</span><span>' . e($t['city'] . ($t['province'] ? ' · ' . $t['province'] : '')) . '</span></div>'
+    $acts = $f('tender_quote', icon('spark') . ' Wyceń' . (ai_enabled() ? ' z AI' : ''))
+        . ($t['lead_id'] ? '<a class="btn ghost" href="' . P . '?a=lead&id=' . $t['lead_id'] . '">Szansa w ofertach ' . icon('arrow') . '</a>' : $f('tender_lead', icon('target') . ' Do ofert', 'btn ghost'))
+        . '<a class="btn ghost" href="' . e($t['url']) . '" target="_blank" rel="noopener">Otwórz ogłoszenie ' . (['bk' => 'w Bazie Konkurencyjności', 'bzp' => 'w BZP', 'ted' => 'w TED'][$t['src']] ?? '') . ' ↗</a>'
+        . ($t['status'] !== 'hidden' && !$t['lead_id'] ? $f('tender_hide', icon('x') . ' Ignoruj', 'btn ghost ignore') : '');
+    $t['body'] = $body; tender_summary($t);
+    $kv = '<div class="kv">' . (!empty($t['budget']) ? '<div><span>Budżet</span><span><b style="font-weight:500">' . e((string)$t['budget']) . '</b></span></div>' : '<div><span>Budżet</span><span class="mut">nie podano</span></div>') . '<div><span>Zamawiający</span><span>' . e($t['buyer']) . '</span></div><div><span>Miejscowość</span><span>' . e($t['city'] . ($t['province'] ? ' · ' . $t['province'] : '')) . '</span></div>'
         . (!empty($t['nip']) ? '<div><span>NIP</span><span>' . e($t['nip']) . '</span></div>' : '') . '<div><span>Numer</span><span>' . e($t['ref']) . '</span></div><div><span>Opublikowano</span><span>' . e(pl_date($t['published'])) . '</span></div><div><span>CPV</span><span style="text-align:right">' . e(mb_strimwidth((string)$t['cpv'], 0, 160, '…')) . '</span></div></div>';
     $hero = '<div class="ihero"><span class="ik">' . e(TENDER_CATS[tender_cat((string)$t['title'], (string)$t['cpv'])]) . ' · dopasowanie ' . (int)$t['score'] . '/100</span><span class="iv" style="font-size:22px;line-height:1.3">' . e(tender_title((string)$t['title'])) . '</span>'
-        . '<span class="is"><span class="' . ($left !== null && $left <= 3 ? 'late-t' : 'mut') . '">' . ($t['deadline'] ? 'Oferty do ' . e(date('d.m.Y H:i', strtotime($t['deadline']))) . ($left !== null ? ' (' . ($left > 0 ? 'za ' . $left . ' ' . plural($left, 'dzień', 'dni', 'dni') : ($left === 0 ? 'dziś' : 'po terminie')) . ')' : '') : 'Bez terminu') . '</span></span></div>';
+        . '<span class="is"><span class="' . ($left !== null && $left <= 3 ? 'late-t' : 'mut') . '">' . ($t['deadline'] ? 'Oferty do ' . e(date('d.m.Y H:i', strtotime($t['deadline']))) . ($left !== null ? ' (' . ($left > 0 ? 'za ' . $left . ' ' . plural($left, 'dzień', 'dni', 'dni') : ($left === 0 ? 'dziś' : 'po terminie')) . ')' : '') : 'Bez terminu') . '</span></span>' . (!empty($t['excerpt']) && $t['excerpt'] !== '-' ? '<span class="is" style="margin-top:10px;line-height:1.5">' . e((string)$t['excerpt']) . '</span>' : '') . '</div>';
     $body = '<div class="cols"><div class="wide"><section class="card pad sec"><h2>Treść ogłoszenia</h2>' . ($body !== '' ? '<div class="mtext tbody">' . nl2br(e($body)) . '</div>' : '<span class="mut">Nie udało się pobrać treści. Otwórz ogłoszenie w serwisie.</span>') . '</section></div>'
         . '<aside class="side"><div class="card pad sec">' . $hero . '<div class="acts-col">' . $acts . '</div>' . $kv . '</div></aside></div>';
     $GLOBALS['back'] = [P . '?a=leads&t=tenders', 'Przetargi']; $GLOBALS['pgcls'] = 'pg-inv';
-    page('Przetarg', 'leads', $body, $t['buyer']);
+    page($t['src'] === 'bk' ? 'Zapytanie ofertowe' : 'Przetarg', 'leads', $body, $t['buyer']);
 }
 require_once __DIR__ . '/jobs.php';

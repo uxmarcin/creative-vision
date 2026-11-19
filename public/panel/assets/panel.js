@@ -233,14 +233,14 @@
   document.addEventListener('click', function (e) { $$('details.imenu[open]').forEach(function (d) { if (!d.contains(e.target)) d.removeAttribute('open'); }); });
   document.addEventListener('toggle', function (e) {
     var d = e.target; if (!d.classList || !d.classList.contains('imenu') || !d.open) return;
-    $$('details.imenu[open]').forEach(function (x) { if (x !== d) x.removeAttribute('open'); });
+    $$('details.imenu[open]').forEach(function (x) { if (x !== d) x.removeAttribute('open'); }); window.__imAt = Date.now();
     var l = $('.imenu-l', d), r = $('summary', d).getBoundingClientRect();
     l.style.position = 'fixed'; l.style.right = 'auto'; l.style.bottom = 'auto';
     var w = l.offsetWidth, h = l.offsetHeight, top = r.bottom + 4;
     if (top + h > window.innerHeight - 80) top = Math.max(8, r.top - h - 4);
     l.style.top = top + 'px'; l.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.right - w)) + 'px';
   }, true);
-  window.addEventListener('scroll', function () { $$('details.imenu[open]').forEach(function (x) { x.removeAttribute('open'); }); }, { passive: true });
+  window.addEventListener('scroll', function () { if (Date.now() - (window.__imAt || 0) < 500) return; $$('details.imenu[open]').forEach(function (x) { x.removeAttribute('open'); }); }, { passive: true });
 
   // potwierdzenie przed wysyłką maila do klienta
   var cdlg = document.createElement('dialog'); cdlg.className = 'mdlg plus';

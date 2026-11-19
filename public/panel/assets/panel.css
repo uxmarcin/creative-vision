@@ -622,3 +622,7 @@ ul.pts{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;fon
 .sendov .so-s{display:block;border:0!important;background:none!important;padding:0!important;height:auto!important;width:auto}
 
 .kcard.tile[data-tile]{cursor:pointer;transition:border-color .2s,box-shadow .2s}.kcard.tile[data-tile]:hover{border-color:#CFCBC3;box-shadow:0 6px 18px rgba(11,11,11,.06)}.kcard.tile a.kc-t:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.kc-f2{gap:8px;flex-wrap:nowrap}.kc-f2 form{margin:0}.kc-f2 .btn{white-space:nowrap}.kc-f2 .imenu{margin-left:auto}
+.kc-bud{display:inline-flex;align-items:center;height:26px;padding:0 9px;font-size:12.5px;font-weight:500;color:var(--ink);background:#F4F1EC;white-space:nowrap}
+.acts-col .ignore{color:var(--mut)}
+.kc-m{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px}
