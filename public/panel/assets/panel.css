@@ -950,21 +950,23 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 .months a{flex:1 1 0;min-width:46px}.months a.yr{flex:0 0 auto}
 
 /* potwierdzenia przelewów w paczce dla księgowej */
-.att-l{display:flex;flex-direction:column;gap:10px}
-.att{display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid var(--line)}
-.att.req{border-color:#E8B4B0;background:#FFF8F7}
-.att.has{background:#F4F4F5}
-.att-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;font-size:14px}.att-h b{font-weight:500}
-.att-c{flex:none;display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:2px 8px;background:#fff;border:1px solid var(--line);color:var(--mut)}
-.att.req .att-c{color:var(--red);border-color:#E8B4B0}.att.has .att-c{color:var(--green);border-color:transparent}
-.att-c svg.ic{width:14px;height:14px}
-.att-s{font-size:13px;color:var(--mut)}
-.att-f{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}.att-f a{display:inline-flex;align-items:center;gap:6px;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.att-f form{margin:0}.att-up{cursor:pointer;align-self:flex-start}
-.att{background:#fff;align-items:stretch}.att.has{background:#F4F4F5}.att.req{background:#FFF8F7}
-.att form{display:block;margin:0;padding:0;background:none;border:0}
-.att-f{justify-content:flex-start}.att-f a{flex:1}
-.att .att-up{display:inline-flex;width:auto}
+.att-l .att-l{display:flex;flex-direction:column;gap:10px}
+.att-l .att{display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid var(--line)}
+.att-l .att.req{border-color:#E8B4B0;background:#FFF8F7}
+.att-l .att.has{background:#F4F4F5}
+.att-l .att-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;font-size:14px}.att-l .att-h b{font-weight:500}
+.att-l .att-c{flex:none;display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:2px 8px;background:#fff;border:1px solid var(--line);color:var(--mut)}
+.att-l .att.req .att-c{color:var(--red);border-color:#E8B4B0}.att-l .att.has .att-c{color:var(--green);border-color:transparent}
+.att-l .att-c svg.ic{width:14px;height:14px}
+.att-l .att-s{font-size:13px;color:var(--mut)}
+.att-l .att-f{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}.att-l .att-f a{display:inline-flex;align-items:center;gap:6px;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.att-l .att-f form{margin:0}.att-l .att-up{cursor:pointer;align-self:flex-start}
+.att-l .att{background:#fff;align-items:stretch}.att-l .att.has{background:#F4F4F5}.att-l .att.req{background:#FFF8F7}
+.att-l .att form{display:block;margin:0;padding:0;background:none;border:0}
+.att-l .att-f{justify-content:flex-start}.att-l .att-f a{flex:1}
+.att-l .att .att-up{display:inline-flex;width:auto}
 .att-warn{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:var(--red);line-height:1.5}.att-warn svg.ic{flex:none;margin-top:2px}
 .cman{margin-top:12px}.cman summary{display:inline-flex;align-items:center;gap:6px}.cman form{margin-top:14px;align-items:end}
 .fxt-new{animation:tickg 1.4s ease}
+
+#aibtn:disabled,#aimsg:disabled{opacity:1;background:#3A3A3A;border-color:#3A3A3A;color:#fff;cursor:wait}

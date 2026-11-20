@@ -197,7 +197,7 @@
     };
     var esc = function (t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; };
     var runAi = function () {
-      aib.disabled = true; aib.classList.add('busy'); aist.textContent = 'Układam wycenę, to potrwa kilkanaście sekund…';
+      aib.disabled = true; aib.classList.add('busy'); aib.setAttribute('aria-busy', 'true'); var lbl = [].find.call(aib.childNodes, function (n) { return n.nodeType === 3 && n.textContent.trim(); }); if (lbl) { aib.dataset.l = lbl.textContent; lbl.textContent = ' Przygotowuję wycenę…'; } aist.textContent = 'To potrwa kilkanaście sekund.';
       var f = new FormData(); f.append('csrf', document.body.getAttribute('data-csrf'));
       f.append('ctx', ($('#ai_ctx') || {}).value || ''); f.append('brief', $('#ai_brief').value); f.append('client', ($('#name') || {}).value || '');
       fetch('/panel?a=ai_quote', { method: 'POST', body: f, credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
@@ -214,7 +214,7 @@
           + (j.questions && j.questions.length ? '<span class="mut">Warto dopytać klienta:</span><ul>' + j.questions.map(function (q) { return '<li>' + esc(q) + '</li>'; }).join('') + '</ul>' : '') + '<span class="mut" style="font-size:13px">Sprawdź pozycje i ceny poniżej, popraw co trzeba i zapisz.</span>';
         aiout.hidden = false; aist.textContent = 'Gotowe. Możesz poprawić wskazówki i przygotować jeszcze raz.';
         $('#items').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }).catch(function (e) { aist.textContent = e.message; }).then(function () { aib.disabled = false; aib.classList.remove('busy'); });
+      }).catch(function (e) { aist.textContent = e.message; }).then(function () { aib.disabled = false; aib.classList.remove('busy'); aib.removeAttribute('aria-busy'); var lbl = [].find.call(aib.childNodes, function (n) { return n.nodeType === 3 && n.textContent.trim(); }); if (lbl && aib.dataset.l) lbl.textContent = aib.dataset.l; });
     };
     aib.addEventListener('click', runAi);
     if (aib.hasAttribute('data-auto')) setTimeout(runAi, 400);
