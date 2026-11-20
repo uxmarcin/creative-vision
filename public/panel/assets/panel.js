@@ -504,3 +504,17 @@ document.addEventListener('click', function (e) { var t = e.target.closest('[dat
   load(30);
   });
 })();
+
+/* kafelek kursu: odświeża się sam, gdy NBP opublikuje nową tabelę */
+(() => {
+  const tick = async () => {
+    const el = document.querySelector('.kpi.fxt'); if (!el || document.hidden) return;
+    try {
+      const r = await fetch(location.pathname + '?a=fx_tick&c=' + el.dataset.cur, {credentials: 'same-origin', cache: 'no-store'}); if (!r.ok) return;
+      const h = (await r.text()).trim(); if (!h) return;
+      const t = document.createElement('div'); t.innerHTML = h; const n = t.firstElementChild;
+      if (n && n.dataset.d !== el.dataset.d) { n.classList.add('fxt-new'); el.replaceWith(n); }
+    } catch (e) {}
+  };
+  setInterval(tick, 60000); document.addEventListener('visibilitychange', tick);
+})();

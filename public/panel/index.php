@@ -483,6 +483,8 @@ switch ($a) {
     case 'fx': session_write_close(); header('Content-Type: application/json'); header('Cache-Control: no-store'); $o = [];
         foreach (array_slice(array_unique(array_filter(explode(',', strtoupper((string)($_GET['c'] ?? ''))), fn($c) => preg_match('/^[A-Z]{3}$/', $c))), 0, 5) as $c) if ($r = nbp_rate($c)) $o[$c] = ['rate' => $r['rate'], 'date' => $r['date']];
         echo json_encode($o); exit;
+    case 'fx_tick': session_write_close(); header('Content-Type: text/html; charset=utf-8'); header('Cache-Control: no-store');
+        echo preg_match('/^[A-Z]{3}$/', (string)($_GET['c'] ?? '')) ? fx_ticker((string)$_GET['c']) : ''; exit;
     case 'fx_hist': session_write_close(); header('Content-Type: application/json'); header('Cache-Control: no-store');
         $c = strtoupper((string)($_GET['c'] ?? 'USD')); $d = in_array((int)($_GET['d'] ?? 30), [7, 30, 180, 365], true) ? (int)$_GET['d'] : 30;
         echo json_encode(preg_match('/^[A-Z]{3}$/', $c) ? nbp_hist($c, $d) : []); exit;

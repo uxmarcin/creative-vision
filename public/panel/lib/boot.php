@@ -469,17 +469,24 @@ function compensation_eur(int $cents): int { return $cents < 500000 ? 40 : ($cen
 
 // ---------- kursy NBP (tabela A, średni kurs) do podglądu kwot w złotych, tylko w panelu ----------
 /** Zwraca ['rate' => float, 'date' => 'Y-m-d'] albo null. Kurs pobieramy z api.nbp.pl najwyżej co 2 godziny. */
+/** Czy kurs z pamięci trzeba odświeżyć: NBP publikuje tabelę A w dni robocze ok. 11:45–12:15. */
+function nbp_stale(string $date, int $at): bool {
+    $age = time() - $at; $today = date('Y-m-d'); $wd = (int)date('N') <= 5; $hm = date('H:i');
+    if ($date === $today) return $age > 6 * 3600;           // dzisiejsza tabela już jest
+    if ($wd && $hm >= '11:40' && $hm <= '16:00') return $age > 120; // czekamy na dzisiejszą: co 2 min
+    return $age > 3600;
+}
 function nbp_rate(string $cur): ?array {
     $cur = strtoupper($cur); if ($cur === 'PLN' || !preg_match('/^[A-Z]{3}$/', $cur)) return null;
     static $mem = []; if (isset($mem[$cur])) return $mem[$cur];
     $c = json_decode(setting('nbp_' . $cur), true) ?: [];
-    if ((empty($c['rate']) && time() - (int)($c['fail'] ?? 0) > 1800) || (!empty($c['rate']) && time() - (int)($c['at'] ?? 0) > 7200)) {
+    if ((empty($c['rate']) && time() - (int)($c['fail'] ?? 0) > 1800) || (!empty($c['rate']) && nbp_stale((string)($c['date'] ?? ''), (int)($c['at'] ?? 0)))) {
         $ch = curl_init('https://api.nbp.pl/api/exchangerates/rates/a/' . strtolower($cur) . '/?format=json');
         curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 4, CURLOPT_CONNECTTIMEOUT => 3, CURLOPT_HTTPHEADER => ['Accept: application/json']]);
         $j = json_decode((string)curl_exec($ch), true); curl_close($ch);
         $r = $j['rates'][0] ?? null;
         if (!empty($r['mid'])) { $c = ['rate' => (float)$r['mid'], 'date' => (string)$r['effectiveDate'], 'at' => time()]; set_setting('nbp_' . $cur, json_encode($c)); }
-        elseif (!empty($c['rate'])) { $c['at'] = time() - 6000; set_setting('nbp_' . $cur, json_encode($c)); }
+        elseif (!empty($c['rate'])) { $c['at'] = time() - 60; set_setting('nbp_' . $cur, json_encode($c)); }
         else set_setting('nbp_' . $cur, json_encode(['fail' => time()]));
     }
     return $mem[$cur] = (!empty($c['rate']) ? ['rate' => (float)$c['rate'], 'date' => (string)$c['date']] : null);
@@ -496,7 +503,7 @@ function pln_hint(int $cents, ?string $cur, bool $short = false): string {
 /** Historia średniego kursu NBP z ostatnich $days dni: [[data, kurs], ...]. Cache 1 h. */
 function nbp_hist(string $cur, int $days): array {
     $k = 'nbpr_' . $cur . '_' . $days; $c = json_decode(setting($k), true) ?: [];
-    if (!empty($c['p']) && time() - (int)($c['at'] ?? 0) < 3600) return $c['p'];
+    if (!empty($c['p']) && !nbp_stale((string)end($c['p'])[0], (int)($c['at'] ?? 0))) return $c['p'];
     $ch = curl_init('https://api.nbp.pl/api/exchangerates/rates/a/' . strtolower($cur) . '/' . date('Y-m-d', strtotime('-' . $days . ' days')) . '/' . date('Y-m-d') . '/?format=json');
     curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 5, CURLOPT_CONNECTTIMEOUT => 3, CURLOPT_HTTPHEADER => ['Accept: application/json']]);
     $j = json_decode((string)curl_exec($ch), true); curl_close($ch);
@@ -513,7 +520,7 @@ function fx_ticker(string $cur): string {
     $line = 'M' . implode(' L', $pts);
     $flag = ['USD' => '🇺🇸', 'EUR' => '🇪🇺', 'GBP' => '🇬🇧'][$cur] ?? '';
     [$a, $b] = explode(',', number_format($last, 4, ',', ''));
-    return '<div class="kpi fxt ' . ($up ? 'up' : 'dn') . '" title="Średni kurs NBP z ' . e(pl_date($h[count($h) - 1][0])) . '"><span class="t">' . e($cur) . '/PLN <span class="fxt-s">NBP</span></span>'
+    return '<div class="kpi fxt ' . ($up ? 'up' : 'dn') . '" data-cur="' . e($cur) . '" data-d="' . e((string)$h[count($h) - 1][0]) . '" title=""Średni kurs NBP z ' . e(pl_date($h[count($h) - 1][0])) . '"><span class="t">' . e($cur) . '/PLN <span class="fxt-s">NBP</span></span>'
         . '<span class="v">' . $a . ',' . $b . ' <span class="gr" style="font-size:.55em">zł</span></span>'
         . '<span class="fxt-r"><span class="fxt-p">' . ($up ? '↑' : '↓') . ' ' . number_format(abs($ch), 2, ',', '') . '%</span><span class="fxt-m">1 mies.</span></span>'
         . '<svg class="fxt-g" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true"><path d="' . $line . ' L120,36 L0,36 Z" class="a"/><path d="' . $line . '" class="l"/></svg></div>';
