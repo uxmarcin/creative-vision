@@ -1357,7 +1357,7 @@ function view_inbox(): never {
     }
     krsort($hs);
     $tr = '';
-    foreach ($hs as $uid => $m) {
+    foreach ($hs as $uid => $m) { try {
         $h = $m['h']; $unseen = stripos($m['flags'], '\\Seen') === false;
         [$nm, $ad] = mail_addr((string)($box === 'INBOX' ? ($h['from'] ?? '') : ($h['to'] ?? '')));
         $subj = mime_hdr_decode((string)($h['subject'] ?? '(bez tematu)'));
@@ -1368,7 +1368,7 @@ function view_inbox(): never {
         $tr .= '<tr class="row' . ($unseen ? ' unseen' : '') . '" data-href="' . $url . '"><td class="c-chk"><input type="checkbox" name="uids[]" value="' . $uid . '" form="mdel" aria-label="Zaznacz"></td><td class="c-cli"><span' . ($unseen ? ' style="font-weight:500"' : '') . '>' . e($nm) . '</span><span class="sub">' . e($ad) . '</span></td>'
             . '<td class="c-num"><a class="mlink" href="' . $url . '"' . ($unseen ? ' style="font-weight:500"' : '') . '>' . e($subj) . '</a> ' . ($multi ? '<span class="mut" title="Załącznik">' . icon('clip') . '</span>' : '') . ' ' . inv_links($subj) . '</td>'
             . '<td class="c-amt r nw mut">' . e($when) . '</td></tr>';
-    }
+    } catch (Throwable $e) { error_log('inbox uid ' . $uid . ': ' . $e->getMessage()); $tr .= '<tr class="row" data-href="' . P . '?a=mail&box=' . urlencode($box) . '&uid=' . $uid . aq() . '"><td class="c-chk"></td><td class="c-cli" colspan="2"><a class="mlink" href="' . P . '?a=mail&box=' . urlencode($box) . '&uid=' . $uid . aq() . '">Wiadomość, której nagłówka nie udało się odczytać</a></td><td></td></tr>'; } }
     $tabs = '';
     foreach (mail_boxes() as $k => $l) $tabs .= '<a href="' . P . '?a=inbox&box=' . urlencode($k) . aq() . '"' . ($k === $box ? ' class="on"' : '') . '>' . $l . ($k === 'INBOX' && (int)setting('imap_unseen') ? ' <span>' . (int)setting('imap_unseen') . '</span>' : '') . '</a>';
     $pages = $total > $per ? '<div class="hrow pad" style="justify-content:flex-end;gap:16px">' . ($pg > 1 ? '<a class="link" href="' . P . '?a=inbox&box=' . urlencode($box) . aq() . '&p=' . ($pg - 1) . '">Nowsze</a>' : '') . '<span class="mut" style="font-size:13px">' . (($pg - 1) * $per + 1) . '–' . min($total, $pg * $per) . ' z ' . $total . '</span>' . ($pg * $per < $total ? '<a class="link" href="' . P . '?a=inbox&box=' . urlencode($box) . aq() . '&p=' . ($pg + 1) . '">Starsze</a>' : '') . '</div>' : '';

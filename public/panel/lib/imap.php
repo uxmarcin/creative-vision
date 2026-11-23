@@ -136,8 +136,10 @@ function mime_decode_body(string $body, string $enc, string $charset): string {
 function mime_to_utf8(string $s, ?string $cs): string {
     $cs = strtoupper(trim((string)$cs, " \"'"));
     if ($cs === '' || $cs === 'UTF-8' || $cs === 'US-ASCII') return mb_check_encoding($s, 'UTF-8') ? $s : mb_convert_encoding($s, 'UTF-8', 'ISO-8859-2');
-    $c = @mb_convert_encoding($s, 'UTF-8', $cs === 'WINDOWS-1250' ? 'Windows-1250' : $cs);
-    return is_string($c) ? $c : $s;
+    // mbstring nie zna m.in. Windows-1250 i rzuca ValueError, więc najpierw iconv, potem mbstring, na końcu ISO-8859-2.
+    if (function_exists('iconv')) { $c = @iconv($cs, 'UTF-8//IGNORE', $s); if (is_string($c) && $c !== '') return $c; }
+    try { $c = mb_convert_encoding($s, 'UTF-8', $cs); if (is_string($c)) return $c; } catch (Throwable) {}
+    return mb_check_encoding($s, 'UTF-8') ? $s : mb_convert_encoding($s, 'UTF-8', 'ISO-8859-2');
 }
 /** Rozbiera wiadomość: ['h' => nagłówki, 'text' => ..., 'html' => ..., 'att' => [[name, type, data]]] */
 function mime_parse(string $raw): array {
