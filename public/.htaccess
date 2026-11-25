@@ -27,8 +27,8 @@ ErrorDocument 404 /404.html
   RewriteRule ^f/([A-Za-z0-9]{24,64})$ /panel/f.php?t=$1 [L,QSA]
 
   # Zmiana nazw podstron (2026-10): stałe przekierowania
-  RewriteRule ^uslugi/sklep-prestashop/?$ /uslugi/sklepy-internetowe [L,R=301]
-  RewriteRule ^agencja-prestashop/?$ /agencja-ecommerce [L,R=301]
+  RewriteRule ^uslugi/sklep-prestashop/?$ /uslugi/sklepy-prestashop [L,R=301]
+  RewriteRule ^agencja-prestashop/?$ /uslugi/sklepy-prestashop [L,R=301]
   RewriteRule ^realizacje/simrun/?$ /realizacje [L,R=301]
   RewriteRule ^realizacje/uxaudyt/?$ /realizacje [L,R=301]
 
