@@ -1,11 +1,35 @@
 name: Powiadomienia o mailach
+
+# Harmonogram GitHuba potrafi odpalać się raz na kilka godzin zamiast co 5 minut,
+# dlatego jedno uruchomienie sprawdza pocztę co minutę przez ok. 5,5 godziny,
+# a na końcu samo startuje następne. Harmonogram zostaje jako zabezpieczenie, gdyby łańcuch się przerwał.
+
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "17 * * * *"
   workflow_dispatch:
+
+permissions:
+  actions: write
+
+concurrency:
+  group: panel-mail
+  cancel-in-progress: false
+
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 350
     steps:
-      - run: curl -s -m 60 "https://creative-vision.pl/panel/cron.php?mail=1" || true
+      - name: Sprawdzaj pocztę co minutę
+        run: |
+          end=$((SECONDS + 19800))
+          while [ $SECONDS -lt $end ]; do
+            curl -s -m 45 -o /dev/null "https://creative-vision.pl/panel/cron.php?mail=1" || true
+            sleep 60
+          done
+      - name: Uruchom następną zmianę
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run panel-mail.yml --repo "${{ github.repository }}" --ref main || true
