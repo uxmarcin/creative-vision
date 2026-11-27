@@ -626,9 +626,9 @@ function save_invoice(?int $id, array $p, string $act): array {
         $inv = invoice_by_id($id);
         if (send_invoice_mail($inv, 'new')) {
             db()->prepare('UPDATE invoices SET sent_at = COALESCE(sent_at, ?) WHERE id = ?')->execute([now(), $id]);
-            flash('Faktura ' . $inv['number'] . ' wystawiona i wysłana do ' . $buyer['email'] . '.' . $kmsg);
+            flash('Faktura ' . $inv['number'] . ($old && $old['status'] !== 'draft' ? ' zapisana i wysłana ponownie do ' : ' wystawiona i wysłana do ') . $buyer['email'] . '.' . $kmsg);
         } else flash('!Faktura wystawiona, ale maila nie udało się wysłać. Spróbuj przyciskiem „Wyślij”.');
-    } elseif ($act === 'issue') flash('Faktura wystawiona.' . $kmsg);
+    } elseif ($act === 'issue') flash(($old && $old['status'] !== 'draft' ? 'Zmiany w fakturze zapisane. Wyślij ją klientowi ponownie, żeby miał aktualną wersję.' : 'Faktura wystawiona.') . $kmsg);
     else flash('Szkic zapisany.');
     return [$id, null];
 }
