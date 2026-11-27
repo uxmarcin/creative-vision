@@ -972,3 +972,5 @@ html.loading .main{opacity:.55;transition:opacity .25s .15s}
 #aibtn:disabled,#aimsg:disabled{opacity:1;background:#3A3A3A;border-color:#3A3A3A;color:#fff;cursor:wait}
 .editw{display:flex;gap:10px;align-items:flex-start;background:#F4F4F5;padding:14px 18px;margin:0 0 18px;font-size:14px;line-height:1.45}
 .editw svg{flex:0 0 18px;width:18px;height:18px;margin-top:1px}
+.ia.off{color:var(--red)}
+.ia.off:hover{color:var(--red)}

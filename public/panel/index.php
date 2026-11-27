@@ -300,7 +300,9 @@ if ($post) {
             $on = !empty($_POST['on']) ? 1 : 0;
             db()->prepare('UPDATE invoices SET reminders = ?, updated = ? WHERE id = ?')->execute([$on, now(), $id]);
             log_event($id, 'edit', $on ? 'Automatyczne przypomnienia włączone' : 'Automatyczne przypomnienia wyłączone');
-            redirect(P . '?a=view&id=' . $id);
+            flash($on ? 'Przypomnienia i wezwania do zapłaty włączone dla tej faktury.' : 'Wyłączone. Do tej faktury nie wyślemy już przypomnień ani wezwań do zapłaty.');
+            $back = (string)($_POST['back'] ?? '');
+            redirect(str_starts_with($back, P . '?a=list') ? $back : P . '?a=view&id=' . $id);
         case 'client_save':
             $c = client_from($_POST);
             if ($c['name'] === '') { flash('!Podaj nazwę klienta.'); redirect(P . '?a=clients'); }
@@ -752,6 +754,7 @@ function icon(string $n): string {
         'reply' => '<polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/>',
         'trophy' => '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
         'bell' => '<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>',
+        'bell-off' => '<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742"/><path d="m2 2 20 20"/><path d="M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05"/>',
         'banknote' => '<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
         'undo' => '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>',
         'clip' => '<path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>',
@@ -759,6 +762,14 @@ function icon(string $n): string {
     return '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $p . '</svg>';
 }
 /** Akcja jako ikona: link albo przycisk w formularzu POST. $o: ['post' => akcja, 'id' => …, 'extra' => html, 'confirm' => tekst, 'cls' => '', 'blank' => bool, 'data' => attrs] */
+/** Dzwonek: włącza/wyłącza przypomnienia i wezwania dla jednej faktury (tylko wystawione, nieopłacone). */
+function bell(array $inv, string $back = ''): string {
+    if ($inv['status'] !== 'issued' || !empty($inv['proforma'])) return '';
+    $on = !empty($inv['reminders']);
+    return ia($on ? 'bell' : 'bell-off', $on ? 'Przypomnienia włączone. Kliknij, żeby nie wysyłać przypomnień i wezwań do zapłaty' : 'Przypomnienia wyłączone. Kliknij, żeby je włączyć', '',
+        ['post' => 'auto', 'id' => (int)$inv['id'], 'cls' => $on ? '' : 'off', 'extra' => ($on ? '' : '<input type="hidden" name="on" value="1">') . ($back !== '' ? '<input type="hidden" name="back" value="' . e($back) . '">' : '')]);
+}
+
 function ia(string $ic, string $label, string $href = '', array $o = []): string {
     $cls = 'ia' . (!empty($o['cls']) ? ' ' . $o['cls'] : '');
     if (!empty($o['post'])) return '<form method="post" action="' . P . '?a=' . $o['post'] . '" class="iaf">' . csrf_field() . (isset($o['id']) ? '<input type="hidden" name="id" value="' . (int)$o['id'] . '">' : '') . ($o['extra'] ?? '')
@@ -931,7 +942,7 @@ function view_list(): never {
             . '<td class="c-due nw">' . e(pl_date($i['due_date'])) . '<span class="sub ' . $wc . '">' . e($w) . '</span></td>'
             . '<td class="c-amt r amt">' . money((int)$i['gross'], $i['currency'] ?? 'PLN') . pln_hint((int)$i['gross'], $i['currency'] ?? 'PLN', true) . '</td>'
             . '<td class="c-st nw">' . state_chip($i) . '</td>'
-            . '<td class="c-act r nw"><div class="ias">' . ia('eye', 'Podgląd faktury', $url)
+            . '<td class="c-act r nw"><div class="ias">' . bell($i, $_SERVER['REQUEST_URI'] ?? '') . ia('eye', 'Podgląd faktury', $url)
             . ($i['status'] !== 'draft' ? ia('download', 'Pobierz PDF', P . '?a=pdf&id=' . $i['id'] . '&dl=1') : ia('pencil', 'Dokończ szkic', P . '?a=edit&id=' . $i['id']))
             . imore(array_values(array_filter([
                 $i['status'] !== 'draft' ? ['external', 'Faktura online', pay_url($i), ['blank' => true]] : null,
@@ -1099,7 +1110,7 @@ function view_invoice(array $inv): never {
     }
     $tools = '';
     if ($inv['status'] !== 'draft') {
-        $tools = '<div class="ias tb">' . ia('eye', 'Podgląd PDF', P . '?a=pdf&id=' . $id, ['blank' => true]) . ia('download', 'Pobierz PDF', P . '?a=pdf&id=' . $id . '&dl=1')
+        $tools = '<div class="ias tb">' . bell($inv) . ia('eye', 'Podgląd PDF', P . '?a=pdf&id=' . $id, ['blank' => true]) . ia('download', 'Pobierz PDF', P . '?a=pdf&id=' . $id . '&dl=1')
             . ia('link', 'Kopiuj link dla klienta', '', ['data' => ' data-copy="' . e(pay_url($inv)) . '"'])
             . (can_edit($inv) ? ia('pencil', 'Edytuj', P . '?a=edit&id=' . $id) : '')
             . ia('refresh', 'Wystaw ponownie', '', ['post' => 'duplicate', 'id' => $id])
